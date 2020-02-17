@@ -44,13 +44,29 @@ LaneAggregatingEvaluator::LaneAggregatingEvaluator() : device_(torch::kCPU) {
 }
 
 void LaneAggregatingEvaluator::LoadModel() {
+  std::thread::id this_id = std::this_thread::get_id();
+  std::cout << "(pengzi) prediction evaluator " << this_id << " using model \n";
+  ADEBUG << "(pengzi) prediction lane aggregating evaluator." ;
+
   torch::set_num_threads(1);
   torch_obstacle_encoding_ptr_ = torch::jit::load(
       FLAGS_torch_lane_aggregating_obstacle_encoding_file, device_);
+
+  ADEBUG << "(pengzi)load online obatacle encoding model:" <<FLAGS_torch_lane_aggregating_obstacle_encoding_file <<". thread:"<< this_id <<" .";
+
   torch_lane_encoding_ptr_ = torch::jit::load(
       FLAGS_torch_lane_aggregating_lane_encoding_file, device_);
+
+  ADEBUG << "(pengzi)load online lane encoding model:" << FLAGS_torch_lane_aggregating_lane_encoding_file <<". thread:"<< this_id <<" .";
+
   torch_prediction_layer_ptr_ = torch::jit::load(
       FLAGS_torch_lane_aggregating_prediction_layer_file, device_);
+
+ADEBUG  << "(pengzi) load online lane aggregating prediction layer"<< FLAGS_torch_lane_aggregating_prediction_layer_file
+    <<".Thread:" << this_id << ".";
+
+ 
+
 }
 
 bool LaneAggregatingEvaluator::Evaluate(Obstacle* obstacle_ptr) {

@@ -432,6 +432,14 @@ void LaneScanningEvaluator::LoadModel() {
   torch::set_num_threads(1);
   torch_lane_scanning_model_ptr_ =
       torch::jit::load(FLAGS_torch_vehicle_lane_scanning_file, device_);
+
+ std::thread::id this_id = std::this_thread::get_id();
+ std::cout << "(pengzi) prediction evaluator " << this_id << " using model \n";
+ADEBUG << "(pengzi) prediction evaluator load lane_scanning_vehicle_model.pt. ModelName:" <<FLAGS_torch_vehicle_lane_scanning_file
+    << ". Thread:" << this_id << " .";
+
+
+
 }
 
 void LaneScanningEvaluator::ModelInference(

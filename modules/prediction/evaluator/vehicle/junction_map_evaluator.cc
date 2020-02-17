@@ -184,6 +184,11 @@ void JunctionMapEvaluator::LoadModel() {
   torch::set_num_threads(1);
   torch_model_ptr_ =
       torch::jit::load(FLAGS_torch_vehicle_junction_map_file, device_);
+
+      std::thread::id this_id = std::this_thread::get_id();
+      std::cout << "(pengzi) prediction " << this_id << " load map \n";
+      ADEBUG << "(pengzi)load prediction Map :" << FLAGS_torch_vehicle_junction_map_file 
+             << ". Threads: " << this_id ;
 }
 
 }  // namespace prediction

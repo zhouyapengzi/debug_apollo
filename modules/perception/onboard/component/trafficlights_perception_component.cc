@@ -82,9 +82,11 @@ static int GetGpuId(
 }
 
 bool TrafficLightsPerceptionComponent::Init() {
-  writer_ = node_->CreateWriter<apollo::perception::TrafficLightDetection>(
+  writer_ = node_->   <apollo::perception::TrafficLightDetection>(
       "/apollo/perception/traffic_light");
 
+  ADEBUG << "(pengzi) create TrafficLightDetection topic ";
+  
   if (InitConfig() != cyber::SUCC) {
     AERROR << "TrafficLightsPerceptionComponent InitConfig failed.";
     return false;
@@ -161,6 +163,11 @@ int TrafficLightsPerceptionComponent::InitConfig() {
       traffic_light_param.camera_traffic_light_perception_conf_dir();
   camera_perception_init_options_.conf_file =
       traffic_light_param.camera_traffic_light_perception_conf_file();
+
+  std::thread::id this_id = std::this_thread::get_id();
+  std::cout << "thread " << this_id << " try to load model for traffic light...\n";
+  ADEBUG<<"(pengzi) init camera perception. load model from "<<  traffic_light_param.camera_traffic_light_perception_conf_file()<<". thread:" << this_id <<".";
+
   default_image_border_size_ = traffic_light_param.default_image_border_size();
 
   simulation_channel_name_ = traffic_light_param.simulation_channel_name();
@@ -179,12 +186,14 @@ int TrafficLightsPerceptionComponent::InitConfig() {
 int TrafficLightsPerceptionComponent::InitAlgorithmPlugin() {
   // init preprocessor
   preprocessor_.reset(new camera::TLPreprocessor);
+  ADEBUG << "(pengzi) New preprocessor for trafficlights perception component";
   if (!preprocessor_) {
     AERROR << "TrafficLightsPerceptionComponent new preprocessor failed";
     return cyber::FAIL;
   }
 
   preprocessor_init_options_.camera_names = camera_names_;
+  ADEBUG << "(pengzi) Init preprocessor for trafficlights perception component";
   if (!preprocessor_->Init(preprocessor_init_options_)) {
     AERROR << "TrafficLightsPerceptionComponent init preprocessor failed";
     return cyber::FAIL;
@@ -408,6 +417,7 @@ void TrafficLightsPerceptionComponent::OnReceiveImage(
   last_proc_image_ts_ = lib::TimeUtil::GetCurrentTime();
 
   AINFO << "start proc.";
+  ADEBUG << "(pengzi) Begin traffic light perception pipeline";
   traffic_light_pipeline_->Perception(camera_perception_options_, &frame_);
 
   const auto traffic_lights_perception_time =

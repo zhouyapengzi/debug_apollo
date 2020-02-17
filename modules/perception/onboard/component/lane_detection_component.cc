@@ -629,7 +629,8 @@ int LaneDetectionComponent::InternalProc(
   // Run camera perception pipeline
   camera_lane_pipeline_->GetCalibrationService(
       &camera_frame.calibration_service);
-
+  
+  ADEBUG <<"Begin camera lane perception";
   if (!camera_lane_pipeline_->Perception(camera_perception_options_,
                                          &camera_frame)) {
     AERROR << "camera_lane_pipeline_->Perception() failed"
