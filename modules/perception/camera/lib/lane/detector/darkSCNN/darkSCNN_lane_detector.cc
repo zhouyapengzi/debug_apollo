@@ -167,6 +167,9 @@ bool DarkSCNNLaneDetector::Init(const LaneDetectorInitOptions &options) {
 
 bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
                                   CameraFrame *frame) {
+
+  AINFO << "(pengzi) Begin Lane detector by darkscnn model";
+
   if (frame == nullptr) {
     AINFO << "camera frame is empty.";
     return false;
@@ -183,6 +186,7 @@ bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
 
   // use data provider to crop input image
   CHECK(data_provider->GetImage(data_provider_image_option_, &image_src_));
+  AINFO<<"(pengzi) get image:" << &image_src_.<<".thread:"<< std::this_thread::get_id();
 
   //  bottom 0 is data
   auto input_blob = cnnadapter_lane_->get_blob(net_inputs_[0]);
@@ -208,6 +212,8 @@ bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
   cudaDeviceSynchronize();
   cnnadapter_lane_->Infer();
   ADEBUG << "infer finish.";
+
+  AINFO << "(pengzi) finish Lane detect by darkscnn model.thread:"<< std::this_thread::get_id();
 
   auto elapsed_1 = std::chrono::high_resolution_clock::now() - start;
   int64_t microseconds_1 =

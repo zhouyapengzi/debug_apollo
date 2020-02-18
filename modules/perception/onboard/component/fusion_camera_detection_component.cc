@@ -337,7 +337,12 @@ int FusionCameraDetectionComponent::InitConfig() {
     return false;
   }
 
+  AINFO<< "(pengzi) Init FusionCameraDetection" <<".thread:"<< std::this_thread::get_id();
+
   std::string camera_names_str = fusion_camera_detection_param.camera_names();
+  
+  AINFO<< "(pengzi) Init FusionCameraDetection. camera:"<<camera_names_str<<".thread:"<< std::this_thread::get_id();
+
   boost::algorithm::split(camera_names_, camera_names_str,
                           boost::algorithm::is_any_of(","));
   if (camera_names_.size() != 2) {
@@ -360,6 +365,11 @@ int FusionCameraDetectionComponent::InitConfig() {
       fusion_camera_detection_param.camera_obstacle_perception_conf_dir();
   camera_perception_init_options_.conf_file =
       fusion_camera_detection_param.camera_obstacle_perception_conf_file();
+      
+  AINFO<<"(pengzi)load camera obstacle perception conf_file: "
+        << camera_perception_init_options_.conf_file()
+        <<" rootdir:" <<camera_perception_init_options_.root_dir;
+
   camera_perception_init_options_.lane_calibration_working_sensor_name =
       fusion_camera_detection_param.lane_calibration_working_sensor_name();
   camera_perception_init_options_.use_cyber_work_root = true;
@@ -710,6 +720,7 @@ int FusionCameraDetectionComponent::InternalProc(
 
   ++frame_id_;
   // Run camera perception pipeline
+  AINFO<<"(pengzi) begin camera perception. thread:"<< std::this_thread::get_id();
   camera_obstacle_pipeline_->GetCalibrationService(
       &camera_frame.calibration_service);
 
@@ -725,6 +736,12 @@ int FusionCameraDetectionComponent::InternalProc(
         << camera_frame.calibration_service->QueryPitchAngle()
         << " | camera_grond_height "
         << camera_frame.calibration_service->QueryCameraToGroundHeight();
+
+   AINFO << "(pengzi)##" << camera_name << ": pitch "
+        << camera_frame.calibration_service->QueryPitchAngle()
+        << " | camera_grond_height "
+        << camera_frame.calibration_service->QueryCameraToGroundHeight();
+
   prefused_message->frame_->objects = camera_frame.tracked_objects;
   // TODO(gaohan02, wanji): check the boxes with 0-width in perception-camera
   prefused_message->frame_->objects.clear();

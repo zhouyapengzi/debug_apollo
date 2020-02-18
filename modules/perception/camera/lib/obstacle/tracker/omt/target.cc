@@ -103,6 +103,7 @@ void Target::Init(const omt::TargetParam &param) {
 Target::Target(const omt::TargetParam &param) { Init(param); }
 
 void Target::Predict(CameraFrame *frame) {
+  AINFO<<"(pengzi) predict target. thread:"<< std::this_thread::get_id();
   auto delta_t =
       static_cast<float>(frame->timestamp - latest_object->timestamp);
   if (delta_t < 0) {
@@ -125,6 +126,8 @@ void Target::Predict(CameraFrame *frame) {
   world_center_const.process_noise_(1, 1) =
       world_center_const.process_noise_(0, 0);
   world_center_const.Predict(delta_t);
+
+  AINFO<<"(pengzi)finish predict target. thread:"<< std::this_thread::get_id();
 }
 
 void Target::Update2D(CameraFrame *frame) {

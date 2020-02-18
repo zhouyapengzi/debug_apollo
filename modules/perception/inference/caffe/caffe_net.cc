@@ -102,6 +102,7 @@ bool CaffeNet::reshape() {
 }
 
 void CaffeNet::Infer() {
+  AINFO << "(pengzi)begin Caffe net infer. thread:" << std::this_thread::get_id();
   if (gpu_id_ >= 0) {
     caffe::Caffe::SetDevice(gpu_id_);
     caffe::Caffe::set_mode(caffe::Caffe::GPU);
@@ -130,6 +131,7 @@ void CaffeNet::Infer() {
                  caffe_blob->count() * sizeof(float), cudaMemcpyDeviceToDevice);
     }
   }
+  AINFO << "(pengzi)finish Caffe net infer. thread:" << std::this_thread::get_id();
 }
 
 bool CaffeNet::shape(const std::string &name, std::vector<int> *res) {

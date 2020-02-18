@@ -294,11 +294,13 @@ void ProjectBox(const base::BBox2DF &box_origin,
 
 bool OMTObstacleTracker::Predict(const ObstacleTrackerOptions &options,
                                  CameraFrame *frame) {
+  AINFO<<"(pengzi) begin camera omto obstacle tracker predict.thread:"<< std::this_thread::get_id();
   for (auto &target : targets_) {
     target.Predict(frame);
     auto obj = target.latest_object;
     frame->proposed_objects.push_back(obj->object);
   }
+  AINFO<<"(pengzi) finish camera omto obstacle tracker predict.thread:"<< std::this_thread::get_id();
   return true;
 }
 
@@ -483,6 +485,7 @@ bool OMTObstacleTracker::Track(const ObstacleTrackerOptions &options,
 }
 
 REGISTER_OBSTACLE_TRACKER(OMTObstacleTracker);
+AINFO<<"(pengzi) register omto obstacle tracker to obstacle_tracker. thread:"<< std::this_thread::get_id();
 }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

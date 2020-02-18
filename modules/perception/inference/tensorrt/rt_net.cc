@@ -727,6 +727,7 @@ RTNet::~RTNet() {
 }
 
 void RTNet::Infer() {
+  AINFO << "(pengzi)begin RT net infer. thread:" << std::this_thread::get_id();
   BASE_CUDA_CHECK(cudaSetDevice(gpu_id_));
   BASE_CUDA_CHECK(cudaStreamSynchronize(stream_));
   for (auto name : input_names_) {
@@ -756,6 +757,7 @@ void RTNet::Infer() {
       blob->mutable_gpu_data();
     }
   }
+  AINFO << "(pengzi)finish RT net infer. thread:" << std::this_thread::get_id();
 }
 std::shared_ptr<apollo::perception::base::Blob<float>> RTNet::get_blob(
     const std::string &name) {

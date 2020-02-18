@@ -94,7 +94,10 @@ bool TrafficLightCameraPerception::Perception(
   PERCEPTION_PERF_BLOCK_START();
   TrafficLightDetectorOptions detector_options;
 
-ADEBUG << "(pengzi) begin detect traffic light.";
+  std::thread::id this_id = std::this_thread::get_id();
+	std::cout << "(pengzi) detect traffic light thread: " << this_id << " . \n";
+  AINFO << "(pengzi) begin detect traffic light. thread:" <<this_id <<".";
+
   if (!detector_->Detect(detector_options, frame)) {
     AERROR << "tl failed to detect.";
     return false;
@@ -103,8 +106,8 @@ ADEBUG << "(pengzi) begin detect traffic light.";
       PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
           frame->data_provider->sensor_name(), "traffic_light_detect");
   
-  ADEBUG << "(pengzi) end detect traffic light. time:" << traffic_light_detect_time <<".";
-  ADEBUG << "(pengzi) begin recognize traffic light.";
+  AINFO << "(pengzi) end detect traffic light. time:" << traffic_light_detect_time <<".";
+  AINFO << "(pengzi) begin recognize traffic light.";
   TrafficLightDetectorOptions recognizer_options;
   if (!recognizer_->Detect(recognizer_options, frame)) {
     AERROR << "tl failed to recognize.";
@@ -114,8 +117,8 @@ ADEBUG << "(pengzi) begin detect traffic light.";
       PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
           frame->data_provider->sensor_name(), "traffic_light_recognize");
 
- ADEBUG << "(pengzi) end recognize traffic light. time:" << traffic_light_recognize_time <<".";
-  ADEBUG << "(pengzi) Begin track traffic light";
+ AINFO << "(pengzi) end recognize traffic light. time:" << traffic_light_recognize_time <<".";
+  AINFO << "(pengzi) Begin track traffic light";
   TrafficLightTrackerOptions tracker_options;
   if (!tracker_->Track(tracker_options, frame)) {
     AERROR << "tl failed to track.";
@@ -131,7 +134,7 @@ ADEBUG << "(pengzi) begin detect traffic light.";
         << " traffic_light_recognize_time: " << traffic_light_recognize_time
         << " ms."
         << " traffic_light_track_time: " << traffic_light_track_time << " ms.";
-  ADEBUG << "pengzi";
+  AINFO << "pengzi";
   return true;
 }
 

@@ -195,7 +195,7 @@ class FusionCameraDetectionComponent : public apollo::cyber::Component<> {
   const int motion_buffer_size_ = 100;
 
   // // variables for CIPV
-  bool enable_cipv_ = false;
+  bool enable_cipv_ = true;
   Cipv cipv_;
   float min_laneline_length_for_cipv_ = kMinLaneLineLengthForCIPV;
   float average_lane_width_in_meter_ = kAverageLaneWidthInMeter;
