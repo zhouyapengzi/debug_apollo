@@ -187,7 +187,7 @@ bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
 
   // use data provider to crop input image
   CHECK(data_provider->GetImage(data_provider_image_option_, &image_src_));
-  AINFO<<"(pengzi) get image:" << &image_src_.<<".thread:"<< std::this_thread::get_id();
+  AINFO<<"(pengzi) get image:" << &image_src_<<".thread:"<< std::this_thread::get_id();
 
   //  bottom 0 is data
   auto input_blob = cnnadapter_lane_->get_blob(net_inputs_[0]);
