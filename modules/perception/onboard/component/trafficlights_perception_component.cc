@@ -84,7 +84,7 @@ static int GetGpuId(
 }
 
 bool TrafficLightsPerceptionComponent::Init() {
-  writer_ = node_->   <apollo::perception::TrafficLightDetection>(
+  writer_ = node_-> CreateWriter<apollo::perception::TrafficLightDetection>(
       "/apollo/perception/traffic_light");
 
   AINFO << "(pengzi) create TrafficLightDetection topic ";
