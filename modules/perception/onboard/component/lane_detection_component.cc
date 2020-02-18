@@ -313,7 +313,7 @@ void LaneDetectionComponent::OnReceiveImage(
       new (std::nothrow) apollo::perception::PerceptionLanes);
   apollo::common::ErrorCode error_code = apollo::common::OK;
 
-  AINFO << "(pengzi) lane protobuf message(lol):" << out_message.;
+  AINFO << "(pengzi) lane protobuf message(lol):" << out_message;
 
   // prefused msg
   std::shared_ptr<SensorFrameMessage> prefused_message(new (std::nothrow)
