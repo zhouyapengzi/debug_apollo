@@ -308,8 +308,7 @@ function main(){
     USE_GPU=1
     if ! [ -x "$(command -v ${DOCKER_CMD})" ]; then
         DOCKER_CMD="docker"
-        USE_GPU=1
-	GPUS="--gpus all"
+        USE_GPU=0
     fi
 
     set -x
@@ -317,7 +316,6 @@ function main(){
     ${DOCKER_CMD} run -it \
         -d \
         --privileged \
-	${GPUS} \
         --name $APOLLO_DEV \
         ${MAP_VOLUME_CONF} \
         ${OTHER_VOLUME_CONF} \
