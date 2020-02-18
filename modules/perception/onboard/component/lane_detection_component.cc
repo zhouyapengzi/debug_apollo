@@ -189,10 +189,10 @@ bool LaneDetectionComponent::Init() {
     return false;
   }
 
-  ALOG_MODULE_STREAM_INFO
+  
   writer_ = node_->CreateWriter<PerceptionLanes>(output_lanes_channel_name_);
 
-  AINFO<< "(pengzi) create a topic for lane perception" << output_lanes_channel_name_<<" .thread:"<< std::this_thread::get_id();;
+  AINFO<< "(pengzi) create a topic for lane perception" << output_lanes_channel_name_<<" .thread:"<< std::this_thread::get_id();
 
   if (!EXEC_ALL_FUNS(LaneDetectionComponent, this,
                      LaneDetectionComponent::init_func_arry_)) {
