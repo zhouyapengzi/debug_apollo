@@ -485,11 +485,12 @@ bool OMTObstacleTracker::Track(const ObstacleTrackerOptions &options,
   return true;
 }
 
-REGISTER_OBSTACLE_TRACKER(OMTObstacleTracker);
-
 AINFO<< "pengzi register omto obstacle tracker to obstacle tracker. thread:" << std::this_thread::get_id();
 
  
+REGISTER_OBSTACLE_TRACKER(OMTObstacleTracker);
+
+
 
 }  // namespace camera
 }  // namespace perception

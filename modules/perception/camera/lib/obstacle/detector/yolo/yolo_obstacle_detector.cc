@@ -404,10 +404,10 @@ bool YoloObstacleDetector::Detect(const ObstacleDetectorOptions &options,
   return true;
 }
 
-REGISTER_OBSTACLE_DETECTOR(YoloObstacleDetector);
-
 AINFO << "(pengzi) register YoloObstacleDetector to obstacle_detector"
         << " thread: " << std::this_thread::get_id();
+
+REGISTER_OBSTACLE_DETECTOR(YoloObstacleDetector);
 
 }  // namespace camera
 }  // namespace perception
