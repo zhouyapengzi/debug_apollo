@@ -374,12 +374,12 @@ void JunctionMLPEvaluator::LoadModel() {
   torch_model_ptr_ =
       torch::jit::load(FLAGS_torch_vehicle_junction_mlp_file, device_);
 
-   std::thread::id this_id = std::this_thread::get_id();
-   std::cout << "(pengzi) prediction evaluator " << this_id << " using model \n";
+   
    AINFO << "(pengzi)Prediction evaluator";
-   AINFO << "(pengzi) load junction MLP model(junction_mlp_vehicle_model.pt). ModelName:"<< FLAGS_torch_vehicle_junction_mlp_file 
-          << ". Thread: " << this_id ;
-}    
+   AINFO << "(pengzi) load junction MLP model(junction_mlp_vehicle_model.pt). ModelName:"
+         << FLAGS_torch_vehicle_junction_mlp_file 
+          << ". Thread: " << std::this_thread::get_id();
+   
 }
 
 }  // namespace prediction
