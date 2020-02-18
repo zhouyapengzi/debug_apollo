@@ -368,7 +368,7 @@ int FusionCameraDetectionComponent::InitConfig() {
       fusion_camera_detection_param.camera_obstacle_perception_conf_file();
       
   AINFO<<"(pengzi)load camera obstacle perception conf_file: "
-        << camera_perception_init_options_.conf_file()
+        << camera_perception_init_options_.conf_file
         <<" rootdir:" <<camera_perception_init_options_.root_dir;
 
   camera_perception_init_options_.lane_calibration_working_sensor_name =
