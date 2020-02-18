@@ -485,8 +485,6 @@ bool OMTObstacleTracker::Track(const ObstacleTrackerOptions &options,
   return true;
 }
 
-AINFO<< "pengzi register omto obstacle tracker to obstacle tracker. thread:" << std::this_thread::get_id();
-
  
 REGISTER_OBSTACLE_TRACKER(OMTObstacleTracker);
 
