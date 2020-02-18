@@ -26,6 +26,7 @@
 #include "modules/perception/common/io/io_util.h"
 #include "modules/perception/inference/utils/cuda_util.h"
 #include "modules/perception/lib/utils/perf.h"
+#include <thread>
 
 namespace apollo {
 namespace perception {
@@ -388,7 +389,7 @@ AINFO<<"(pengzi) finish detect lane.thread:"<< std::this_thread::get_id();
     AERROR << "Failed to detect.";
     return false;
   }
-  AINFO<<"(pengzi) finish detect obstacle. thread:"<< std::this_thread::get_id();
+  AINFO<<"(pengzi) finish camera detect obstacle. thread:"<< std::this_thread::get_id();
   PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(frame->data_provider->sensor_name(),
                                            "detect");
 
@@ -410,8 +411,8 @@ AINFO<<"(pengzi) finish detect lane.thread:"<< std::this_thread::get_id();
                       std::to_string(frame->frame_id) + ".txt",
                   frame);
 
-  AINFO<<"(pengzi) finish save detection reesult with bbox, detection_feature"
-  << "(pengzi) detection result output to: " 
+  AINFO<<"(pengzi) finish save camera object detection result."
+  << "(pengzi) object detection result output to: " 
   << perception_param_.debug_param().detect_feature_dir() + "/" +
                       std::to_string(frame->frame_id) + ".txt"
   << " thread:"<< std::this_thread::get_id();

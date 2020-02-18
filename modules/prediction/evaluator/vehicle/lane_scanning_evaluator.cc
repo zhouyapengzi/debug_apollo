@@ -32,6 +32,8 @@
 #include "modules/prediction/container/container_manager.h"
 #include "modules/prediction/container/obstacles/obstacles_container.h"
 
+#include <thread>
+
 namespace apollo {
 namespace prediction {
 

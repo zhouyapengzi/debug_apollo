@@ -27,6 +27,8 @@
 #include "modules/prediction/common/prediction_util.h"
 #include "modules/prediction/common/semantic_map.h"
 
+#include <thread>
+
 namespace apollo {
 namespace prediction {
 

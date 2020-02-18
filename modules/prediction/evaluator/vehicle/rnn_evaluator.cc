@@ -23,6 +23,8 @@
 #include "modules/prediction/common/prediction_gflags.h"
 #include "modules/prediction/common/prediction_map.h"
 
+#include <thread>
+
 namespace apollo {
 namespace prediction {
 

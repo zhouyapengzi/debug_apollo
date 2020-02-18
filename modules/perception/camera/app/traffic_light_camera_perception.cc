@@ -22,6 +22,7 @@
 #include "modules/perception/camera/lib/traffic_light/detector/recognition/recognition.h"
 #include "modules/perception/camera/lib/traffic_light/tracker/semantic_decision.h"
 #include "modules/perception/lib/utils/perf.h"
+#include <thread>
 
 namespace apollo {
 namespace perception {

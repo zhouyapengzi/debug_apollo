@@ -26,6 +26,8 @@
 #include "modules/prediction/common/prediction_util.h"
 #include "modules/prediction/common/validation_checker.h"
 
+#include <thread>
+
 namespace apollo {
 namespace prediction {
 

@@ -28,6 +28,8 @@
 #include "modules/prediction/container/obstacles/obstacles_container.h"
 #include "modules/prediction/container/pose/pose_container.h"
 
+#include <thread>
+
 namespace apollo {
 namespace prediction {
 

@@ -34,6 +34,8 @@
 #include "modules/prediction/container/container_manager.h"
 #include "modules/prediction/container/pose/pose_container.h"
 
+#include <thread>
+
 namespace apollo {
 namespace prediction {
 

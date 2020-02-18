@@ -35,6 +35,8 @@
 #include "modules/perception/onboard/common_flags/common_flags.h"
 #include "modules/transform/proto/transform.pb.h"
 
+#include <thread>
+
 namespace apollo {
 namespace perception {
 namespace onboard {

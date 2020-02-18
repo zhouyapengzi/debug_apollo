@@ -23,6 +23,7 @@
 #include "modules/perception/inference/inference_factory.h"
 #include "modules/perception/inference/utils/resize.h"
 #include "modules/perception/lib/utils/perf.h"
+#include <thread>
 
 namespace apollo {
 namespace perception {

@@ -24,6 +24,7 @@
 #include "modules/perception/camera/common/math_functions.h"
 #include "modules/perception/camera/common/util.h"
 #include "modules/perception/common/geometry/common.h"
+#include <thread>
 
 namespace apollo {
 namespace perception {

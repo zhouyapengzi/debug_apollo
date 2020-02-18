@@ -22,6 +22,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <thread>
 
 #include "cyber/common/file.h"
 #include "cyber/common/log.h"
