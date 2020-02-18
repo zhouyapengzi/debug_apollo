@@ -133,8 +133,7 @@ void RNNEvaluator::LoadModel(const std::string& model_file) {
 	std::cout << "(pengzi) prediction evaluator " << this_id << " using model \n";
   AINFO << "(pengzi)Prediction evaluator";
   AINFO << "(pengzi) load vehicle junction rnn model. ModelName:" << model_file 
-         << " Thread: " << this_id 
-         << "net_parameter: " << net_parameter;
+         << " Thread: " << this_id ;
 }
 
 int RNNEvaluator::ExtractFeatureValues(
