@@ -366,11 +366,10 @@ void MLPEvaluator::LoadModel(const std::string& model_file) {
 
   AINFO << "Succeeded in loading the model file: " << model_file << ".";
   
-  std::thread::id this_id = std::this_thread::get_id();
-   std::cout << "(pengzi) prediction evaluator " << this_id << " using trained model \n";
-   AINFO << "(pengzi)Prediction evaluator";
+
+   AINFO << "(pengzi)Prediction evaluator using trained model";
    AINFO << "(pengzi) load vehicle MLP model. ModelName:"<< model_file 
-          << ". Thread: " << this_id ;
+          << ". Thread: " << std::this_thread::get_id() ;
 }
 
 double MLPEvaluator::ComputeProbability(
