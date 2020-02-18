@@ -19,6 +19,7 @@
 #include "modules/perception/inference/paddlepaddle/paddle_net.h"
 
 #include "cyber/common/log.h"
+#include <thread>
 
 namespace apollo {
 namespace perception {

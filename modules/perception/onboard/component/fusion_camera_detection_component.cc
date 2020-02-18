@@ -28,6 +28,7 @@
 #include "modules/perception/lib/utils/time_util.h"
 #include "modules/perception/onboard/common_flags/common_flags.h"
 #include "modules/perception/onboard/component/camera_perception_viz_message.h"
+#include <thread>
 
 namespace apollo {
 namespace perception {
