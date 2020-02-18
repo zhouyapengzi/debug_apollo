@@ -138,7 +138,6 @@ bool YoloObstacleDetector::InitNet(const yolo::YoloParam &yolo_param,
         <<" proto_file: "<< proto_file
         << " weight_file: " << weight_file
         << " model_root: " << model_root
-        << " input_names" <<input_names
         << " thread: " << std::this_thread::get_id();
 
   inference_->set_gpu_id(gpu_id_);
