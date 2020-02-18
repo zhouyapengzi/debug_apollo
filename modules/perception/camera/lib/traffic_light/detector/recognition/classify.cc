@@ -61,9 +61,9 @@ void ClassifyBySimple::Init(
 
   AINFO << "model_root" << model_root;
 
-  std::thread::id this_id = std::this_thread::get_id();
-  AINFO << "(pengzi) load model_root :" << model_root << ". thread:"<<this_id;
-  AINFO << "(pengzi) load weight:" << model_config.weight_file() << ". thread:"<<this_id;
+  
+  AINFO << "(pengzi) load model_root :" << model_root << ". thread:"<<std::this_thread::get_id();
+  AINFO << "(pengzi) load weight:" << model_config.weight_file() << ". thread:"<<std::this_thread::get_id();
 
   rt_net_.reset(inference::CreateInferenceByName(
       model_config.model_type(), proto_file, weight_file, net_outputs_,
@@ -107,9 +107,9 @@ void ClassifyBySimple::Init(
   image_.reset(
       new base::Image8U(resize_height_, resize_width_, base::Color::BGR));
 
-  std::thread::id this_id = std::this_thread::get_id();
+   
   AINFO << "(pengzi) resize image. height:" << resize_height_ 
-       << " width:"<<resize_width_<<". thread:"<<this_id;
+       << " width:"<<resize_width_<<". thread:"<<std::this_thread::get_id();
   AINFO << "Init Done";
 }
 
@@ -168,8 +168,8 @@ void ClassifyBySimple::Prob2Color(const float* out_put_data, float threshold,
   light->status.confidence = out_put_data[max_color_id];
   AINFO << "Light status recognized as " << name_map[max_color_id];
 
-  std::thread::id this_id = std::this_thread::get_id();
-  AINFO << "(pengzi)traffic light status recognized as " << name_map[max_color_id] <<". thread:" << this_id;
+ 
+  AINFO << "(pengzi)traffic light status recognized as " << name_map[max_color_id] <<". thread:" << std::this_thread::get_id();
 
   AINFO << "Color Prob:";
   for (size_t j = 0; j < status_map.size(); j++) {
