@@ -70,23 +70,23 @@ void PedestrianInteractionEvaluator::LoadModel() {
   // }
   std::thread::id this_id = std::this_thread::get_id();
   std::cout << "(pengzi) prediction evaluator(pedestrian) " << this_id << " using model \n";
-  ADEBUG << "(pengzi) pedestrian_interaction_evaluator" ;
+  AINFO << "(pengzi) pedestrian_interaction_evaluator" ;
 
   torch_position_embedding_ptr_ = torch::jit::load(
       FLAGS_torch_pedestrian_interaction_position_embedding_file, device_);
-  ADEBUG<< "load position modelname:" << FLAGS_torch_pedestrian_interaction_position_embedding_file << ". thread:" << this_id <<".";
+  AINFO<< "(pengzi)load position modelname:" << FLAGS_torch_pedestrian_interaction_position_embedding_file << ". thread:" << this_id <<".";
 
   torch_social_embedding_ptr_ = torch::jit::load(
       FLAGS_torch_pedestrian_interaction_social_embedding_file, device_);
-  ADEBUG<< "load social modelname:" << FLAGS_torch_pedestrian_interaction_social_embedding_file << ". thread:" << this_id <<".";
+  AINFO<< "(pengzi)load social modelname:" << FLAGS_torch_pedestrian_interaction_social_embedding_file << ". thread:" << this_id <<".";
 
   torch_single_lstm_ptr_ = torch::jit::load(
       FLAGS_torch_pedestrian_interaction_single_lstm_file, device_);
-  ADEBUG<< "load single lstm modelname:" << FLAGS_torch_pedestrian_interaction_single_lstm_file << ". thread:" << this_id <<".";
+  AINFO<< "(pengzi)load single lstm modelname:" << FLAGS_torch_pedestrian_interaction_single_lstm_file << ". thread:" << this_id <<".";
 
   torch_prediction_layer_ptr_ = torch::jit::load(
       FLAGS_torch_pedestrian_interaction_prediction_layer_file, device_);
-  ADEBUG<< "load single lstm modelname:" << FLAGS_torch_pedestrian_interaction_prediction_layer_file << ". thread:" << this_id <<".";
+  AINFO<< "(pengzi)load single lstm modelname:" << FLAGS_torch_pedestrian_interaction_prediction_layer_file << ". thread:" << this_id <<".";
 
 }
 

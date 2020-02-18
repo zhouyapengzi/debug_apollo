@@ -374,8 +374,8 @@ void JunctionMLPEvaluator::LoadModel() {
 
    std::thread::id this_id = std::this_thread::get_id();
    std::cout << "(pengzi) prediction evaluator " << this_id << " using model \n";
-   ADEBUG << "(pengzi)Prediction evaluator";
-   ADEBUG << "(pengzi) load junction MLP model(junction_mlp_vehicle_model.pt). ModelName:"<< FLAGS_torch_vehicle_junction_mlp_file 
+   AINFO << "(pengzi)Prediction evaluator";
+   AINFO << "(pengzi) load junction MLP model(junction_mlp_vehicle_model.pt). ModelName:"<< FLAGS_torch_vehicle_junction_mlp_file 
           << ". Thread: " << this_id ;
 }    
 }

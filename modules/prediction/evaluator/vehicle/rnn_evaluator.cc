@@ -32,7 +32,7 @@ RNNEvaluator::RNNEvaluator() {
   evaluator_type_ = ObstacleConf::RNN_EVALUATOR;
   LoadModel(FLAGS_evaluator_vehicle_rnn_file);
 
-  ADEBUG <<"(pengzi) call loadmodel(FLAGS_evaluator_vehicle_rnn_file) method" <<FLAGS_evaluator_vehicle_rnn_file;
+  AINFO <<"(pengzi) call loadmodel(FLAGS_evaluator_vehicle_rnn_file) method" <<FLAGS_evaluator_vehicle_rnn_file;
 }
 
 bool RNNEvaluator::Evaluate(Obstacle* obstacle_ptr) {
@@ -129,8 +129,8 @@ void RNNEvaluator::LoadModel(const std::string& model_file) {
 
   std::thread::id this_id = std::this_thread::get_id();
 	std::cout << "(pengzi) prediction evaluator " << this_id << " using model \n";
-  ADEBUG << "(pengzi)Prediction evaluator";
-  ADEBUG << "(pengzi) load vehicle junction rnn model. ModelName:" << model_file 
+  AINFO << "(pengzi)Prediction evaluator";
+  AINFO << "(pengzi) load vehicle junction rnn model. ModelName:" << model_file 
          << " Thread: " << this_id 
          << "net_parameter: " << net_parameter;
 }

@@ -47,7 +47,7 @@ MLPEvaluator::MLPEvaluator() {
   evaluator_type_ = ObstacleConf::MLP_EVALUATOR;
   LoadModel(FLAGS_evaluator_vehicle_mlp_file);
 
-  ADEBUG <<"(pengzi) call loadmodel(FLAGS_evaluator_vehicle_mlp_file): "<<FLAGS_evaluator_vehicle_mlp_file <<".";
+  AINFO <<"(pengzi) call loadmodel(FLAGS_evaluator_vehicle_mlp_file): "<<FLAGS_evaluator_vehicle_mlp_file <<".";
 }
 
 void MLPEvaluator::Clear() {}
@@ -366,8 +366,8 @@ void MLPEvaluator::LoadModel(const std::string& model_file) {
   
   std::thread::id this_id = std::this_thread::get_id();
    std::cout << "(pengzi) prediction evaluator " << this_id << " using trained model \n";
-   ADEBUG << "(pengzi)Prediction evaluator";
-   ADEBUG << "(pengzi) load vehicle MLP model. ModelName:"<< model_file 
+   AINFO << "(pengzi)Prediction evaluator";
+   AINFO << "(pengzi) load vehicle MLP model. ModelName:"<< model_file 
           << ". Thread: " << this_id ;
 }
 
