@@ -6,7 +6,10 @@ cc_library(
     name = "curve_math",
     srcs = ["curve_math.cc"],
     hdrs = ["curve_math.h"],
-)
+ deps = [
+        "//cyber/common:log",
+    ],
+    )
 
 cc_library(
     name = "discrete_points_math",

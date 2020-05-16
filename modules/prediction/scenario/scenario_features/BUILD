@@ -10,6 +10,7 @@ cc_library(
         "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
+        "//cyber",
         "//modules/prediction/proto:scenario_proto",
     ],
 )
@@ -22,7 +23,8 @@ cc_library(
         "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
-        ":scenario_features",
+      "//cyber",
+	":scenario_features",
         "//modules/prediction/common:environment_features",
         "//modules/prediction/common:prediction_map",
     ],
@@ -38,7 +40,8 @@ cc_library(
     deps = [
         ":scenario_features",
         "//modules/prediction/common:environment_features",
-    ],
+    "//cyber",
+	],
 )
 
 cc_test(

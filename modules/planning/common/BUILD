@@ -9,7 +9,8 @@ cc_library(
         "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
-        "//modules/common/util:map_util",
+        "//cyber",
+		    "//modules/common/util:map_util",
         "@boost",
     ],
 )
@@ -33,6 +34,7 @@ cc_library(
         "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
+		    "//cyber",
         "//modules/common/util:map_util",
     ],
 )
@@ -64,6 +66,7 @@ cc_library(
     ],
     deps = [
         ":indexed_list",
+	"//cyber",
         "//modules/common/configs:vehicle_config_helper",
         "//modules/common/util:map_util",
         "//modules/planning/common/speed:st_boundary",
@@ -96,6 +99,7 @@ cc_library(
         "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
+		    "//cyber",
         ":frame",
         "//modules/common/configs:vehicle_config_helper",
         "//modules/planning/reference_line",
@@ -106,7 +110,10 @@ cc_library(
     name = "path_boundary",
     srcs = ["path_boundary.cc"],
     hdrs = ["path_boundary.h"],
-)
+    deps = [
+		   "//cyber/common:log",
+           ],
+    )
 
 cc_library(
     name = "planning_context",
@@ -132,6 +139,7 @@ cc_library(
     ],
     deps = [
         ":obstacle",
+	"//cyber",
         "//modules/planning/reference_line",
     ],
 )
@@ -144,6 +152,7 @@ cc_library(
         "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
+		    "//cyber",
         "//external:gflags",
     ],
 )
@@ -156,6 +165,7 @@ cc_library(
         "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
+		    "//cyber",
         ":ego_info",
         ":path_boundary",
         ":path_decision",
@@ -195,6 +205,7 @@ cc_library(
         "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
+		    "//cyber",
         ":frame",
         ":reference_line_info",
         "//modules/common/proto:pnc_point_proto",
@@ -225,6 +236,7 @@ cc_library(
         "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
+		    "//cyber",
         "//modules/localization/proto:localization_proto",
         "//modules/map/relative_map/proto:navigation_proto",
         "//modules/perception/proto:perception_proto",
@@ -313,6 +325,7 @@ cc_library(
     ],
     deps = [
         "//modules/common/math",
+	"//cyber",
         "//modules/planning/proto:planning_proto",
     ],
 )
@@ -427,6 +440,7 @@ cc_library(
     deps = [
         ":planning_gflags",
         ":speed_limit",
+	"//cyber/common:log",
         "//modules/planning/common/speed:st_boundary",
     ],
 )

@@ -6,13 +6,19 @@ cc_library(
     name = "prediction_gflags",
     srcs = ["prediction_gflags.cc"],
     hdrs = ["prediction_gflags.h"],
-)
+    deps = [
+             "//cyber",
+           ],
+    )
 
 cc_library(
     name = "prediction_system_gflags",
     srcs = ["prediction_system_gflags.cc"],
     hdrs = ["prediction_system_gflags.h"],
-)
+deps = [
+             "//cyber",
+           ],
+    )
 
 cc_library(
     name = "prediction_util",
@@ -24,7 +30,8 @@ cc_library(
     deps = [
         ":prediction_gflags",
         ":prediction_map",
-    ],
+    "//cyber",
+	],
 )
 
 cc_test(
@@ -45,6 +52,7 @@ cc_library(
         "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
+		    "//cyber",
         ":prediction_gflags",
         "//modules/map/pnc_map",
     ],
@@ -73,6 +81,7 @@ cc_library(
         "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
+		    "//cyber",
         "//modules/common/util",
         "//modules/prediction/common:prediction_gflags",
         "//modules/prediction/container/obstacles:obstacle",
@@ -99,6 +108,7 @@ cc_library(
         "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
+		    "//cyber",
         ":prediction_map",
         "//modules/prediction/common:prediction_constants",
         "//modules/prediction/common:prediction_gflags",
@@ -133,6 +143,7 @@ cc_library(
     hdrs = ["validation_checker.h"],
     deps = [
         "//modules/common/math",
+	"//cyber",
         "//modules/prediction/common:prediction_gflags",
         "//modules/prediction/proto:lane_graph_proto",
     ],
@@ -181,6 +192,7 @@ cc_library(
     ],
     deps = [
         ":prediction_map",
+	"//cyber",
         "//modules/prediction/proto:feature_proto",
     ],
 )
@@ -209,6 +221,7 @@ cc_library(
     ],
     deps = [
         ":semantic_map",
+	"//cyber",
         "//cyber/common:file",
         "//modules/common/adapters:adapter_gflags",
         "//modules/prediction/evaluator:evaluator_manager",

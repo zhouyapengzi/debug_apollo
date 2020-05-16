@@ -36,12 +36,6 @@ DEFINE_string(output_file, "", "output file with format x,y per line");
 DEFINE_double(smooth_length, 200, "Smooth this amount of length ");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace planning {
 
 using apollo::common::math::LineSegment2d;
@@ -224,8 +218,6 @@ class SmootherUtil {
 }  // namespace apollo
 
 int main(int argc, char* argv[]) {
-    AINFO<<"(DMCZP) EnteringMethod: main";
-
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, true);
 

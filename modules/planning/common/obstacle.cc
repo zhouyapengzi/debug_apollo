@@ -67,9 +67,6 @@ Obstacle::Obstacle(const std::string& id,
       perception_id_(perception_obstacle.id()),
       perception_obstacle_(perception_obstacle),
       perception_bounding_box_({
-    AINFO<<"(DMCZP) EnteringMethod: Obstacle::Obstacle";
-
-    AINFO<<"(DMCZP) EnteringMethod: Obstacle::Obstacle";
 perception_obstacle_.position().x(),
                                 perception_obstacle_.position().y()},
                                perception_obstacle_.theta(),

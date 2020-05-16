@@ -33,14 +33,6 @@ DEFINE_double(minimum_point_spacing, 5.0,
               "The minimum distance for input points.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace planning {
 
 class SpiralSmootherUtil {
@@ -82,6 +74,8 @@ class SpiralSmootherUtil {
 
   static bool Smooth(std::vector<Eigen::Vector2d> raw_points,
                      std::vector<common::PathPoint>* ptr_smooth_points) {
+
+    AINFO<<"(DMCZP) EnteringMethod:Smooth";
     if (raw_points.size() <= 2) {
       AERROR << "the original point size is " << raw_points.size();
       return false;
