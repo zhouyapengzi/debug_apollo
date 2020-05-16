@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -34,14 +35,20 @@ using apollo::common::TrajectoryPoint;
 using apollo::common::math::Vec2d;
 
 SemanticLSTMEvaluator::SemanticLSTMEvaluator() : device_(torch::kCPU) {
+    AINFO<<"(DMCZP) EnteringMethod: SemanticLSTMEvaluator::SemanticLSTMEvaluator";
+
   evaluator_type_ = ObstacleConf::SEMANTIC_LSTM_EVALUATOR;
   LoadModel();
 }
 
-void SemanticLSTMEvaluator::Clear() {}
+void SemanticLSTMEvaluator::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: SemanticLSTMEvaluator::Clear";
+}
 
 bool SemanticLSTMEvaluator::Evaluate(Obstacle* obstacle_ptr,
                                      ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: SemanticLSTMEvaluator::Evaluate";
+
   omp_set_num_threads(1);
 
   obstacle_ptr->SetEvaluatorType(evaluator_type_);
@@ -210,6 +217,8 @@ bool SemanticLSTMEvaluator::Evaluate(Obstacle* obstacle_ptr,
 bool SemanticLSTMEvaluator::ExtractObstacleHistory(
     Obstacle* obstacle_ptr,
     std::vector<std::pair<double, double>>* pos_history) {
+    AINFO<<"(DMCZP) EnteringMethod: SemanticLSTMEvaluator::ExtractObstacleHistory";
+
   pos_history->resize(20, {0.0, 0.0});
   const Feature& obs_curr_feature = obstacle_ptr->latest_feature();
   double obs_curr_heading = obs_curr_feature.velocity_heading();
@@ -228,6 +237,8 @@ bool SemanticLSTMEvaluator::ExtractObstacleHistory(
 }
 
 void SemanticLSTMEvaluator::LoadModel() {
+    AINFO<<"(DMCZP) EnteringMethod: SemanticLSTMEvaluator::LoadModel";
+
   if (FLAGS_use_cuda && torch::cuda::is_available()) {
     ADEBUG << "CUDA is available";
     device_ = torch::Device(torch::kCUDA);

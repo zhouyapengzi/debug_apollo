@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -37,6 +38,8 @@ std::size_t FeatureOutput::idx_frame_env_ = 0;
 std::size_t FeatureOutput::idx_tuning_ = 0;
 
 void FeatureOutput::Close() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::Close";
+
   ADEBUG << "Close feature output";
   switch (FLAGS_prediction_offline_mode) {
     case 1: {
@@ -68,6 +71,8 @@ void FeatureOutput::Close() {
 }
 
 void FeatureOutput::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::Clear";
+
   idx_feature_ = 0;
   idx_learning_ = 0;
   idx_prediction_result_ = 0;
@@ -81,17 +86,25 @@ void FeatureOutput::Clear() {
 }
 
 bool FeatureOutput::Ready() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::Ready";
+
   Clear();
   return true;
 }
 
 void FeatureOutput::InsertFeatureProto(const Feature& feature) {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::InsertFeatureProto";
+
   features_.add_feature()->CopyFrom(feature);
 }
 
 void FeatureOutput::InsertDataForLearning(
     const Feature& feature, const std::vector<double>& feature_values,
     const std::string& category, const LaneSequence* lane_sequence_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::InsertDataForLearning";
+
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::InsertDataForLearning";
+
   const std::vector<std::string> dummy_string_feature_values;
   InsertDataForLearning(feature, feature_values, dummy_string_feature_values,
                         category, lane_sequence_ptr);
@@ -121,6 +134,8 @@ void FeatureOutput::InsertDataForLearning(
 void FeatureOutput::InsertPredictionResult(
     const Obstacle* obstacle, const PredictionObstacle& prediction_obstacle,
     const ObstacleConf& obstacle_conf, const Scenario& scenario) {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::InsertPredictionResult";
+
   PredictionResult* prediction_result =
       list_prediction_result_.add_prediction_result();
   prediction_result->set_id(obstacle->id());
@@ -140,6 +155,8 @@ void FeatureOutput::InsertPredictionResult(
 }
 
 void FeatureOutput::InsertFrameEnv(const FrameEnv& frame_env) {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::InsertFrameEnv";
+
   list_frame_env_.add_frame_env()->CopyFrom(frame_env);
 }
 
@@ -147,6 +164,8 @@ void FeatureOutput::InsertDataForTuning(
     const Feature& feature, const std::vector<double>& feature_values,
     const std::string& category, const LaneSequence& lane_sequence,
     const std::vector<TrajectoryPoint>& adc_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::InsertDataForTuning";
+
   DataForTuning* data_for_tuning = list_data_for_tuning_.add_data_for_tuning();
   data_for_tuning->set_id(feature.id());
   data_for_tuning->set_timestamp(feature.timestamp());
@@ -162,6 +181,8 @@ void FeatureOutput::InsertDataForTuning(
 }
 
 void FeatureOutput::WriteFeatureProto() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::WriteFeatureProto";
+
   if (features_.feature().empty()) {
     ADEBUG << "Skip writing empty feature.";
   } else {
@@ -174,6 +195,8 @@ void FeatureOutput::WriteFeatureProto() {
 }
 
 void FeatureOutput::WriteDataForLearning() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::WriteDataForLearning";
+
   if (list_data_for_learning_.data_for_learning().empty()) {
     ADEBUG << "Skip writing empty data_for_learning.";
   } else {
@@ -186,6 +209,8 @@ void FeatureOutput::WriteDataForLearning() {
 }
 
 void FeatureOutput::WritePredictionResult() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::WritePredictionResult";
+
   if (list_prediction_result_.prediction_result().empty()) {
     ADEBUG << "Skip writing empty prediction_result.";
   } else {
@@ -199,6 +224,8 @@ void FeatureOutput::WritePredictionResult() {
 }
 
 void FeatureOutput::WriteFrameEnv() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::WriteFrameEnv";
+
   if (list_frame_env_.frame_env().empty()) {
     ADEBUG << "Skip writing empty prediction_result.";
   } else {
@@ -211,6 +238,8 @@ void FeatureOutput::WriteFrameEnv() {
 }
 
 void FeatureOutput::WriteDataForTuning() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::WriteDataForTuning";
+
   if (list_data_for_tuning_.data_for_tuning().empty()) {
     ADEBUG << "Skip writing empty data_for_tuning.";
     return;
@@ -222,19 +251,29 @@ void FeatureOutput::WriteDataForTuning() {
   ++idx_tuning_;
 }
 
-int FeatureOutput::Size() { return features_.feature_size(); }
+int FeatureOutput::Size() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::Size";
+ return features_.feature_size(); }
 
 int FeatureOutput::SizeOfDataForLearning() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::SizeOfDataForLearning";
+
   return list_data_for_learning_.data_for_learning_size();
 }
 
 int FeatureOutput::SizeOfPredictionResult() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::SizeOfPredictionResult";
+
   return list_prediction_result_.prediction_result_size();
 }
 
-int FeatureOutput::SizeOfFrameEnv() { return list_frame_env_.frame_env_size(); }
+int FeatureOutput::SizeOfFrameEnv() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::SizeOfFrameEnv";
+ return list_frame_env_.frame_env_size(); }
 
 int FeatureOutput::SizeOfDataForTuning() {
+    AINFO<<"(DMCZP) EnteringMethod: FeatureOutput::SizeOfDataForTuning";
+
   return list_data_for_tuning_.data_for_tuning_size();
 }
 

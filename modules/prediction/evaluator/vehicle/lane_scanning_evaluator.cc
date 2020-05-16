@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -37,12 +38,18 @@ using apollo::common::TrajectoryPoint;
 using apollo::common::math::Vec2d;
 
 LaneScanningEvaluator::LaneScanningEvaluator() : device_(torch::kCPU) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::LaneScanningEvaluator";
+
   evaluator_type_ = ObstacleConf::LANE_SCANNING_EVALUATOR;
   LoadModel();
 }
 
 bool LaneScanningEvaluator::Evaluate(Obstacle* obstacle_ptr,
                                      ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::Evaluate";
+
+    AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::Evaluate";
+
   std::vector<Obstacle*> dummy_dynamic_env;
   Evaluate(obstacle_ptr, obstacles_container, dummy_dynamic_env);
   return true;
@@ -117,6 +124,8 @@ bool LaneScanningEvaluator::Evaluate(Obstacle* obstacle_ptr,
 bool LaneScanningEvaluator::ExtractStringFeatures(
     const LaneGraph& lane_graph,
     std::vector<std::string>* const string_feature_values) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::ExtractStringFeatures";
+
   for (const LaneSequence& lane_sequence : lane_graph.lane_sequence()) {
     string_feature_values->push_back("|");
     for (int i = lane_sequence.adc_lane_segment_idx();
@@ -130,6 +139,8 @@ bool LaneScanningEvaluator::ExtractStringFeatures(
 bool LaneScanningEvaluator::ExtractFeatures(
     const Obstacle* obstacle_ptr, const LaneGraph* lane_graph_ptr,
     std::vector<double>* feature_values) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::ExtractFeatures";
+
   // Sanity checks.
   CHECK_NOTNULL(obstacle_ptr);
   int id = obstacle_ptr->id();
@@ -175,6 +186,8 @@ bool LaneScanningEvaluator::ExtractFeatures(
 
 bool LaneScanningEvaluator::ExtractObstacleFeatures(
     const Obstacle* obstacle_ptr, std::vector<double>* feature_values) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::ExtractObstacleFeatures";
+
   // Sanity checks.
   CHECK_NOTNULL(obstacle_ptr);
   feature_values->clear();
@@ -301,6 +314,8 @@ bool LaneScanningEvaluator::ExtractStaticEnvFeatures(
     const Obstacle* obstacle_ptr, const LaneGraph* lane_graph_ptr,
     std::vector<double>* feature_values,
     std::vector<int>* lane_sequence_idx_to_remove) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::ExtractStaticEnvFeatures";
+
   // Sanity checks.
   CHECK_NOTNULL(lane_graph_ptr);
   feature_values->clear();
@@ -440,6 +455,8 @@ bool LaneScanningEvaluator::ExtractStaticEnvFeatures(
 }
 
 void LaneScanningEvaluator::LoadModel() {
+    AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::LoadModel";
+
   if (FLAGS_use_cuda && torch::cuda::is_available()) {
     ADEBUG << "CUDA is available";
     device_ = torch::Device(torch::kCUDA);
@@ -452,6 +469,8 @@ void LaneScanningEvaluator::LoadModel() {
 void LaneScanningEvaluator::ModelInference(
     const std::vector<torch::jit::IValue>& torch_inputs,
     torch::jit::script::Module torch_model, Feature* feature_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::ModelInference";
+
   auto torch_output_tensor = torch_model.forward(torch_inputs).toTensor();
   auto torch_output = torch_output_tensor.accessor<float, 3>();
   for (size_t i = 0; i < SHORT_TERM_TRAJECTORY_SIZE; ++i) {

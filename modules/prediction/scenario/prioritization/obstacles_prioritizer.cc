@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -46,6 +47,8 @@ namespace {
 bool IsLaneSequenceInReferenceLine(
     const LaneSequence& lane_sequence,
     const ADCTrajectoryContainer* ego_trajectory_container) {
+    AINFO<<"(DMCZP) EnteringMethod: IsLaneSequenceInReferenceLine";
+
   for (const auto& lane_segment : lane_sequence.lane_segment()) {
     std::string lane_id = lane_segment.lane_id();
     if (ego_trajectory_container->IsLaneIdInTargetReferenceLine(lane_id)) {
@@ -56,6 +59,8 @@ bool IsLaneSequenceInReferenceLine(
 }
 
 int NearestFrontObstacleIdOnLaneSequence(const LaneSequence& lane_sequence) {
+    AINFO<<"(DMCZP) EnteringMethod: NearestFrontObstacleIdOnLaneSequence";
+
   int nearest_front_obstacle_id = std::numeric_limits<int>::min();
   double smallest_relative_s = std::numeric_limits<double>::max();
   for (const auto& nearby_obs : lane_sequence.nearby_obstacle()) {
@@ -72,6 +77,8 @@ int NearestFrontObstacleIdOnLaneSequence(const LaneSequence& lane_sequence) {
 }
 
 int NearestBackwardObstacleIdOnLaneSequence(const LaneSequence& lane_sequence) {
+    AINFO<<"(DMCZP) EnteringMethod: NearestBackwardObstacleIdOnLaneSequence";
+
   int nearest_backward_obstacle_id = std::numeric_limits<int>::min();
   double smallest_relative_s = std::numeric_limits<double>::max();
   for (const auto& nearby_obs : lane_sequence.nearby_obstacle()) {
@@ -89,9 +96,13 @@ int NearestBackwardObstacleIdOnLaneSequence(const LaneSequence& lane_sequence) {
 
 }  // namespace
 
-ObstaclesPrioritizer::ObstaclesPrioritizer() {}
+ObstaclesPrioritizer::ObstaclesPrioritizer() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::ObstaclesPrioritizer";
+}
 
 void ObstaclesPrioritizer::AssignIgnoreLevel() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::AssignIgnoreLevel";
+
   auto obstacles_container =
       ContainerManager::Instance()->GetContainer<ObstaclesContainer>(
           AdapterConfig::PERCEPTION_OBSTACLES);
@@ -169,6 +180,8 @@ void ObstaclesPrioritizer::AssignIgnoreLevel() {
 }
 
 void ObstaclesPrioritizer::AssignCautionLevel() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::AssignCautionLevel";
+
   auto obstacles_container =
       ContainerManager::Instance()->GetContainer<ObstaclesContainer>(
           AdapterConfig::PERCEPTION_OBSTACLES);
@@ -205,6 +218,8 @@ void ObstaclesPrioritizer::AssignCautionLevel() {
 void ObstaclesPrioritizer::AssignCautionLevelInJunction(
     const Obstacle& ego_vehicle, ObstaclesContainer* obstacles_container,
     const std::string& junction_id) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::AssignCautionLevelInJunction";
+
   // TODO(Hongyi): get current junction_id from Storytelling
   const auto& obstacle_ids =
       obstacles_container->curr_frame_movable_obstacle_ids();
@@ -223,6 +238,8 @@ void ObstaclesPrioritizer::AssignCautionLevelInJunction(
 
 void ObstaclesPrioritizer::AssignCautionLevelCruiseKeepLane(
     const Obstacle& ego_vehicle, ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::AssignCautionLevelCruiseKeepLane";
+
   const Feature& ego_latest_feature = ego_vehicle.latest_feature();
   for (const LaneSequence& lane_sequence :
        ego_latest_feature.lane().lane_graph().lane_sequence()) {
@@ -244,6 +261,8 @@ void ObstaclesPrioritizer::AssignCautionLevelCruiseKeepLane(
 
 void ObstaclesPrioritizer::AssignCautionLevelCruiseChangeLane(
     const Obstacle& ego_vehicle, ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::AssignCautionLevelCruiseChangeLane";
+
   ADCTrajectoryContainer* ego_trajectory_container =
       ContainerManager::Instance()->GetContainer<ADCTrajectoryContainer>(
           AdapterConfig::PLANNING_TRAJECTORY);
@@ -292,6 +311,8 @@ void ObstaclesPrioritizer::AssignCautionLevelCruiseChangeLane(
 
 void ObstaclesPrioritizer::AssignCautionLevelByEgoReferenceLine(
     const Obstacle& ego_vehicle, ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::AssignCautionLevelByEgoReferenceLine";
+
   ADCTrajectoryContainer* adc_trajectory_container =
       ContainerManager::Instance()->GetContainer<ADCTrajectoryContainer>(
           AdapterConfig::PLANNING_TRAJECTORY);
@@ -425,6 +446,8 @@ void ObstaclesPrioritizer::AssignCautionLevelByEgoReferenceLine(
 
 void ObstaclesPrioritizer::RankingCautionLevelObstacles(
     const Obstacle& ego_vehicle, ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::RankingCautionLevelObstacles";
+
   const Point3D& ego_position = ego_vehicle.latest_feature().position();
   const auto& obstacle_ids =
       obstacles_container->curr_frame_movable_obstacle_ids();
@@ -457,6 +480,8 @@ void ObstaclesPrioritizer::AssignCautionByMerge(
     const Obstacle& ego_vehicle, std::shared_ptr<const LaneInfo> lane_info_ptr,
     std::unordered_set<std::string>* const visited_lanes,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::AssignCautionByMerge";
+
   SetCautionBackward(FLAGS_caution_search_distance_backward_for_merge,
                      ego_vehicle, lane_info_ptr, visited_lanes,
                      obstacles_container);
@@ -466,6 +491,8 @@ void ObstaclesPrioritizer::AssignCautionByOverlap(
     const Obstacle& ego_vehicle, std::shared_ptr<const LaneInfo> lane_info_ptr,
     std::unordered_set<std::string>* const visited_lanes,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::AssignCautionByOverlap";
+
   std::string lane_id = lane_info_ptr->id().id();
   const std::vector<std::shared_ptr<const OverlapInfo>> cross_lanes =
       lane_info_ptr->cross_lanes();
@@ -504,6 +531,8 @@ void ObstaclesPrioritizer::SetCautionBackward(
     std::shared_ptr<const LaneInfo> start_lane_info_ptr,
     std::unordered_set<std::string>* const visited_lanes,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::SetCautionBackward";
+
   std::string start_lane_id = start_lane_info_ptr->id().id();
   if (ego_back_lane_id_set_.find(start_lane_id) !=
       ego_back_lane_id_set_.end()) {
@@ -559,6 +588,8 @@ void ObstaclesPrioritizer::SetCautionBackward(
 void ObstaclesPrioritizer::SetCautionIfCloseToEgo(
     const Obstacle& ego_vehicle, const double distance_threshold,
     Obstacle* obstacle_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesPrioritizer::SetCautionIfCloseToEgo";
+
   const Point3D& obstacle_position = obstacle_ptr->latest_feature().position();
   const Point3D& ego_position = ego_vehicle.latest_feature().position();
   double diff_x = obstacle_position.x() - ego_position.x();

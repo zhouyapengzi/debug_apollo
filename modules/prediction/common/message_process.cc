@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -48,6 +49,8 @@ using apollo::planning::ADCTrajectory;
 using apollo::storytelling::Stories;
 
 bool MessageProcess::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::Init";
+
   InitContainers();
   InitEvaluators();
   InitPredictors();
@@ -61,6 +64,8 @@ bool MessageProcess::Init() {
 }
 
 bool MessageProcess::InitContainers() {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::InitContainers";
+
   common::adapter::AdapterManagerConfig adapter_conf;
   if (!cyber::common::GetProtoFromFile(FLAGS_prediction_adapter_config_filename,
                                        &adapter_conf)) {
@@ -76,6 +81,8 @@ bool MessageProcess::InitContainers() {
 }
 
 bool MessageProcess::InitEvaluators() {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::InitEvaluators";
+
   PredictionConf prediction_conf;
   if (!cyber::common::GetProtoFromFile(FLAGS_prediction_conf_file,
                                        &prediction_conf)) {
@@ -91,6 +98,8 @@ bool MessageProcess::InitEvaluators() {
 }
 
 bool MessageProcess::InitPredictors() {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::InitPredictors";
+
   PredictionConf prediction_conf;
   if (!cyber::common::GetProtoFromFile(FLAGS_prediction_conf_file,
                                        &prediction_conf)) {
@@ -107,6 +116,8 @@ bool MessageProcess::InitPredictors() {
 
 void MessageProcess::ContainerProcess(
     const perception::PerceptionObstacles& perception_obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::ContainerProcess";
+
   ADEBUG << "Received a perception message ["
          << perception_obstacles.ShortDebugString() << "].";
 
@@ -186,6 +197,8 @@ void MessageProcess::ContainerProcess(
 void MessageProcess::OnPerception(
     const perception::PerceptionObstacles& perception_obstacles,
     PredictionObstacles* const prediction_obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::OnPerception";
+
   ContainerProcess(perception_obstacles);
 
   auto ptr_obstacles_container =
@@ -242,6 +255,8 @@ void MessageProcess::OnPerception(
 
 void MessageProcess::OnLocalization(
     const localization::LocalizationEstimate& localization) {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::OnLocalization";
+
   auto ptr_ego_pose_container =
       ContainerManager::Instance()->GetContainer<PoseContainer>(
           AdapterConfig::LOCALIZATION);
@@ -253,6 +268,8 @@ void MessageProcess::OnLocalization(
 }
 
 void MessageProcess::OnPlanning(const planning::ADCTrajectory& adc_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::OnPlanning";
+
   auto ptr_ego_trajectory_container =
       ContainerManager::Instance()->GetContainer<ADCTrajectoryContainer>(
           AdapterConfig::PLANNING_TRAJECTORY);
@@ -272,6 +289,8 @@ void MessageProcess::OnPlanning(const planning::ADCTrajectory& adc_trajectory) {
 }
 
 void MessageProcess::OnStoryTelling(const Stories& story) {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::OnStoryTelling";
+
   auto ptr_storytelling_container =
       ContainerManager::Instance()->GetContainer<StoryTellingContainer>(
           AdapterConfig::STORYTELLING);
@@ -283,6 +302,8 @@ void MessageProcess::OnStoryTelling(const Stories& story) {
 }
 
 void MessageProcess::ProcessOfflineData(const std::string& record_filename) {
+    AINFO<<"(DMCZP) EnteringMethod: MessageProcess::ProcessOfflineData";
+
   RecordReader reader(record_filename);
   RecordMessage message;
   while (reader.ReadMessage(&message)) {

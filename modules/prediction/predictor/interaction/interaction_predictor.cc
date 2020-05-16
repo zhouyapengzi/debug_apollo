@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -39,12 +40,16 @@ using apollo::hdmap::LaneInfo;
 using apollo::prediction::math_util::GetSByConstantAcceleration;
 
 InteractionPredictor::InteractionPredictor() {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::InteractionPredictor";
+
   predictor_type_ = ObstacleConf::INTERACTION_PREDICTOR;
 }
 
 bool InteractionPredictor::Predict(
     const ADCTrajectoryContainer* adc_trajectory_container, Obstacle* obstacle,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::Predict";
+
   Clear();
   CHECK_NOTNULL(obstacle);
   CHECK_GT(obstacle->history_size(), 0);
@@ -144,11 +149,15 @@ bool InteractionPredictor::Predict(
   return true;
 }
 
-void InteractionPredictor::Clear() { Predictor::Clear(); }
+void InteractionPredictor::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::Clear";
+ Predictor::Clear(); }
 
 void InteractionPredictor::BuildADCTrajectory(
     const ADCTrajectoryContainer* adc_trajectory_container,
     const double time_resolution) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::BuildADCTrajectory";
+
   if (adc_trajectory_container == nullptr) {
     AERROR << "Null adc trajectory container";
     return;
@@ -167,6 +176,8 @@ bool InteractionPredictor::DrawTrajectory(
     const Obstacle& obstacle, const LaneSequence& lane_sequence,
     const double lon_acceleration, const double total_time, const double period,
     std::vector<TrajectoryPoint>* trajectory_points) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::DrawTrajectory";
+
   // Sanity check.
   CHECK_NOTNULL(trajectory_points);
   trajectory_points->clear();
@@ -240,6 +251,8 @@ double InteractionPredictor::ComputeTrajectoryCost(
     const Obstacle& obstacle, const LaneSequence& lane_sequence,
     const double acceleration,
     const ADCTrajectoryContainer* adc_trajectory_container) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::ComputeTrajectoryCost";
+
   CHECK_GT(obstacle.history_size(), 0);
   double speed = obstacle.latest_feature().speed();
   double total_cost = 0.0;
@@ -273,12 +286,16 @@ double InteractionPredictor::ComputeTrajectoryCost(
 
 double InteractionPredictor::LongitudinalAccelerationCost(
     const double acceleration) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::LongitudinalAccelerationCost";
+
   return acceleration * acceleration;
 }
 
 double InteractionPredictor::CentripetalAccelerationCost(
     const LaneSequence& lane_sequence, const double speed,
     const double acceleration) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::CentripetalAccelerationCost";
+
   double cost_abs_sum = 0.0;
   double cost_sqr_sum = 0.0;
   double curr_time = 0.0;
@@ -297,6 +314,8 @@ double InteractionPredictor::CentripetalAccelerationCost(
 double InteractionPredictor::CollisionWithEgoVehicleCost(
     const LaneSequence& lane_sequence, const double speed,
     const double acceleration) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::CollisionWithEgoVehicleCost";
+
   CHECK_GT(lane_sequence.lane_segment_size(), 0);
   double cost_abs_sum = 0.0;
   double cost_sqr_sum = 0.0;
@@ -350,6 +369,8 @@ double InteractionPredictor::CollisionWithEgoVehicleCost(
 bool InteractionPredictor::LowerRightOfWayThanEgo(
     const Obstacle& obstacle, const LaneSequence& lane_sequence,
     const ADCTrajectoryContainer* adc_trajectory_container) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::LowerRightOfWayThanEgo";
+
   if (adc_trajectory_container != nullptr &&
       adc_trajectory_container->IsProtected()) {
     return true;
@@ -358,12 +379,16 @@ bool InteractionPredictor::LowerRightOfWayThanEgo(
 }
 
 double InteractionPredictor::ComputeLikelihood(const double cost) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::ComputeLikelihood";
+
   double alpha = FLAGS_likelihood_exp_coefficient;
   return std::exp(-alpha * cost);
 }
 
 double InteractionPredictor::ComputePosterior(const double prior,
                                               const double likelihood) {
+    AINFO<<"(DMCZP) EnteringMethod: InteractionPredictor::ComputePosterior";
+
   return prior * likelihood;
 }
 

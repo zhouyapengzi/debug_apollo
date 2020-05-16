@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -29,12 +30,16 @@ using apollo::common::PathPoint;
 using apollo::common::TrajectoryPoint;
 
 ExtrapolationPredictor::ExtrapolationPredictor() {
+    AINFO<<"(DMCZP) EnteringMethod: ExtrapolationPredictor::ExtrapolationPredictor";
+
   predictor_type_ = ObstacleConf::EXTRAPOLATION_PREDICTOR;
 }
 
 bool ExtrapolationPredictor::Predict(
     const ADCTrajectoryContainer* adc_trajectory_container, Obstacle* obstacle,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: ExtrapolationPredictor::Predict";
+
   Clear();
 
   CHECK_NOTNULL(obstacle);
@@ -61,6 +66,8 @@ bool ExtrapolationPredictor::Predict(
 }
 
 void ExtrapolationPredictor::PostProcess(Trajectory* trajectory_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: ExtrapolationPredictor::PostProcess";
+
   // TODO(kechxu) handle corner cases
   static constexpr int kNumTailPoint = 5;
   ExtrapolationPredictor::LaneSearchResult lane_search_result =
@@ -77,6 +84,8 @@ void ExtrapolationPredictor::PostProcess(Trajectory* trajectory_ptr) {
 ExtrapolationPredictor::LaneSearchResult
 ExtrapolationPredictor::SearchExtrapolationLane(const Trajectory& trajectory,
                                                 const int num_tail_point) {
+    AINFO<<"(DMCZP) EnteringMethod: ExtrapolationPredictor::SearchExtrapolationLane";
+
   static constexpr double radius = 1.0;
   static constexpr double angle_diff_threshold = M_PI / 3.0;
   int num_trajectory_point = trajectory.trajectory_point_size();
@@ -105,6 +114,8 @@ ExtrapolationPredictor::SearchExtrapolationLane(const Trajectory& trajectory,
 void ExtrapolationPredictor::ExtrapolateByLane(
     const LaneSearchResult& lane_search_result, const double extraplation_speed,
     Trajectory* trajectory_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: ExtrapolationPredictor::ExtrapolateByLane";
+
   std::string start_lane_id = lane_search_result.lane_id;
   int point_index = lane_search_result.point_index;
   while (trajectory_ptr->trajectory_point_size() > point_index + 1) {
@@ -179,6 +190,8 @@ void ExtrapolationPredictor::ExtrapolateByLane(
 void ExtrapolationPredictor::ExtrapolateByFreeMove(
     const int num_tail_point, const double extraplation_speed,
     Trajectory* trajectory_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: ExtrapolationPredictor::ExtrapolateByFreeMove";
+
   int num_trajectory_point = trajectory_ptr->trajectory_point_size();
   const TrajectoryPoint& last_point =
       trajectory_ptr->trajectory_point(num_trajectory_point - 1);
@@ -208,6 +221,8 @@ void ExtrapolationPredictor::ExtrapolateByFreeMove(
 
 double ExtrapolationPredictor::ComputeExtraplationSpeed(
     const int num_tail_point, const Trajectory& trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: ExtrapolationPredictor::ComputeExtraplationSpeed";
+
   int num_trajectory_point = trajectory.trajectory_point_size();
   CHECK_GT(num_trajectory_point, num_tail_point);
   CHECK_GT(num_tail_point, 0);

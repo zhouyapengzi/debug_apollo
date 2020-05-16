@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -21,11 +22,15 @@ namespace apollo {
 namespace prediction {
 
 CostEvaluator::CostEvaluator() {
+    AINFO<<"(DMCZP) EnteringMethod: CostEvaluator::CostEvaluator";
+
   evaluator_type_ = ObstacleConf::COST_EVALUATOR;
 }
 
 bool CostEvaluator::Evaluate(Obstacle* obstacle_ptr,
                              ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: CostEvaluator::Evaluate";
+
   CHECK_NOTNULL(obstacle_ptr);
 
   obstacle_ptr->SetEvaluatorType(evaluator_type_);
@@ -74,6 +79,8 @@ bool CostEvaluator::Evaluate(Obstacle* obstacle_ptr,
 double CostEvaluator::ComputeProbability(const double obstacle_length,
                                          const double obstacle_width,
                                          const LaneSequence& lane_sequence) {
+    AINFO<<"(DMCZP) EnteringMethod: CostEvaluator::ComputeProbability";
+
   double front_lateral_distance_cost =
       FrontLateralDistanceCost(obstacle_length, obstacle_width, lane_sequence);
   return apollo::common::math::Sigmoid(front_lateral_distance_cost);
@@ -82,6 +89,8 @@ double CostEvaluator::ComputeProbability(const double obstacle_length,
 double CostEvaluator::FrontLateralDistanceCost(
     const double obstacle_length, const double obstacle_width,
     const LaneSequence& lane_sequence) {
+    AINFO<<"(DMCZP) EnteringMethod: CostEvaluator::FrontLateralDistanceCost";
+
   if (lane_sequence.lane_segment().empty() ||
       lane_sequence.lane_segment(0).lane_point().empty()) {
     AWARN << "Empty lane sequence.";

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -43,6 +44,8 @@ using apollo::prediction::math_util::EvaluateCubicPolynomial;
 namespace {
 
 double ComputeMean(const std::vector<double>& nums, size_t start, size_t end) {
+    AINFO<<"(DMCZP) EnteringMethod: ComputeMean";
+
   int count = 0;
   double sum = 0.0;
   for (size_t i = start; i <= end && i < nums.size(); i++) {
@@ -55,14 +58,20 @@ double ComputeMean(const std::vector<double>& nums, size_t start, size_t end) {
 }  // namespace
 
 JunctionMLPEvaluator::JunctionMLPEvaluator() : device_(torch::kCPU) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionMLPEvaluator::JunctionMLPEvaluator";
+
   evaluator_type_ = ObstacleConf::JUNCTION_MLP_EVALUATOR;
   LoadModel();
 }
 
-void JunctionMLPEvaluator::Clear() {}
+void JunctionMLPEvaluator::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionMLPEvaluator::Clear";
+}
 
 bool JunctionMLPEvaluator::Evaluate(Obstacle* obstacle_ptr,
                                     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionMLPEvaluator::Evaluate";
+
   // Sanity checks.
   omp_set_num_threads(1);
   Clear();
@@ -163,6 +172,8 @@ bool JunctionMLPEvaluator::Evaluate(Obstacle* obstacle_ptr,
 void JunctionMLPEvaluator::ExtractFeatureValues(
     Obstacle* obstacle_ptr, ObstaclesContainer* obstacles_container,
     std::vector<double>* feature_values) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionMLPEvaluator::ExtractFeatureValues";
+
   CHECK_NOTNULL(obstacle_ptr);
   int id = obstacle_ptr->id();
 
@@ -206,6 +217,8 @@ void JunctionMLPEvaluator::ExtractFeatureValues(
 
 void JunctionMLPEvaluator::SetObstacleFeatureValues(
     Obstacle* obstacle_ptr, std::vector<double>* feature_values) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionMLPEvaluator::SetObstacleFeatureValues";
+
   feature_values->clear();
   feature_values->reserve(OBSTACLE_FEATURE_SIZE);
   const Feature& feature = obstacle_ptr->latest_feature();
@@ -253,6 +266,8 @@ void JunctionMLPEvaluator::SetObstacleFeatureValues(
 void JunctionMLPEvaluator::SetEgoVehicleFeatureValues(
     Obstacle* obstacle_ptr, ObstaclesContainer* obstacles_container,
     std::vector<double>* const feature_values) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionMLPEvaluator::SetEgoVehicleFeatureValues";
+
   feature_values->clear();
   *feature_values = std::vector<double>(4, 0.0);
   auto ego_pose_obstacle_ptr =
@@ -285,6 +300,8 @@ void JunctionMLPEvaluator::SetEgoVehicleFeatureValues(
 
 void JunctionMLPEvaluator::SetJunctionFeatureValues(
     Obstacle* obstacle_ptr, std::vector<double>* feature_values) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionMLPEvaluator::SetJunctionFeatureValues";
+
   feature_values->clear();
   feature_values->reserve(JUNCTION_FEATURE_SIZE);
   Feature* feature_ptr = obstacle_ptr->mutable_latest_feature();
@@ -359,6 +376,8 @@ void JunctionMLPEvaluator::SetJunctionFeatureValues(
 }
 
 void JunctionMLPEvaluator::LoadModel() {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionMLPEvaluator::LoadModel";
+
   if (FLAGS_use_cuda && torch::cuda::is_available()) {
     ADEBUG << "CUDA is available";
     device_ = torch::Device(torch::kCUDA);

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -29,10 +30,14 @@ namespace prediction {
 EvaluatorSubmodule::~EvaluatorSubmodule() {}
 
 std::string EvaluatorSubmodule::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: EvaluatorSubmodule::Name";
+
   return FLAGS_evaluator_submodule_name;
 }
 
 bool EvaluatorSubmodule::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: EvaluatorSubmodule::Init";
+
   if (!MessageProcess::InitEvaluators()) {
     return false;
   }
@@ -44,6 +49,8 @@ bool EvaluatorSubmodule::Init() {
 
 bool EvaluatorSubmodule::Proc(
     const std::shared_ptr<SubmoduleOutput>& container_output) {
+    AINFO<<"(DMCZP) EnteringMethod: EvaluatorSubmodule::Proc";
+
   constexpr static size_t kHistorySize = 1;
   const auto frame_start_time = container_output->frame_start_time();
   ObstaclesContainer obstacles_container(*container_output);

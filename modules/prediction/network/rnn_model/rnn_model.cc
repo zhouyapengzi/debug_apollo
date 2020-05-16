@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -20,10 +21,14 @@ namespace apollo {
 namespace prediction {
 namespace network {
 
-RnnModel::RnnModel() {}
+RnnModel::RnnModel() {
+    AINFO<<"(DMCZP) EnteringMethod: RnnModel::RnnModel";
+}
 
 void RnnModel::Run(const std::vector<Eigen::MatrixXf>& inputs,
                    Eigen::MatrixXf* output) const {
+    AINFO<<"(DMCZP) EnteringMethod: RnnModel::Run";
+
   Eigen::MatrixXf inp1;
   Eigen::MatrixXf inp2;
   layers_[0]->Run({inputs[0]}, &inp1);
@@ -63,15 +68,21 @@ void RnnModel::Run(const std::vector<Eigen::MatrixXf>& inputs,
 }
 
 void RnnModel::SetState(const std::vector<Eigen::MatrixXf>& states) {
+    AINFO<<"(DMCZP) EnteringMethod: RnnModel::SetState";
+
   layers_[4]->SetState(states);
   layers_[5]->ResetState();
 }
 
 void RnnModel::State(std::vector<Eigen::MatrixXf>* states) const {
+    AINFO<<"(DMCZP) EnteringMethod: RnnModel::State";
+
   layers_[4]->State(states);
 }
 
 void RnnModel::ResetState() const {
+    AINFO<<"(DMCZP) EnteringMethod: RnnModel::ResetState";
+
   layers_[4]->ResetState();
   layers_[5]->ResetState();
 }

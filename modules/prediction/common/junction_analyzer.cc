@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -39,6 +40,8 @@ std::unordered_map<std::string, JunctionFeature>
     JunctionAnalyzer::junction_features_;
 
 void JunctionAnalyzer::Init(const std::string& junction_id) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionAnalyzer::Init";
+
   if (junction_info_ptr_ != nullptr &&
       junction_info_ptr_->id().id() == junction_id) {
     return;
@@ -49,6 +52,8 @@ void JunctionAnalyzer::Init(const std::string& junction_id) {
 }
 
 void JunctionAnalyzer::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionAnalyzer::Clear";
+
   // Clear all data
   junction_info_ptr_ = nullptr;
   junction_exits_.clear();
@@ -56,6 +61,8 @@ void JunctionAnalyzer::Clear() {
 }
 
 void JunctionAnalyzer::SetAllJunctionExits() {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionAnalyzer::SetAllJunctionExits";
+
   CHECK_NOTNULL(junction_info_ptr_);
   // Go through everything that the junction overlaps with.
   for (const auto& overlap_id : junction_info_ptr_->junction().overlap_id()) {
@@ -125,6 +132,8 @@ std::vector<JunctionExit> JunctionAnalyzer::GetJunctionExits(
 
 const JunctionFeature& JunctionAnalyzer::GetJunctionFeature(
     const std::string& start_lane_id) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionAnalyzer::GetJunctionFeature";
+
   if (junction_features_.find(start_lane_id) != junction_features_.end()) {
     return junction_features_[start_lane_id];
   }
@@ -145,6 +154,8 @@ const JunctionFeature& JunctionAnalyzer::GetJunctionFeature(
 
 JunctionFeature JunctionAnalyzer::GetJunctionFeature(
     const std::vector<std::string>& start_lane_ids) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionAnalyzer::GetJunctionFeature";
+
   JunctionFeature merged_junction_feature;
   bool initialized = false;
   std::unordered_map<std::string, JunctionExit> junction_exits_map;
@@ -171,15 +182,21 @@ JunctionFeature JunctionAnalyzer::GetJunctionFeature(
 }
 
 bool JunctionAnalyzer::IsExitLane(const std::string& lane_id) {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionAnalyzer::IsExitLane";
+
   return junction_exits_.find(lane_id) != junction_exits_.end();
 }
 
 const std::string& JunctionAnalyzer::GetJunctionId() {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionAnalyzer::GetJunctionId";
+
   CHECK_NOTNULL(junction_info_ptr_);
   return junction_info_ptr_->id().id();
 }
 
 double JunctionAnalyzer::ComputeJunctionRange() {
+    AINFO<<"(DMCZP) EnteringMethod: JunctionAnalyzer::ComputeJunctionRange";
+
   CHECK_NOTNULL(junction_info_ptr_);
   if (!junction_info_ptr_->junction().has_polygon() ||
       junction_info_ptr_->junction().polygon().point_size() < 3) {

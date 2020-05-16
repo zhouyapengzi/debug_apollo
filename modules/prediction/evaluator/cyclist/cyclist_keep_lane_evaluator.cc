@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -20,11 +21,15 @@ namespace apollo {
 namespace prediction {
 
 CyclistKeepLaneEvaluator::CyclistKeepLaneEvaluator() {
+    AINFO<<"(DMCZP) EnteringMethod: CyclistKeepLaneEvaluator::CyclistKeepLaneEvaluator";
+
   evaluator_type_ = ObstacleConf::CYCLIST_KEEP_LANE_EVALUATOR;
 }
 
 bool CyclistKeepLaneEvaluator::Evaluate(
     Obstacle* obstacle_ptr, ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: CyclistKeepLaneEvaluator::Evaluate";
+
   CHECK_NOTNULL(obstacle_ptr);
 
   obstacle_ptr->SetEvaluatorType(evaluator_type_);
@@ -64,6 +69,8 @@ bool CyclistKeepLaneEvaluator::Evaluate(
 
 double CyclistKeepLaneEvaluator::ComputeProbability(
     const std::string& curr_lane_id, const LaneSequence& lane_sequence) {
+    AINFO<<"(DMCZP) EnteringMethod: CyclistKeepLaneEvaluator::ComputeProbability";
+
   if (lane_sequence.lane_segment().empty()) {
     AWARN << "Empty lane sequence.";
     return 0.0;

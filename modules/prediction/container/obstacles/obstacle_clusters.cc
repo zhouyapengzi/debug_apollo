@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -32,15 +33,21 @@ std::unordered_map<std::string, StopSign>
     ObstacleClusters::lane_id_stop_sign_map_;
 
 void ObstacleClusters::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleClusters::Clear";
+
   lane_obstacles_.clear();
   lane_id_stop_sign_map_.clear();
 }
 
-void ObstacleClusters::Init() { Clear(); }
+void ObstacleClusters::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleClusters::Init";
+ Clear(); }
 
 LaneGraph ObstacleClusters::GetLaneGraph(
     const double start_s, const double length, const bool consider_lane_split,
     std::shared_ptr<const LaneInfo> lane_info_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleClusters::GetLaneGraph";
+
   std::string lane_id = lane_info_ptr->id().id();
   RoadGraph road_graph(start_s, length, consider_lane_split, lane_info_ptr);
   LaneGraph lane_graph;
@@ -51,6 +58,8 @@ LaneGraph ObstacleClusters::GetLaneGraph(
 LaneGraph ObstacleClusters::GetLaneGraphWithoutMemorizing(
     const double start_s, const double length, bool is_on_lane,
     std::shared_ptr<const LaneInfo> lane_info_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleClusters::GetLaneGraphWithoutMemorizing";
+
   RoadGraph road_graph(start_s, length, true, lane_info_ptr);
   LaneGraph lane_graph;
   road_graph.BuildLaneGraphBidirection(&lane_graph);
@@ -60,6 +69,8 @@ LaneGraph ObstacleClusters::GetLaneGraphWithoutMemorizing(
 void ObstacleClusters::AddObstacle(const int obstacle_id,
                                    const std::string& lane_id,
                                    const double lane_s, const double lane_l) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleClusters::AddObstacle";
+
   LaneObstacle lane_obstacle;
   lane_obstacle.set_obstacle_id(obstacle_id);
   lane_obstacle.set_lane_id(lane_id);
@@ -69,6 +80,8 @@ void ObstacleClusters::AddObstacle(const int obstacle_id,
 }
 
 void ObstacleClusters::SortObstacles() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleClusters::SortObstacles";
+
   for (auto iter = lane_obstacles_.begin(); iter != lane_obstacles_.end();
        ++iter) {
     std::sort(iter->second.begin(), iter->second.end(),
@@ -82,6 +95,8 @@ bool ObstacleClusters::ForwardNearbyObstacle(
     const LaneSequence& lane_sequence, const int obstacle_id,
     const double obstacle_s, const double obstacle_l,
     NearbyObstacle* const nearby_obstacle_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleClusters::ForwardNearbyObstacle";
+
   double accumulated_s = 0.0;
   for (const LaneSegment& lane_segment : lane_sequence.lane_segment()) {
     std::string lane_id = lane_segment.lane_id();
@@ -112,6 +127,8 @@ bool ObstacleClusters::BackwardNearbyObstacle(
     const LaneSequence& lane_sequence, const int obstacle_id,
     const double obstacle_s, const double obstacle_l,
     NearbyObstacle* const nearby_obstacle_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleClusters::BackwardNearbyObstacle";
+
   if (lane_sequence.lane_segment().empty()) {
     AERROR << "Empty lane sequence found.";
     return false;
@@ -171,6 +188,8 @@ bool ObstacleClusters::BackwardNearbyObstacle(
 }
 
 StopSign ObstacleClusters::QueryStopSignByLaneId(const std::string& lane_id) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleClusters::QueryStopSignByLaneId";
+
   StopSign stop_sign;
   // Find the stop_sign by lane_id in the hashtable
   if (lane_id_stop_sign_map_.find(lane_id) != lane_id_stop_sign_map_.end()) {

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -32,10 +33,14 @@ using apollo::common::time::Clock;
 using apollo::perception::PerceptionObstacles;
 
 std::string PredictorSubmodule::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorSubmodule::Name";
+
   return FLAGS_evaluator_submodule_name;
 }
 
 bool PredictorSubmodule::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorSubmodule::Init";
+
   if (!MessageProcess::InitPredictors()) {
     return false;
   }
@@ -48,6 +53,8 @@ bool PredictorSubmodule::Proc(
     const std::shared_ptr<PerceptionObstacles>& perception_obstacles,
     const std::shared_ptr<ADCTrajectoryContainer>& adc_trajectory_container,
     const std::shared_ptr<SubmoduleOutput>& submodule_output) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorSubmodule::Proc";
+
   const apollo::common::Header& perception_header =
       perception_obstacles->header();
   const apollo::common::ErrorCode& perception_error_code =

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -21,9 +22,13 @@
 namespace apollo {
 namespace prediction {
 
-ScenarioManager::ScenarioManager() {}
+ScenarioManager::ScenarioManager() {
+    AINFO<<"(DMCZP) EnteringMethod: ScenarioManager::ScenarioManager";
+}
 
 void ScenarioManager::Run() {
+    AINFO<<"(DMCZP) EnteringMethod: ScenarioManager::Run";
+
   auto environment_features = FeatureExtractor::ExtractEnvironmentFeatures();
 
   auto ptr_scenario_features = ScenarioAnalyzer::Analyze(environment_features);
@@ -33,7 +38,9 @@ void ScenarioManager::Run() {
   // TODO(all) other functionalities including lane, junction filters
 }
 
-const Scenario& ScenarioManager::scenario() const { return current_scenario_; }
+const Scenario& ScenarioManager::scenario() const {
+    AINFO<<"(DMCZP) EnteringMethod: ScenarioManager::scenario";
+ return current_scenario_; }
 
 }  // namespace prediction
 }  // namespace apollo

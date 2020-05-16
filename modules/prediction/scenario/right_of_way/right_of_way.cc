@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -37,6 +38,8 @@ using apollo::hdmap::LaneInfo;
 using apollo::perception::PerceptionObstacle;
 
 void RightOfWay::Analyze() {
+    AINFO<<"(DMCZP) EnteringMethod: RightOfWay::Analyze";
+
   ObstaclesContainer* obstacles_container =
       ContainerManager::Instance()->GetContainer<ObstaclesContainer>(
           AdapterConfig::PERCEPTION_OBSTACLES);

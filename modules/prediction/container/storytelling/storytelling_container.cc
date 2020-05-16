@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -22,6 +23,8 @@ namespace prediction {
 using apollo::storytelling::Stories;
 
 void StoryTellingContainer::Insert(const ::google::protobuf::Message& message) {
+    AINFO<<"(DMCZP) EnteringMethod: StoryTellingContainer::Insert";
+
   Stories story_message = dynamic_cast<const Stories&>(message);
   close_to_junction_.CopyFrom(story_message.close_to_junction());
 }
@@ -33,10 +36,14 @@ std::shared_ptr<const hdmap::JunctionInfo> StoryTellingContainer::ADCJunction()
 }
 
 const std::string& StoryTellingContainer::ADCJunctionId() const {
+    AINFO<<"(DMCZP) EnteringMethod: StoryTellingContainer::ADCJunctionId";
+
   return close_to_junction_.junction_id();
 }
 
 double StoryTellingContainer::ADCDistanceToJunction() const {
+    AINFO<<"(DMCZP) EnteringMethod: StoryTellingContainer::ADCDistanceToJunction";
+
   return close_to_junction_.distance();
 }
 

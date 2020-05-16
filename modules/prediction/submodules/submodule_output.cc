@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -21,29 +22,41 @@ namespace apollo {
 namespace prediction {
 
 void SubmoduleOutput::InsertObstacle(const Obstacle&& obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: SubmoduleOutput::InsertObstacle";
+
   curr_frame_obstacles_.push_back(obstacle);
 }
 
 void SubmoduleOutput::InsertEgoVehicle(const Obstacle&& ego_vehicle) {
+    AINFO<<"(DMCZP) EnteringMethod: SubmoduleOutput::InsertEgoVehicle";
+
   ego_vehicle_ = ego_vehicle;
 }
 
 void SubmoduleOutput::set_curr_frame_movable_obstacle_ids(
     const std::vector<int>& curr_frame_movable_obstacle_ids) {
+    AINFO<<"(DMCZP) EnteringMethod: SubmoduleOutput::set_curr_frame_movable_obstacle_ids";
+
   curr_frame_movable_obstacle_ids_ = curr_frame_movable_obstacle_ids;
 }
 
 void SubmoduleOutput::set_curr_frame_unmovable_obstacle_ids(
     const std::vector<int>& curr_frame_unmovable_obstacle_ids) {
+    AINFO<<"(DMCZP) EnteringMethod: SubmoduleOutput::set_curr_frame_unmovable_obstacle_ids";
+
   curr_frame_unmovable_obstacle_ids_ = curr_frame_unmovable_obstacle_ids;
 }
 
 void SubmoduleOutput::set_curr_frame_considered_obstacle_ids(
     const std::vector<int>& curr_frame_considered_obstacle_ids) {
+    AINFO<<"(DMCZP) EnteringMethod: SubmoduleOutput::set_curr_frame_considered_obstacle_ids";
+
   curr_frame_considered_obstacle_ids_ = curr_frame_considered_obstacle_ids;
 }
 
 void SubmoduleOutput::set_frame_start_time(const absl::Time& frame_start_time) {
+    AINFO<<"(DMCZP) EnteringMethod: SubmoduleOutput::set_frame_start_time";
+
   frame_start_time_ = frame_start_time;
 }
 
@@ -51,7 +64,9 @@ const std::vector<Obstacle>& SubmoduleOutput::curr_frame_obstacles() const {
   return curr_frame_obstacles_;
 }
 
-const Obstacle& SubmoduleOutput::GetEgoVehicle() const { return ego_vehicle_; }
+const Obstacle& SubmoduleOutput::GetEgoVehicle() const {
+    AINFO<<"(DMCZP) EnteringMethod: SubmoduleOutput::GetEgoVehicle";
+ return ego_vehicle_; }
 
 std::vector<int> SubmoduleOutput::curr_frame_movable_obstacle_ids() const {
   return curr_frame_movable_obstacle_ids_;
@@ -66,6 +81,8 @@ std::vector<int> SubmoduleOutput::curr_frame_considered_obstacle_ids() const {
 }
 
 const absl::Time& SubmoduleOutput::frame_start_time() const {
+    AINFO<<"(DMCZP) EnteringMethod: SubmoduleOutput::frame_start_time";
+
   return frame_start_time_;
 }
 

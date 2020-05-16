@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -32,12 +33,16 @@ using common::TrajectoryPoint;
 using hdmap::LaneInfo;
 
 LaneSequencePredictor::LaneSequencePredictor() {
+    AINFO<<"(DMCZP) EnteringMethod: LaneSequencePredictor::LaneSequencePredictor";
+
   predictor_type_ = ObstacleConf::LANE_SEQUENCE_PREDICTOR;
 }
 
 bool LaneSequencePredictor::Predict(
     const ADCTrajectoryContainer* adc_trajectory_container, Obstacle* obstacle,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneSequencePredictor::Predict";
+
   Clear();
 
   CHECK_NOTNULL(obstacle);
@@ -121,6 +126,8 @@ void LaneSequencePredictor::DrawLaneSequenceTrajectoryPoints(
     const Obstacle& obstacle, const LaneSequence& lane_sequence,
     const double total_time, const double period,
     std::vector<TrajectoryPoint>* points) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneSequencePredictor::DrawLaneSequenceTrajectoryPoints";
+
   const Feature& feature = obstacle.latest_feature();
   if (!feature.has_position() || !feature.has_velocity() ||
       !feature.position().has_x() || !feature.position().has_y()) {

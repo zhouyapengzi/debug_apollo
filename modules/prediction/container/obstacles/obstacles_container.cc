@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -33,10 +34,14 @@ using apollo::perception::PerceptionObstacle;
 using apollo::perception::PerceptionObstacles;
 
 ObstaclesContainer::ObstaclesContainer()
-    : ptr_obstacles_(FLAGS_max_num_obstacles) {}
+    : ptr_obstacles_(FLAGS_max_num_obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::ObstaclesContainer";
+}
 
 ObstaclesContainer::ObstaclesContainer(const SubmoduleOutput& submodule_output)
     : ptr_obstacles_(FLAGS_max_num_obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::ObstaclesContainer";
+
   for (const Obstacle& obstacle : submodule_output.curr_frame_obstacles()) {
     // Deep copy of obstacle is needed for modification
     std::unique_ptr<Obstacle> ptr_obstacle(new Obstacle(obstacle));
@@ -57,6 +62,8 @@ ObstaclesContainer::ObstaclesContainer(const SubmoduleOutput& submodule_output)
 }
 
 void ObstaclesContainer::CleanUp() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::CleanUp";
+
   // Clean up the history and get the PerceptionObstacles
   curr_frame_movable_obstacle_ids_.clear();
   curr_frame_unmovable_obstacle_ids_.clear();
@@ -66,6 +73,8 @@ void ObstaclesContainer::CleanUp() {
 // This is called by Perception module at every frame to insert all
 // detected obstacles.
 void ObstaclesContainer::Insert(const ::google::protobuf::Message& message) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::Insert";
+
   PerceptionObstacles perception_obstacles;
   perception_obstacles.CopyFrom(
       dynamic_cast<const PerceptionObstacles&>(message));
@@ -157,6 +166,8 @@ void ObstaclesContainer::Insert(const ::google::protobuf::Message& message) {
 }
 
 Obstacle* ObstaclesContainer::GetObstacle(const int id) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::GetObstacle";
+
   auto ptr_obstacle = ptr_obstacles_.GetSilently(id);
   if (ptr_obstacle != nullptr) {
     return ptr_obstacle->get();
@@ -165,6 +176,8 @@ Obstacle* ObstaclesContainer::GetObstacle(const int id) {
 }
 
 Obstacle* ObstaclesContainer::GetObstacleWithLRUUpdate(const int obstacle_id) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::GetObstacleWithLRUUpdate";
+
   auto ptr_obstacle = ptr_obstacles_.Get(obstacle_id);
   if (ptr_obstacle != nullptr) {
     return ptr_obstacle->get();
@@ -173,6 +186,8 @@ Obstacle* ObstaclesContainer::GetObstacleWithLRUUpdate(const int obstacle_id) {
 }
 
 void ObstaclesContainer::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::Clear";
+
   ptr_obstacles_.Clear();
   timestamp_ = -1.0;
 }
@@ -183,15 +198,21 @@ const std::vector<int>& ObstaclesContainer::curr_frame_movable_obstacle_ids() {
 
 const std::vector<int>&
 ObstaclesContainer::curr_frame_unmovable_obstacle_ids() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::curr_frame_unmovable_obstacle_ids";
+
   return curr_frame_unmovable_obstacle_ids_;
 }
 
 const std::vector<int>&
 ObstaclesContainer::curr_frame_considered_obstacle_ids() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::curr_frame_considered_obstacle_ids";
+
   return curr_frame_considered_obstacle_ids_;
 }
 
 void ObstaclesContainer::SetConsideredObstacleIds() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::SetConsideredObstacleIds";
+
   curr_frame_considered_obstacle_ids_.clear();
   for (const int id : curr_frame_movable_obstacle_ids_) {
     Obstacle* obstacle_ptr = GetObstacle(id);
@@ -217,6 +238,8 @@ std::vector<int> ObstaclesContainer::curr_frame_obstacle_ids() {
 
 void ObstaclesContainer::InsertPerceptionObstacle(
     const PerceptionObstacle& perception_obstacle, const double timestamp) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::InsertPerceptionObstacle";
+
   // Sanity checks.
   int id = perception_obstacle.id();
   if (id < FLAGS_ego_vehicle_id) {
@@ -255,6 +278,8 @@ void ObstaclesContainer::InsertPerceptionObstacle(
 }
 
 void ObstaclesContainer::InsertFeatureProto(const Feature& feature) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::InsertFeatureProto";
+
   if (!feature.has_id()) {
     AERROR << "Invalid feature, no ID found.";
     return;
@@ -274,6 +299,8 @@ void ObstaclesContainer::InsertFeatureProto(const Feature& feature) {
 }
 
 void ObstaclesContainer::BuildLaneGraph() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::BuildLaneGraph";
+
   // Go through every obstacle in the current frame, after some
   // sanity checks, build lane graph for non-junction cases.
   for (const int id : curr_frame_considered_obstacle_ids_) {
@@ -305,6 +332,8 @@ void ObstaclesContainer::BuildLaneGraph() {
 }
 
 void ObstaclesContainer::BuildJunctionFeature() {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::BuildJunctionFeature";
+
   // Go through every obstacle in the current frame, after some
   // sanity checks, build junction features for those that are in junction.
   for (const int id : curr_frame_considered_obstacle_ids_) {
@@ -324,6 +353,8 @@ void ObstaclesContainer::BuildJunctionFeature() {
 
 bool ObstaclesContainer::IsMovable(
     const PerceptionObstacle& perception_obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::IsMovable";
+
   if (!perception_obstacle.has_type() ||
       perception_obstacle.type() == PerceptionObstacle::UNKNOWN_UNMOVABLE) {
     return false;
@@ -331,10 +362,14 @@ bool ObstaclesContainer::IsMovable(
   return true;
 }
 
-double ObstaclesContainer::timestamp() const { return timestamp_; }
+double ObstaclesContainer::timestamp() const {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::timestamp";
+ return timestamp_; }
 
 SubmoduleOutput ObstaclesContainer::GetSubmoduleOutput(
     const size_t history_size, const absl::Time& frame_start_time) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstaclesContainer::GetSubmoduleOutput";
+
   SubmoduleOutput container_output;
   for (int id : curr_frame_considered_obstacle_ids_) {
     Obstacle* obstacle = GetObstacle(id);

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -46,6 +47,8 @@ using IdObstacleListMap = std::unordered_map<int, std::list<Obstacle*>>;
 void GroupObstaclesByObstacleId(const int obstacle_id,
                                 ObstaclesContainer* const obstacles_container,
                                 IdObstacleListMap* const id_obstacle_map) {
+    AINFO<<"(DMCZP) EnteringMethod: GroupObstaclesByObstacleId";
+
   Obstacle* obstacle_ptr = obstacles_container->GetObstacle(obstacle_id);
   if (obstacle_ptr == nullptr) {
     AERROR << "Null obstacle [" << obstacle_id << "] found";
@@ -57,9 +60,13 @@ void GroupObstaclesByObstacleId(const int obstacle_id,
 
 }  // namespace
 
-PredictorManager::PredictorManager() { RegisterPredictors(); }
+PredictorManager::PredictorManager() {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::PredictorManager";
+ RegisterPredictors(); }
 
 void PredictorManager::RegisterPredictors() {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::RegisterPredictors";
+
   RegisterPredictor(ObstacleConf::LANE_SEQUENCE_PREDICTOR);
   RegisterPredictor(ObstacleConf::MOVE_SEQUENCE_PREDICTOR);
   RegisterPredictor(ObstacleConf::SINGLE_LANE_PREDICTOR);
@@ -71,6 +78,8 @@ void PredictorManager::RegisterPredictors() {
 }
 
 void PredictorManager::Init(const PredictionConf& config) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::Init";
+
   for (const auto& conf : config.obstacle_conf()) {
     if (!conf.has_obstacle_type()) {
       AERROR << "Obstacle config [" << conf.ShortDebugString()
@@ -123,6 +132,8 @@ void PredictorManager::Init(const PredictionConf& config) {
 
 Predictor* PredictorManager::GetPredictor(
     const ObstacleConf::PredictorType& type) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::GetPredictor";
+
   auto it = predictors_.find(type);
   return it != predictors_.end() ? it->second.get() : nullptr;
 }
@@ -131,6 +142,8 @@ void PredictorManager::Run(
     const PerceptionObstacles& perception_obstacles,
     const ADCTrajectoryContainer* adc_trajectory_container,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::Run";
+
   prediction_obstacles_.Clear();
 
   if (FLAGS_enable_multi_thread) {
@@ -146,6 +159,8 @@ void PredictorManager::PredictObstacles(
     const PerceptionObstacles& perception_obstacles,
     const ADCTrajectoryContainer* adc_trajectory_container,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::PredictObstacles";
+
   for (const PerceptionObstacle& perception_obstacle :
        perception_obstacles.perception_obstacle()) {
     int id = perception_obstacle.id();
@@ -181,6 +196,8 @@ void PredictorManager::PredictObstaclesInParallel(
     const PerceptionObstacles& perception_obstacles,
     const ADCTrajectoryContainer* adc_trajectory_container,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::PredictObstaclesInParallel";
+
   std::unordered_map<int, std::shared_ptr<PredictionObstacle>>
       id_prediction_obstacle_map;
   for (const PerceptionObstacle& perception_obstacle :
@@ -233,6 +250,8 @@ void PredictorManager::PredictObstacle(
     const ADCTrajectoryContainer* adc_trajectory_container, Obstacle* obstacle,
     ObstaclesContainer* obstacles_container,
     PredictionObstacle* const prediction_obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::PredictObstacle";
+
   CHECK_NOTNULL(obstacle);
   prediction_obstacle->set_timestamp(obstacle->timestamp());
 
@@ -328,15 +347,21 @@ std::unique_ptr<Predictor> PredictorManager::CreatePredictor(
 
 void PredictorManager::RegisterPredictor(
     const ObstacleConf::PredictorType& type) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::RegisterPredictor";
+
   predictors_[type] = CreatePredictor(type);
   AINFO << "Predictor [" << type << "] is registered.";
 }
 
 const PredictionObstacles& PredictorManager::prediction_obstacles() {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::prediction_obstacles";
+
   return prediction_obstacles_;
 }
 
 void PredictorManager::InitVehiclePredictors(const ObstacleConf& conf) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::InitVehiclePredictors";
+
   switch (conf.obstacle_status()) {
     case ObstacleConf::ON_LANE: {
       if (conf.priority_type() == ObstaclePriority::CAUTION) {
@@ -363,6 +388,8 @@ void PredictorManager::InitVehiclePredictors(const ObstacleConf& conf) {
 }
 
 void PredictorManager::InitCyclistPredictors(const ObstacleConf& conf) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::InitCyclistPredictors";
+
   switch (conf.obstacle_status()) {
     case ObstacleConf::ON_LANE: {
       cyclist_on_lane_predictor_ = conf.predictor_type();
@@ -377,6 +404,8 @@ void PredictorManager::InitCyclistPredictors(const ObstacleConf& conf) {
 }
 
 void PredictorManager::InitDefaultPredictors(const ObstacleConf& conf) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::InitDefaultPredictors";
+
   switch (conf.obstacle_status()) {
     case ObstacleConf::ON_LANE: {
       default_on_lane_predictor_ = conf.predictor_type();
@@ -393,6 +422,8 @@ void PredictorManager::InitDefaultPredictors(const ObstacleConf& conf) {
 void PredictorManager::RunVehiclePredictor(
     const ADCTrajectoryContainer* adc_trajectory_container, Obstacle* obstacle,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::RunVehiclePredictor";
+
   Predictor* predictor = nullptr;
   if (obstacle->IsCaution()) {
     if (obstacle->IsNearJunction()) {
@@ -435,6 +466,8 @@ void PredictorManager::RunVehiclePredictor(
 void PredictorManager::RunPedestrianPredictor(
     const ADCTrajectoryContainer* adc_trajectory_container, Obstacle* obstacle,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::RunPedestrianPredictor";
+
   Predictor* predictor = nullptr;
   predictor = GetPredictor(pedestrian_predictor_);
   if (predictor == nullptr) {
@@ -447,6 +480,8 @@ void PredictorManager::RunPedestrianPredictor(
 void PredictorManager::RunCyclistPredictor(
     const ADCTrajectoryContainer* adc_trajectory_container, Obstacle* obstacle,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::RunCyclistPredictor";
+
   Predictor* predictor = nullptr;
   if (obstacle->IsOnLane()) {
     predictor = GetPredictor(cyclist_on_lane_predictor_);
@@ -463,6 +498,8 @@ void PredictorManager::RunCyclistPredictor(
 void PredictorManager::RunDefaultPredictor(
     const ADCTrajectoryContainer* adc_trajectory_container, Obstacle* obstacle,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::RunDefaultPredictor";
+
   Predictor* predictor = nullptr;
   if (obstacle->IsOnLane()) {
     predictor = GetPredictor(default_on_lane_predictor_);
@@ -479,6 +516,8 @@ void PredictorManager::RunDefaultPredictor(
 void PredictorManager::RunEmptyPredictor(
     const ADCTrajectoryContainer* adc_trajectory_container, Obstacle* obstacle,
     ObstaclesContainer* obstacles_container) {
+    AINFO<<"(DMCZP) EnteringMethod: PredictorManager::RunEmptyPredictor";
+
   Predictor* predictor = GetPredictor(ObstacleConf::EMPTY_PREDICTOR);
   if (predictor == nullptr) {
     AERROR << "Nullptr found for obstacle [" << obstacle->id() << "]";
