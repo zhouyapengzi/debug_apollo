@@ -7,7 +7,8 @@ cc_library(
     hdrs = [
         "chi_squared_cdf_1_0.0500_0.999900.h",
         "chi_squared_cdf_2_0.0500_0.999900.h",
-    ],
+   "//cyber",
+   ],
 )
 
 cc_library(
@@ -15,6 +16,7 @@ cc_library(
     srcs = ["hm_tracks_objects_match.cc"],
     hdrs = ["hm_tracks_objects_match.h"],
     deps = [
+		    "//cyber",
         ":track_object_distance",
         "//modules/perception/common/graph:gated_hungarian_bigraph_matcher",
         "//modules/perception/common/graph:secure_matrix",
@@ -27,12 +29,18 @@ cc_library(
     name = "probabilities",
     srcs = ["probabilities.cc"],
     hdrs = ["probabilities.h"],
+     deps = [
+        "//cyber",
+    ],
 )
 
 cc_library(
     name = "projection_cache",
     hdrs = ["projection_cache.h"],
-)
+deps = [
+        "//cyber",
+    ],
+    )
 
 cc_library(
     name = "track_object_distance",
@@ -53,7 +61,8 @@ cc_library(
         "//modules/perception/fusion/base:sensor_data_manager",
         "//modules/perception/fusion/base:track",
         "//modules/perception/fusion/common:camera_util",
-    ],
+   "//cyber",
+	],
 )
 
 cc_library(
@@ -67,7 +76,8 @@ cc_library(
         "//modules/perception/fusion/base:fusion_log",
         "//modules/perception/fusion/base:sensor",
         "//modules/perception/fusion/common:camera_util",
-    ],
+   "//cyber",
+	],
 )
 
 cc_test(
@@ -101,7 +111,8 @@ cc_test(
         "//modules/perception/fusion/base:sensor",
         "//modules/perception/fusion/base:track",
         "@gtest//:main",
-    ],
+   "//cyber",
+   ],
 )
 
 cc_test(

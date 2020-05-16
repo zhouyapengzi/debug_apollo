@@ -8,7 +8,8 @@ cc_library(
     hdrs = ["common_flags.h"],
     deps = [
         "//external:gflags",
-    ],
+ "//cyber",
+ ],
 )
 
 cpplint()

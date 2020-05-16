@@ -34,34 +34,6 @@ DEFINE_string(camera_intrinsics_yaml, "params/front_6mm_intrinsics.yaml",
               "camera intrinsics_yaml");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace perception {
 namespace camera {
 // show detect point_set
@@ -69,10 +41,6 @@ void show_detect_point_set(
     const cv::Mat& image,
     const std::vector<std::vector<LanePointInfo> >& detect_laneline_point_set,
     const std::string& save_path) {
-    AINFO<<"(DMCZP) EnteringMethod: show_detect_point_set";
-
-    AINFO<<"(DMCZP) EnteringMethod: show_detect_point_set";
-
     AINFO<<"(DMCZP) EnteringMethod: show_detect_point_set";
 
   cv::Scalar color = cv::Scalar(0, 255, 0);
@@ -426,6 +394,7 @@ void show_detect_point_set(
     const cv::Mat& image,
     const std::vector<base::Point2DF>& img_laneline_point_set,
     const std::vector<float>& point_score_vec, const std::string& save_path) {
+    AINFO<<"(DMCZP) EnteringMethod: show_detect_point_set";
   cv::Scalar color = cv::Scalar(0, 255, 0);
   int draw_size = 2;
 

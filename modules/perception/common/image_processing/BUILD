@@ -6,7 +6,10 @@ cc_library(
     name = "hough_transfer",
     srcs = ["hough_transfer.cc"],
     hdrs = ["hough_transfer.h"],
-)
+ deps = [
+        "//cyber",
+    ],
+    )
 
 cc_test(
     name = "hough_transfer_test",

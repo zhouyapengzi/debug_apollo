@@ -19,6 +19,9 @@ cc_library(
     name = "disjoint_set",
     srcs = ["disjoint_set.cc"],
     hdrs = ["disjoint_set.h"],
+     deps = [
+        "//cyber",
+    ],
 )
 
 cc_test(
@@ -75,6 +78,7 @@ cc_library(
     hdrs = ["hungarian_optimizer.h"],
     deps = [
         "@eigen",
+	"//cyber",
     ],
 )
 

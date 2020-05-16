@@ -23,6 +23,7 @@ cc_library(
         ":polynomial",
         ":syncedmem",
         ":traffic_light",
+	"//cyber",
     ],
 )
 
@@ -34,6 +35,7 @@ cc_library(
         "lane_struct.h",
         "sensor_meta.h",
         "vehicle_struct.h",
+	"//cyber",
     ],
 )
 
@@ -68,6 +70,7 @@ cc_library(
     ],
     deps = [
         ":point_cloud",
+	"//cyber",
     ],
 )
 
@@ -87,6 +90,7 @@ cc_library(
     hdrs = ["camera.h"],
     deps = [
         "@eigen",
+	"//cyber",
     ],
 )
 
@@ -105,6 +109,7 @@ cc_library(
     hdrs = ["common.h"],
     deps = [
         "@cuda",
+	"//cyber",
     ],
 )
 
@@ -115,7 +120,8 @@ cc_test(
     deps = [
         ":common",
         "@gtest//:main",
-    ],
+   "//cyber",
+	],
 )
 
 cc_library(
@@ -146,6 +152,7 @@ cc_library(
         "frame_supplement.h",
     ],
     deps = [
+		    "//cyber",
         ":base_type",
         ":blob",
         ":image",
@@ -162,6 +169,7 @@ cc_library(
     ],
     deps = [
         ":base_type",
+	"//cyber",
         ":blob",
     ],
 )
@@ -204,6 +212,7 @@ cc_library(
         "vehicle_struct.h",
     ],
     deps = [
+		    "//cyber",
         ":box",
         ":point_cloud",
         "@eigen",
@@ -229,6 +238,7 @@ cc_library(
     ],
     deps = [
         ":base_type",
+	"//cyber",
     ],
 )
 
@@ -293,6 +303,7 @@ cc_library(
     ],
     deps = [
         "@eigen",
+	"//cyber",
     ],
 )
 
@@ -325,6 +336,9 @@ cc_library(
     name = "polynomial",
     srcs = ["polynomial.cc"],
     hdrs = ["polynomial.h"],
+    deps = [
+		    "//cyber",
+           ],
 )
 
 cc_test(
@@ -363,6 +377,7 @@ cc_library(
     name = "traffic_light",
     hdrs = ["traffic_light.h"],
     deps = [
+		    "//cyber",
         "//modules/perception/base:box",
     ],
 )

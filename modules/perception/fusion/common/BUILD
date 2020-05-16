@@ -6,6 +6,7 @@ cc_library(
     name = "base_filter",
     hdrs = ["base_filter.h"],
     deps = [
+		    "//cyber",
         "@eigen",
     ],
 )
@@ -15,6 +16,7 @@ cc_library(
     srcs = ["camera_util.cc"],
     hdrs = ["camera_util.h"],
     deps = [
+		    "//cyber",
         "//modules/perception/base:camera",
         "//modules/perception/common/geometry:common",
         "//modules/perception/fusion/base:sensor",
@@ -58,6 +60,7 @@ cc_library(
     hdrs = ["information_filter.h"],
     deps = [
         ":base_filter",
+	"//cyber",
     ],
 )
 
