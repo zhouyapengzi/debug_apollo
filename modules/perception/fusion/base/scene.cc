@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -19,15 +20,21 @@ namespace apollo {
 namespace perception {
 namespace fusion {
 
-Scene::Scene() {}
+Scene::Scene() {
+    AINFO<<"(DMCZP) EnteringMethod: Scene::Scene";
+}
 
 Scene::~Scene() {}
 
 void Scene::AddForegroundTrack(TrackPtr track) {
+    AINFO<<"(DMCZP) EnteringMethod: Scene::AddForegroundTrack";
+
   foreground_tracks_.push_back(track);
 }
 
 void Scene::AddBackgroundTrack(TrackPtr track) {
+    AINFO<<"(DMCZP) EnteringMethod: Scene::AddBackgroundTrack";
+
   background_tracks_.push_back(track);
 }
 

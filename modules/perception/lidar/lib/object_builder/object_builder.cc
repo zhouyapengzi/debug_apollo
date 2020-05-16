@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -36,11 +37,15 @@ using PointFCloud = apollo::perception::base::PointCloud<PointF>;
 using PolygonDType = apollo::perception::base::PointCloud<PointD>;
 
 bool ObjectBuilder::Init(const ObjectBuilderInitOptions& options) {
+    AINFO<<"(DMCZP) EnteringMethod: ObjectBuilder::Init";
+
   return true;
 }
 
 bool ObjectBuilder::Build(const ObjectBuilderOptions& options,
                           LidarFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: ObjectBuilder::Build";
+
   if (frame == nullptr) {
     return false;
   }
@@ -57,6 +62,8 @@ bool ObjectBuilder::Build(const ObjectBuilderOptions& options,
 }
 
 void ObjectBuilder::ComputePolygon2D(ObjectPtr object) {
+    AINFO<<"(DMCZP) EnteringMethod: ObjectBuilder::ComputePolygon2D";
+
   Eigen::Vector3f min_pt;
   Eigen::Vector3f max_pt;
   PointFCloud& cloud = object->lidar_supplement.cloud;
@@ -71,6 +78,8 @@ void ObjectBuilder::ComputePolygon2D(ObjectPtr object) {
 }
 
 void ObjectBuilder::ComputeOtherObjectInformation(ObjectPtr object) {
+    AINFO<<"(DMCZP) EnteringMethod: ObjectBuilder::ComputeOtherObjectInformation";
+
   object->anchor_point = object->center;
   double timestamp = 0.0;
   size_t num_point = object->lidar_supplement.cloud.size();
@@ -84,6 +93,8 @@ void ObjectBuilder::ComputeOtherObjectInformation(ObjectPtr object) {
 }
 
 void ObjectBuilder::ComputePolygonSizeCenter(ObjectPtr object) {
+    AINFO<<"(DMCZP) EnteringMethod: ObjectBuilder::ComputePolygonSizeCenter";
+
   if (object->lidar_supplement.cloud.size() < 4u) {
     return;
   }
@@ -113,6 +124,8 @@ void ObjectBuilder::ComputePolygonSizeCenter(ObjectPtr object) {
 void ObjectBuilder::SetDefaultValue(const Eigen::Vector3f& min_pt_in,
                                     const Eigen::Vector3f& max_pt_in,
                                     ObjectPtr object) {
+    AINFO<<"(DMCZP) EnteringMethod: ObjectBuilder::SetDefaultValue";
+
   Eigen::Vector3f min_pt = min_pt_in;
   Eigen::Vector3f max_pt = max_pt_in;
   // handle degeneration case
@@ -160,6 +173,8 @@ void ObjectBuilder::SetDefaultValue(const Eigen::Vector3f& min_pt_in,
 }
 
 bool ObjectBuilder::LinePerturbation(PointFCloud* cloud) {
+    AINFO<<"(DMCZP) EnteringMethod: ObjectBuilder::LinePerturbation";
+
   if (cloud->size() >= 3) {
     int start_point = 0;
     int end_point = 1;
@@ -183,6 +198,8 @@ bool ObjectBuilder::LinePerturbation(PointFCloud* cloud) {
 void ObjectBuilder::GetMinMax3D(const PointFCloud& cloud,
                                 Eigen::Vector3f* min_pt,
                                 Eigen::Vector3f* max_pt) {
+    AINFO<<"(DMCZP) EnteringMethod: ObjectBuilder::GetMinMax3D";
+
   (*min_pt)[0] = (*min_pt)[1] = (*min_pt)[2] = FLT_MAX;
   (*max_pt)[0] = (*max_pt)[1] = (*max_pt)[2] = -FLT_MAX;
   for (size_t i = 0; i < cloud.size(); ++i) {

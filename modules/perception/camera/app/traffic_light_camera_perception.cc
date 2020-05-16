@@ -31,6 +31,8 @@ using cyber::common::GetAbsolutePath;
 
 bool TrafficLightCameraPerception::Init(
     const CameraPerceptionInitOptions &options) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightCameraPerception::Init";
+
   std::string work_root = "";
   if (options.use_cyber_work_root) {
     work_root = GetCyberWorkRoot();
@@ -90,6 +92,8 @@ bool TrafficLightCameraPerception::Init(
 
 bool TrafficLightCameraPerception::Perception(
     const CameraPerceptionOptions &options, CameraFrame *frame) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightCameraPerception::Perception";
+
   PERCEPTION_PERF_FUNCTION();
   PERCEPTION_PERF_BLOCK_START();
   TrafficLightDetectorOptions detector_options;

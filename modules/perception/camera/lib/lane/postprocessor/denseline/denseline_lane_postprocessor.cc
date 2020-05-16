@@ -32,6 +32,8 @@ using cyber::common::GetAbsolutePath;
 
 bool DenselineLanePostprocessor::Init(
     const LanePostprocessorInitOptions& options) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::Init";
+
   // Read detector config parameter
   denseline::DenselineParam denseline_param;
   const std::string& proto_path =
@@ -82,6 +84,8 @@ bool DenselineLanePostprocessor::Init(
 
 bool DenselineLanePostprocessor::Process2D(
     const LanePostprocessorOptions& options, CameraFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::Process2D";
+
   frame->lane_objects.clear();
   // 1. locate the lane line point set
   bool flag = LocateLanelinePointSet(frame);
@@ -114,12 +118,16 @@ bool DenselineLanePostprocessor::Process2D(
 
 bool DenselineLanePostprocessor::Process3D(
     const LanePostprocessorOptions& options, CameraFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::Process3D";
+
   ConvertImagePoint2Camera(frame);
   PolyFitCameraLaneline(frame);
   return true;
 }
 
 void DenselineLanePostprocessor::ConvertImagePoint2Camera(CameraFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::ConvertImagePoint2Camera";
+
   float pitch_angle = frame->calibration_service->QueryPitchAngle();
   float camera_ground_height =
       frame->calibration_service->QueryCameraToGroundHeight();
@@ -147,12 +155,16 @@ void DenselineLanePostprocessor::ConvertImagePoint2Camera(CameraFrame* frame) {
 }
 
 std::string DenselineLanePostprocessor::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::Name";
+
   return "DenselineLanePostprocessor";
 }
 
 void DenselineLanePostprocessor::CalLaneMap(
     const float* output_data, int width, int height,
     std::vector<unsigned char>* lane_map) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::CalLaneMap";
+
   int out_dim = width * height;
   for (int y = 0; y < height - omit_bottom_line_num_; y++) {
     float score_channel[4];
@@ -211,6 +223,8 @@ void DenselineLanePostprocessor::InferPointSetFromLaneCenter(
     const std::vector<ConnectedComponent>& lane_ccs,
     const std::vector<LaneType>& ccs_pos_type,
     std::vector<std::vector<LanePointInfo> >* lane_map_group_point_set) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::InferPointSetFromLaneCenter";
+
   //  0: adj-left lane center
   //  1: ego-lane center;
   //  2: adj-right lane center
@@ -241,6 +255,8 @@ void DenselineLanePostprocessor::InferPointSetFromLaneCenter(
 void DenselineLanePostprocessor::InferPointSetFromOneCC(
     const ConnectedComponent& lane_cc, int left_index, int right_index,
     std::vector<std::vector<LanePointInfo> >* lane_map_group_point_set) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::InferPointSetFromOneCC";
+
   //  find the points which belongs to this CC
   const std::vector<base::Point2DI>& pixels = lane_cc.GetPixels();
   //  initialize the memory
@@ -326,6 +342,8 @@ bool DenselineLanePostprocessor::MaxScorePoint(const float* score_pointer,
                                                const int* x_count_pointer,
                                                int y_pos,
                                                LanePointInfo* point_info) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::MaxScorePoint";
+
   int large_index[2];
   bool flag = FindKLargeValue(score_pointer, lane_map_width_, 2, large_index);
   if (!flag) {
@@ -346,6 +364,8 @@ bool DenselineLanePostprocessor::MaxScorePoint(const float* score_pointer,
 bool DenselineLanePostprocessor::SelectLanecenterCCs(
     const std::vector<ConnectedComponent>& lane_ccs,
     std::vector<ConnectedComponent>* select_lane_ccs) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::SelectLanecenterCCs";
+
   select_lane_ccs->clear();
   int lane_ccs_num = static_cast<int>(lane_ccs.size());
   if (lane_ccs_num == 0) {
@@ -380,6 +400,8 @@ bool DenselineLanePostprocessor::SelectLanecenterCCs(
 // @brief: locate lane line points
 bool DenselineLanePostprocessor::LocateLanelinePointSet(
     const CameraFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::LocateLanelinePointSet";
+
   //  find laneline_point center_point of each row
   //  0:adj-left 1:ego-left 2:ego-right 3:adj-right
   //  1.get the lane points in the feature map
@@ -452,6 +474,8 @@ bool DenselineLanePostprocessor::LocateLanelinePointSet(
 bool DenselineLanePostprocessor::ClassifyLaneCCsPosTypeInImage(
     const std::vector<ConnectedComponent>& select_lane_ccs,
     std::vector<LaneType>* ccs_pos_type) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::ClassifyLaneCCsPosTypeInImage";
+
   //
   int ccs_num = static_cast<int>(select_lane_ccs.size());
   std::vector<float> cc_bottom_center_x(ccs_num);
@@ -520,6 +544,8 @@ void DenselineLanePostprocessor::ClassifyLanelinePosTypeInImage(
     const std::vector<std::vector<LanePointInfo> >& image_group_point_set,
     std::vector<base::LaneLinePositionType>* laneline_type,
     std::vector<bool>* line_flag) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::ClassifyLanelinePosTypeInImage";
+
   int set_size = static_cast<int>(image_group_point_set.size());
   std::vector<float> latitude_intersection(set_size, lane_max_value_);
 
@@ -590,6 +616,8 @@ void DenselineLanePostprocessor::ClassifyLanelinePosTypeInImage(
 bool DenselineLanePostprocessor::LocateNeighborLaneLine(
     const std::vector<float>& latitude_intersection, int line_index,
     bool left_flag, int* locate_index) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::LocateNeighborLaneLine";
+
   // left_flag = true: find the line which is at left side of the line
   // left_flag = false: find the line which is at right side of the line
   int set_size = static_cast<int>(latitude_intersection.size());
@@ -629,6 +657,8 @@ bool DenselineLanePostprocessor::LocateNeighborLaneLine(
 void DenselineLanePostprocessor::Convert2OriginalCoord(
     const std::vector<std::vector<LanePointInfo> >& lane_map_group_point_set,
     std::vector<std::vector<LanePointInfo> >* image_group_point_set) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::Convert2OriginalCoord";
+
   float x_ratio =
       static_cast<float>(input_crop_width_) * lane_map_width_inverse_;
   float y_ratio =
@@ -653,6 +683,8 @@ void DenselineLanePostprocessor::AddImageLaneline(
     const std::vector<LanePointInfo>& image_point_set,
     const base::LaneLineType type, const base::LaneLinePositionType pos_type,
     int line_index, std::vector<base::LaneLine>* lane_marks) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::AddImageLaneline";
+
   // x: longitudinal direction
   // y: horizontal direction
   // image: x = f(y)
@@ -728,6 +760,8 @@ void DenselineLanePostprocessor::AddImageLaneline(
 
 // @brief: fit camera lane line using polynomial
 void DenselineLanePostprocessor::PolyFitCameraLaneline(CameraFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::PolyFitCameraLaneline";
+
   std::vector<base::LaneLine>& lane_objects = frame->lane_objects;
   int laneline_num = static_cast<int>(lane_objects.size());
   for (int line_index = 0; line_index < laneline_num; line_index++) {
@@ -771,11 +805,15 @@ void DenselineLanePostprocessor::PolyFitCameraLaneline(CameraFrame* frame) {
 
 std::vector<std::vector<LanePointInfo> >
 DenselineLanePostprocessor::GetLanelinePointSet() {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::GetLanelinePointSet";
+
   return image_group_point_set_;
 }
 
 std::vector<LanePointInfo>
 DenselineLanePostprocessor::GetAllInferLinePointSet() {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::GetAllInferLinePointSet";
+
   float x_ratio =
       static_cast<float>(input_crop_width_) * lane_map_width_inverse_;
   float y_ratio =
@@ -825,6 +863,8 @@ void DenselineLanePostprocessor::GetLaneCCs(
     std::vector<unsigned char>* lane_map, int* lane_map_width,
     int* lane_map_height, std::vector<ConnectedComponent>* connected_components,
     std::vector<ConnectedComponent>* select_connected_components) {
+    AINFO<<"(DMCZP) EnteringMethod: DenselineLanePostprocessor::GetLaneCCs";
+
   *lane_map = lane_map_;
   *lane_map_width = lane_map_width_;
   *lane_map_height = lane_map_height_;

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -20,10 +21,14 @@ namespace apollo {
 namespace perception {
 namespace lidar {
 
-bool DummyROIFilter::Init(const ROIFilterInitOptions& options) { return true; }
+bool DummyROIFilter::Init(const ROIFilterInitOptions& options) {
+    AINFO<<"(DMCZP) EnteringMethod: DummyROIFilter::Init";
+ return true; }
 
 bool DummyROIFilter::Filter(const ROIFilterOptions& options,
                             LidarFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DummyROIFilter::Filter";
+
   if (!frame) {
     return false;
   }

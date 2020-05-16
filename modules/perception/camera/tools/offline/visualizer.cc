@@ -60,6 +60,8 @@ Eigen::Matrix3d Camera2CarHomograph(Eigen::Matrix3d intrinsic,
                                     Eigen::Matrix4d extrinsic_camera2lidar,
                                     Eigen::Matrix4d extrinsic_lidar2imu,
                                     double pitch_adj) {
+    AINFO<<"(DMCZP) EnteringMethod: Camera2CarHomograph";
+
   AINFO << "intrinsic parameter of camera: " << intrinsic;
   AINFO << "extrinsic parameter of camera to lidar: " << extrinsic_camera2lidar;
   AINFO << "extrinsic parameter of lidar to imu: " << extrinsic_lidar2imu;
@@ -88,6 +90,8 @@ Eigen::Matrix3d Camera2CarHomograph(Eigen::Matrix3d intrinsic,
 
 bool Visualizer::Init(const std::vector<std::string> &camera_names,
                       TransformServer *tf_server) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::Init";
+
   tf_server_ = tf_server;
   if (tf_server_ == nullptr) {
     AERROR << "tf_server is unavailable";
@@ -119,6 +123,8 @@ bool Visualizer::Init_all_info_single_camera(
     const double roll_adj_degree,
     const int image_height,
     const int image_width) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::Init_all_info_single_camera";
+
   image_height_ = image_height;
   image_width_ = image_width;
   intrinsic_map_ = intrinsic_map;
@@ -238,6 +244,8 @@ bool Visualizer::adjust_angles(const std::string &camera_name,
                                const double pitch_adj_degree,
                                const double yaw_adj_degree,
                                const double roll_adj_degree) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::adjust_angles";
+
   // Convert degree angles to radian angles
   double pitch_adj_radian = pitch_adj_degree * degree_to_radian_factor_;
   double yaw_adj_radian = yaw_adj_degree * degree_to_radian_factor_;
@@ -311,6 +319,8 @@ bool Visualizer::adjust_angles(const std::string &camera_name,
 }
 
 bool Visualizer::SetDirectory(const std::string &path) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::SetDirectory";
+
   if (!cyber::common::EnsureDirectory(path)) {
     return false;
   }
@@ -321,6 +331,8 @@ bool Visualizer::SetDirectory(const std::string &path) {
 }
 
 std::string Visualizer::type_to_string(const base::ObjectType type) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::type_to_string";
+
   switch (type) {
     case base::ObjectType::UNKNOWN:
       return "UNKN";
@@ -341,6 +353,8 @@ std::string Visualizer::type_to_string(const base::ObjectType type) {
 }
 
 std::string Visualizer::sub_type_to_string(const base::ObjectSubType type) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::sub_type_to_string";
+
   switch (type) {
     case base::ObjectSubType::UNKNOWN:
       return "UNKN";
@@ -373,6 +387,8 @@ std::string Visualizer::sub_type_to_string(const base::ObjectSubType type) {
 }
 
 bool Visualizer::reset_key() {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::reset_key";
+
   use_class_color_ = true;
   capture_screen_ = false;
   capture_video_ = false;
@@ -400,6 +416,8 @@ bool Visualizer::reset_key() {
 }
 
 double Visualizer::regularize_angle(const double radian_angle) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::regularize_angle";
+
   if (radian_angle <= -M_PI) {
     return radian_angle + M_PI * 2.0;
   } else if (radian_angle > M_PI) {
@@ -413,6 +431,8 @@ bool Visualizer::euler_to_quaternion(Eigen::Vector4d *quaternion,
                                      const double pitch_radian,
                                      const double yaw_radian,
                                      const double roll_radian) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::euler_to_quaternion";
+
   // // Option 1. ZYX Euler to quortonian
   // double cy = cos(yaw_radian * 0.5);
   // double sy = sin(yaw_radian * 0.5);
@@ -479,6 +499,8 @@ bool Visualizer::euler_to_quaternion(Eigen::Vector4d *quaternion,
 }
 
 bool Visualizer::copy_backup_file(const std::string &filename) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::copy_backup_file";
+
   static int index = 0;
   // int last_index = 0;
   // std::string files = filename + "*";
@@ -508,6 +530,8 @@ bool Visualizer::save_extrinsic_in_yaml(const std::string &camera_name,
                                         const double pitch_radian,
                                         const double yaw_radian,
                                         const double roll_radian) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::save_extrinsic_in_yaml";
+
   std::string yaml_file =
       FLAGS_obs_sensor_intrinsic_path + "/" + camera_name + "_extrinsics.yaml";
 
@@ -580,6 +604,8 @@ bool Visualizer::save_extrinsic_in_yaml(const std::string &camera_name,
 bool Visualizer::save_manual_calibration_parameter(
     const std::string &camera_name, const double pitch_adj_degree,
     const double yaw_adj_degree, const double roll_adj_degree) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::save_manual_calibration_parameter";
+
   // Convert degree angles to radian angles
   double pitch_adj_radian = pitch_adj_degree * degree_to_radian_factor_;
   double yaw_adj_radian = yaw_adj_degree * degree_to_radian_factor_;
@@ -626,6 +652,8 @@ bool Visualizer::save_manual_calibration_parameter(
 }
 
 bool Visualizer::key_handler(const std::string &camera_name, const int key) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::key_handler";
+
   AINFO << "Pressed Key: " << key;
   if (key <= 0) {
     return false;
@@ -853,6 +881,8 @@ bool Visualizer::key_handler(const std::string &camera_name, const int key) {
 // Draw trajectory of each object
 bool Visualizer::DrawTrajectories(const base::ObjectPtr &object,
                                   const base::MotionBufferPtr motion_buffer) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::DrawTrajectories";
+
   if (object->drop_num == 0 || motion_buffer == nullptr ||
       motion_buffer->size() == 0) {
     return false;
@@ -879,6 +909,8 @@ bool Visualizer::DrawTrajectories(const base::ObjectPtr &object,
 }
 
 void Visualizer::Draw2Dand3D(const cv::Mat &img, const CameraFrame &frame) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::Draw2Dand3D";
+
   cv::Mat image = img.clone();
   Eigen::Affine3d pose;
   if (!tf_server_->QueryPos(frame.timestamp, &pose)) {
@@ -961,6 +993,8 @@ void Visualizer::Draw2Dand3D(const cv::Mat &img, const CameraFrame &frame) {
 }
 
 void Visualizer::ShowResult(const cv::Mat &img, const CameraFrame &frame) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::ShowResult";
+
   cv::Mat image = img.clone();
   std::string camera_name = frame.data_provider->sensor_name();
 
@@ -1008,6 +1042,8 @@ void Visualizer::Draw2Dand3D_all_info_single_camera(
     const Eigen::Matrix4d &extrinsic,
     const Eigen::Affine3d &world2camera,
     const base::MotionBufferPtr motion_buffer) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::Draw2Dand3D_all_info_single_camera";
+
   cv::Mat image_2D = img.clone();  // All clone should be replaced with global
 
   // plot FOV
@@ -1366,6 +1402,8 @@ void Visualizer::ShowResult_all_info_single_camera(
     const cv::Mat &img, const CameraFrame &frame,
     const base::MotionBufferPtr motion_buffer,
     const Eigen::Affine3d &world2camera) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::ShowResult_all_info_single_camera";
+
   if (frame.timestamp - last_timestamp_ < 0.02) return;
 
   world_image_ = cv::Mat(world_h_, wide_pixel_, CV_8UC3, black_color);
@@ -1481,6 +1519,8 @@ void Visualizer::ShowResult_all_info_single_camera(
 }
 
 void Visualizer::draw_range_circle() {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::draw_range_circle";
+
   cv::circle(world_image_, cv::Point(wide_pixel_ / 2, world_h_), 1 * m2pixel_,
              deep_sky_blue_color, 1);
   for (int i = 20; i < 300; i += 20) {
@@ -1496,17 +1536,23 @@ void Visualizer::draw_range_circle() {
 
 void Visualizer::draw_selected_image_boundary(const int width, int const height,
                                               cv::Mat *image) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::draw_selected_image_boundary";
+
   cv::Rect image_boundary(0, 0, width, height);
   cv::rectangle(*image, image_boundary, light_green_color, 4);
 }
 
 cv::Point Visualizer::world_point_to_bigimg(const Eigen::Vector2d &p) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::world_point_to_bigimg";
+
   cv::Point point;
   point.x = static_cast<int>(-p(1) * m2pixel_ + wide_pixel_ * 0.5);
   point.y = static_cast<int>(world_h_ - p(0) * m2pixel_);
   return point;
 }
 cv::Point Visualizer::world_point_to_bigimg(const Eigen::Vector4f &p) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::world_point_to_bigimg";
+
   cv::Point point;
   point.x = (wide_pixel_ >> 1) -
             static_cast<int>(p(1) * static_cast<float>(m2pixel_));
@@ -1516,6 +1562,8 @@ cv::Point Visualizer::world_point_to_bigimg(const Eigen::Vector4f &p) {
 
 Eigen::Vector2d Visualizer::image2ground(const std::string &camera_name,
                                          cv::Point p_img) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::image2ground";
+
   Eigen::Vector3d p_homo;
 
   p_homo << p_img.x, p_img.y, 1;
@@ -1531,6 +1579,8 @@ Eigen::Vector2d Visualizer::image2ground(const std::string &camera_name,
 }
 cv::Point Visualizer::ground2image(const std::string &camera_name,
                                    Eigen::Vector2d p_ground) {
+    AINFO<<"(DMCZP) EnteringMethod: Visualizer::ground2image";
+
   Eigen::Vector3d p_homo;
 
   p_homo << p_ground(0), p_ground(1), 1;

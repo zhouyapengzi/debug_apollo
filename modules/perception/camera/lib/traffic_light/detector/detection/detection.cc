@@ -34,6 +34,8 @@ using cyber::common::GetAbsolutePath;
 
 bool TrafficLightDetection::Init(
     const camera::TrafficLightDetectorInitOptions &options) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightDetection::Init";
+
   std::string proto_path = GetAbsolutePath(options.root_dir, options.conf_file);
   AINFO << "proto_path " << proto_path;
   if (!cyber::common::GetProtoFromFile(proto_path, &detection_param_)) {
@@ -156,6 +158,8 @@ bool TrafficLightDetection::Init(
 
 bool TrafficLightDetection::Inference(
     std::vector<base::TrafficLightPtr> *lights, DataProvider *data_provider) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightDetection::Inference";
+
   if (cudaSetDevice(gpu_id_) != cudaSuccess) {
     AERROR << "Failed to set device to " << gpu_id_;
     return false;
@@ -234,6 +238,8 @@ bool TrafficLightDetection::Inference(
 
 bool TrafficLightDetection::Detect(const TrafficLightDetectorOptions &options,
                                    CameraFrame *frame) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightDetection::Detect";
+
   if (frame->traffic_lights.empty()) {
     AINFO << "no lights to detect";
     return true;
@@ -294,6 +300,8 @@ bool TrafficLightDetection::SelectOutputBoxes(
     const std::vector<float> &resize_scale_list_col,
     const std::vector<float> &resize_scale_list_row,
     std::vector<base::TrafficLightPtr> *lights) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightDetection::SelectOutputBoxes";
+
   auto output_blob = rt_net_->get_blob(net_outputs_[0]);
   int result_box_num = output_blob->shape(0);
   int each_box_length = output_blob->shape(1);
@@ -374,6 +382,8 @@ bool TrafficLightDetection::SelectOutputBoxes(
 
 void TrafficLightDetection::ApplyNMS(std::vector<base::TrafficLightPtr> *lights,
                                      double iou_thresh) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightDetection::ApplyNMS";
+
   if (lights == nullptr) {
     AERROR << "lights are not available";
     return;
@@ -424,6 +434,8 @@ void TrafficLightDetection::ApplyNMS(std::vector<base::TrafficLightPtr> *lights,
 }
 
 std::string TrafficLightDetection::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightDetection::Name";
+
   return "TrafficLightDetection";
 }
 

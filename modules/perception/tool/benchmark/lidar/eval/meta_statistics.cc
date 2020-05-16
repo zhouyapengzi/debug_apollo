@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -27,6 +28,8 @@ bool OrientationSimilarityMetric::penalize_pi = false;
 
 void OrientationSimilarityMetric::cal_orientation_similarity(
     const ObjectPtr& object, const ObjectPtr& gt_object) {
+    AINFO<<"(DMCZP) EnteringMethod: OrientationSimilarityMetric::cal_orientation_similarity";
+
   if (object.get() == nullptr || gt_object.get() == nullptr) {
     return;
   }
@@ -48,6 +51,8 @@ std::unique_ptr<BaseRangeInterface> MetaStatistics::_s_range_interface(
 unsigned int MetaStatistics::_s_recall_dim = 41;
 
 void MetaStatistics::set_range_type(RangeType type) {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::set_range_type";
+
   switch (type) {
     case VIEW:
       _s_range_interface.reset(new ViewBasedRangeInterface);
@@ -67,36 +72,52 @@ void MetaStatistics::set_range_type(RangeType type) {
 }
 
 void MetaStatistics::set_recall_dim(unsigned int recall_dim) {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::set_recall_dim";
+
   _s_recall_dim = recall_dim;
 }
 
 unsigned int MetaStatistics::get_type_index(const ObjectType& type) {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_type_index";
+
   unsigned index = translate_type_to_index(type);
   return index;
 }
 
 unsigned int MetaStatistics::get_range_index(const PositionMetric& position) {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_range_index";
+
   return _s_range_interface->get_index(position);
 }
 
 unsigned int MetaStatistics::get_confidence_index(double confidence) {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_confidence_index";
+
   unsigned int index = static_cast<unsigned int>(confidence / 0.0001);
   return index;
 }
 
 unsigned int MetaStatistics::get_type_dim() {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_type_dim";
+
   return 4;  // should be sync with get_type_index and object.h!
 }
 
 unsigned int MetaStatistics::get_range_dim() {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_range_dim";
+
   return _s_range_interface->get_dim();
 }
 
 unsigned int MetaStatistics::get_confidence_dim() {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_confidence_dim";
+
   return 10001;  // should be sync with get_confidence_index!
 }
 
 std::string MetaStatistics::get_type(unsigned int index) {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_type";
+
   if (index >= get_type_dim()) {
     return "";
   } else {
@@ -105,10 +126,14 @@ std::string MetaStatistics::get_type(unsigned int index) {
 }
 
 std::string MetaStatistics::get_range(unsigned int index) {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_range";
+
   return _s_range_interface->get_element(index);
 }
 
 double MetaStatistics::get_confidence(unsigned int index) {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_confidence";
+
   if (index >= get_confidence_dim()) {
     return -1.0;
   } else {
@@ -116,11 +141,17 @@ double MetaStatistics::get_confidence(unsigned int index) {
   }
 }
 
-unsigned int MetaStatistics::get_recall_dim() { return _s_recall_dim; }
+unsigned int MetaStatistics::get_recall_dim() {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_recall_dim";
+ return _s_recall_dim; }
 
-MetaStatistics::MetaStatistics() {}
+MetaStatistics::MetaStatistics() {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::MetaStatistics";
+}
 
 void MetaStatistics::reset() {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::reset";
+
   _total_detection_num.assign(get_range_dim(), 0);
   _total_groundtruth_num.assign(get_range_dim(), 0);
   _total_ji_match_num.assign(get_range_dim(), 0);
@@ -152,6 +183,8 @@ void MetaStatistics::reset() {
 
 template <typename T>
 void vec_add1(std::vector<T>* dst, const std::vector<T>& src) {
+    AINFO<<"(DMCZP) EnteringMethod: vec_add1";
+
   for (std::size_t i = 0; i < dst->size(); ++i) {
     dst->at(i) += src[i];
   }
@@ -160,6 +193,8 @@ void vec_add1(std::vector<T>* dst, const std::vector<T>& src) {
 template <typename T>
 void vec_add2(std::vector<std::vector<T>>* dst,
               const std::vector<std::vector<T>>& src) {
+    AINFO<<"(DMCZP) EnteringMethod: vec_add2";
+
   for (std::size_t i = 0; i < dst->size(); ++i) {
     for (std::size_t j = 0; j < dst->at(0).size(); ++j) {
       dst->at(i)[j] += src[i][j];
@@ -170,6 +205,8 @@ void vec_add2(std::vector<std::vector<T>>* dst,
 template <typename T>
 void vec_add3(std::vector<std::vector<std::vector<T>>>* dst,
               const std::vector<std::vector<std::vector<T>>>& src) {
+    AINFO<<"(DMCZP) EnteringMethod: vec_add3";
+
   for (std::size_t i = 0; i < dst->size(); ++i) {
     for (std::size_t j = 0; j < dst->at(0).size(); ++j) {
       for (std::size_t k = 0; k < dst->at(0)[0].size(); ++k) {
@@ -186,6 +223,8 @@ void compute_ap_aos(
     std::vector<SPRCTuple>* tuples,
     const std::vector<double>& cumulated_orientation_similarity_per_conf,
     double* aos) {
+    AINFO<<"(DMCZP) EnteringMethod: compute_ap_aos";
+
   if (ap == nullptr || tuples == nullptr || aos == nullptr) {
     return;
   }
@@ -302,6 +341,8 @@ MetaStatistics& MetaStatistics::operator+=(const MetaStatistics& rhs) {
 
 void MetaStatistics::get_2017_detection_precision_and_recall(
     std::vector<double>* precisions, std::vector<double>* recalls) const {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+
   if (precisions == nullptr || recalls == nullptr) {
     return;
   }
@@ -338,6 +379,8 @@ void MetaStatistics::get_2017_detection_precision_and_recall(
 
 void MetaStatistics::get_2017_detection_visible_recall(
     std::vector<double>* recalls) const {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_detection_visible_recall";
+
   if (recalls == nullptr) {
     return;
   }
@@ -361,6 +404,8 @@ void MetaStatistics::get_2017_detection_visible_recall(
 }
 
 void MetaStatistics::get_2017_aad(std::vector<double>* aad) const {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_aad";
+
   if (aad == nullptr) {
     return;
   }
@@ -387,6 +432,8 @@ void MetaStatistics::get_2017_aad(std::vector<double>* aad) const {
 
 void MetaStatistics::get_2016_detection_precision_and_recall(
     std::vector<double>* precisions, std::vector<double>* recalls) const {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2016_detection_precision_and_recall";
+
   precisions->resize(get_range_dim(), 0.0);
   recalls->resize(get_range_dim(), 0.0);
   for (std::size_t i = 0; i < get_range_dim(); ++i) {
@@ -403,6 +450,8 @@ void MetaStatistics::get_2016_detection_precision_and_recall(
 
 void MetaStatistics::get_2017_detection_ap_per_type(
     std::vector<double>* ap, std::vector<std::vector<SPRCTuple>>* tuples) {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_detection_ap_per_type";
+
   if (ap == nullptr || tuples == nullptr) {
     return;
   }
@@ -429,6 +478,8 @@ void MetaStatistics::get_2017_detection_ap_per_type(
 
 void MetaStatistics::get_2017_detection_ap_aos(
     double* ap, double* aos, std::vector<SPRCTuple>* tuples) const {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_detection_ap_aos";
+
   if (ap == nullptr || aos == nullptr || tuples == nullptr) {
     return;
   }
@@ -453,6 +504,8 @@ void MetaStatistics::get_2017_detection_ap_aos(
 
 void MetaStatistics::get_2017_classification_accuracy(
     std::vector<std::vector<double>>* accuracys) const {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_classification_accuracy";
+
   if (accuracys == nullptr) {
     return;
   }
@@ -489,6 +542,8 @@ void MetaStatistics::get_2017_classification_accuracy(
 
 void MetaStatistics::get_2016_classification_accuracy(
     std::vector<std::vector<double>>* accuracys) const {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2016_classification_accuracy";
+
   if (accuracys == nullptr) {
     return;
   }
@@ -512,6 +567,8 @@ void MetaStatistics::get_classification_confusion_matrix(
     std::vector<std::vector<double>>* matrix_gt_major,
     std::vector<std::vector<double>>* matrix_det_major,
     std::vector<std::vector<double>>* matrix_det_major_with_fp) const {
+    AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_classification_confusion_matrix";
+
   if (matrix_gt_major == nullptr || matrix_det_major == nullptr) {
     return;
   }

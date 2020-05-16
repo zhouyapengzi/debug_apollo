@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -28,6 +29,8 @@ std::string RadarTrack::s_chosen_filter_ =  // NOLINT
     "AdaptiveKalmanFilter";
 
 RadarTrack::RadarTrack(const base::ObjectPtr& obs, const double timestamp) {
+    AINFO<<"(DMCZP) EnteringMethod: RadarTrack::RadarTrack";
+
   s_current_idx_ %= MAX_RADAR_IDX;
   obs_id_ = s_current_idx_++;
   obs_radar_ = base::ObjectPool::Instance().Get();
@@ -52,6 +55,8 @@ RadarTrack::RadarTrack(const base::ObjectPtr& obs, const double timestamp) {
 
 void RadarTrack::UpdataObsRadar(const base::ObjectPtr& obs_radar,
                                 const double timestamp) {
+    AINFO<<"(DMCZP) EnteringMethod: RadarTrack::UpdataObsRadar";
+
   *obs_radar_ = *obs_radar;
   *obs_ = *obs_radar;
   double time_diff = timestamp - timestamp_;
@@ -74,19 +79,31 @@ void RadarTrack::UpdataObsRadar(const base::ObjectPtr& obs_radar,
 }
 
 void RadarTrack::SetObsRadarNullptr() {
+    AINFO<<"(DMCZP) EnteringMethod: RadarTrack::SetObsRadarNullptr";
+
   obs_radar_ = nullptr;
   obs_ = nullptr;
 }
 
-base::ObjectPtr RadarTrack::GetObsRadar() { return obs_radar_; }
+base::ObjectPtr RadarTrack::GetObsRadar() {
+    AINFO<<"(DMCZP) EnteringMethod: RadarTrack::GetObsRadar";
+ return obs_radar_; }
 
-base::ObjectPtr RadarTrack::GetObs() { return obs_; }
+base::ObjectPtr RadarTrack::GetObs() {
+    AINFO<<"(DMCZP) EnteringMethod: RadarTrack::GetObs";
+ return obs_; }
 
-int RadarTrack::GetObsId() const { return obs_id_; }
+int RadarTrack::GetObsId() const {
+    AINFO<<"(DMCZP) EnteringMethod: RadarTrack::GetObsId";
+ return obs_id_; }
 
-double RadarTrack::GetTimestamp() { return timestamp_; }
+double RadarTrack::GetTimestamp() {
+    AINFO<<"(DMCZP) EnteringMethod: RadarTrack::GetTimestamp";
+ return timestamp_; }
 
-double RadarTrack::GetTrackingTime() { return tracking_time_; }
+double RadarTrack::GetTrackingTime() {
+    AINFO<<"(DMCZP) EnteringMethod: RadarTrack::GetTrackingTime";
+ return tracking_time_; }
 }  // namespace radar
 }  // namespace perception
 }  // namespace apollo

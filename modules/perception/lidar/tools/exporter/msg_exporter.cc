@@ -35,6 +35,8 @@ namespace lidar {
 MsgExporter::MsgExporter(std::shared_ptr<apollo::cyber::Node> node,
                          const std::vector<std::string> channels,
                          const std::vector<std::string> child_frame_ids) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::MsgExporter";
+
   _cyber_node = node;
   _channels = channels;
   _child_frame_ids = child_frame_ids;
@@ -73,6 +75,8 @@ MsgExporter::MsgExporter(std::shared_ptr<apollo::cyber::Node> node,
 void MsgExporter::ImageMessageHandler(
     const std::shared_ptr<const ImgMsg>& img_msg, const std::string& channel,
     const std::string& child_frame_id, const std::string& folder) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::ImageMessageHandler";
+
   double timestamp = img_msg->measurement_time();
   // std::cout << "Receive image message from channel: " << channel <<
   //    " at time: " << GLOG_TIMESTAMP(timestamp) << std::endl;
@@ -97,6 +101,8 @@ void MsgExporter::ImageMessageHandler(
 void MsgExporter::PointCloudMessageHandler(
     const std::shared_ptr<const PcMsg>& cloud_msg, const std::string& channel,
     const std::string& child_frame_id, const std::string& folder) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::PointCloudMessageHandler";
+
   double timestamp = cloud_msg->measurement_time();
   // std::cout << "Receive point cloud message from channel: " << channel <<
   //    " at time: " << GLOG_TIMESTAMP(timestamp) << std::endl;
@@ -132,6 +138,8 @@ void MsgExporter::PointCloudMessageHandler(
 bool MsgExporter::SavePointCloud(
     const pcl::PointCloud<PCLPointXYZIT>& point_cloud, double timestamp,
     const std::string& folder) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::SavePointCloud";
+
   static char path[500];
   snprintf(path, sizeof(path), "%s/%.6f.pcd", folder.c_str(), timestamp);
   pcl::PCDWriter writer;
@@ -143,6 +151,8 @@ bool MsgExporter::SaveImage(const unsigned char* color_image,
                             const unsigned char* range_image, std::size_t width,
                             std::size_t height, double timestamp,
                             const std::string& folder) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::SaveImage";
+
   cv::Mat image(static_cast<int>(height), static_cast<int>(width), CV_8UC1,
                 const_cast<unsigned char*>(color_image));
   static char path[500];
@@ -167,6 +177,8 @@ bool MsgExporter::SaveImage(const unsigned char* color_image,
 bool MsgExporter::QuerySensorToWorldPose(double timestamp,
                                          const std::string& child_frame_id,
                                          Eigen::Matrix4d* pose) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::QuerySensorToWorldPose";
+
   Eigen::Matrix4d sensor2novatel_extrinsics = Eigen::Matrix4d::Identity();
   Eigen::Matrix4d novatel2world_pose;
   // query sensor to novatel extrinsics
@@ -187,6 +199,8 @@ bool MsgExporter::QuerySensorToWorldPose(double timestamp,
 bool MsgExporter::QueryPose(double timestamp, const std::string& frame_id,
                             const std::string& child_frame_id,
                             Eigen::Matrix4d* pose) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::QueryPose";
+
   cyber::Time query_time(timestamp);
   std::string err_string;
   if (!tf2_buffer_->canTransform(frame_id, child_frame_id, query_time, 0.05f,
@@ -218,6 +232,8 @@ bool MsgExporter::QueryPose(double timestamp, const std::string& frame_id,
 
 bool MsgExporter::SavePose(const Eigen::Matrix4d& pose, double timestamp,
                            const std::string& folder) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::SavePose";
+
   Eigen::Affine3d affine(pose);
   Eigen::Quaterniond quat = (Eigen::Quaterniond)affine.linear();
   static char path[500];
@@ -233,21 +249,29 @@ bool MsgExporter::SavePose(const Eigen::Matrix4d& pose, double timestamp,
 }
 
 bool MsgExporter::IsStereoCamera(const std::string& channel) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::IsStereoCamera";
+
   const std::vector<std::string> strs = absl::StrSplit(channel, '/');
   return strs.size() > 2 && strs[2] == "smartereye";
 }
 
 bool MsgExporter::IsCamera(const std::string& channel) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::IsCamera";
+
   const std::vector<std::string> strs = absl::StrSplit(channel, '/');
   return strs.size() > 1 && strs[1] == "camera";
 }
 
 bool MsgExporter::IsLidar(const std::string& channel) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::IsLidar";
+
   const std::vector<std::string> strs = absl::StrSplit(channel, '/');
   return strs.size() > 0 && strs.back() == "PointCloud2";
 }
 
 std::string MsgExporter::TransformChannelToFolder(const std::string& channel) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgExporter::TransformChannelToFolder";
+
   const std::vector<std::string> strs = absl::StrSplit(channel, '/');
   std::string target = "";
   for (auto& str : strs) {

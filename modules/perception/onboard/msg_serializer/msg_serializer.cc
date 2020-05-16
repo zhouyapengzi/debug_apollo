@@ -31,6 +31,8 @@ bool MsgSerializer::SerializeMsg(double timestamp, uint64_t lidar_timestamp,
                                  const std::vector<base::ObjectPtr> &objects,
                                  const apollo::common::ErrorCode &error_code,
                                  PerceptionObstacles *obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgSerializer::SerializeMsg";
+
   double publish_time = apollo::common::time::Clock::NowInSeconds();
   ::apollo::common::Header *header = obstacles->mutable_header();
   header->set_timestamp_sec(publish_time);
@@ -53,6 +55,8 @@ bool MsgSerializer::SerializeMsg(double timestamp, uint64_t lidar_timestamp,
 
 bool MsgSerializer::ConvertObjectToPb(const base::ObjectPtr &object_ptr,
                                       PerceptionObstacle *pb_msg) {
+    AINFO<<"(DMCZP) EnteringMethod: MsgSerializer::ConvertObjectToPb";
+
   if (object_ptr == nullptr || pb_msg == nullptr) {
     return false;
   }

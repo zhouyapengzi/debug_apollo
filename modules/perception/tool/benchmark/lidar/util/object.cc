@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -23,6 +24,8 @@ namespace perception {
 namespace benchmark {
 
 Object::Object() {
+    AINFO<<"(DMCZP) EnteringMethod: Object::Object";
+
   direction = Eigen::Vector3d(1, 0, 0);
   center = Eigen::Vector3d::Zero();
   velocity = Eigen::Vector3d::Zero();
@@ -34,6 +37,8 @@ Object::Object() {
 }
 
 Object::Object(const Object& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: Object::Object";
+
   id = rhs.id;
   cloud = rhs.cloud;
   indices = rhs.indices;
@@ -101,6 +106,8 @@ Object& Object::operator=(const Object& rhs) {
 }
 
 void Object::clone(const Object& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: Object::clone";
+
   id = rhs.id;
   pcl::copyPointCloud<Point, Point>(*(rhs.cloud), *cloud);
   indices->indices = rhs.indices->indices;
@@ -148,6 +155,8 @@ void Object::clone(const Object& rhs) {
 }
 
 std::string Object::to_string() const {
+    AINFO<<"(DMCZP) EnteringMethod: Object::to_string";
+
   std::ostringstream oss;
   oss << "Object[id: " << id << ", track_id: " << track_id
       << ", cloud_size: " << cloud->size()
@@ -167,6 +176,8 @@ std::string Object::to_string() const {
 }
 
 std::string get_object_name(ObjectType obj_type) {
+    AINFO<<"(DMCZP) EnteringMethod: get_object_name";
+
   std::string obj_name;
   switch (obj_type) {
     case UNKNOWN:
@@ -195,6 +206,8 @@ std::string get_object_name(ObjectType obj_type) {
 }
 
 std::string get_sensor_name(SensorType sensor_type) {
+    AINFO<<"(DMCZP) EnteringMethod: get_sensor_name";
+
   std::string sensor_name;
   switch (sensor_type) {
     case VELODYNE_64:
@@ -217,6 +230,8 @@ std::string get_sensor_name(SensorType sensor_type) {
 }
 
 std::string SensorObjects::to_string() const {
+    AINFO<<"(DMCZP) EnteringMethod: SensorObjects::to_string";
+
   std::ostringstream oss;
   oss << "SensorObjects[sensor_type: " << get_sensor_name(type)
       << ", name: " << name << ", timestamp:" << GLOG_TIMESTAMP(timestamp)
@@ -230,6 +245,8 @@ std::string SensorObjects::to_string() const {
 }
 
 ObjectType translate_string_to_type(const std::string& str) {
+    AINFO<<"(DMCZP) EnteringMethod: translate_string_to_type";
+
   if (str == "bigMot" || str == "smallMot" || str == "vehicle" ||
       str == "midMot" || str == "5") {
     return VEHICLE;
@@ -244,6 +261,8 @@ ObjectType translate_string_to_type(const std::string& str) {
 }
 
 unsigned int translate_type_to_index(const ObjectType& type) {
+    AINFO<<"(DMCZP) EnteringMethod: translate_type_to_index";
+
   if (type <= UNKNOWN) {
     return 0;
   } else if (type < MAX_OBJECT_TYPE) {
@@ -254,6 +273,8 @@ unsigned int translate_type_to_index(const ObjectType& type) {
 }
 
 std::string translate_type_index_to_string(unsigned int index) {
+    AINFO<<"(DMCZP) EnteringMethod: translate_type_index_to_string";
+
   switch (index) {
     case 0:
       return "others";
@@ -269,6 +290,8 @@ std::string translate_type_index_to_string(unsigned int index) {
 }
 
 SensorType translate_string_to_sensor_type(const std::string& str) {
+    AINFO<<"(DMCZP) EnteringMethod: translate_string_to_sensor_type";
+
   if (str == "velodyne_64") {
     return VELODYNE_64;
   } else if (str == "velodyne_16") {
@@ -283,6 +306,8 @@ SensorType translate_string_to_sensor_type(const std::string& str) {
 }
 
 std::string translate_type_to_string(ObjectType type) {
+    AINFO<<"(DMCZP) EnteringMethod: translate_type_to_string";
+
   switch (type) {
     case UNKNOWN:
     case UNKNOWN_MOVABLE:
@@ -301,6 +326,8 @@ std::string translate_type_to_string(ObjectType type) {
 }
 
 std::string translate_sensor_type_to_string(const SensorType& type) {
+    AINFO<<"(DMCZP) EnteringMethod: translate_sensor_type_to_string";
+
   switch (type) {
     case VELODYNE_64:
       return "velodyne_64";

@@ -27,6 +27,8 @@ namespace inference {
 
 BatchStream::BatchStream(int batchSize, int maxBatches, std::string dataPath)
     : mBatchSize(batchSize), mMaxBatches(maxBatches), mPath(dataPath) {
+    AINFO<<"(DMCZP) EnteringMethod: BatchStream::BatchStream";
+
   FILE *file = fopen((mPath + "Batch0").c_str(), "rb");
   if (file != nullptr) {
     int d[4];
@@ -41,9 +43,13 @@ BatchStream::BatchStream(int batchSize, int maxBatches, std::string dataPath)
   }
 }
 
-BatchStream::BatchStream() : mPath("") {}
+BatchStream::BatchStream() : mPath("") {
+    AINFO<<"(DMCZP) EnteringMethod: BatchStream::BatchStream";
+}
 
 void BatchStream::reset(int firstBatch) {
+    AINFO<<"(DMCZP) EnteringMethod: BatchStream::reset";
+
   if (mPath != "") {
     mBatchCount = 0;
     mFileCount = 0;
@@ -53,6 +59,8 @@ void BatchStream::reset(int firstBatch) {
 }
 
 bool BatchStream::next() {
+    AINFO<<"(DMCZP) EnteringMethod: BatchStream::next";
+
   if (mBatchCount == mMaxBatches) {
     return false;
   }
@@ -77,6 +85,8 @@ bool BatchStream::next() {
 }
 
 void BatchStream::skip(int skipCount) {
+    AINFO<<"(DMCZP) EnteringMethod: BatchStream::skip";
+
   if (mBatchSize >= mDims.n() && mBatchSize % mDims.n() == 0 &&
       mFileBatchPos == mDims.n()) {
     mFileCount += skipCount * mBatchSize / mDims.n();
@@ -91,6 +101,8 @@ void BatchStream::skip(int skipCount) {
 }
 
 bool BatchStream::update() {
+    AINFO<<"(DMCZP) EnteringMethod: BatchStream::update";
+
   std::string inputFileName = absl::StrCat(mPath, "Batch", mFileCount++);
   FILE *file = fopen(inputFileName.c_str(), "rb");
   if (file == nullptr) {

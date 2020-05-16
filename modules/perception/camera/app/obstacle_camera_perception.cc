@@ -37,6 +37,8 @@ using cyber::common::GetAbsolutePath;
 
 bool ObstacleCameraPerception::Init(
     const CameraPerceptionInitOptions &options) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleCameraPerception::Init";
+
   std::string work_root = "";
   if (options.use_cyber_work_root) {
     work_root = GetCyberWorkRoot();
@@ -183,6 +185,8 @@ bool ObstacleCameraPerception::Init(
 void ObstacleCameraPerception::InitLane(
     const std::string &work_root,
     const app::PerceptionParam &perception_param) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleCameraPerception::InitLane";
+
   // Init lane
   CHECK_GT(perception_param.lane_param_size(), 0)
       << "Failed to include lane_param";
@@ -251,6 +255,8 @@ void ObstacleCameraPerception::InitLane(
 void ObstacleCameraPerception::InitCalibrationService(
     const std::string &work_root, const base::BaseCameraModelPtr model,
     const app::PerceptionParam &perception_param) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleCameraPerception::InitCalibrationService";
+
   // Init calibration service
   CHECK(perception_param.has_calibration_service_param())
       << "Failed to include calibration_service_param.";
@@ -282,6 +288,8 @@ void ObstacleCameraPerception::SetCameraHeightAndPitch(
     const std::map<std::string, float> &name_camera_ground_height_map,
     const std::map<std::string, float> &name_camera_pitch_angle_diff_map,
     const float &pitch_angle_calibrator_working_sensor) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleCameraPerception::SetCameraHeightAndPitch";
+
   if (calibration_service_ == nullptr) {
     AERROR << "Calibraion service is not available";
     return;
@@ -293,6 +301,8 @@ void ObstacleCameraPerception::SetCameraHeightAndPitch(
 
 void ObstacleCameraPerception::SetIm2CarHomography(
     Eigen::Matrix3d homography_im2car) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleCameraPerception::SetIm2CarHomography";
+
   if (calibration_service_ == nullptr) {
     AERROR << "Calibraion service is not available";
     return;
@@ -302,12 +312,16 @@ void ObstacleCameraPerception::SetIm2CarHomography(
 
 bool ObstacleCameraPerception::GetCalibrationService(
     BaseCalibrationService **calibration_service) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleCameraPerception::GetCalibrationService";
+
   *calibration_service = calibration_service_.get();
   return true;
 }
 
 bool ObstacleCameraPerception::Perception(
     const CameraPerceptionOptions &options, CameraFrame *frame) {
+    AINFO<<"(DMCZP) EnteringMethod: ObstacleCameraPerception::Perception";
+
   PERCEPTION_PERF_FUNCTION();
   inference::CudaUtil::set_device_id(perception_param_.gpu_id());
   ObstacleDetectorOptions detector_options;

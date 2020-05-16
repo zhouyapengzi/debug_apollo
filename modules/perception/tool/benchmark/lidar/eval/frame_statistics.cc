@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -27,6 +28,8 @@ bool FrameStatistics::_s_roi_is_main_lanes = false;
 
 double cal_point_based_jaccard_index(unsigned int n1, unsigned int n2,
                                      unsigned int overlap) {
+    AINFO<<"(DMCZP) EnteringMethod: cal_point_based_jaccard_index";
+
   if (n1 + n2 <= overlap) {
     return 0;
   }
@@ -34,18 +37,26 @@ double cal_point_based_jaccard_index(unsigned int n1, unsigned int n2,
 }
 
 void FrameStatistics::set_jaccard_index_threshold(double threshold) {
+    AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::set_jaccard_index_threshold";
+
   _s_jaccard_index_threshold = threshold;
 }
 
 void FrameStatistics::set_jaccard_index_percentile(double percentile) {
+    AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::set_jaccard_index_percentile";
+
   _s_jaccard_index_percentile = percentile;
 }
 
 void FrameStatistics::set_roi_is_main_lanes(bool value) {
+    AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::set_roi_is_main_lanes";
+
   _s_roi_is_main_lanes = value;
 }
 
 double FrameStatistics::jaccard_index_percentile() const {
+    AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::jaccard_index_percentile";
+
   if (_jaccard_indices.empty()) {
     return 0.0;
   }
@@ -60,6 +71,8 @@ double FrameStatistics::jaccard_index_percentile() const {
 }
 
 bool FrameStatistics::find_association() {
+    AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::find_association";
+
   std::size_t objects_num = objects.size();
   std::size_t gt_objects_num = gt_objects.size();
 
@@ -215,6 +228,8 @@ bool FrameStatistics::find_association() {
   return true;
 }
 bool FrameStatistics::cal_meta_statistics() {
+    AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::cal_meta_statistics";
+
   _meta_stat.reset();
   std::vector<unsigned int> gt_object_range_indices(_gt_object_position.size(),
                                                     0);

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -29,6 +30,8 @@ uint32_t FusionComponent::s_seq_num_ = 0;
 std::mutex FusionComponent::s_mutex_;
 
 bool FusionComponent::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: FusionComponent::Init";
+
   FusionComponentConfig comp_config;
   if (!GetProtoConfig(&comp_config)) {
     return false;
@@ -51,6 +54,8 @@ bool FusionComponent::Init() {
 }
 
 bool FusionComponent::Proc(const std::shared_ptr<SensorFrameMessage>& message) {
+    AINFO<<"(DMCZP) EnteringMethod: FusionComponent::Proc";
+
   if (message->process_stage_ == ProcessStage::SENSOR_FUSION) {
     return true;
   }
@@ -79,6 +84,8 @@ bool FusionComponent::Proc(const std::shared_ptr<SensorFrameMessage>& message) {
 }
 
 bool FusionComponent::InitAlgorithmPlugin() {
+    AINFO<<"(DMCZP) EnteringMethod: FusionComponent::InitAlgorithmPlugin";
+
   fusion_.reset(new fusion::ObstacleMultiSensorFusion());
   fusion::ObstacleMultiSensorFusionParam param;
   param.main_sensor = fusion_main_sensor_;
@@ -97,6 +104,8 @@ bool FusionComponent::InternalProc(
     const std::shared_ptr<SensorFrameMessage const>& in_message,
     std::shared_ptr<PerceptionObstacles> out_message,
     std::shared_ptr<SensorFrameMessage> viz_message) {
+    AINFO<<"(DMCZP) EnteringMethod: FusionComponent::InternalProc";
+
   {
     std::unique_lock<std::mutex> lock(s_mutex_);
     s_seq_num_++;

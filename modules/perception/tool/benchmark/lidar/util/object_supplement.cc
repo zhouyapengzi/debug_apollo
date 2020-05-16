@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -20,24 +21,34 @@ namespace perception {
 namespace benchmark {
 
 /**LidarSupplement implementation*/
-LidarSupplement::LidarSupplement() {}
+LidarSupplement::LidarSupplement() {
+    AINFO<<"(DMCZP) EnteringMethod: LidarSupplement::LidarSupplement";
+}
 
 LidarSupplement::~LidarSupplement() {}
 
-LidarSupplement::LidarSupplement(const LidarSupplement& rhs) {}
+LidarSupplement::LidarSupplement(const LidarSupplement& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: LidarSupplement::LidarSupplement";
+}
 
 LidarSupplement& LidarSupplement::operator=(const LidarSupplement& rhs) {
   return (*this);
 }
 
-void LidarSupplement::clone(const LidarSupplement& rhs) {}
+void LidarSupplement::clone(const LidarSupplement& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: LidarSupplement::clone";
+}
 
 /**RadarSupplement implementation*/
-RadarSupplement::RadarSupplement() {}
+RadarSupplement::RadarSupplement() {
+    AINFO<<"(DMCZP) EnteringMethod: RadarSupplement::RadarSupplement";
+}
 
 RadarSupplement::~RadarSupplement() {}
 
 RadarSupplement::RadarSupplement(const RadarSupplement& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: RadarSupplement::RadarSupplement";
+
   range = rhs.range;
   angle = rhs.angle;
   relative_radial_velocity = rhs.relative_radial_velocity;
@@ -53,6 +64,8 @@ RadarSupplement& RadarSupplement::operator=(const RadarSupplement& rhs) {
 }
 
 void RadarSupplement::clone(const RadarSupplement& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: RadarSupplement::clone";
+
   range = rhs.range;
   angle = rhs.angle;
   relative_radial_velocity = rhs.relative_radial_velocity;
@@ -60,11 +73,15 @@ void RadarSupplement::clone(const RadarSupplement& rhs) {
 }
 
 /**CameraSupplement implementation*/
-CameraSupplement::CameraSupplement() {}
+CameraSupplement::CameraSupplement() {
+    AINFO<<"(DMCZP) EnteringMethod: CameraSupplement::CameraSupplement";
+}
 
 CameraSupplement::~CameraSupplement() {}
 
 CameraSupplement::CameraSupplement(const CameraSupplement& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: CameraSupplement::CameraSupplement";
+
   upper_left = rhs.upper_left;
   lower_right = rhs.lower_right;
 }
@@ -76,6 +93,8 @@ CameraSupplement& CameraSupplement::operator=(const CameraSupplement& rhs) {
 }
 
 void CameraSupplement::clone(const CameraSupplement& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: CameraSupplement::clone";
+
   upper_left = rhs.upper_left;
   lower_right = rhs.lower_right;
 }

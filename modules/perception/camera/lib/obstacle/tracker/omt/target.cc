@@ -28,12 +28,18 @@ namespace perception {
 namespace camera {
 
 int Target::global_track_id = 0;
-int Target::Size() const { return static_cast<int>(tracked_objects.size()); }
+int Target::Size() const {
+    AINFO<<"(DMCZP) EnteringMethod: Target::Size";
+ return static_cast<int>(tracked_objects.size()); }
 
-void Target::Clear() { tracked_objects.clear(); }
+void Target::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: Target::Clear";
+ tracked_objects.clear(); }
 
 TrackObjectPtr Target::operator[](int index) const { return get_object(index); }
 TrackObjectPtr Target::get_object(int index) const {
+    AINFO<<"(DMCZP) EnteringMethod: Target::get_object";
+
   CHECK_GT(tracked_objects.size(), 0);
   CHECK_LT(index, static_cast<int>(tracked_objects.size()));
   CHECK_GE(index, -static_cast<int>(tracked_objects.size()));
@@ -41,6 +47,8 @@ TrackObjectPtr Target::get_object(int index) const {
                          tracked_objects.size()];
 }
 void Target::Add(TrackObjectPtr object) {
+    AINFO<<"(DMCZP) EnteringMethod: Target::Add";
+
   if (tracked_objects.empty()) {
     start_ts = object->timestamp;
     id = Target::global_track_id++;
@@ -54,6 +62,8 @@ void Target::Add(TrackObjectPtr object) {
   tracked_objects.push_back(object);
 }
 void Target::RemoveOld(int frame_id) {
+    AINFO<<"(DMCZP) EnteringMethod: Target::RemoveOld";
+
   size_t index = 0;
   while (index < tracked_objects.size() &&
          tracked_objects[index]->indicator.frame_id < frame_id) {
@@ -63,6 +73,8 @@ void Target::RemoveOld(int frame_id) {
                         tracked_objects.begin() + index);
 }
 void Target::Init(const omt::TargetParam &param) {
+    AINFO<<"(DMCZP) EnteringMethod: Target::Init";
+
   target_param_ = param;
   id = -1;
   lost_age = 0;
@@ -100,9 +112,13 @@ void Target::Init(const omt::TargetParam &param) {
   // Init object template
   object_template_manager_ = ObjectTemplateManager::Instance();
 }
-Target::Target(const omt::TargetParam &param) { Init(param); }
+Target::Target(const omt::TargetParam &param) {
+    AINFO<<"(DMCZP) EnteringMethod: Target::Target";
+ Init(param); }
 
 void Target::Predict(CameraFrame *frame) {
+    AINFO<<"(DMCZP) EnteringMethod: Target::Predict";
+
   auto delta_t =
       static_cast<float>(frame->timestamp - latest_object->timestamp);
   if (delta_t < 0) {
@@ -128,6 +144,8 @@ void Target::Predict(CameraFrame *frame) {
 }
 
 void Target::Update2D(CameraFrame *frame) {
+    AINFO<<"(DMCZP) EnteringMethod: Target::Update2D";
+
   // measurements
   auto obj = latest_object->object;
   float width = static_cast<float>(frame->data_provider->src_width());
@@ -159,6 +177,8 @@ void Target::Update2D(CameraFrame *frame) {
 }
 
 void Target::Update3D(CameraFrame *frame) {
+    AINFO<<"(DMCZP) EnteringMethod: Target::Update3D";
+
   auto object = latest_object->object;
   if (!isLost()) {
     Eigen::Vector2d z;
@@ -306,6 +326,8 @@ void Target::Update3D(CameraFrame *frame) {
 }
 
 void Target::UpdateType(CameraFrame *frame) {
+    AINFO<<"(DMCZP) EnteringMethod: Target::UpdateType";
+
   auto object = latest_object->object;
   if (!isLost()) {
     base::RectF rect(object->camera_supplement.box);
@@ -346,6 +368,8 @@ void Target::UpdateType(CameraFrame *frame) {
 }
 
 void Target::ClappingTrackVelocity(const base::ObjectPtr &obj) {
+    AINFO<<"(DMCZP) EnteringMethod: Target::ClappingTrackVelocity";
+
   // check angle between velocity and heading(orientation)
   if (obj->type == base::ObjectType::VEHICLE) {
     Eigen::Vector3f obj_dir = obj->direction;
@@ -386,6 +410,8 @@ void Target::ClappingTrackVelocity(const base::ObjectPtr &obj) {
  * 3. check velocity theta's variance
  */
 bool Target::CheckStatic() {
+    AINFO<<"(DMCZP) EnteringMethod: Target::CheckStatic";
+
   if (static_cast<int>(history_world_states_.size()) <
       target_param_.min_cached_world_state_history_size()) {
     return false;
@@ -483,9 +509,13 @@ bool Target::CheckStatic() {
 }
 
 bool Target::isTracked() const {
+    AINFO<<"(DMCZP) EnteringMethod: Target::isTracked";
+
   return Size() >= target_param_.tracked_life();
 }
-bool Target::isLost() const { return lost_age > 0; }
+bool Target::isLost() const {
+    AINFO<<"(DMCZP) EnteringMethod: Target::isLost";
+ return lost_age > 0; }
 
 }  // namespace camera
 }  // namespace perception

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -28,6 +29,8 @@ namespace lidar {
 
 bool LidarObstacleSegmentation::Init(
     const LidarObstacleSegmentationInitOptions& options) {
+    AINFO<<"(DMCZP) EnteringMethod: LidarObstacleSegmentation::Init";
+
   auto& sensor_name = options.sensor_name;
   auto config_manager = lib::ConfigManager::Instance();
   const lib::ModelConfig* model_config = nullptr;
@@ -86,6 +89,10 @@ bool LidarObstacleSegmentation::Init(
 
 LidarProcessResult LidarObstacleSegmentation::Process(
     const LidarObstacleSegmentationOptions& options, LidarFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: LidarObstacleSegmentation::Process";
+
+    AINFO<<"(DMCZP) EnteringMethod: LidarObstacleSegmentation::Process";
+
   PointCloudPreprocessorOptions preprocessor_options;
   preprocessor_options.sensor2novatel_extrinsics =
       options.sensor2novatel_extrinsics;
@@ -118,6 +125,8 @@ LidarProcessResult LidarObstacleSegmentation::Process(
 
 LidarProcessResult LidarObstacleSegmentation::ProcessCommon(
     const LidarObstacleSegmentationOptions& options, LidarFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: LidarObstacleSegmentation::ProcessCommon";
+
   const auto& sensor_name = options.sensor_name;
 
   PERCEPTION_PERF_BLOCK_START();

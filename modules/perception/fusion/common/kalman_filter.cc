@@ -20,10 +20,14 @@ namespace apollo {
 namespace perception {
 namespace fusion {
 
-KalmanFilter::KalmanFilter() : BaseFilter("KalmanFilter") {}
+KalmanFilter::KalmanFilter() : BaseFilter("KalmanFilter") {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::KalmanFilter";
+}
 
 bool KalmanFilter::Init(const Eigen::VectorXd &initial_belief_states,
                         const Eigen::MatrixXd &initial_uncertainty) {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::Init";
+
   if (initial_uncertainty.rows() != initial_uncertainty.cols()) {
     AERROR << "the cols and rows of uncertainty martix should be equal";
     return false;
@@ -61,6 +65,8 @@ bool KalmanFilter::Init(const Eigen::VectorXd &initial_belief_states,
 
 bool KalmanFilter::Predict(const Eigen::MatrixXd &transform_matrix,
                            const Eigen::MatrixXd &env_uncertainty_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::Predict";
+
   if (!init_) {
     AERROR << "Predict: Kalman Filter initialize not successfully";
     return false;
@@ -92,6 +98,8 @@ bool KalmanFilter::Predict(const Eigen::MatrixXd &transform_matrix,
 
 bool KalmanFilter::Correct(const Eigen::VectorXd &cur_observation,
                            const Eigen::MatrixXd &cur_observation_uncertainty) {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::Correct";
+
   if (!init_) {
     AERROR << "Correct: Kalman Filter initialize not successfully";
     return false;
@@ -129,6 +137,8 @@ bool KalmanFilter::Correct(const Eigen::VectorXd &cur_observation,
 }
 
 bool KalmanFilter::SetControlMatrix(const Eigen::MatrixXd &control_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::SetControlMatrix";
+
   if (!init_) {
     AERROR << "SetControlMatrix: Kalman Filter initialize not successfully";
     return false;
@@ -142,14 +152,20 @@ bool KalmanFilter::SetControlMatrix(const Eigen::MatrixXd &control_matrix) {
   return true;
 }
 
-Eigen::VectorXd KalmanFilter::GetStates() const { return global_states_; }
+Eigen::VectorXd KalmanFilter::GetStates() const {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::GetStates";
+ return global_states_; }
 
 Eigen::MatrixXd KalmanFilter::GetUncertainty() const {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::GetUncertainty";
+
   return global_uncertainty_;
 }
 
 bool KalmanFilter::SetGainBreakdownThresh(const std::vector<bool> &break_down,
                                           const float threshold) {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::SetGainBreakdownThresh";
+
   if (static_cast<int>(break_down.size()) != states_num_) {
     return false;
   }
@@ -164,6 +180,8 @@ bool KalmanFilter::SetGainBreakdownThresh(const std::vector<bool> &break_down,
 
 bool KalmanFilter::SetValueBreakdownThresh(const std::vector<bool> &break_down,
                                            const float threshold) {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::SetValueBreakdownThresh";
+
   if (static_cast<int>(break_down.size()) != states_num_) {
     return false;
   }
@@ -176,6 +194,8 @@ bool KalmanFilter::SetValueBreakdownThresh(const std::vector<bool> &break_down,
   return true;
 }
 void KalmanFilter::CorrectionBreakdown() {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::CorrectionBreakdown";
+
   Eigen::VectorXd states_gain = global_states_ - prior_global_states_;
   Eigen::VectorXd breakdown_diff = states_gain.cwiseProduct(gain_break_down_);
   global_states_ -= breakdown_diff;
@@ -195,6 +215,8 @@ void KalmanFilter::CorrectionBreakdown() {
 }
 
 bool KalmanFilter::DeCorrelation(int x, int y, int x_len, int y_len) {
+    AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::DeCorrelation";
+
   if (x >= states_num_ || y >= states_num_ || x + x_len >= states_num_ ||
       y + y_len >= states_num_) {
     return false;

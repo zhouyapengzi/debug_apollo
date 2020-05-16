@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -68,6 +69,36 @@ DEFINE_string(save_dir, "./result",
               "Directory to save result images with detections.");
 
 namespace apollo {
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
 namespace perception {
 namespace camera {
 
@@ -88,7 +119,35 @@ REGISTER_LANE_POSTPROCESSOR(DarkSCNNLanePostprocessor);
 static const float kDefaultPitchAngle = 0.0f;
 static const float kDefaultCameraHeight = 1.5f;
 
-void save_image(const std::string &path, base::Image8U &image) {  // NOLINT
+void save_image(const std::string &path, base::Image8U &image) {
+    AINFO<<"(DMCZP) EnteringMethod: save_image";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_LANE_POSTPROCESSOR";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_LANE_DETECTOR";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_CALIBRATION_SERVICE";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_CALIBRATOR";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_LANE_DETECTOR";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_LANE_POSTPROCESSOR";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_FEATURE_EXTRACTOR";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_FEATURE_EXTRACTOR";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_OBSTACLE_POSTPROCESSOR";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_OBSTACLE_TRANSFORMER";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_FEATURE_EXTRACTOR";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_OBSTACLE_TRACKER";
+
+    AINFO<<"(DMCZP) EnteringMethod: REGISTER_OBSTACLE_DETECTOR";
+  // NOLINT
   AINFO << path;
   int cv_type = image.type() == base::Color::GRAY ? CV_8UC1 : CV_8UC3;
   cv::Mat cv_img(image.rows(), image.cols(), cv_type, image.mutable_cpu_data(),
@@ -97,6 +156,8 @@ void save_image(const std::string &path, base::Image8U &image) {  // NOLINT
 }
 
 int work() {
+    AINFO<<"(DMCZP) EnteringMethod: work";
+
   // Init pipeline:
   ObstacleCameraPerception perception;
   CameraPerceptionInitOptions init_option;
@@ -346,6 +407,8 @@ int work() {
 }  // namespace apollo
 
 int main(int argc, char *argv[]) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
   google::ParseCommandLineFlags(&argc, &argv, true);
   google::SetUsageMessage(
       "command line brew\n"

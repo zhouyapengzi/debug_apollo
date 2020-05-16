@@ -31,6 +31,8 @@ namespace perception {
 namespace camera {
 
 bool MotionService::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: MotionService::Init";
+
   AINFO << "start to init MotionService.";
   // node_.reset(new cyber::Node("MotionService"));
   vehicle_planemotion_ = new PlaneMotion(motion_buffer_size_);
@@ -82,6 +84,8 @@ bool MotionService::Init() {
 // On receiving image input, just need to record its timestamp
 void MotionService::OnReceiveImage(const ImageMsgType &message,
                                    const std::string &camera_name) {
+    AINFO<<"(DMCZP) EnteringMethod: MotionService::OnReceiveImage";
+
   std::lock_guard<std::mutex> lock(mutex_);
   const double curr_timestamp = message->measurement_time() + timestamp_offset_;
   ADEBUG << "image received: camera_name: " << camera_name
@@ -92,6 +96,8 @@ void MotionService::OnReceiveImage(const ImageMsgType &message,
 // On reveiving localization input, register it to camera timestamp,
 // compute motion between camera time stamps
 void MotionService::OnLocalization(const LocalizationMsgType &message) {
+    AINFO<<"(DMCZP) EnteringMethod: MotionService::OnLocalization";
+
   std::lock_guard<std::mutex> lock(mutex_);
   ADEBUG << "localization received: localization ts: "
          << message->measurement_time();
@@ -161,6 +167,8 @@ void MotionService::OnLocalization(const LocalizationMsgType &message) {
 // pubulish vehicle status buffer to output channel
 // which is at camera timestamp
 void MotionService::PublishEvent(const double timestamp) {
+    AINFO<<"(DMCZP) EnteringMethod: MotionService::PublishEvent";
+
   // protobuf msg
   std::shared_ptr<apollo::perception::Motion_Service> motion_service_msg(
       new (std::nothrow) apollo::perception::Motion_Service);
@@ -183,6 +191,8 @@ void MotionService::PublishEvent(const double timestamp) {
 // convert vehicle status buffer to output message
 void MotionService::ConvertVehicleMotionToMsgOut(
     base::VehicleStatus vs, apollo::perception::VehicleStatus *v_status_msg) {
+    AINFO<<"(DMCZP) EnteringMethod: MotionService::ConvertVehicleMotionToMsgOut";
+
   v_status_msg->set_roll_rate(vs.roll_rate);
   v_status_msg->set_pitch_rate(vs.pitch_rate);
   v_status_msg->set_yaw_rate(vs.yaw_rate);
@@ -213,11 +223,15 @@ void MotionService::ConvertVehicleMotionToMsgOut(
 
 // load vehicle status buffer from vehicle_planemotion_
 base::MotionBuffer MotionService::GetMotionBuffer() {
+    AINFO<<"(DMCZP) EnteringMethod: MotionService::GetMotionBuffer";
+
   std::lock_guard<std::mutex> lock(motion_mutex_);
   return vehicle_planemotion_->get_buffer();
 }
 
 double MotionService::GetLatestTimestamp() {
+    AINFO<<"(DMCZP) EnteringMethod: MotionService::GetLatestTimestamp";
+
   // std::lock_guard<std::mutex> lock(image_mutex_);
   return pre_camera_timestamp_;
 }
@@ -225,6 +239,8 @@ double MotionService::GetLatestTimestamp() {
 // retrieve vehiclestattus at the closeset cameratimestamp
 bool MotionService::GetMotionInformation(double timestamp,
                                          base::VehicleStatus *vs) {
+    AINFO<<"(DMCZP) EnteringMethod: MotionService::GetMotionInformation";
+
   return vehicle_planemotion_->find_motion_with_timestamp(timestamp, vs);
 }
 

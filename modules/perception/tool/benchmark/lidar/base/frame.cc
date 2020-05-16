@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -37,22 +38,32 @@ float Frame::_s_visible_threshold = 0.85f;
 float Frame::_s_min_confidence = 0.0f;
 
 void Frame::set_black_list(const std::set<std::string>& black_list) {
+    AINFO<<"(DMCZP) EnteringMethod: Frame::set_black_list";
+
   _s_black_list = black_list;
 }
 
 void Frame::set_is_for_visualization(bool for_visualization) {
+    AINFO<<"(DMCZP) EnteringMethod: Frame::set_is_for_visualization";
+
   _s_is_for_visualization = for_visualization;
 }
 
 void Frame::set_visible_threshold(float threshold) {
+    AINFO<<"(DMCZP) EnteringMethod: Frame::set_visible_threshold";
+
   _s_visible_threshold = threshold;
 }
 
 void Frame::set_min_confidence(float confidence) {
+    AINFO<<"(DMCZP) EnteringMethod: Frame::set_min_confidence";
+
   _s_min_confidence = confidence;
 }
 
 bool Frame::load(const std::vector<std::string>& filenames) {
+    AINFO<<"(DMCZP) EnteringMethod: Frame::load";
+
   if (filenames.size() < 3 || filenames.size() > 4) {
     std::cerr << "file list is not complete" << std::endl;
     return false;
@@ -195,6 +206,8 @@ bool Frame::load(const std::vector<std::string>& filenames) {
 }
 
 void Frame::build_indices() {
+    AINFO<<"(DMCZP) EnteringMethod: Frame::build_indices";
+
   bool objects_has_indices = true;
   bool gt_objects_has_indices = true;
   if (objects.size() > 0) {
@@ -219,6 +232,8 @@ void Frame::build_indices() {
 }
 
 void Frame::build_points() {
+    AINFO<<"(DMCZP) EnteringMethod: Frame::build_points";
+
   bool objects_has_points = true;
   bool gt_objects_has_points = true;
   if (objects.size() > 0) {
@@ -243,6 +258,8 @@ void Frame::build_points() {
 void Frame::build_objects_indices(
     const pcl::KdTreeFLANN<Point>& point_cloud_kdtree,
     std::vector<ObjectPtr>* objects_out) {
+    AINFO<<"(DMCZP) EnteringMethod: Frame::build_objects_indices";
+
   std::vector<int> k_indices;
   std::vector<float> k_sqrt_dist;
   int objects_num = static_cast<int>(objects_out->size());
@@ -265,6 +282,8 @@ void Frame::build_objects_indices(
 }
 
 void Frame::build_objects_points(std::vector<ObjectPtr>* objects_out) {
+    AINFO<<"(DMCZP) EnteringMethod: Frame::build_objects_points";
+
   int objects_num = static_cast<int>(objects_out->size());
   for (int i = 0; i < objects_num; ++i) {
     int pts_num = static_cast<int>(objects_out->at(i)->indices->indices.size());

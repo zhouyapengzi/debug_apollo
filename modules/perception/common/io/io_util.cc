@@ -31,6 +31,8 @@ using cyber::common::PathExists;
 
 bool ReadPoseFile(const std::string &filename, Eigen::Affine3d *pose,
                   int *frame_id, double *time_stamp) {
+    AINFO<<"(DMCZP) EnteringMethod: ReadPoseFile";
+
   if (pose == nullptr || frame_id == nullptr || time_stamp == nullptr) {
     AERROR << "Nullptr error.";
     return false;
@@ -57,6 +59,8 @@ bool ReadPoseFile(const std::string &filename, Eigen::Affine3d *pose,
 
 bool LoadBrownCameraIntrinsic(const std::string &yaml_file,
                               base::BrownCameraDistortionModel *model) {
+    AINFO<<"(DMCZP) EnteringMethod: LoadBrownCameraIntrinsic";
+
   if (!PathExists(yaml_file) || model == nullptr) {
     return false;
   }
@@ -94,6 +98,8 @@ bool LoadBrownCameraIntrinsic(const std::string &yaml_file,
 bool LoadOmnidirectionalCameraIntrinsics(
     const std::string &yaml_file,
     base::OmnidirectionalCameraDistortionModel *model) {
+    AINFO<<"(DMCZP) EnteringMethod: LoadOmnidirectionalCameraIntrinsics";
+
   if (!PathExists(yaml_file) || model == nullptr) {
     return false;
   }
@@ -161,6 +167,8 @@ bool LoadOmnidirectionalCameraIntrinsics(
 
 bool GetFileList(const std::string &path, const std::string &suffix,
                  std::vector<std::string> *files) {
+    AINFO<<"(DMCZP) EnteringMethod: GetFileList";
+
   if (!PathExists(path)) {
     AINFO << path << " not exist.";
     return false;

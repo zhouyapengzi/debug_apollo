@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,6 +28,8 @@ namespace lidar {
 
 void MlfMotionMeasurement::ComputeMotionMeasurment(
     const MlfTrackDataConstPtr& track_data, TrackedObjectPtr new_object) {
+    AINFO<<"(DMCZP) EnteringMethod: MlfMotionMeasurement::ComputeMotionMeasurment";
+
   // prefer to choose objects from the same sensor
   std::string sensor_name = new_object->sensor_info.name;
   TrackedObjectConstPtr latest_object =
@@ -55,6 +58,8 @@ void MlfMotionMeasurement::ComputeMotionMeasurment(
 void MlfMotionMeasurement::MeasurementSelection(
     const MlfTrackDataConstPtr& track_data,
     const TrackedObjectConstPtr& latest_object, TrackedObjectPtr new_object) {
+    AINFO<<"(DMCZP) EnteringMethod: MlfMotionMeasurement::MeasurementSelection";
+
   // Select measured velocity among candidates according motion consistency
   int64_t corner_index = 0;
   float corner_velocity_gain = 0.0f;
@@ -99,6 +104,8 @@ void MlfMotionMeasurement::MeasurementSelection(
 
 void MlfMotionMeasurement::MeasurementQualityEstimation(
     const TrackedObjectConstPtr& latest_object, TrackedObjectPtr new_object) {
+    AINFO<<"(DMCZP) EnteringMethod: MlfMotionMeasurement::MeasurementQualityEstimation";
+
   // 1. point size diff (only for same sensor)
   int pre_num = static_cast<int>(
       latest_object->object_ptr->lidar_supplement.cloud_world.size());

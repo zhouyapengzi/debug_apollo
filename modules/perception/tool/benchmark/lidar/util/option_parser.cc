@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -26,6 +27,8 @@ namespace perception {
 namespace benchmark {
 
 bool OptionParser::parse_from_string(const std::string& input) {
+    AINFO<<"(DMCZP) EnteringMethod: OptionParser::parse_from_string";
+
   _options.clear();
   std::vector<std::string> option_pairs = absl::StrSplit(input, '|');
   // std::string str = StringUtil::trim_all(input);

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -29,10 +30,14 @@ std::map<int, std::vector<size_t>> Visibility::s_lut_{
 };
 
 void Visibility::set_car_pos(const Eigen::Vector3d& car_pos) {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::set_car_pos";
+
   car_pos_ = car_pos;
 }
 
 void Visibility::fill_objects(std::vector<ObjectPtr>* objs, float thresh) {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::fill_objects";
+
   auto get_interval = [](float num, float thresh) -> int {
     if (num < -thresh) {
       return -1;
@@ -114,6 +119,8 @@ void Visibility::fill_objects(std::vector<ObjectPtr>* objs, float thresh) {
 }
 
 float Visibility::calculate(std::vector<ObjectPtr>* objs, float thresh) {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::calculate";
+
   if (points_.empty()) {
     return 0.0;
   }
@@ -201,6 +208,8 @@ float Visibility::calculate(std::vector<ObjectPtr>* objs, float thresh) {
 }
 
 void Visibility::reset_state() {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::reset_state";
+
   latest_query_point_ = VisPoint(0, 0);
   latest_query_segments_cache_.clear();
   points_.clear();
@@ -210,6 +219,8 @@ void Visibility::reset_state() {
 }
 
 void Visibility::add_region() {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::add_region";
+
   VisPoint a(half_length_, half_width_);
   VisPoint b(half_length_, -half_width_);
   VisPoint c(-half_length_, -half_width_);
@@ -222,6 +233,8 @@ void Visibility::add_region() {
 }
 
 void Visibility::add_segment(const VisPoint& a, const VisPoint& b, int idx) {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::add_segment";
+
   if (compute_orientation(VisPoint(0, 0), a, b) == Orientation::collinear) {
     return;
   }
@@ -257,6 +270,8 @@ void Visibility::add_segment(const VisPoint& a, const VisPoint& b, int idx) {
 }
 
 void Visibility::query_segments(const VisPoint& p) {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::query_segments";
+
   if (p == latest_query_point_) {
     return;
   }
@@ -272,6 +287,8 @@ void Visibility::query_segments(const VisPoint& p) {
 
 void Visibility::update_candidate_segment(const VisPoint& p,
                                           UpdateOperation op) {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::update_candidate_segment";
+
   query_segments(p);
 
   auto func = (op == UpdateOperation::add
@@ -293,6 +310,8 @@ void Visibility::update_candidate_segment(const VisPoint& p,
 }
 
 float Visibility::calculate_area(const VisPoint& a, const VisPoint& b) {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::calculate_area";
+
   float dot = a.dot(b);
   float area = static_cast<float>(
       sqrt(a.length_squared() * b.length_squared() - dot * dot) / 2);
@@ -301,6 +320,8 @@ float Visibility::calculate_area(const VisPoint& a, const VisPoint& b) {
 }
 
 float Visibility::calculate_visual_angle(const VisPoint& a, const VisPoint& b) {
+    AINFO<<"(DMCZP) EnteringMethod: Visibility::calculate_visual_angle";
+
   float cos_theta = static_cast<float>(
       a.dot(b) / sqrt(a.length_squared() * b.length_squared()));
   float theta =

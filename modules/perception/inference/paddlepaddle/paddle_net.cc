@@ -29,9 +29,15 @@ PaddleNet::PaddleNet(const std::string &model_file,
                      const std::vector<std::string> &outputs)
     : model_file_(model_file),
       param_file_(param_file),
-      output_names_(outputs) {}
+      output_names_(outputs) {
+    AINFO<<"(DMCZP) EnteringMethod: PaddleNet::PaddleNet";
+
+    AINFO<<"(DMCZP) EnteringMethod: PaddleNet::PaddleNet";
+}
 
 bool PaddleNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
+    AINFO<<"(DMCZP) EnteringMethod: PaddleNet::Init";
+
   paddle::AnalysisConfig config;
   config.SetModel(model_file_, param_file_);
   config.SwitchUseFeedFetchOps(false);
@@ -113,6 +119,8 @@ std::shared_ptr<apollo::perception::base::Blob<float>> PaddleNet::get_blob(
 }
 
 bool PaddleNet::reshape() {
+    AINFO<<"(DMCZP) EnteringMethod: PaddleNet::reshape";
+
   for (auto name : input_names_) {
     auto blob = this->get_blob(name);
     auto paddle_blob = predictor_->GetInputTensor(name_map_[name]);
@@ -132,6 +140,8 @@ bool PaddleNet::reshape() {
 }
 
 void PaddleNet::Infer() {
+    AINFO<<"(DMCZP) EnteringMethod: PaddleNet::Infer";
+
   // reshape and get input data from blob to paddle_blob.
   this->reshape();
   // If `out_blob->mutable_cpu_data()` is invoked outside,
@@ -171,6 +181,8 @@ void PaddleNet::Infer() {
 }
 
 bool PaddleNet::shape(const std::string &name, std::vector<int> *res) {
+    AINFO<<"(DMCZP) EnteringMethod: PaddleNet::shape";
+
   bool in_input = false;
   bool in_output = false;
   if (std::find(input_names_.begin(), input_names_.end(), name) !=

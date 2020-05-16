@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -19,6 +20,8 @@
 #include "modules/perception/tool/benchmark/lidar/detection_evaluation.h"
 
 int main(int argc, char** argv) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
   boost::program_options::options_description boost_desc("Allowed options");
   boost_desc.add_options()("help", "produce help message")(
       "cloud", boost::program_options::value<std::string>(),

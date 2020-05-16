@@ -25,6 +25,8 @@ size_t Sensor::kMaxCachedFrameNum = 10;
 
 void Sensor::QueryLatestFrames(double timestamp,
                                std::vector<SensorFramePtr>* frames) {
+    AINFO<<"(DMCZP) EnteringMethod: Sensor::QueryLatestFrames";
+
   if (frames == nullptr) {
     AERROR << "frames are not available";
     return;
@@ -41,6 +43,8 @@ void Sensor::QueryLatestFrames(double timestamp,
 }
 
 SensorFramePtr Sensor::QueryLatestFrame(double timestamp) {
+    AINFO<<"(DMCZP) EnteringMethod: Sensor::QueryLatestFrame";
+
   SensorFramePtr latest_frame = nullptr;
   for (size_t i = 0; i < frames_.size(); ++i) {
     if (frames_[i]->GetTimestamp() > latest_query_timestamp_ &&
@@ -53,6 +57,8 @@ SensorFramePtr Sensor::QueryLatestFrame(double timestamp) {
 }
 
 bool Sensor::GetPose(double timestamp, Eigen::Affine3d* pose) const {
+    AINFO<<"(DMCZP) EnteringMethod: Sensor::GetPose";
+
   if (pose == nullptr) {
     AERROR << "pose is not available";
     return false;
@@ -69,6 +75,8 @@ bool Sensor::GetPose(double timestamp, Eigen::Affine3d* pose) const {
 }
 
 void Sensor::AddFrame(const base::FrameConstPtr& frame_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: Sensor::AddFrame";
+
   SensorFramePtr frame = std::make_shared<SensorFrame>(frame_ptr);
   if (frames_.size() == kMaxCachedFrameNum) {
     frames_.pop_front();

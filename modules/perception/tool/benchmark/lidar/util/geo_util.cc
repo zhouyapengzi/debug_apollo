@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -23,6 +24,8 @@ namespace benchmark {
 
 bool is_point_xy_in_polygon2d_xy(const Point& point, const PointCloud& polygon,
                                  float distance_to_boundary) {
+    AINFO<<"(DMCZP) EnteringMethod: is_point_xy_in_polygon2d_xy";
+
   typedef float Type;
   bool in_poly = false;
   Type x1 = 0.0;
@@ -180,6 +183,8 @@ bool Segment::operator!=(const Segment& other) const {
 
 Orientation compute_orientation(const VisPoint& o, const VisPoint& a,
                                 const VisPoint& b) {
+    AINFO<<"(DMCZP) EnteringMethod: compute_orientation";
+
   float det = (a - o).cross(b - o);
   return static_cast<Orientation>(static_cast<int>(strictly_less(0.0, det)) -
                                   static_cast<int>(strictly_less(det, 0.0)));
@@ -187,6 +192,8 @@ Orientation compute_orientation(const VisPoint& o, const VisPoint& a,
 
 bool intersects(const VisPoint& ray, const Segment& segment,
                 VisPoint* intersection) {
+    AINFO<<"(DMCZP) EnteringMethod: intersects";
+
   // let a = a2 - a1 (ray), b = b2 - b1 (segment),
   // accordingly segment: s1 = a1 + t*a, s2 = b1 + u*b
   // intersection: a1 + t*a = b1 + u*b, when 0<=t (ray) && 0<=u<=1 (segment)

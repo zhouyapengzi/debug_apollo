@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -22,6 +23,8 @@ namespace radar {
 void DummyDetector::ContiObs2Frame(
     const drivers::ContiRadar& corrected_obstacles,
     base::FramePtr radar_frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DummyDetector::ContiObs2Frame";
+
   for (const auto& radar_obs : corrected_obstacles.contiobs()) {
     base::ObjectPtr radar_object(new base::Object);
     radar_object->id = radar_obs.obstacle_id();
@@ -73,10 +76,14 @@ void DummyDetector::ContiObs2Frame(
   }
 }
 
-bool DummyPreprocessor::Init() { return true; }
+bool DummyPreprocessor::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: DummyPreprocessor::Init";
+ return true; }
 bool DummyPreprocessor::Preprocess(const drivers::ContiRadar& raw_obstacles,
                                    const PreprocessorOptions& options,
                                    drivers::ContiRadar* corrected_obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: DummyPreprocessor::Preprocess";
+
   if (corrected_obstacles == nullptr) {
     AERROR << "corrected_obstacles is not available";
     return false;
@@ -84,23 +91,37 @@ bool DummyPreprocessor::Preprocess(const drivers::ContiRadar& raw_obstacles,
   *corrected_obstacles = raw_obstacles;
   return true;
 }
-std::string DummyPreprocessor::Name() const { return "DummyPreprocessor"; }
+std::string DummyPreprocessor::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: DummyPreprocessor::Name";
+ return "DummyPreprocessor"; }
 
-bool DummyDetector::Init() { return true; }
+bool DummyDetector::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: DummyDetector::Init";
+ return true; }
 bool DummyDetector::Detect(const drivers::ContiRadar& corrected_obstacles,
                            const DetectorOptions& options,
                            base::FramePtr detected_frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DummyDetector::Detect";
+
   ContiObs2Frame(corrected_obstacles, detected_frame);
   return true;
 }
-std::string DummyDetector::Name() const { return "DummyDetector"; }
+std::string DummyDetector::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: DummyDetector::Name";
+ return "DummyDetector"; }
 
-bool DummyRoiFilter::Init() { return true; }
+bool DummyRoiFilter::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: DummyRoiFilter::Init";
+ return true; }
 bool DummyRoiFilter::RoiFilter(const RoiFilterOptions& options,
                                base::FramePtr radar_frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DummyRoiFilter::RoiFilter";
+
   return true;
 }
-std::string DummyRoiFilter::Name() const { return "DummyRoiFilter"; }
+std::string DummyRoiFilter::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: DummyRoiFilter::Name";
+ return "DummyRoiFilter"; }
 
 PERCEPTION_REGISTER_PREPROCESSOR(DummyPreprocessor);
 PERCEPTION_REGISTER_ROI_FILTER(DummyRoiFilter);

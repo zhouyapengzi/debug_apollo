@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -27,6 +28,8 @@ bool DetectionEvaluation::init(const std::string& clouds,
                                unsigned int eval_thread_num,
                                unsigned int eval_parrallel_num,
                                const std::string& reserve) {
+    AINFO<<"(DMCZP) EnteringMethod: DetectionEvaluation::init";
+
   std::vector<std::string> strs;
   strs.push_back(clouds);
   strs.push_back(results);
@@ -62,6 +65,8 @@ bool DetectionEvaluation::init(const std::string& clouds,
 }
 
 void DetectionEvaluation::run_evaluation() {
+    AINFO<<"(DMCZP) EnteringMethod: DetectionEvaluation::run_evaluation";
+
   // sequential loading and accumulate
   while (true) {
     bool has_more_data = true;

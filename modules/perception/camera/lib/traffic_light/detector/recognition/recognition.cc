@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -23,6 +24,8 @@ namespace camera {
 
 bool TrafficLightRecognition::Init(
     const TrafficLightDetectorInitOptions& options) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightRecognition::Init";
+
   std::string proto_path =
       cyber::common::GetAbsolutePath(options.root_dir, options.conf_file);
 
@@ -48,6 +51,8 @@ bool TrafficLightRecognition::Init(
 
 bool TrafficLightRecognition::Detect(const TrafficLightDetectorOptions& options,
                                      CameraFrame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightRecognition::Detect";
+
   std::vector<base::TrafficLightPtr> candidate(1);
 
   for (base::TrafficLightPtr light : frame->traffic_lights) {
@@ -78,6 +83,8 @@ bool TrafficLightRecognition::Detect(const TrafficLightDetectorOptions& options,
 }
 
 std::string TrafficLightRecognition::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightRecognition::Name";
+
   return "TrafficLightRecognition";
 }
 

@@ -25,6 +25,8 @@ namespace lidar {
 const double MlfTrackData::kMaxHistoryTime = 2.0;
 
 void MlfTrackData::Reset() {
+    AINFO<<"(DMCZP) EnteringMethod: MlfTrackData::Reset";
+
   TrackData::Reset();
   duration_ = 0.0;
   consecutive_invisible_time_ = 0.0;
@@ -38,12 +40,16 @@ void MlfTrackData::Reset() {
 }
 
 void MlfTrackData::Reset(TrackedObjectPtr obj, int track_id) {
+    AINFO<<"(DMCZP) EnteringMethod: MlfTrackData::Reset";
+
   Reset();
   track_id_ = track_id;
   PushTrackedObjectToCache(obj);
 }
 
 void MlfTrackData::PushTrackedObjectToTrack(TrackedObjectPtr obj) {
+    AINFO<<"(DMCZP) EnteringMethod: MlfTrackData::PushTrackedObjectToTrack";
+
   double timestamp = obj->object_ptr->latest_tracked_time;
   if (history_objects_.find(timestamp) == history_objects_.end()) {
     auto pair = std::make_pair(timestamp, obj);
@@ -78,6 +84,8 @@ void MlfTrackData::PushTrackedObjectToTrack(TrackedObjectPtr obj) {
 }
 
 void MlfTrackData::PushTrackedObjectToCache(TrackedObjectPtr obj) {
+    AINFO<<"(DMCZP) EnteringMethod: MlfTrackData::PushTrackedObjectToCache";
+
   double timestamp = obj->object_ptr->latest_tracked_time;
   if (cached_objects_.find(timestamp) == cached_objects_.end()) {
     cached_objects_.insert(std::make_pair(timestamp, obj));
@@ -90,6 +98,8 @@ void MlfTrackData::PushTrackedObjectToCache(TrackedObjectPtr obj) {
 
 bool MlfTrackData::ToObject(const Eigen::Vector3d& local_to_global_offset,
                             double timestamp, base::ObjectPtr object) const {
+    AINFO<<"(DMCZP) EnteringMethod: MlfTrackData::ToObject";
+
   if (history_objects_.empty()) {
     return false;
   }
@@ -131,6 +141,8 @@ bool MlfTrackData::ToObject(const Eigen::Vector3d& local_to_global_offset,
 }
 
 void MlfTrackData::PredictState(double timestamp) const {
+    AINFO<<"(DMCZP) EnteringMethod: MlfTrackData::PredictState";
+
   if (history_objects_.empty()) {
     return;
   }
@@ -160,6 +172,8 @@ void MlfTrackData::PredictState(double timestamp) const {
 
 void MlfTrackData::GetAndCleanCachedObjectsInTimeInterval(
     std::vector<TrackedObjectPtr>* objects) {
+    AINFO<<"(DMCZP) EnteringMethod: MlfTrackData::GetAndCleanCachedObjectsInTimeInterval";
+
   objects->clear();
   auto iter = cached_objects_.begin();
   while (iter != cached_objects_.end()) {
@@ -177,6 +191,8 @@ void MlfTrackData::GetAndCleanCachedObjectsInTimeInterval(
 
 void RemoveStaleDataFromMap(double timestamp,
                             std::map<double, TrackedObjectPtr>* data) {
+    AINFO<<"(DMCZP) EnteringMethod: RemoveStaleDataFromMap";
+
   auto iter = data->begin();
   while (iter != data->end()) {
     if (iter->first < timestamp) {
@@ -188,6 +204,8 @@ void RemoveStaleDataFromMap(double timestamp,
 }
 
 void MlfTrackData::RemoveStaleHistory(double timestamp) {
+    AINFO<<"(DMCZP) EnteringMethod: MlfTrackData::RemoveStaleHistory";
+
   RemoveStaleDataFromMap(timestamp, &history_objects_);
   for (auto& map : sensor_history_objects_) {
     RemoveStaleDataFromMap(timestamp, &map.second);

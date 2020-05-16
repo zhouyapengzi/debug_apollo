@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 #include <ctpl.h>
 #include <iostream>
 #include <string>
@@ -5,10 +6,14 @@
 
 
 void first(int id) {
+    AINFO<<"(DMCZP) EnteringMethod: first";
+
     std::cout << "hello from " << id << ", function\n";
 }
 
 void aga(int id, int par) {
+    AINFO<<"(DMCZP) EnteringMethod: aga";
+
     std::cout << "hello from " << id << ", function with parameter " << par <<'\n';
 }
 
@@ -21,15 +26,21 @@ struct Third {
 };
 
 void mmm(int id, const std::string & s) {
+    AINFO<<"(DMCZP) EnteringMethod: mmm";
+
     std::cout << "mmm function " << id << ' ' << s << '\n';
 }
 
 void ugu(int id, Third & t) {
+    AINFO<<"(DMCZP) EnteringMethod: ugu";
+
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << "hello from " << id << ", function with parameter Third " << t.v <<'\n';
 }
 
 int main(int argc, char **argv) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
     ctpl::thread_pool p(2 /* two threads in the pool */);
 
     std::future<void> qw = p.push(std::ref(first));  // function

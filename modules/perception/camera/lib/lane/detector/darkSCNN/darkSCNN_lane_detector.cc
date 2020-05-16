@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -32,6 +33,8 @@ using apollo::cyber::common::GetAbsolutePath;
 using apollo::cyber::common::GetProtoFromFile;
 
 bool DarkSCNNLaneDetector::Init(const LaneDetectorInitOptions &options) {
+    AINFO<<"(DMCZP) EnteringMethod: DarkSCNNLaneDetector::Init";
+
   std::string proto_path = GetAbsolutePath(options.root_dir, options.conf_file);
   if (!GetProtoFromFile(proto_path, &darkscnn_param_)) {
     AINFO << "load proto param failed, root dir: " << options.root_dir;
@@ -167,6 +170,8 @@ bool DarkSCNNLaneDetector::Init(const LaneDetectorInitOptions &options) {
 
 bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
                                   CameraFrame *frame) {
+    AINFO<<"(DMCZP) EnteringMethod: DarkSCNNLaneDetector::Detect";
+
   if (frame == nullptr) {
     AINFO << "camera frame is empty.";
     return false;
@@ -296,6 +301,8 @@ bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
 }
 
 std::string DarkSCNNLaneDetector::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: DarkSCNNLaneDetector::Name";
+
   return "DarkSCNNLaneDetector";
 }
 

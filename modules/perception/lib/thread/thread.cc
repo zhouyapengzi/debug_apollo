@@ -24,6 +24,8 @@ namespace perception {
 namespace lib {
 
 void Thread::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: Thread::Start";
+
   pthread_attr_t attr;
   CHECK_EQ(pthread_attr_init(&attr), 0);
   CHECK_EQ(
@@ -42,6 +44,8 @@ void Thread::Start() {
 }
 
 void Thread::Join() {
+    AINFO<<"(DMCZP) EnteringMethod: Thread::Join";
+
   CHECK(joinable_) << "Thread is not joinable";
   int result = pthread_join(tid_, nullptr);
   CHECK_EQ(result, 0) << "Could not join thread (" << tid_ << ", "
@@ -50,6 +54,8 @@ void Thread::Join() {
 }
 
 bool Thread::IsAlive() {
+    AINFO<<"(DMCZP) EnteringMethod: Thread::IsAlive";
+
   if (tid_ == 0) {
     return false;
   }
