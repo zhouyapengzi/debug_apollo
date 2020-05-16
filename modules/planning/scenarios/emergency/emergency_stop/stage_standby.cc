@@ -40,6 +40,8 @@ using apollo::common::TrajectoryPoint;
 
 Stage::StageStatus EmergencyStopStageStandby::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyStopStageStandby::Process";
+
   ADEBUG << "stage: Standby";
   CHECK_NOTNULL(frame);
 
@@ -97,6 +99,8 @@ Stage::StageStatus EmergencyStopStageStandby::Process(
 }
 
 Stage::StageStatus EmergencyStopStageStandby::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyStopStageStandby::FinishStage";
+
   return FinishScenario();
 }
 

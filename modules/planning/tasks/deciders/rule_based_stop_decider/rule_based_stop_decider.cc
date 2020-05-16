@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -43,12 +44,16 @@ constexpr double kStraightForwardLineCost = 10.0;
 
 RuleBasedStopDecider::RuleBasedStopDecider(const TaskConfig &config)
     : Decider(config) {
+    AINFO<<"(DMCZP) EnteringMethod: RuleBasedStopDecider::RuleBasedStopDecider";
+
   CHECK(config.has_rule_based_stop_decider_config());
   rule_based_stop_decider_config_ = config.rule_based_stop_decider_config();
 }
 
 apollo::common::Status RuleBasedStopDecider::Process(
     Frame *const frame, ReferenceLineInfo *const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: RuleBasedStopDecider::Process";
+
   // 1. Rule_based stop for side pass onto reverse lane
   StopOnSidePass(frame, reference_line_info);
 
@@ -64,6 +69,8 @@ apollo::common::Status RuleBasedStopDecider::Process(
 }
 
 void RuleBasedStopDecider::CheckLaneChangeUrgency(Frame *const frame) {
+    AINFO<<"(DMCZP) EnteringMethod: RuleBasedStopDecider::CheckLaneChangeUrgency";
+
   for (auto &reference_line_info : *frame->mutable_reference_line_info()) {
     // Check if the target lane is blocked or not
     if (reference_line_info.IsChangeLanePath()) {
@@ -116,6 +123,8 @@ void RuleBasedStopDecider::CheckLaneChangeUrgency(Frame *const frame) {
 
 void RuleBasedStopDecider::AddPathEndStop(
     Frame *const frame, ReferenceLineInfo *const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: RuleBasedStopDecider::AddPathEndStop";
+
   if (!reference_line_info->path_data().path_label().empty() &&
       reference_line_info->path_data().frenet_frame_path().back().s() -
               reference_line_info->path_data().frenet_frame_path().front().s() <
@@ -133,6 +142,8 @@ void RuleBasedStopDecider::AddPathEndStop(
 
 void RuleBasedStopDecider::StopOnSidePass(
     Frame *const frame, ReferenceLineInfo *const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: RuleBasedStopDecider::StopOnSidePass";
+
   static bool check_clear;
   static common::PathPoint change_lane_stop_path_point;
 
@@ -179,6 +190,8 @@ void RuleBasedStopDecider::StopOnSidePass(
 bool RuleBasedStopDecider::CheckSidePassStop(
     const PathData &path_data, const ReferenceLineInfo &reference_line_info,
     double *stop_s_on_pathdata) {
+    AINFO<<"(DMCZP) EnteringMethod: RuleBasedStopDecider::CheckSidePassStop";
+
   const std::vector<std::tuple<double, PathData::PathPointType, double>>
       &path_point_decision_guide = path_data.path_point_decision_guide();
   PathData::PathPointType last_path_point_type =
@@ -220,6 +233,8 @@ bool RuleBasedStopDecider::BuildSidePassStopFence(
     const PathData &path_data, const double stop_s_on_pathdata,
     common::PathPoint *stop_point, Frame *const frame,
     ReferenceLineInfo *const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: RuleBasedStopDecider::BuildSidePassStopFence";
+
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
 
@@ -248,6 +263,8 @@ bool RuleBasedStopDecider::BuildSidePassStopFence(
 bool RuleBasedStopDecider::CheckADCStop(
     const PathData &path_data, const ReferenceLineInfo &reference_line_info,
     const double stop_s_on_pathdata) {
+    AINFO<<"(DMCZP) EnteringMethod: RuleBasedStopDecider::CheckADCStop";
+
   common::PathPoint stop_point;
   if (!path_data.GetPathPointWithRefS(stop_s_on_pathdata, &stop_point)) {
     AERROR << "Can't get stop point on path data";
@@ -284,6 +301,8 @@ bool RuleBasedStopDecider::CheckADCStop(
 bool RuleBasedStopDecider::CheckClearDone(
     const ReferenceLineInfo &reference_line_info,
     const common::PathPoint &stop_point) {
+    AINFO<<"(DMCZP) EnteringMethod: RuleBasedStopDecider::CheckClearDone";
+
   const double adc_front_edge_s = reference_line_info.AdcSlBoundary().end_s();
   const double adc_back_edge_s = reference_line_info.AdcSlBoundary().start_s();
   const double adc_start_l = reference_line_info.AdcSlBoundary().start_l();

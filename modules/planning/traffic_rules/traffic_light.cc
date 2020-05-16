@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -40,10 +41,14 @@ using apollo::common::Status;
 using apollo::hdmap::PathOverlap;
 
 TrafficLight::TrafficLight(const TrafficRuleConfig& config)
-    : TrafficRule(config) {}
+    : TrafficRule(config) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLight::TrafficLight";
+}
 
 Status TrafficLight::ApplyRule(Frame* const frame,
                                ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLight::ApplyRule";
+
   MakeDecisions(frame, reference_line_info);
 
   return Status::OK();
@@ -51,6 +56,8 @@ Status TrafficLight::ApplyRule(Frame* const frame,
 
 void TrafficLight::MakeDecisions(Frame* const frame,
                                  ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLight::MakeDecisions";
+
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
 

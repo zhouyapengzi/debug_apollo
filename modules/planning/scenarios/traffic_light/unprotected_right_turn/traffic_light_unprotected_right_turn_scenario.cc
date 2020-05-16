@@ -41,6 +41,8 @@ namespace traffic_light {
 using apollo::hdmap::HDMapUtil;
 
 void TrafficLightUnprotectedRightTurnScenario::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightUnprotectedRightTurnScenario::Init";
+
   if (init_) {
     return;
   }
@@ -85,6 +87,8 @@ apollo::common::util::Factory<
     TrafficLightUnprotectedRightTurnScenario::s_stage_factory_;
 
 void TrafficLightUnprotectedRightTurnScenario::RegisterStages() {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightUnprotectedRightTurnScenario::RegisterStages";
+
   if (!s_stage_factory_.Empty()) {
     s_stage_factory_.Clear();
   }
@@ -123,6 +127,8 @@ std::unique_ptr<Stage> TrafficLightUnprotectedRightTurnScenario::CreateStage(
  * read scenario specific configs and set in context_ for stages to read
  */
 bool TrafficLightUnprotectedRightTurnScenario::GetScenarioConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightUnprotectedRightTurnScenario::GetScenarioConfig";
+
   if (!config_.has_traffic_light_unprotected_right_turn_config()) {
     AERROR << "miss scenario specific config";
     return false;

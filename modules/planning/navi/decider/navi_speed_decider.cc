@@ -49,9 +49,13 @@ constexpr double kDecelCompensationLimit = 2.0;
 constexpr double kKappaAdjustRatio = 20.0;
 }  // namespace
 
-NaviSpeedDecider::NaviSpeedDecider() : NaviTask("NaviSpeedDecider") {}
+NaviSpeedDecider::NaviSpeedDecider() : NaviTask("NaviSpeedDecider") {
+    AINFO<<"(DMCZP) EnteringMethod: NaviSpeedDecider::NaviSpeedDecider";
+}
 
 bool NaviSpeedDecider::Init(const PlanningConfig& planning_config) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviSpeedDecider::Init";
+
   CHECK_GT(FLAGS_planning_upper_speed_limit, 0.0);
   NavigationPlanningConfig config =
       planning_config.navigation_planning_config();
@@ -173,6 +177,8 @@ bool NaviSpeedDecider::Init(const PlanningConfig& planning_config) {
 
 Status NaviSpeedDecider::Execute(Frame* frame,
                                  ReferenceLineInfo* reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviSpeedDecider::Execute";
+
   NaviTask::Execute(frame, reference_line_info);
 
   // get cruise speed
@@ -250,6 +256,8 @@ Status NaviSpeedDecider::MakeSpeedDecision(
     const std::vector<const Obstacle*>& obstacles,
     const std::function<const Obstacle*(const std::string&)>& find_obstacle,
     SpeedData* const speed_data) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviSpeedDecider::MakeSpeedDecision";
+
   CHECK_NOTNULL(speed_data);
   CHECK_GE(path_points.size(), 2);
 
@@ -357,6 +365,8 @@ Status NaviSpeedDecider::MakeSpeedDecision(
 }
 
 Status NaviSpeedDecider::AddPerceptionRangeConstraints() {
+    AINFO<<"(DMCZP) EnteringMethod: NaviSpeedDecider::AddPerceptionRangeConstraints";
+
   // TODO(all):
   return Status::OK();
 }
@@ -366,6 +376,8 @@ Status NaviSpeedDecider::AddObstaclesConstraints(
     const std::vector<PathPoint>& path_points,
     const std::vector<const Obstacle*>& obstacles,
     const std::function<const Obstacle*(const std::string&)>& find_obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviSpeedDecider::AddObstaclesConstraints";
+
   const auto& vehicle_config = VehicleConfigHelper::Instance()->GetConfig();
   auto front_edge_to_center =
       vehicle_config.vehicle_param().front_edge_to_center();
@@ -411,12 +423,16 @@ Status NaviSpeedDecider::AddObstaclesConstraints(
 }
 
 Status AddTrafficDecisionConstraints() {
+    AINFO<<"(DMCZP) EnteringMethod: AddTrafficDecisionConstraints";
+
   // TODO(all):
   return Status::OK();
 }
 
 Status NaviSpeedDecider::AddCentricAccelerationConstraints(
     const std::vector<PathPoint>& path_points) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviSpeedDecider::AddCentricAccelerationConstraints";
+
   if (path_points.size() < 2) {
     AERROR << "Too few path points";
     return Status(ErrorCode::PLANNING_ERROR, "too few path points.");
@@ -497,6 +513,8 @@ Status NaviSpeedDecider::AddCentricAccelerationConstraints(
 }
 
 Status NaviSpeedDecider::AddConfiguredConstraints() {
+    AINFO<<"(DMCZP) EnteringMethod: NaviSpeedDecider::AddConfiguredConstraints";
+
   NaviSpeedTsConstraints constraints;
   constraints.v_max = max_speed_;
   constraints.v_preffered = preferred_speed_;
@@ -511,6 +529,8 @@ Status NaviSpeedDecider::AddConfiguredConstraints() {
 }
 
 void NaviSpeedDecider::RecordDebugInfo(const SpeedData& speed_data) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviSpeedDecider::RecordDebugInfo";
+
   auto* debug = reference_line_info_->mutable_debug();
   auto ptr_speed_plan = debug->mutable_planning_data()->add_speed_plan();
   ptr_speed_plan->set_name(Name());

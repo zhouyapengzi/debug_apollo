@@ -44,6 +44,8 @@ using apollo::perception::TrafficLight;
 
 Stage::StageStatus TrafficLightUnprotectedLeftTurnStageApproach::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightUnprotectedLeftTurnStageApproach::Process";
+
   ADEBUG << "stage: Approach";
   CHECK_NOTNULL(frame);
 
@@ -119,6 +121,8 @@ Stage::StageStatus TrafficLightUnprotectedLeftTurnStageApproach::Process(
 
 Stage::StageStatus TrafficLightUnprotectedLeftTurnStageApproach::FinishStage(
     Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightUnprotectedLeftTurnStageApproach::FinishStage";
+
   // check speed at stop_stage
   const double adc_speed =
       common::VehicleStateProvider::Instance()->linear_velocity();

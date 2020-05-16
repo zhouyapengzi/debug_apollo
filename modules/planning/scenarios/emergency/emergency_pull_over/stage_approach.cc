@@ -43,10 +43,14 @@ using apollo::common::VehicleSignal;
 
 EmergencyPullOverStageApproach::EmergencyPullOverStageApproach(
     const ScenarioConfig::StageConfig& config)
-    : Stage(config) {}
+    : Stage(config) {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyPullOverStageApproach::EmergencyPullOverStageApproach";
+}
 
 Stage::StageStatus EmergencyPullOverStageApproach::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyPullOverStageApproach::Process";
+
   ADEBUG << "stage: Approach";
   CHECK_NOTNULL(frame);
 
@@ -110,6 +114,8 @@ Stage::StageStatus EmergencyPullOverStageApproach::Process(
 }
 
 Stage::StageStatus EmergencyPullOverStageApproach::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyPullOverStageApproach::FinishStage";
+
   next_stage_ = ScenarioConfig::EMERGENCY_PULL_OVER_STANDBY;
   return Stage::FINISHED;
 }

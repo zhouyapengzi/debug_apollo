@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -52,6 +53,8 @@ PiecewiseJerkSpeedNonlinearIpoptInterface::
 bool PiecewiseJerkSpeedNonlinearIpoptInterface::get_nlp_info(
     int &n, int &m, int &nnz_jac_g, int &nnz_h_lag,
     IndexStyleEnum &index_style) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::get_nlp_info";
+
   num_of_variables_ = num_of_points_ * 3;
 
   if (use_soft_safety_bound_) {
@@ -136,6 +139,8 @@ bool PiecewiseJerkSpeedNonlinearIpoptInterface::get_nlp_info(
 
 bool PiecewiseJerkSpeedNonlinearIpoptInterface::get_bounds_info(
     int n, double *x_l, double *x_u, int m, double *g_l, double *g_u) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::get_bounds_info";
+
   // default nlp_lower_bound_inf value in Ipopt
   double INF = 1.0e19;
   double LARGE_VELOCITY_VALUE = s_dot_max_;
@@ -245,6 +250,8 @@ bool PiecewiseJerkSpeedNonlinearIpoptInterface::get_bounds_info(
 bool PiecewiseJerkSpeedNonlinearIpoptInterface::get_starting_point(
     int n, bool init_x, double *x, bool init_z, double *z_L, double *z_U, int m,
     bool init_lambda, double *lambda) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::get_starting_point";
+
   if (!x_warm_start_.empty()) {
     for (int i = 0; i < num_of_points_; ++i) {
       x[i] = x_warm_start_[i][0];
@@ -291,6 +298,8 @@ bool PiecewiseJerkSpeedNonlinearIpoptInterface::get_starting_point(
 bool PiecewiseJerkSpeedNonlinearIpoptInterface::eval_f(int n, const double *x,
                                                        bool new_x,
                                                        double &obj_value) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::eval_f";
+
   obj_value = 0.0;
   // difference between ref spatial distace
   for (int i = 0; i < num_of_points_; ++i) {
@@ -350,6 +359,8 @@ bool PiecewiseJerkSpeedNonlinearIpoptInterface::eval_grad_f(int n,
                                                             const double *x,
                                                             bool new_x,
                                                             double *grad_f) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::eval_grad_f";
+
   std::fill(grad_f, grad_f + n, 0.0);
 
   // ref. spatial distance objective
@@ -420,6 +431,8 @@ bool PiecewiseJerkSpeedNonlinearIpoptInterface::eval_grad_f(int n,
 bool PiecewiseJerkSpeedNonlinearIpoptInterface::eval_g(int n, const double *x,
                                                        bool new_x, int m,
                                                        double *g) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::eval_g";
+
   int offset = 0;
 
   // s monotone constraints s_i+1 - s_i
@@ -506,6 +519,8 @@ bool PiecewiseJerkSpeedNonlinearIpoptInterface::eval_g(int n, const double *x,
 bool PiecewiseJerkSpeedNonlinearIpoptInterface::eval_jac_g(
     int n, const double *x, bool new_x, int m, int nele_jac, int *iRow,
     int *jCol, double *values) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::eval_jac_g";
+
   if (values == nullptr) {
     int non_zero_index = 0;
     int constraint_index = 0;
@@ -759,6 +774,8 @@ bool PiecewiseJerkSpeedNonlinearIpoptInterface::eval_h(
     int n, const double *x, bool new_x, double obj_factor, int m,
     const double *lambda, bool new_lambda, int nele_hess, int *iRow, int *jCol,
     double *values) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::eval_h";
+
   if (values == nullptr) {
     int nz_index = 0;
     for (int i = 0; i < num_of_points_; ++i) {
@@ -915,6 +932,8 @@ bool PiecewiseJerkSpeedNonlinearIpoptInterface::eval_h(
 void PiecewiseJerkSpeedNonlinearIpoptInterface::get_optimization_results(
     std::vector<double> *ptr_opt_s, std::vector<double> *ptr_opt_v,
     std::vector<double> *ptr_opt_a) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::get_optimization_results";
+
   *ptr_opt_s = opt_s_;
   *ptr_opt_v = opt_v_;
   *ptr_opt_a = opt_a_;
@@ -925,6 +944,8 @@ void PiecewiseJerkSpeedNonlinearIpoptInterface::finalize_solution(
     const double *z_U, int m, const double *g, const double *lambda,
     double obj_value, const Ipopt::IpoptData *ip_data,
     Ipopt::IpoptCalculatedQuantities *ip_cq) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::finalize_solution";
+
   opt_s_.clear();
   opt_v_.clear();
   opt_a_.clear();
@@ -984,38 +1005,52 @@ void PiecewiseJerkSpeedNonlinearIpoptInterface::finalize_solution(
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_curvature_curve(
     const PiecewiseJerkTrajectory1d &curvature_curve) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_curvature_curve";
+
   curvature_curve_ = curvature_curve;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_speed_limit_curve(
     const PiecewiseJerkTrajectory1d &v_bound_f) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_speed_limit_curve";
+
   v_bound_func_ = v_bound_f;
   use_v_bound_ = true;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_reference_speed(
     const double v_ref) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_reference_speed";
+
   v_ref_ = v_ref;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_safety_bounds(
     const std::vector<std::pair<double, double>> &safety_bounds) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_safety_bounds";
+
   safety_bounds_ = safety_bounds;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_soft_safety_bounds(
     const std::vector<std::pair<double, double>> &soft_safety_bounds) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_soft_safety_bounds";
+
   soft_safety_bounds_ = soft_safety_bounds;
   use_soft_safety_bound_ = true;
 }
 
 int PiecewiseJerkSpeedNonlinearIpoptInterface::to_hash_key(const int i,
                                                            const int j) const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::to_hash_key";
+
   return i * num_of_variables_ + j;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_end_state_target(
     const double s_target, const double v_target, const double a_target) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_end_state_target";
+
   s_target_ = s_target;
   v_target_ = v_target;
   a_target_ = a_target;
@@ -1024,6 +1059,8 @@ void PiecewiseJerkSpeedNonlinearIpoptInterface::set_end_state_target(
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_target_state(
     const double w_target_s, const double w_target_v, const double w_target_a) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_target_state";
+
   w_target_s_ = w_target_s;
   w_target_v_ = w_target_v;
   w_target_a_ = w_target_a;
@@ -1031,21 +1068,29 @@ void PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_target_state(
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_overall_a(
     const double w_overall_a) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_overall_a";
+
   w_overall_a_ = w_overall_a;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_overall_j(
     const double w_overall_j) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_overall_j";
+
   w_overall_j_ = w_overall_j;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_overall_centripetal_acc(
     const double w_overall_centripetal_acc) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_overall_centripetal_acc";
+
   w_overall_centripetal_acc_ = w_overall_centripetal_acc;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_reference_speed(
     const double w_reference_speed) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_reference_speed";
+
   w_ref_v_ = w_reference_speed;
 }
 
@@ -1056,16 +1101,22 @@ void PiecewiseJerkSpeedNonlinearIpoptInterface::
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_soft_s_bound(
     const double w_soft_s_bound) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_w_soft_s_bound";
+
   w_soft_s_bound_ = w_soft_s_bound;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_warm_start(
     const std::vector<std::vector<double>> &speed_profile) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_warm_start";
+
   x_warm_start_ = speed_profile;
 }
 
 void PiecewiseJerkSpeedNonlinearIpoptInterface::set_reference_spatial_distance(
     const std::vector<double> &s_ref) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearIpoptInterface::set_reference_spatial_distance";
+
   s_ref_ = s_ref;
 }
 }  // namespace planning

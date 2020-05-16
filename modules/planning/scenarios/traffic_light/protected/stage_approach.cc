@@ -38,6 +38,8 @@ using apollo::perception::TrafficLight;
 
 Stage::StageStatus TrafficLightProtectedStageApproach::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightProtectedStageApproach::Process";
+
   ADEBUG << "stage: Approach";
   CHECK_NOTNULL(frame);
 
@@ -101,6 +103,8 @@ Stage::StageStatus TrafficLightProtectedStageApproach::Process(
 }
 
 Stage::StageStatus TrafficLightProtectedStageApproach::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightProtectedStageApproach::FinishStage";
+
   auto* traffic_light = PlanningContext::Instance()
                             ->mutable_planning_status()
                             ->mutable_traffic_light();

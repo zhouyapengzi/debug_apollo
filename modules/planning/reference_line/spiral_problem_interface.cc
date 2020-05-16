@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -48,6 +49,8 @@ auto DELTA_S =
 SpiralProblemInterface::SpiralProblemInterface(
     std::vector<Eigen::Vector2d> points)
     : init_points_(std::move(points)) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::SpiralProblemInterface";
+
   num_of_points_ = static_cast<int>(init_points_.size());
   CHECK_GT(num_of_points_, 1);
 
@@ -78,6 +81,8 @@ void SpiralProblemInterface::get_optimization_results(
     std::vector<double>* ptr_theta, std::vector<double>* ptr_kappa,
     std::vector<double>* ptr_dkappa, std::vector<double>* ptr_s,
     std::vector<double>* ptr_x, std::vector<double>* ptr_y) const {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::get_optimization_results";
+
   *ptr_theta = opt_theta_;
   *ptr_kappa = opt_kappa_;
   *ptr_dkappa = opt_dkappa_;
@@ -89,6 +94,8 @@ void SpiralProblemInterface::get_optimization_results(
 bool SpiralProblemInterface::get_nlp_info(int& n, int& m, int& nnz_jac_g,
                                           int& nnz_h_lag,
                                           IndexStyleEnum& index_style) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::get_nlp_info";
+
   // number of variables
   n = num_of_points_ * 5 + num_of_points_ - 1;
   num_of_variables_ = n;
@@ -113,6 +120,8 @@ bool SpiralProblemInterface::get_nlp_info(int& n, int& m, int& nnz_jac_g,
 
 bool SpiralProblemInterface::get_bounds_info(int n, double* x_l, double* x_u,
                                              int m, double* g_l, double* g_u) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::get_bounds_info";
+
   CHECK_EQ(n, num_of_variables_);
   CHECK_EQ(m, num_of_constraints_);
 
@@ -233,6 +242,8 @@ bool SpiralProblemInterface::get_starting_point(int n, bool init_x, double* x,
                                                 double* z_U, int m,
                                                 bool init_lambda,
                                                 double* lambda) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::get_starting_point";
+
   CHECK_EQ(n, num_of_variables_);
   CHECK(init_x);
   CHECK(!init_z);
@@ -269,6 +280,8 @@ bool SpiralProblemInterface::get_starting_point(int n, bool init_x, double* x,
 
 bool SpiralProblemInterface::eval_f(int n, const double* x, bool new_x,
                                     double& obj_value) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::eval_f";
+
   CHECK_EQ(n, num_of_variables_);
   if (new_x) {
     update_piecewise_spiral_paths(x, n);
@@ -298,6 +311,8 @@ bool SpiralProblemInterface::eval_f(int n, const double* x, bool new_x,
 
 bool SpiralProblemInterface::eval_grad_f(int n, const double* x, bool new_x,
                                          double* grad_f) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::eval_grad_f";
+
   CHECK_EQ(n, num_of_variables_);
   std::fill(grad_f, grad_f + n, 0.0);
 
@@ -376,6 +391,8 @@ bool SpiralProblemInterface::eval_grad_f(int n, const double* x, bool new_x,
 
 bool SpiralProblemInterface::eval_g(int n, const double* x, bool new_x, int m,
                                     double* g) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::eval_g";
+
   CHECK_EQ(n, num_of_variables_);
   CHECK_EQ(m, num_of_constraints_);
 
@@ -418,6 +435,8 @@ bool SpiralProblemInterface::eval_g(int n, const double* x, bool new_x, int m,
 bool SpiralProblemInterface::eval_jac_g(int n, const double* x, bool new_x,
                                         int m, int nele_jac, int* iRow,
                                         int* jCol, double* values) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::eval_jac_g";
+
   CHECK_EQ(n, num_of_variables_);
   CHECK_EQ(m, num_of_constraints_);
 
@@ -655,6 +674,8 @@ bool SpiralProblemInterface::eval_h(int n, const double* x, bool new_x,
                                     const double* lambda, bool new_lambda,
                                     int nele_hess, int* iRow, int* jCol,
                                     double* values) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::eval_h";
+
   CHECK(false);
   return true;
 }
@@ -664,6 +685,8 @@ void SpiralProblemInterface::finalize_solution(
     const double* z_U, int m, const double* g, const double* lambda,
     double obj_value, const Ipopt::IpoptData* ip_data,
     Ipopt::IpoptCalculatedQuantities* ip_cq) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::finalize_solution";
+
   opt_theta_.reserve(num_of_points_);
   opt_kappa_.reserve(num_of_points_);
   opt_dkappa_.reserve(num_of_points_);
@@ -687,6 +710,8 @@ void SpiralProblemInterface::finalize_solution(
 
 void SpiralProblemInterface::update_piecewise_spiral_paths(const double* x,
                                                            const int n) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::update_piecewise_spiral_paths";
+
   int variable_offset = num_of_points_ * 5;
   for (int i = 0; i + 1 < num_of_points_; ++i) {
     int index0 = i * 5;
@@ -702,6 +727,8 @@ void SpiralProblemInterface::update_piecewise_spiral_paths(const double* x,
 
 void SpiralProblemInterface::set_default_max_point_deviation(
     const double max_point_deviation) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::set_default_max_point_deviation";
+
   default_max_point_deviation_ = max_point_deviation;
 }
 
@@ -709,6 +736,8 @@ void SpiralProblemInterface::set_start_point(const double x, const double y,
                                              const double theta,
                                              const double kappa,
                                              const double dkappa) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::set_start_point";
+
   has_fixed_start_point_ = true;
   start_x_ = x;
   start_y_ = y;
@@ -721,6 +750,8 @@ void SpiralProblemInterface::set_end_point(const double x, const double y,
                                            const double theta,
                                            const double kappa,
                                            const double dkappa) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::set_end_point";
+
   has_fixed_end_point_ = true;
   end_x_ = x;
   end_y_ = y;
@@ -731,6 +762,8 @@ void SpiralProblemInterface::set_end_point(const double x, const double y,
 
 void SpiralProblemInterface::set_end_point_position(const double x,
                                                     const double y) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::set_end_point_position";
+
   has_fixed_end_point_position_ = true;
   end_x_ = x;
   end_y_ = y;
@@ -738,16 +771,22 @@ void SpiralProblemInterface::set_end_point_position(const double x,
 
 void SpiralProblemInterface::set_element_weight_curve_length(
     const double weight_curve_length) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::set_element_weight_curve_length";
+
   weight_curve_length_ = weight_curve_length;
 }
 
 void SpiralProblemInterface::set_element_weight_kappa(
     const double weight_kappa) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::set_element_weight_kappa";
+
   weight_kappa_ = weight_kappa;
 }
 
 void SpiralProblemInterface::set_element_weight_dkappa(
     const double weight_dkappa) {
+    AINFO<<"(DMCZP) EnteringMethod: SpiralProblemInterface::set_element_weight_dkappa";
+
   weight_dkappa_ = weight_dkappa;
 }
 

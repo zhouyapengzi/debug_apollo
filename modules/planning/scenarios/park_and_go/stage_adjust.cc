@@ -34,6 +34,8 @@ using apollo::common::TrajectoryPoint;
 
 Stage::StageStatus ParkAndGoStageAdjust::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStageAdjust::Process";
+
   ADEBUG << "stage: Adjust";
   CHECK_NOTNULL(frame);
 
@@ -66,6 +68,8 @@ Stage::StageStatus ParkAndGoStageAdjust::Process(
 }
 
 Stage::StageStatus ParkAndGoStageAdjust::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStageAdjust::FinishStage";
+
   const auto vehicle_status = common::VehicleStateProvider::Instance();
   ADEBUG << vehicle_status->steering_percentage();
   if (std::fabs(vehicle_status->steering_percentage()) <
@@ -79,6 +83,8 @@ Stage::StageStatus ParkAndGoStageAdjust::FinishStage() {
 }
 
 void ParkAndGoStageAdjust::ResetInitPostion() {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStageAdjust::ResetInitPostion";
+
   auto* park_and_go_status = PlanningContext::Instance()
                                  ->mutable_planning_status()
                                  ->mutable_park_and_go();

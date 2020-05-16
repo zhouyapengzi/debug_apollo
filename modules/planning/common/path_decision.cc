@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -29,21 +30,31 @@ namespace apollo {
 namespace planning {
 
 Obstacle *PathDecision::AddObstacle(const Obstacle &obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: *PathDecision::AddObstacle";
+
   return obstacles_.Add(obstacle.Id(), obstacle);
 }
 
-const IndexedObstacles &PathDecision::obstacles() const { return obstacles_; }
+const IndexedObstacles &PathDecision::obstacles() const {
+    AINFO<<"(DMCZP) EnteringMethod: &PathDecision::obstacles";
+ return obstacles_; }
 
 Obstacle *PathDecision::Find(const std::string &object_id) {
+    AINFO<<"(DMCZP) EnteringMethod: *PathDecision::Find";
+
   return obstacles_.Find(object_id);
 }
 
 const Obstacle *PathDecision::Find(const std::string &object_id) const {
+    AINFO<<"(DMCZP) EnteringMethod: *PathDecision::Find";
+
   return obstacles_.Find(object_id);
 }
 
 const perception::PerceptionObstacle *PathDecision::FindPerceptionObstacle(
     const std::string &perception_obstacle_id) const {
+    AINFO<<"(DMCZP) EnteringMethod: *PathDecision::FindPerceptionObstacle";
+
   for (const auto *obstacle : obstacles_.Items()) {
     if (std::to_string(obstacle->Perception().id()) == perception_obstacle_id) {
       return &(obstacle->Perception());
@@ -55,6 +66,8 @@ const perception::PerceptionObstacle *PathDecision::FindPerceptionObstacle(
 
 void PathDecision::SetSTBoundary(const std::string &id,
                                  const STBoundary &boundary) {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecision::SetSTBoundary";
+
   auto *obstacle = obstacles_.Find(id);
 
   if (!obstacle) {
@@ -68,6 +81,8 @@ void PathDecision::SetSTBoundary(const std::string &id,
 bool PathDecision::AddLateralDecision(const std::string &tag,
                                       const std::string &object_id,
                                       const ObjectDecisionType &decision) {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecision::AddLateralDecision";
+
   auto *obstacle = obstacles_.Find(object_id);
   if (!obstacle) {
     AERROR << "failed to find obstacle";
@@ -78,6 +93,8 @@ bool PathDecision::AddLateralDecision(const std::string &tag,
 }
 
 void PathDecision::EraseStBoundaries() {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecision::EraseStBoundaries";
+
   for (const auto *obstacle : obstacles_.Items()) {
     auto *obstacle_ptr = obstacles_.Find(obstacle->Id());
     obstacle_ptr->EraseStBoundary();
@@ -87,6 +104,8 @@ void PathDecision::EraseStBoundaries() {
 bool PathDecision::AddLongitudinalDecision(const std::string &tag,
                                            const std::string &object_id,
                                            const ObjectDecisionType &decision) {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecision::AddLongitudinalDecision";
+
   auto *obstacle = obstacles_.Find(object_id);
   if (!obstacle) {
     AERROR << "failed to find obstacle";
@@ -100,6 +119,8 @@ bool PathDecision::MergeWithMainStop(const ObjectStop &obj_stop,
                                      const std::string &obj_id,
                                      const ReferenceLine &reference_line,
                                      const SLBoundary &adc_sl_boundary) {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecision::MergeWithMainStop";
+
   common::PointENU stop_point = obj_stop.stop_point();
   common::SLPoint stop_line_sl;
   reference_line.XYToSL(stop_point, &stop_line_sl);

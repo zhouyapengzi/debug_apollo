@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -39,12 +40,16 @@ using ObsDecSet = std::vector<std::pair<std::string, ObjectDecisionType>>;
 }  // namespace
 
 STBoundsDecider::STBoundsDecider(const TaskConfig& config) : Decider(config) {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundsDecider::STBoundsDecider";
+
   CHECK(config.has_st_bounds_decider_config());
   st_bounds_config_ = config.st_bounds_decider_config();
 }
 
 Status STBoundsDecider::Process(Frame* const frame,
                                 ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundsDecider::Process";
+
   // Initialize the related helper classes.
   InitSTBoundsDecider(*frame, reference_line_info);
 
@@ -81,6 +86,8 @@ Status STBoundsDecider::Process(Frame* const frame,
 
 void STBoundsDecider::InitSTBoundsDecider(
     const Frame& frame, ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundsDecider::InitSTBoundsDecider";
+
   const PathData& path_data = reference_line_info->path_data();
   PathDecision* path_decision = reference_line_info->path_decision();
 
@@ -107,6 +114,8 @@ void STBoundsDecider::InitSTBoundsDecider(
 
 Status STBoundsDecider::GenerateFallbackSTBound(STBound* const st_bound,
                                                 STBound* const vt_bound) {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundsDecider::GenerateFallbackSTBound";
+
   // Initialize st-boundary.
   for (double curr_t = 0.0; curr_t <= st_bounds_config_.total_time();
        curr_t += kSTBoundsDeciderResolution) {
@@ -210,6 +219,8 @@ Status STBoundsDecider::GenerateFallbackSTBound(STBound* const st_bound,
 
 Status STBoundsDecider::GenerateRegularSTBound(STBound* const st_bound,
                                                STBound* const vt_bound) {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundsDecider::GenerateRegularSTBound";
+
   // Initialize st-boundary.
   for (double curr_t = 0.0; curr_t <= st_bounds_config_.total_time();
        curr_t += kSTBoundsDeciderResolution) {
@@ -310,6 +321,8 @@ Status STBoundsDecider::GenerateRegularSTBound(STBound* const st_bound,
 void STBoundsDecider::RemoveInvalidDecisions(
     std::pair<double, double> driving_limit,
     std::vector<std::pair<STBoundPoint, ObsDecSet>>* available_choices) {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundsDecider::RemoveInvalidDecisions";
+
   // Remove those choices that don't even fall within driving-limits.
   size_t i = 0;
   while (i < available_choices->size()) {
@@ -333,6 +346,8 @@ void STBoundsDecider::RemoveInvalidDecisions(
 void STBoundsDecider::RankDecisions(
     double s_guide_line, std::pair<double, double> driving_limit,
     std::vector<std::pair<STBoundPoint, ObsDecSet>>* available_choices) {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundsDecider::RankDecisions";
+
   // Perform sorting of the existing decisions.
   bool has_swaps = true;
   while (has_swaps) {
@@ -387,6 +402,8 @@ void STBoundsDecider::RankDecisions(
 void STBoundsDecider::RecordSTGraphDebug(
     const std::vector<STBoundary>& st_graph_data, const STBound& st_bound,
     planning_internal::STGraphDebug* const st_graph_debug) {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundsDecider::RecordSTGraphDebug";
+
   if (!FLAGS_enable_record_debug || !st_graph_debug) {
     ADEBUG << "Skip record debug info";
     return;

@@ -36,10 +36,14 @@ using apollo::common::TrajectoryPoint;
 
 PullOverStageRetryParking::PullOverStageRetryParking(
     const ScenarioConfig::StageConfig& config)
-    : Stage(config) {}
+    : Stage(config) {
+    AINFO<<"(DMCZP) EnteringMethod: PullOverStageRetryParking::PullOverStageRetryParking";
+}
 
 Stage::StageStatus PullOverStageRetryParking::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: PullOverStageRetryParking::Process";
+
   ADEBUG << "stage: RetryParking";
   CHECK_NOTNULL(frame);
 
@@ -75,10 +79,14 @@ Stage::StageStatus PullOverStageRetryParking::Process(
 }
 
 Stage::StageStatus PullOverStageRetryParking::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: PullOverStageRetryParking::FinishStage";
+
   return FinishScenario();
 }
 
 bool PullOverStageRetryParking::CheckADCPullOverOpenSpace() {
+    AINFO<<"(DMCZP) EnteringMethod: PullOverStageRetryParking::CheckADCPullOverOpenSpace";
+
   const auto& pull_over_status =
       PlanningContext::Instance()->planning_status().pull_over();
   if (!pull_over_status.has_position() ||

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -27,13 +28,21 @@ namespace planning {
 
 using apollo::common::Status;
 
-NaviTask::NaviTask(const std::string& name) : name_(name) {}
+NaviTask::NaviTask(const std::string& name) : name_(name) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviTask::NaviTask";
+}
 
-const std::string& NaviTask::Name() const { return name_; }
+const std::string& NaviTask::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: NaviTask::Name";
+ return name_; }
 
-bool NaviTask::Init(const PlanningConfig& config) { return true; }
+bool NaviTask::Init(const PlanningConfig& config) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviTask::Init";
+ return true; }
 
 Status NaviTask::Execute(Frame* frame, ReferenceLineInfo* reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviTask::Execute";
+
   frame_ = frame;
   reference_line_info_ = reference_line_info;
   return Status::OK();

@@ -42,11 +42,15 @@ SpeedLimitDecider::SpeedLimitDecider(const SpeedBoundsDeciderConfig& config,
       reference_line_(reference_line),
       path_data_(path_data),
       vehicle_param_(common::VehicleConfigHelper::GetConfig().vehicle_param()) {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedLimitDecider::SpeedLimitDecider";
+
 }
 
 Status SpeedLimitDecider::GetSpeedLimits(
     const IndexedList<std::string, Obstacle>& obstacles,
     SpeedLimit* const speed_limit_data) const {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedLimitDecider::GetSpeedLimits";
+
   CHECK_NOTNULL(speed_limit_data);
 
   const auto& discretized_path = path_data_.discretized_path();

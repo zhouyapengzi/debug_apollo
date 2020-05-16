@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -37,6 +38,8 @@ using apollo::common::SpeedPoint;
 
 SpeedData::SpeedData(std::vector<SpeedPoint> speed_points)
     : std::vector<SpeedPoint>(std::move(speed_points)) {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedData::SpeedData";
+
   std::sort(begin(), end(), [](const SpeedPoint& p1, const SpeedPoint& p2) {
     return p1.t() < p2.t();
   });
@@ -45,6 +48,8 @@ SpeedData::SpeedData(std::vector<SpeedPoint> speed_points)
 void SpeedData::AppendSpeedPoint(const double s, const double time,
                                  const double v, const double a,
                                  const double da) {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedData::AppendSpeedPoint";
+
   if (!empty()) {
     CHECK(back().t() < time);
   }
@@ -53,6 +58,8 @@ void SpeedData::AppendSpeedPoint(const double s, const double time,
 
 bool SpeedData::EvaluateByTime(const double t,
                                common::SpeedPoint* const speed_point) const {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedData::EvaluateByTime";
+
   if (size() < 2) {
     return false;
   }
@@ -93,6 +100,8 @@ bool SpeedData::EvaluateByTime(const double t,
 
 bool SpeedData::EvaluateByS(const double s,
                             common::SpeedPoint* const speed_point) const {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedData::EvaluateByS";
+
   if (size() < 2) {
     return false;
   }
@@ -132,6 +141,8 @@ bool SpeedData::EvaluateByS(const double s,
 }
 
 double SpeedData::TotalTime() const {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedData::TotalTime";
+
   if (empty()) {
     return 0.0;
   }
@@ -139,6 +150,8 @@ double SpeedData::TotalTime() const {
 }
 
 double SpeedData::TotalLength() const {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedData::TotalLength";
+
   if (empty()) {
     return 0.0;
   }
@@ -146,6 +159,8 @@ double SpeedData::TotalLength() const {
 }
 
 std::string SpeedData::DebugString() const {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedData::DebugString";
+
   const auto limit = std::min(
       size(), static_cast<size_t>(FLAGS_trajectory_point_num_for_debug));
   return absl::StrCat(

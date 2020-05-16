@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -43,10 +44,14 @@ constexpr double kMinObstacleArea = 1e-4;
 }  // namespace
 
 PathAssessmentDecider::PathAssessmentDecider(const TaskConfig& config)
-    : Decider(config) {}
+    : Decider(config) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::PathAssessmentDecider";
+}
 
 Status PathAssessmentDecider::Process(
     Frame* const frame, ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::Process";
+
   // Sanity checks.
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
@@ -242,6 +247,8 @@ Status PathAssessmentDecider::Process(
 
 bool ComparePathData(const PathData& lhs, const PathData& rhs,
                      const Obstacle* blocking_obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: ComparePathData";
+
   ADEBUG << "Comparing " << lhs.path_label() << " and " << rhs.path_label();
   // Empty path_data is never the larger one.
   if (lhs.Empty()) {
@@ -341,6 +348,8 @@ bool ComparePathData(const PathData& lhs, const PathData& rhs,
 
 bool PathAssessmentDecider::IsValidRegularPath(
     const ReferenceLineInfo& reference_line_info, const PathData& path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::IsValidRegularPath";
+
   // Basic sanity checks.
   if (path_data.Empty()) {
     ADEBUG << path_data.path_label() << ": path data is empty.";
@@ -372,6 +381,8 @@ bool PathAssessmentDecider::IsValidRegularPath(
 
 bool PathAssessmentDecider::IsValidFallbackPath(
     const ReferenceLineInfo& reference_line_info, const PathData& path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::IsValidFallbackPath";
+
   // Basic sanity checks.
   if (path_data.Empty()) {
     ADEBUG << "Fallback Path: path data is empty.";
@@ -392,6 +403,8 @@ bool PathAssessmentDecider::IsValidFallbackPath(
 
 void PathAssessmentDecider::SetPathInfo(
     const ReferenceLineInfo& reference_line_info, PathData* const path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::SetPathInfo";
+
   // Go through every path_point, and label its:
   //  - in-lane/out-of-lane info (side-pass or lane-change)
   //  - distance to the closest obstacle.
@@ -419,6 +432,8 @@ void PathAssessmentDecider::SetPathInfo(
 
 void PathAssessmentDecider::TrimTailingOutLanePoints(
     PathData* const path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::TrimTailingOutLanePoints";
+
   // Don't trim self-lane path or fallback path.
   if (path_data->path_label().find("fallback") != std::string::npos ||
       path_data->path_label().find("self") != std::string::npos) {
@@ -451,6 +466,8 @@ void PathAssessmentDecider::TrimTailingOutLanePoints(
 
 bool PathAssessmentDecider::IsGreatlyOffReferenceLine(
     const PathData& path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::IsGreatlyOffReferenceLine";
+
   static constexpr double kOffReferenceLineThreshold = 20.0;
   const auto& frenet_path = path_data.frenet_frame_path();
   for (const auto& frenet_path_point : frenet_path) {
@@ -465,6 +482,8 @@ bool PathAssessmentDecider::IsGreatlyOffReferenceLine(
 
 bool PathAssessmentDecider::IsGreatlyOffRoad(
     const ReferenceLineInfo& reference_line_info, const PathData& path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::IsGreatlyOffRoad";
+
   static constexpr double kOffRoadThreshold = 10.0;
   const auto& frenet_path = path_data.frenet_frame_path();
   for (const auto& frenet_path_point : frenet_path) {
@@ -485,6 +504,8 @@ bool PathAssessmentDecider::IsGreatlyOffRoad(
 
 bool PathAssessmentDecider::IsCollidingWithStaticObstacles(
     const ReferenceLineInfo& reference_line_info, const PathData& path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::IsCollidingWithStaticObstacles";
+
   // Get all obstacles and convert them into frenet-frame polygons.
   std::vector<Polygon2d> obstacle_polygons;
   const auto& indexed_obstacles =
@@ -547,6 +568,8 @@ bool PathAssessmentDecider::IsCollidingWithStaticObstacles(
 
 bool PathAssessmentDecider::IsStopOnReverseNeighborLane(
     const ReferenceLineInfo& reference_line_info, const PathData& path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::IsStopOnReverseNeighborLane";
+
   if (path_data.path_label().find("left") == std::string::npos &&
       path_data.path_label().find("right") == std::string::npos) {
     return false;
@@ -619,6 +642,8 @@ bool PathAssessmentDecider::IsStopOnReverseNeighborLane(
 void PathAssessmentDecider::InitPathPointDecision(
     const PathData& path_data,
     std::vector<PathPointDecision>* const path_point_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::InitPathPointDecision";
+
   // Sanity checks.
   CHECK_NOTNULL(path_point_decision);
   path_point_decision->clear();
@@ -636,6 +661,8 @@ void PathAssessmentDecider::SetPathPointType(
     const ReferenceLineInfo& reference_line_info, const PathData& path_data,
     const bool is_lane_change_path,
     std::vector<PathPointDecision>* const path_point_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::SetPathPointType";
+
   // Sanity checks.
   CHECK_NOTNULL(path_point_decision);
 
@@ -743,6 +770,8 @@ void PathAssessmentDecider::SetPathPointType(
 void PathAssessmentDecider::SetObstacleDistance(
     const ReferenceLineInfo& reference_line_info, const PathData& path_data,
     std::vector<PathPointDecision>* const path_point_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::SetObstacleDistance";
+
   // Sanity checks
   CHECK_NOTNULL(path_point_decision);
 
@@ -784,6 +813,8 @@ void PathAssessmentDecider::SetObstacleDistance(
 void PathAssessmentDecider::RecordDebugInfo(
     const PathData& path_data, const std::string& debug_name,
     ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: PathAssessmentDecider::RecordDebugInfo";
+
   const auto& path_points = path_data.discretized_path();
   auto* ptr_optimized_path =
       reference_line_info->mutable_debug()->mutable_planning_data()->add_path();
@@ -794,6 +825,8 @@ void PathAssessmentDecider::RecordDebugInfo(
 
 int ContainsOutOnReverseLane(
     const std::vector<PathPointDecision>& path_point_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: ContainsOutOnReverseLane";
+
   int ret = 0;
   for (const auto& curr_decision : path_point_decision) {
     if (std::get<1>(curr_decision) ==
@@ -806,6 +839,8 @@ int ContainsOutOnReverseLane(
 
 int GetBackToInLaneIndex(
     const std::vector<PathPointDecision>& path_point_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: GetBackToInLaneIndex";
+
   // CHECK(!path_point_decision.empty());
   // CHECK(std::get<1>(path_point_decision.back()) ==
   //       PathData::PathPointType::IN_LANE);

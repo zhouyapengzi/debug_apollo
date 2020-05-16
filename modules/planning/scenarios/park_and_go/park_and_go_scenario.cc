@@ -33,6 +33,8 @@ apollo::common::util::Factory<
     ParkAndGoScenario::s_stage_factory_;
 
 void ParkAndGoScenario::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoScenario::Init";
+
   if (init_) {
     return;
   }
@@ -48,6 +50,8 @@ void ParkAndGoScenario::Init() {
 }
 
 void ParkAndGoScenario::RegisterStages() {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoScenario::RegisterStages";
+
   if (!s_stage_factory_.Empty()) {
     s_stage_factory_.Clear();
   }
@@ -87,6 +91,8 @@ std::unique_ptr<Stage> ParkAndGoScenario::CreateStage(
 }
 
 bool ParkAndGoScenario::GetScenarioConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoScenario::GetScenarioConfig";
+
   if (!config_.has_park_and_go_config()) {
     AERROR << "miss scenario specific config";
     return false;

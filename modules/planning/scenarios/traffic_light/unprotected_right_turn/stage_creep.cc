@@ -47,6 +47,8 @@ using apollo::hdmap::PathOverlap;
 
 Stage::StageStatus TrafficLightUnprotectedRightTurnStageCreep::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightUnprotectedRightTurnStageCreep::Process";
+
   ADEBUG << "stage: Creep";
   CHECK_NOTNULL(frame);
 
@@ -111,6 +113,8 @@ Stage::StageStatus TrafficLightUnprotectedRightTurnStageCreep::Process(
 }
 
 Stage::StageStatus TrafficLightUnprotectedRightTurnStageCreep::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: TrafficLightUnprotectedRightTurnStageCreep::FinishStage";
+
   next_stage_ =
       ScenarioConfig::TRAFFIC_LIGHT_UNPROTECTED_RIGHT_TURN_INTERSECTION_CRUISE;
   return Stage::FINISHED;

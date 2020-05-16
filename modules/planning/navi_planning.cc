@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -58,9 +59,13 @@ NaviPlanning::~NaviPlanning() {
   PlanningContext::Instance()->mutable_planning_status()->Clear();
 }
 
-std::string NaviPlanning::Name() const { return "navi_planning"; }
+std::string NaviPlanning::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::Name";
+ return "navi_planning"; }
 
 Status NaviPlanning::Init(const PlanningConfig& config) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::Init";
+
   config_ = config;
   if (!CheckPlanningConfig(config_)) {
     return Status(ErrorCode::PLANNING_ERROR,
@@ -95,6 +100,8 @@ Status NaviPlanning::Init(const PlanningConfig& config) {
 Status NaviPlanning::InitFrame(const uint32_t sequence_num,
                                const TrajectoryPoint& planning_start_point,
                                const VehicleState& vehicle_state) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::InitFrame";
+
   frame_.reset(new Frame(sequence_num, local_view_, planning_start_point,
                          vehicle_state, reference_line_provider_.get()));
 
@@ -118,6 +125,8 @@ Status NaviPlanning::InitFrame(const uint32_t sequence_num,
 
 void NaviPlanning::RunOnce(const LocalView& local_view,
                            ADCTrajectory* const trajectory_pb) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::RunOnce";
+
   local_view_ = local_view;
   const double start_timestamp = Clock::NowInSeconds();
 
@@ -312,6 +321,8 @@ void NaviPlanning::RunOnce(const LocalView& local_view,
 }
 
 void NaviPlanning::ProcessPadMsg(DrivingAction drvie_action) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::ProcessPadMsg";
+
   if (config_.has_navigation_planning_config()) {
     std::map<std::string, uint32_t> lane_id_to_priority;
     auto& ref_line_info_group = *frame_->mutable_reference_line_info();
@@ -382,6 +393,8 @@ void NaviPlanning::ProcessPadMsg(DrivingAction drvie_action) {
 }
 
 std::string NaviPlanning::GetCurrentLaneId() {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::GetCurrentLaneId";
+
   auto& ref_line_info_group = *frame_->mutable_reference_line_info();
   const auto& vehicle_state = frame_->vehicle_state();
   common::math::Vec2d adc_position(vehicle_state.x(), vehicle_state.y());
@@ -398,6 +411,8 @@ std::string NaviPlanning::GetCurrentLaneId() {
 
 void NaviPlanning::GetLeftNeighborLanesInfo(
     std::vector<std::pair<std::string, double>>* const lane_info_group) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::GetLeftNeighborLanesInfo";
+
   auto& ref_line_info_group = *frame_->mutable_reference_line_info();
   const auto& vehicle_state = frame_->vehicle_state();
   for (auto& ref_line_info : ref_line_info_group) {
@@ -425,6 +440,8 @@ void NaviPlanning::GetLeftNeighborLanesInfo(
 
 void NaviPlanning::GetRightNeighborLanesInfo(
     std::vector<std::pair<std::string, double>>* const lane_info_group) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::GetRightNeighborLanesInfo";
+
   auto& ref_line_info_group = *frame_->mutable_reference_line_info();
   const auto& vehicle_state = frame_->vehicle_state();
   for (auto& ref_line_info : ref_line_info_group) {
@@ -452,6 +469,8 @@ void NaviPlanning::GetRightNeighborLanesInfo(
 }
 
 void NaviPlanning::ExportReferenceLineDebug(planning_internal::Debug* debug) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::ExportReferenceLineDebug";
+
   if (!FLAGS_enable_record_debug) {
     return;
   }
@@ -471,6 +490,8 @@ Status NaviPlanning::Plan(
     const double current_time_stamp,
     const std::vector<TrajectoryPoint>& stitching_trajectory,
     ADCTrajectory* const trajectory_pb) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::Plan";
+
   auto* ptr_debug = trajectory_pb->mutable_debug();
   if (FLAGS_enable_record_debug) {
     ptr_debug->mutable_planning_data()->mutable_init_point()->CopyFrom(
@@ -577,6 +598,8 @@ Status NaviPlanning::Plan(
 
 NaviPlanning::VehicleConfig NaviPlanning::ComputeVehicleConfigFromLocalization(
     const localization::LocalizationEstimate& localization) const {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::ComputeVehicleConfigFromLocalization";
+
   NaviPlanning::VehicleConfig vehicle_config;
 
   if (!localization.pose().has_position()) {
@@ -600,6 +623,8 @@ NaviPlanning::VehicleConfig NaviPlanning::ComputeVehicleConfigFromLocalization(
 }
 
 bool NaviPlanning::CheckPlanningConfig(const PlanningConfig& config) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPlanning::CheckPlanningConfig";
+
   if (!config.has_navigation_planning_config()) {
     return false;
   }

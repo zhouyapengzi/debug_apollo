@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -28,6 +29,8 @@ namespace planning {
 using apollo::common::math::Box2d;
 
 Node3d::Node3d(double x, double y, double phi) {
+    AINFO<<"(DMCZP) EnteringMethod: Node3d::Node3d";
+
   x_ = x;
   y_ = y;
   phi_ = phi;
@@ -36,6 +39,8 @@ Node3d::Node3d(double x, double y, double phi) {
 Node3d::Node3d(double x, double y, double phi,
                const std::vector<double>& XYbounds,
                const PlannerOpenSpaceConfig& open_space_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: Node3d::Node3d";
+
   CHECK_EQ(XYbounds.size(), 4)
       << "XYbounds size is not 4, but" << XYbounds.size();
 
@@ -65,6 +70,8 @@ Node3d::Node3d(const std::vector<double>& traversed_x,
                const std::vector<double>& traversed_phi,
                const std::vector<double>& XYbounds,
                const PlannerOpenSpaceConfig& open_space_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: Node3d::Node3d";
+
   CHECK_EQ(XYbounds.size(), 4)
       << "XYbounds size is not 4, but" << XYbounds.size();
   CHECK_EQ(traversed_x.size(), traversed_y.size());
@@ -95,6 +102,8 @@ Node3d::Node3d(const std::vector<double>& traversed_x,
 
 Box2d Node3d::GetBoundingBox(const common::VehicleParam& vehicle_param_,
                              const double x, const double y, const double phi) {
+    AINFO<<"(DMCZP) EnteringMethod: Node3d::GetBoundingBox";
+
   double ego_length = vehicle_param_.length();
   double ego_width = vehicle_param_.width();
   double shift_distance =
@@ -110,6 +119,8 @@ bool Node3d::operator==(const Node3d& right) const {
 }
 
 std::string Node3d::ComputeStringIndex(int x_grid, int y_grid, int phi_grid) {
+    AINFO<<"(DMCZP) EnteringMethod: Node3d::ComputeStringIndex";
+
   return absl::StrCat(x_grid, "_", y_grid, "_", phi_grid);
 }
 

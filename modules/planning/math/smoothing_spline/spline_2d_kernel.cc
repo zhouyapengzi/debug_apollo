@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -32,6 +33,8 @@ using apollo::common::math::Vec2d;
 Spline2dKernel::Spline2dKernel(const std::vector<double>& t_knots,
                                const uint32_t spline_order)
     : t_knots_(t_knots), spline_order_(spline_order) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::Spline2dKernel";
+
   total_params_ =
       (t_knots_.size() > 1 ? 2 * (t_knots_.size() - 1) * (1 + spline_order_)
                            : 0);
@@ -41,6 +44,8 @@ Spline2dKernel::Spline2dKernel(const std::vector<double>& t_knots,
 
 // customized input output
 void Spline2dKernel::AddRegularization(const double regularization_param) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::AddRegularization";
+
   Eigen::MatrixXd id_matrix =
       Eigen::MatrixXd::Identity(kernel_matrix_.rows(), kernel_matrix_.cols());
   kernel_matrix_ += id_matrix * regularization_param;
@@ -49,6 +54,10 @@ void Spline2dKernel::AddRegularization(const double regularization_param) {
 bool Spline2dKernel::AddKernel(const Eigen::MatrixXd& kernel,
                                const Eigen::MatrixXd& offset,
                                const double weight) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::AddKernel";
+
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::AddKernel";
+
   if (kernel.rows() != kernel.cols() ||
       kernel.rows() != kernel_matrix_.rows() || offset.cols() != 1 ||
       offset.rows() != offset_.rows()) {
@@ -66,21 +75,31 @@ bool Spline2dKernel::AddKernel(const Eigen::MatrixXd& kernel,
 }
 
 Eigen::MatrixXd* Spline2dKernel::mutable_kernel_matrix() {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::mutable_kernel_matrix";
+
   return &kernel_matrix_;
 }
 
-Eigen::MatrixXd* Spline2dKernel::mutable_offset() { return &offset_; }
+Eigen::MatrixXd* Spline2dKernel::mutable_offset() {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::mutable_offset";
+ return &offset_; }
 
 Eigen::MatrixXd Spline2dKernel::kernel_matrix() const {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::kernel_matrix";
+
   return kernel_matrix_ * 2.0;
 }
 
-const Eigen::MatrixXd Spline2dKernel::offset() const { return offset_; }
+const Eigen::MatrixXd Spline2dKernel::offset() const {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::offset";
+ return offset_; }
 
 // build-in kernel methods
 
 void Spline2dKernel::AddNthDerivativeKernelMatrix(const uint32_t n,
                                                   const double weight) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::AddNthDerivativeKernelMatrix";
+
   for (uint32_t i = 0; i + 1 < t_knots_.size(); ++i) {
     const uint32_t num_params = spline_order_ + 1;
     Eigen::MatrixXd cur_kernel =
@@ -95,14 +114,20 @@ void Spline2dKernel::AddNthDerivativeKernelMatrix(const uint32_t n,
 }
 
 void Spline2dKernel::AddDerivativeKernelMatrix(const double weight) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::AddDerivativeKernelMatrix";
+
   AddNthDerivativeKernelMatrix(1, weight);
 }
 
 void Spline2dKernel::AddSecondOrderDerivativeMatrix(const double weight) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::AddSecondOrderDerivativeMatrix";
+
   AddNthDerivativeKernelMatrix(2, weight);
 }
 
 void Spline2dKernel::AddThirdOrderDerivativeMatrix(const double weight) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::AddThirdOrderDerivativeMatrix";
+
   AddNthDerivativeKernelMatrix(3, weight);
 }
 
@@ -111,6 +136,8 @@ void Spline2dKernel::AddThirdOrderDerivativeMatrix(const double weight) {
 bool Spline2dKernel::AddReferenceLineKernelMatrix(
     const std::vector<double>& t_coord, const std::vector<Vec2d>& ref_points,
     const double weight) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::AddReferenceLineKernelMatrix";
+
   if (ref_points.size() != t_coord.size()) {
     return false;
   }
@@ -155,6 +182,8 @@ bool Spline2dKernel::AddReferenceLineKernelMatrix(
 }
 
 uint32_t Spline2dKernel::find_index(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: Spline2dKernel::find_index";
+
   auto upper_bound = std::upper_bound(t_knots_.begin() + 1, t_knots_.end(), t);
   return std::min(static_cast<uint32_t>(t_knots_.size() - 1),
                   static_cast<uint32_t>(upper_bound - t_knots_.begin())) -

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -25,6 +26,8 @@ using apollo::common::Status;
 using apollo::common::TrajectoryPoint;
 
 Status PublicRoadPlanner::Init(const PlanningConfig& config) {
+    AINFO<<"(DMCZP) EnteringMethod: PublicRoadPlanner::Init";
+
   config_ = config;
   scenario_manager_.Init();
   return Status::OK();
@@ -33,6 +36,8 @@ Status PublicRoadPlanner::Init(const PlanningConfig& config) {
 Status PublicRoadPlanner::Plan(const TrajectoryPoint& planning_start_point,
                                Frame* frame,
                                ADCTrajectory* ptr_computed_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: PublicRoadPlanner::Plan";
+
   scenario_manager_.Update(planning_start_point, *frame);
   scenario_ = scenario_manager_.mutable_scenario();
   auto result = scenario_->Process(planning_start_point, frame);

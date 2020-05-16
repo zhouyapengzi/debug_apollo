@@ -32,6 +32,8 @@ namespace planning {
 // HistoryObjectDecision
 
 void HistoryObjectDecision::Init(const ObjectDecision& object_decisions) {
+    AINFO<<"(DMCZP) EnteringMethod: HistoryObjectDecision::Init";
+
   id_ = object_decisions.id();
   object_decision_.clear();
   for (int i = 0; i < object_decisions.object_decision_size(); i++) {
@@ -42,6 +44,8 @@ void HistoryObjectDecision::Init(const ObjectDecision& object_decisions) {
 void HistoryObjectDecision::Init(
     const std::string& id,
     const std::vector<ObjectDecisionType>& object_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: HistoryObjectDecision::Init";
+
   id_ = id;
   object_decision_.clear();
   for (const auto decision_type : object_decision) {
@@ -51,6 +55,8 @@ void HistoryObjectDecision::Init(
 
 std::vector<const ObjectDecisionType*>
 HistoryObjectDecision::GetObjectDecision() const {
+    AINFO<<"(DMCZP) EnteringMethod: HistoryObjectDecision::GetObjectDecision";
+
   std::vector<const ObjectDecisionType*> result;
   for (size_t i = 0; i < object_decision_.size(); i++) {
     result.push_back(&(object_decision_[i]));
@@ -63,6 +69,8 @@ HistoryObjectDecision::GetObjectDecision() const {
 // HistoryFrame
 
 void HistoryFrame::Init(const ADCTrajectory& adc_trajactory) {
+    AINFO<<"(DMCZP) EnteringMethod: HistoryFrame::Init";
+
   adc_trajactory_.CopyFrom(adc_trajactory);
 
   seq_num_ = adc_trajactory.header().sequence_num();
@@ -116,6 +124,8 @@ std::vector<const HistoryObjectDecision*> HistoryFrame::GetStopObjectDecisions()
 
 const HistoryObjectDecision* HistoryFrame::GetObjectDecisionsById(
     const std::string& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HistoryFrame::GetObjectDecisionsById";
+
   if (object_decisions_map_.find(id) == object_decisions_map_.end()) {
     return nullptr;
   }
@@ -127,6 +137,8 @@ const HistoryObjectDecision* HistoryFrame::GetObjectDecisionsById(
 
 void HistoryObjectStatus::Init(const std::string& id,
                                const ObjectStatus& object_status) {
+    AINFO<<"(DMCZP) EnteringMethod: HistoryObjectStatus::Init";
+
   id_ = id;
   object_status_ = object_status;
 }
@@ -136,11 +148,15 @@ void HistoryObjectStatus::Init(const std::string& id,
 
 void HistoryStatus::SetObjectStatus(const std::string& id,
                                     const ObjectStatus& object_status) {
+    AINFO<<"(DMCZP) EnteringMethod: HistoryStatus::SetObjectStatus";
+
   object_id_to_status_[id] = object_status;
 }
 
 bool HistoryStatus::GetObjectStatus(const std::string& id,
                                     ObjectStatus* const object_status) {
+    AINFO<<"(DMCZP) EnteringMethod: HistoryStatus::GetObjectStatus";
+
   if (object_id_to_status_.count(id) == 0) {
     return false;
   }
@@ -152,18 +168,26 @@ bool HistoryStatus::GetObjectStatus(const std::string& id,
 ////////////////////////////////////////////////
 // History
 
-History::History() {}
+History::History() {
+    AINFO<<"(DMCZP) EnteringMethod: History::History";
+}
 
 const HistoryFrame* History::GetLastFrame() const {
+    AINFO<<"(DMCZP) EnteringMethod: History::GetLastFrame";
+
   if (history_frames_.empty()) {
     return nullptr;
   } else {
     return &(history_frames_.back());
   }
 }
-void History::Clear() { history_frames_.clear(); }
+void History::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: History::Clear";
+ history_frames_.clear(); }
 
 int History::Add(const ADCTrajectory& adc_trajectory_pb) {
+    AINFO<<"(DMCZP) EnteringMethod: History::Add";
+
   if (history_frames_.size() >=
       static_cast<size_t>(FLAGS_history_max_record_num)) {
     history_frames_.pop_front();
@@ -176,7 +200,9 @@ int History::Add(const ADCTrajectory& adc_trajectory_pb) {
   return 0;
 }
 
-size_t History::Size() const { return history_frames_.size(); }
+size_t History::Size() const {
+    AINFO<<"(DMCZP) EnteringMethod: History::Size";
+ return history_frames_.size(); }
 
 }  // namespace planning
 }  // namespace apollo

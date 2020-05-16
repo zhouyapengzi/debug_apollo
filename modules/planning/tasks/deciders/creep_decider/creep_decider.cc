@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -38,11 +39,15 @@ using apollo::hdmap::PathOverlap;
 uint32_t CreepDecider::creep_clear_counter_ = 0;
 
 CreepDecider::CreepDecider(const TaskConfig& config) : Decider(config) {
+    AINFO<<"(DMCZP) EnteringMethod: CreepDecider::CreepDecider";
+
   CHECK(config_.has_creep_decider_config());
 }
 
 Status CreepDecider::Process(Frame* frame,
                              ReferenceLineInfo* reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: CreepDecider::Process";
+
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
 
@@ -130,6 +135,8 @@ Status CreepDecider::Process(Frame* frame,
 
 double CreepDecider::FindCreepDistance(
     const Frame& frame, const ReferenceLineInfo& reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: CreepDecider::FindCreepDistance";
+
   // more delicate design of creep distance
   return 2.0;
 }
@@ -139,6 +146,8 @@ bool CreepDecider::CheckCreepDone(const Frame& frame,
                                   const double traffic_sign_overlap_end_s,
                                   const double wait_time_sec,
                                   const double timeout_sec) {
+    AINFO<<"(DMCZP) EnteringMethod: CreepDecider::CheckCreepDone";
+
   const auto& creep_config = config_.creep_decider_config();
   bool creep_done = false;
   double creep_stop_s = traffic_sign_overlap_end_s +

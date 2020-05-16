@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -39,11 +40,15 @@ using apollo::hdmap::ParkingSpaceInfoConstPtr;
 
 OpenSpacePreStopDecider::OpenSpacePreStopDecider(const TaskConfig& config)
     : Decider(config) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpacePreStopDecider::OpenSpacePreStopDecider";
+
   CHECK(config.has_open_space_pre_stop_decider_config());
 }
 
 Status OpenSpacePreStopDecider::Process(
     Frame* frame, ReferenceLineInfo* reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpacePreStopDecider::Process";
+
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
   open_space_pre_stop_decider_config_ =
@@ -78,6 +83,8 @@ Status OpenSpacePreStopDecider::Process(
 bool OpenSpacePreStopDecider::CheckPullOverPreStop(
     Frame* const frame, ReferenceLineInfo* const reference_line_info,
     double* target_s) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpacePreStopDecider::CheckPullOverPreStop";
+
   *target_s = 0.0;
   const auto& pull_over_status =
       PlanningContext::Instance()->planning_status().pull_over();
@@ -94,6 +101,8 @@ bool OpenSpacePreStopDecider::CheckPullOverPreStop(
 bool OpenSpacePreStopDecider::CheckParkingSpotPreStop(
     Frame* const frame, ReferenceLineInfo* const reference_line_info,
     double* target_s) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpacePreStopDecider::CheckParkingSpotPreStop";
+
   const auto& target_parking_spot_id =
       frame->open_space_info().target_parking_spot_id();
   const auto& nearby_path = reference_line_info->reference_line().map_path();
@@ -143,6 +152,8 @@ bool OpenSpacePreStopDecider::CheckParkingSpotPreStop(
 void OpenSpacePreStopDecider::SetParkingSpotStopFence(
     const double target_s, Frame* const frame,
     ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpacePreStopDecider::SetParkingSpotStopFence";
+
   const auto& nearby_path = reference_line_info->reference_line().map_path();
   const double adc_front_edge_s = reference_line_info->AdcSlBoundary().end_s();
   const VehicleState& vehicle_state = frame->vehicle_state();
@@ -193,6 +204,8 @@ void OpenSpacePreStopDecider::SetParkingSpotStopFence(
 void OpenSpacePreStopDecider::SetPullOverStopFence(
     const double target_s, Frame* const frame,
     ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpacePreStopDecider::SetPullOverStopFence";
+
   const auto& nearby_path = reference_line_info->reference_line().map_path();
   const double adc_front_edge_s = reference_line_info->AdcSlBoundary().end_s();
   const VehicleState& vehicle_state = frame->vehicle_state();

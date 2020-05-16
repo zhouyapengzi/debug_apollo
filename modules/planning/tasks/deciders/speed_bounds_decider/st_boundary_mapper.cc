@@ -57,9 +57,13 @@ STBoundaryMapper::STBoundaryMapper(const SpeedBoundsDeciderConfig& config,
       path_data_(path_data),
       vehicle_param_(common::VehicleConfigHelper::GetConfig().vehicle_param()),
       planning_max_distance_(planning_distance),
-      planning_max_time_(planning_time) {}
+      planning_max_time_(planning_time) {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundaryMapper::STBoundaryMapper";
+}
 
 Status STBoundaryMapper::ComputeSTBoundary(PathDecision* path_decision) const {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundaryMapper::ComputeSTBoundary";
+
   // Sanity checks.
   CHECK_GT(planning_max_time_, 0.0);
   if (path_data_.discretized_path().size() < 2) {
@@ -122,6 +126,8 @@ Status STBoundaryMapper::ComputeSTBoundary(PathDecision* path_decision) const {
 
 bool STBoundaryMapper::MapStopDecision(
     Obstacle* stop_obstacle, const ObjectDecisionType& stop_decision) const {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundaryMapper::MapStopDecision";
+
   DCHECK(stop_decision.has_stop()) << "Must have stop decision";
   common::SLPoint stop_sl_point;
   reference_line_.XYToSL(stop_decision.stop().stop_point(), &stop_sl_point);
@@ -160,6 +166,8 @@ bool STBoundaryMapper::MapStopDecision(
 }
 
 void STBoundaryMapper::ComputeSTBoundary(Obstacle* obstacle) const {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundaryMapper::ComputeSTBoundary";
+
   if (FLAGS_use_st_drivable_boundary) {
     return;
   }
@@ -190,6 +198,8 @@ bool STBoundaryMapper::GetOverlapBoundaryPoints(
     const std::vector<PathPoint>& path_points, const Obstacle& obstacle,
     std::vector<STPoint>* upper_points,
     std::vector<STPoint>* lower_points) const {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundaryMapper::GetOverlapBoundaryPoints";
+
   // Sanity checks.
   DCHECK(upper_points->empty());
   DCHECK(lower_points->empty());
@@ -339,6 +349,8 @@ bool STBoundaryMapper::GetOverlapBoundaryPoints(
 
 void STBoundaryMapper::ComputeSTBoundaryWithDecision(
     Obstacle* obstacle, const ObjectDecisionType& decision) const {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundaryMapper::ComputeSTBoundaryWithDecision";
+
   DCHECK(decision.has_follow() || decision.has_yield() ||
          decision.has_overtake())
       << "decision is " << decision.DebugString()
@@ -388,6 +400,8 @@ void STBoundaryMapper::ComputeSTBoundaryWithDecision(
 bool STBoundaryMapper::CheckOverlap(const PathPoint& path_point,
                                     const Box2d& obs_box,
                                     const double l_buffer) const {
+    AINFO<<"(DMCZP) EnteringMethod: STBoundaryMapper::CheckOverlap";
+
   // Convert reference point from center of rear axis to center of ADC.
   Vec2d ego_center_map_frame((vehicle_param_.front_edge_to_center() -
                               vehicle_param_.back_edge_to_center()) *

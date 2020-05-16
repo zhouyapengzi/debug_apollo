@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -34,6 +35,8 @@ using apollo::common::math::Vec2d;
 hdmap::PathOverlap* GetOverlapOnReferenceLine(
     const ReferenceLineInfo& reference_line_info, const std::string& overlap_id,
     const ReferenceLineInfo::OverlapType& overlap_type) {
+    AINFO<<"(DMCZP) EnteringMethod: GetOverlapOnReferenceLine";
+
   if (overlap_type == ReferenceLineInfo::SIGNAL) {
     // traffic_light_overlap
     const auto& traffic_light_overlaps =
@@ -80,6 +83,8 @@ hdmap::PathOverlap* GetOverlapOnReferenceLine(
  */
 PullOverStatus CheckADCPullOver(const ReferenceLineInfo& reference_line_info,
                                 const ScenarioPullOverConfig& scenario_config) {
+    AINFO<<"(DMCZP) EnteringMethod: CheckADCPullOver";
+
   const auto& pull_over_status =
       PlanningContext::Instance()->planning_status().pull_over();
   if (!pull_over_status.has_position() ||
@@ -139,6 +144,8 @@ PullOverStatus CheckADCPullOverPathPoint(
     const ReferenceLineInfo& reference_line_info,
     const ScenarioPullOverConfig& scenario_config,
     const common::PathPoint& path_point) {
+    AINFO<<"(DMCZP) EnteringMethod: CheckADCPullOverPathPoint";
+
   const auto& pull_over_status =
       PlanningContext::Instance()->planning_status().pull_over();
   if (!pull_over_status.has_position() ||
@@ -165,6 +172,8 @@ bool CheckPullOverPositionBySL(const ReferenceLineInfo& reference_line_info,
                                const double adc_theta,
                                const common::math::Vec2d& target_position,
                                const double target_theta, const bool check_s) {
+    AINFO<<"(DMCZP) EnteringMethod: CheckPullOverPositionBySL";
+
   const auto& reference_line = reference_line_info.reference_line();
   common::SLPoint target_sl;
   reference_line.XYToSL(target_position, &target_sl);
@@ -194,6 +203,8 @@ bool CheckPullOverPositionBySL(const ReferenceLineInfo& reference_line_info,
 
 bool CheckADCReadyToCruise(Frame* frame,
                            const ScenarioParkAndGoConfig& scenario_config) {
+    AINFO<<"(DMCZP) EnteringMethod: CheckADCReadyToCruise";
+
   auto vehicle_status = common::VehicleStateProvider::Instance();
   common::math::Vec2d adc_position = {vehicle_status->x(), vehicle_status->y()};
   const double adc_heading = vehicle_status->heading();
@@ -238,6 +249,8 @@ bool CheckADCReadyToCruise(Frame* frame,
 bool CheckADCSurroundObstacles(const common::math::Vec2d adc_position,
                                const double adc_heading, Frame* frame,
                                const double front_obstacle_buffer) {
+    AINFO<<"(DMCZP) EnteringMethod: CheckADCSurroundObstacles";
+
   const auto& vehicle_config =
       common::VehicleConfigHelper::Instance()->GetConfig();
   const double adc_length = vehicle_config.vehicle_param().length();
@@ -273,6 +286,8 @@ bool CheckADCHeading(const common::math::Vec2d adc_position,
                      const double adc_heading,
                      const ReferenceLineInfo& reference_line_info,
                      const double heading_diff_to_reference_line) {
+    AINFO<<"(DMCZP) EnteringMethod: CheckADCHeading";
+
   const double kReducedHeadingBuffer = 0.2;  // (rad) TODO(Shu) move to config
   const auto& reference_line = reference_line_info.reference_line();
   common::SLPoint adc_position_sl;

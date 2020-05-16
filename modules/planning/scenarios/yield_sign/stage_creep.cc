@@ -45,6 +45,8 @@ using apollo::hdmap::PathOverlap;
 
 Stage::StageStatus YieldSignStageCreep::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSignStageCreep::Process";
+
   ADEBUG << "stage: Creep";
   CHECK_NOTNULL(frame);
 
@@ -110,6 +112,8 @@ Stage::StageStatus YieldSignStageCreep::Process(
 }
 
 Stage::StageStatus YieldSignStageCreep::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSignStageCreep::FinishStage";
+
   return FinishScenario();
 }
 

@@ -36,6 +36,8 @@ apollo::common::util::Factory<
     EmergencyPullOverScenario::s_stage_factory_;
 
 void EmergencyPullOverScenario::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyPullOverScenario::Init";
+
   if (init_) {
     return;
   }
@@ -51,6 +53,8 @@ void EmergencyPullOverScenario::Init() {
 }
 
 void EmergencyPullOverScenario::RegisterStages() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyPullOverScenario::RegisterStages";
+
   if (!s_stage_factory_.Empty()) {
     s_stage_factory_.Clear();
   }
@@ -88,6 +92,8 @@ std::unique_ptr<Stage> EmergencyPullOverScenario::CreateStage(
  * read scenario specific configs and set in context_ for stages to read
  */
 bool EmergencyPullOverScenario::GetScenarioConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyPullOverScenario::GetScenarioConfig";
+
   if (!config_.has_emergency_pull_over_config()) {
     AERROR << "miss scenario specific config";
     return false;

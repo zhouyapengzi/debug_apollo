@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -44,12 +45,16 @@ using apollo::common::TrajectoryPoint;
 PiecewiseJerkSpeedOptimizer::PiecewiseJerkSpeedOptimizer(
     const TaskConfig& config)
     : SpeedOptimizer(config) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedOptimizer::PiecewiseJerkSpeedOptimizer";
+
   CHECK(config_.has_piecewise_jerk_speed_config());
 }
 
 Status PiecewiseJerkSpeedOptimizer::Process(const PathData& path_data,
                                             const TrajectoryPoint& init_point,
                                             SpeedData* const speed_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedOptimizer::Process";
+
   if (reference_line_info_->ReachedDestination()) {
     return Status::OK();
   }

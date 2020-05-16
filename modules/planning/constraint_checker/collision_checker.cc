@@ -44,6 +44,8 @@ CollisionChecker::CollisionChecker(
     const std::vector<PathPoint>& discretized_reference_line,
     const ReferenceLineInfo* ptr_reference_line_info,
     const std::shared_ptr<PathTimeGraph>& ptr_path_time_graph) {
+    AINFO<<"(DMCZP) EnteringMethod: CollisionChecker::CollisionChecker";
+
   ptr_reference_line_info_ = ptr_reference_line_info;
   ptr_path_time_graph_ = ptr_path_time_graph;
   BuildPredictedEnvironment(obstacles, ego_vehicle_s, ego_vehicle_d,
@@ -54,6 +56,10 @@ bool CollisionChecker::InCollision(
     const std::vector<const Obstacle*>& obstacles,
     const DiscretizedTrajectory& ego_trajectory, const double ego_length,
     const double ego_width, const double ego_back_edge_to_center) {
+    AINFO<<"(DMCZP) EnteringMethod: CollisionChecker::InCollision";
+
+    AINFO<<"(DMCZP) EnteringMethod: CollisionChecker::InCollision";
+
   for (size_t i = 0; i < ego_trajectory.NumOfPoints(); ++i) {
     const auto& ego_point =
         ego_trajectory.TrajectoryPointAt(static_cast<std::uint32_t>(i));
@@ -117,6 +123,8 @@ void CollisionChecker::BuildPredictedEnvironment(
     const std::vector<const Obstacle*>& obstacles, const double ego_vehicle_s,
     const double ego_vehicle_d,
     const std::vector<PathPoint>& discretized_reference_line) {
+    AINFO<<"(DMCZP) EnteringMethod: CollisionChecker::BuildPredictedEnvironment";
+
   CHECK(predicted_bounding_rectangles_.empty());
 
   // If the ego vehicle is in lane,
@@ -156,6 +164,8 @@ void CollisionChecker::BuildPredictedEnvironment(
 
 bool CollisionChecker::IsEgoVehicleInLane(const double ego_vehicle_s,
                                           const double ego_vehicle_d) {
+    AINFO<<"(DMCZP) EnteringMethod: CollisionChecker::IsEgoVehicleInLane";
+
   double left_width = FLAGS_default_reference_line_width * 0.5;
   double right_width = FLAGS_default_reference_line_width * 0.5;
   ptr_reference_line_info_->reference_line().GetLaneWidth(
@@ -166,6 +176,8 @@ bool CollisionChecker::IsEgoVehicleInLane(const double ego_vehicle_s,
 bool CollisionChecker::IsObstacleBehindEgoVehicle(
     const Obstacle* obstacle, const double ego_vehicle_s,
     const std::vector<PathPoint>& discretized_reference_line) {
+    AINFO<<"(DMCZP) EnteringMethod: CollisionChecker::IsObstacleBehindEgoVehicle";
+
   double half_lane_width = FLAGS_default_reference_line_width * 0.5;
   TrajectoryPoint point = obstacle->GetPointAtTime(0.0);
   auto obstacle_reference_line_position = PathMatcher::GetPathFrenetCoordinate(

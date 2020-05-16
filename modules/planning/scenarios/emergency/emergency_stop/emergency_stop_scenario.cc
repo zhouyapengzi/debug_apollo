@@ -35,6 +35,8 @@ apollo::common::util::Factory<
     EmergencyStopScenario::s_stage_factory_;
 
 void EmergencyStopScenario::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyStopScenario::Init";
+
   if (init_) {
     return;
   }
@@ -50,6 +52,8 @@ void EmergencyStopScenario::Init() {
 }
 
 void EmergencyStopScenario::RegisterStages() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyStopScenario::RegisterStages";
+
   if (!s_stage_factory_.Empty()) {
     s_stage_factory_.Clear();
   }
@@ -82,6 +86,8 @@ std::unique_ptr<Stage> EmergencyStopScenario::CreateStage(
  * read scenario specific configs and set in context_ for stages to read
  */
 bool EmergencyStopScenario::GetScenarioConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyStopScenario::GetScenarioConfig";
+
   if (!config_.has_emergency_stop_config()) {
     AERROR << "miss scenario specific config";
     return false;

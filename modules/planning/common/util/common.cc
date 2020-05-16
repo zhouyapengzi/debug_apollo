@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -31,6 +32,8 @@ int BuildStopDecision(const std::string& stop_wall_id, const double stop_line_s,
                       const std::vector<std::string>& wait_for_obstacles,
                       const std::string& decision_tag, Frame* const frame,
                       ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: BuildStopDecision";
+
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
 
@@ -86,6 +89,8 @@ int BuildStopDecision(const std::string& stop_wall_id,
                       const std::vector<std::string>& wait_for_obstacles,
                       const std::string& decision_tag, Frame* const frame,
                       ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: BuildStopDecision";
+
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
 

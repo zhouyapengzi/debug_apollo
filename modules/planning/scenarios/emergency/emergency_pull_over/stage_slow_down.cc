@@ -38,10 +38,14 @@ using apollo::common::TrajectoryPoint;
 
 EmergencyPullOverStageSlowDown::EmergencyPullOverStageSlowDown(
     const ScenarioConfig::StageConfig& config)
-    : Stage(config) {}
+    : Stage(config) {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyPullOverStageSlowDown::EmergencyPullOverStageSlowDown";
+}
 
 Stage::StageStatus EmergencyPullOverStageSlowDown::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyPullOverStageSlowDown::Process";
+
   ADEBUG << "stage: SlowDown";
   CHECK_NOTNULL(frame);
 
@@ -75,6 +79,8 @@ Stage::StageStatus EmergencyPullOverStageSlowDown::Process(
 }
 
 Stage::StageStatus EmergencyPullOverStageSlowDown::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyPullOverStageSlowDown::FinishStage";
+
   auto* pull_over_status = PlanningContext::Instance()
                                ->mutable_planning_status()
                                ->mutable_pull_over();

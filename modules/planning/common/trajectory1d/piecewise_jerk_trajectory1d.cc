@@ -30,6 +30,8 @@ namespace planning {
 PiecewiseJerkTrajectory1d::PiecewiseJerkTrajectory1d(const double p,
                                                      const double v,
                                                      const double a) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkTrajectory1d::PiecewiseJerkTrajectory1d";
+
   last_p_ = p;
   last_v_ = v;
   last_a_ = a;
@@ -38,6 +40,8 @@ PiecewiseJerkTrajectory1d::PiecewiseJerkTrajectory1d(const double p,
 
 void PiecewiseJerkTrajectory1d::AppendSegment(const double jerk,
                                               const double param) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkTrajectory1d::AppendSegment";
+
   CHECK_GT(param, FLAGS_numerical_epsilon);
 
   param_.push_back(param_.back() + param);
@@ -53,6 +57,8 @@ void PiecewiseJerkTrajectory1d::AppendSegment(const double jerk,
 
 double PiecewiseJerkTrajectory1d::Evaluate(const std::uint32_t order,
                                            const double param) const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkTrajectory1d::Evaluate";
+
   auto it_lower = std::lower_bound(param_.begin(), param_.end(), param);
 
   if (it_lower == param_.begin()) {
@@ -68,9 +74,13 @@ double PiecewiseJerkTrajectory1d::Evaluate(const std::uint32_t order,
   return segments_[index - 1].Evaluate(order, param - param_[index - 1]);
 }
 
-double PiecewiseJerkTrajectory1d::ParamLength() const { return param_.back(); }
+double PiecewiseJerkTrajectory1d::ParamLength() const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkTrajectory1d::ParamLength";
+ return param_.back(); }
 
-std::string PiecewiseJerkTrajectory1d::ToString() const { return ""; }
+std::string PiecewiseJerkTrajectory1d::ToString() const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkTrajectory1d::ToString";
+ return ""; }
 
 }  // namespace planning
 }  // namespace apollo

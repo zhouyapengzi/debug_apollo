@@ -58,10 +58,14 @@ constexpr double kStraightForwardLineCost = 10.0;
 }  // namespace
 
 LaneFollowStage::LaneFollowStage(const ScenarioConfig::StageConfig& config)
-    : Stage(config) {}
+    : Stage(config) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneFollowStage::LaneFollowStage";
+}
 
 void LaneFollowStage::RecordObstacleDebugInfo(
     ReferenceLineInfo* reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneFollowStage::RecordObstacleDebugInfo";
+
   if (!FLAGS_enable_record_debug) {
     ADEBUG << "Skip record debug info";
     return;
@@ -91,6 +95,8 @@ void LaneFollowStage::RecordObstacleDebugInfo(
 void LaneFollowStage::RecordDebugInfo(ReferenceLineInfo* reference_line_info,
                                       const std::string& name,
                                       const double time_diff_ms) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneFollowStage::RecordDebugInfo";
+
   if (!FLAGS_enable_record_debug) {
     ADEBUG << "Skip record debug info";
     return;
@@ -109,6 +115,8 @@ void LaneFollowStage::RecordDebugInfo(ReferenceLineInfo* reference_line_info,
 
 Stage::StageStatus LaneFollowStage::Process(
     const TrajectoryPoint& planning_start_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneFollowStage::Process";
+
   bool has_drivable_reference_line = false;
 
   ADEBUG << "Number of reference lines:\t"
@@ -169,6 +177,8 @@ Stage::StageStatus LaneFollowStage::Process(
 Status LaneFollowStage::PlanOnReferenceLine(
     const TrajectoryPoint& planning_start_point, Frame* frame,
     ReferenceLineInfo* reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneFollowStage::PlanOnReferenceLine";
+
   if (!reference_line_info->IsChangeLanePath()) {
     reference_line_info->AddCost(kStraightForwardLineCost);
   }
@@ -275,6 +285,8 @@ Status LaneFollowStage::PlanOnReferenceLine(
 void LaneFollowStage::PlanFallbackTrajectory(
     const TrajectoryPoint& planning_start_point, Frame* frame,
     ReferenceLineInfo* reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneFollowStage::PlanFallbackTrajectory";
+
   // path and speed fall back
   if (reference_line_info->path_data().Empty()) {
     AERROR << "Path fallback due to algorithm failure";
@@ -312,6 +324,8 @@ void LaneFollowStage::PlanFallbackTrajectory(
 
 void LaneFollowStage::GenerateFallbackPathProfile(
     const ReferenceLineInfo* reference_line_info, PathData* path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneFollowStage::GenerateFallbackPathProfile";
+
   const double unit_s = 1.0;
   const auto& reference_line = reference_line_info->reference_line();
 
@@ -364,6 +378,8 @@ void LaneFollowStage::GenerateFallbackPathProfile(
 bool LaneFollowStage::RetrieveLastFramePathProfile(
     const ReferenceLineInfo* reference_line_info, const Frame* frame,
     PathData* path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: LaneFollowStage::RetrieveLastFramePathProfile";
+
   const auto* ptr_last_frame = FrameHistory::Instance()->Latest();
   if (ptr_last_frame == nullptr) {
     AERROR
@@ -391,6 +407,8 @@ bool LaneFollowStage::RetrieveLastFramePathProfile(
 
 SLPoint LaneFollowStage::GetStopSL(const ObjectStop& stop_decision,
                                    const ReferenceLine& reference_line) const {
+    AINFO<<"(DMCZP) EnteringMethod: LaneFollowStage::GetStopSL";
+
   SLPoint sl_point;
   reference_line.XYToSL(stop_decision.stop_point(), &sl_point);
   return sl_point;

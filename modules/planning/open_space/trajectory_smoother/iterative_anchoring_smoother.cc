@@ -42,6 +42,8 @@ using apollo::common::math::Vec2d;
 
 IterativeAnchoringSmoother::IterativeAnchoringSmoother(
     const PlannerOpenSpaceConfig& planner_open_space_config) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::IterativeAnchoringSmoother";
+
   // TODO(Jinyun, Yu): refactor after stabilized.
   const auto& vehicle_param =
       common::VehicleConfigHelper::Instance()->GetConfig().vehicle_param();
@@ -56,6 +58,8 @@ bool IterativeAnchoringSmoother::Smooth(
     const Eigen::MatrixXd& xWS, const double init_a, const double init_v,
     const std::vector<std::vector<Vec2d>>& obstacles_vertices_vec,
     DiscretizedTrajectory* discretized_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::Smooth";
+
   if (xWS.cols() < 2) {
     AERROR << "reference points size smaller than two, smoother early "
               "returned";
@@ -209,6 +213,8 @@ bool IterativeAnchoringSmoother::Smooth(
 void IterativeAnchoringSmoother::AdjustStartEndHeading(
     const Eigen::MatrixXd& xWS,
     std::vector<std::pair<double, double>>* const point2d) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::AdjustStartEndHeading";
+
   // Sanity check
   CHECK_NOTNULL(point2d);
   CHECK_GT(xWS.cols(), 1);
@@ -253,6 +259,8 @@ void IterativeAnchoringSmoother::AdjustStartEndHeading(
 bool IterativeAnchoringSmoother::ReAnchoring(
     const std::vector<size_t>& colliding_point_index,
     DiscretizedPath* path_points) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::ReAnchoring";
+
   CHECK_NOTNULL(path_points);
   if (colliding_point_index.empty()) {
     ADEBUG << "no point needs to be re-anchored";
@@ -381,6 +389,8 @@ bool IterativeAnchoringSmoother::ReAnchoring(
 
 bool IterativeAnchoringSmoother::GenerateInitialBounds(
     const DiscretizedPath& path_points, std::vector<double>* initial_bounds) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::GenerateInitialBounds";
+
   CHECK_NOTNULL(initial_bounds);
   initial_bounds->clear();
 
@@ -421,6 +431,8 @@ bool IterativeAnchoringSmoother::GenerateInitialBounds(
 bool IterativeAnchoringSmoother::SmoothPath(
     const DiscretizedPath& raw_path_points, const std::vector<double>& bounds,
     DiscretizedPath* smoothed_path_points) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::SmoothPath";
+
   std::vector<std::pair<double, double>> raw_point2d;
   std::vector<double> flexible_bounds;
   for (const auto& path_point : raw_path_points) {
@@ -485,6 +497,8 @@ bool IterativeAnchoringSmoother::SmoothPath(
 bool IterativeAnchoringSmoother::CheckCollisionAvoidance(
     const DiscretizedPath& path_points,
     std::vector<size_t>* colliding_point_index) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::CheckCollisionAvoidance";
+
   CHECK_NOTNULL(colliding_point_index);
 
   colliding_point_index->clear();
@@ -536,6 +550,8 @@ bool IterativeAnchoringSmoother::CheckCollisionAvoidance(
 void IterativeAnchoringSmoother::AdjustPathBounds(
     const std::vector<size_t>& colliding_point_index,
     std::vector<double>* bounds) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::AdjustPathBounds";
+
   CHECK_NOTNULL(bounds);
 
   const double collision_decrease_ratio =
@@ -560,6 +576,8 @@ void IterativeAnchoringSmoother::AdjustPathBounds(
 bool IterativeAnchoringSmoother::SetPathProfile(
     const std::vector<std::pair<double, double>>& point2d,
     DiscretizedPath* raw_path_points) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::SetPathProfile";
+
   CHECK_NOTNULL(raw_path_points);
   raw_path_points->clear();
   // Compute path profile
@@ -592,6 +610,8 @@ bool IterativeAnchoringSmoother::SetPathProfile(
 }
 
 bool IterativeAnchoringSmoother::CheckGear(const Eigen::MatrixXd& xWS) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::CheckGear";
+
   CHECK_GT(xWS.size(), 1);
   double init_heading_angle = xWS(2, 0);
   const Vec2d init_tracking_vector(xWS(0, 1) - xWS(0, 0),
@@ -605,6 +625,8 @@ bool IterativeAnchoringSmoother::SmoothSpeed(const double init_a,
                                              const double init_v,
                                              const double path_length,
                                              SpeedData* smoothed_speeds) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::SmoothSpeed";
+
   const double max_forward_v =
       planner_open_space_config_.iterative_anchoring_smoother_config()
           .max_forward_v();
@@ -697,6 +719,8 @@ bool IterativeAnchoringSmoother::SmoothSpeed(const double init_a,
 bool IterativeAnchoringSmoother::CombinePathAndSpeed(
     const DiscretizedPath& path_points, const SpeedData& speed_points,
     DiscretizedTrajectory* discretized_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::CombinePathAndSpeed";
+
   CHECK_NOTNULL(discretized_trajectory);
   discretized_trajectory->clear();
   // TODO(Jinyun): move to confs
@@ -737,6 +761,8 @@ bool IterativeAnchoringSmoother::CombinePathAndSpeed(
 
 void IterativeAnchoringSmoother::AdjustPathAndSpeedByGear(
     DiscretizedTrajectory* discretized_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::AdjustPathAndSpeedByGear";
+
   if (gear_) {
     return;
   }
@@ -758,6 +784,8 @@ void IterativeAnchoringSmoother::AdjustPathAndSpeedByGear(
 bool IterativeAnchoringSmoother::GenerateStopProfileFromPolynomial(
     const double init_acc, const double init_speed, const double stop_distance,
     SpeedData* smoothed_speeds) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::GenerateStopProfileFromPolynomial";
+
   static constexpr double kMaxT = 8.0;
   static constexpr double kUnitT = 0.2;
   for (double t = 2.0; t <= kMaxT; t += kUnitT) {
@@ -782,6 +810,8 @@ bool IterativeAnchoringSmoother::GenerateStopProfileFromPolynomial(
 
 bool IterativeAnchoringSmoother::IsValidPolynomialProfile(
     const QuinticPolynomialCurve1d& curve) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::IsValidPolynomialProfile";
+
   for (double evaluate_t = 0.1; evaluate_t <= curve.ParamLength();
        evaluate_t += 0.2) {
     const double v = curve.Evaluate(1, evaluate_t);
@@ -796,6 +826,8 @@ bool IterativeAnchoringSmoother::IsValidPolynomialProfile(
 
 double IterativeAnchoringSmoother::CalcHeadings(
     const DiscretizedPath& path_points, const size_t index) {
+    AINFO<<"(DMCZP) EnteringMethod: IterativeAnchoringSmoother::CalcHeadings";
+
   CHECK_GT(path_points.size(), 2);
   double dx = 0.0;
   double dy = 0.0;

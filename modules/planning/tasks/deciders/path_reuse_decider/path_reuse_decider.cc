@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -37,10 +38,14 @@ int PathReuseDecider::total_path_counter_ = 0;
 bool PathReuseDecider::path_reusable_ = false;
 
 PathReuseDecider::PathReuseDecider(const TaskConfig& config)
-    : Decider(config) {}
+    : Decider(config) {
+    AINFO<<"(DMCZP) EnteringMethod: PathReuseDecider::PathReuseDecider";
+}
 
 Status PathReuseDecider::Process(Frame* const frame,
                                  ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: PathReuseDecider::Process";
+
   // Sanity checks.
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
@@ -155,6 +160,8 @@ Status PathReuseDecider::Process(Frame* const frame,
 
 bool PathReuseDecider::IsIgnoredBlockingObstacle(
     ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: PathReuseDecider::IsIgnoredBlockingObstacle";
+
   const ReferenceLine& reference_line = reference_line_info->reference_line();
   static constexpr double kSDistBuffer = 30.0;  // meter
   static constexpr int kTimeBuffer = 3;         // second
@@ -180,6 +187,8 @@ bool PathReuseDecider::IsIgnoredBlockingObstacle(
 
 bool PathReuseDecider::GetBlockingObstacleS(
     ReferenceLineInfo* const reference_line_info, double* blocking_obstacle_s) {
+    AINFO<<"(DMCZP) EnteringMethod: PathReuseDecider::GetBlockingObstacleS";
+
   auto* mutable_path_decider_status = PlanningContext::Instance()
                                           ->mutable_planning_status()
                                           ->mutable_path_decider();
@@ -202,6 +211,8 @@ bool PathReuseDecider::GetBlockingObstacleS(
 
 void PathReuseDecider::GetADCSLPoint(const ReferenceLine& reference_line,
                                      common::SLPoint* adc_position_sl) {
+    AINFO<<"(DMCZP) EnteringMethod: PathReuseDecider::GetADCSLPoint";
+
   common::math::Vec2d adc_position = {
       common::VehicleStateProvider::Instance()->x(),
       common::VehicleStateProvider::Instance()->y()};
@@ -210,6 +221,8 @@ void PathReuseDecider::GetADCSLPoint(const ReferenceLine& reference_line,
 
 bool PathReuseDecider::IsCollisionFree(
     ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: PathReuseDecider::IsCollisionFree";
+
   const ReferenceLine& reference_line = reference_line_info->reference_line();
   static constexpr double kMinObstacleArea = 1e-4;
   const double kSBuffer = 0.5;
@@ -315,6 +328,8 @@ bool PathReuseDecider::IsCollisionFree(
 
 // check the length of the path
 bool PathReuseDecider::NotShortPath(const DiscretizedPath& current_path) {
+    AINFO<<"(DMCZP) EnteringMethod: PathReuseDecider::NotShortPath";
+
   // TODO(shu): use gflag
   static constexpr double kShortPathThreshold = 60;
   return current_path.size() >= kShortPathThreshold;
@@ -322,6 +337,8 @@ bool PathReuseDecider::NotShortPath(const DiscretizedPath& current_path) {
 
 bool PathReuseDecider::TrimHistoryPath(
     Frame* frame, ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: PathReuseDecider::TrimHistoryPath";
+
   const ReferenceLine& reference_line = reference_line_info->reference_line();
   const auto& history_frame = FrameHistory::Instance()->Latest();
   if (!history_frame) {

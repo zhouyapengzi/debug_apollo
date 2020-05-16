@@ -35,6 +35,8 @@ using apollo::common::TrajectoryPoint;
 
 Stage::StageStatus ParkAndGoStagePreCruise::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStagePreCruise::Process";
+
   ADEBUG << "stage: Pre Cruise";
   CHECK_NOTNULL(frame);
 
@@ -60,6 +62,8 @@ Stage::StageStatus ParkAndGoStagePreCruise::Process(
 }
 
 Stage::StageStatus ParkAndGoStagePreCruise::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStagePreCruise::FinishStage";
+
   next_stage_ = ScenarioConfig::PARK_AND_GO_CRUISE;
   return Stage::FINISHED;
 }

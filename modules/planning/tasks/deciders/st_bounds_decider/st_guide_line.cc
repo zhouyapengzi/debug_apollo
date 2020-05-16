@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -24,17 +25,23 @@ namespace apollo {
 namespace planning {
 
 void STGuideLine::Init(double desired_v) {
+    AINFO<<"(DMCZP) EnteringMethod: STGuideLine::Init";
+
   s0_ = 0.0;
   t0_ = 0.0;
   v0_ = desired_v;
 }
 
 double STGuideLine::GetGuideSFromT(double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: STGuideLine::GetGuideSFromT";
+
   return s0_ + (t - t0_) * v0_;
 }
 
 void STGuideLine::UpdateBlockingInfo(const double t, const double s_block,
                                      const bool is_lower_block) {
+    AINFO<<"(DMCZP) EnteringMethod: STGuideLine::UpdateBlockingInfo";
+
   if (is_lower_block) {
     if (GetGuideSFromT(t) < s_block) {
       s0_ = s_block;

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -25,6 +26,8 @@ using apollo::common::TrajectoryPoint;
 
 Stage::StageStatus ParkAndGoStageCheck::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStageCheck::Process";
+
   ADEBUG << "stage: Check";
   CHECK_NOTNULL(frame);
 
@@ -43,6 +46,8 @@ Stage::StageStatus ParkAndGoStageCheck::Process(
 }
 
 Stage::StageStatus ParkAndGoStageCheck::FinishStage(const bool success) {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStageCheck::FinishStage";
+
   if (success) {
     next_stage_ = ScenarioConfig::PARK_AND_GO_CRUISE;
   } else {
@@ -56,6 +61,8 @@ Stage::StageStatus ParkAndGoStageCheck::FinishStage(const bool success) {
 }
 
 void ParkAndGoStageCheck::ADCInitStatus() {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStageCheck::ADCInitStatus";
+
   auto* park_and_go_status = PlanningContext::Instance()
                                  ->mutable_planning_status()
                                  ->mutable_park_and_go();

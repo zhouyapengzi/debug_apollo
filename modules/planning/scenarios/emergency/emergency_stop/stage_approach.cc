@@ -41,10 +41,14 @@ using apollo::common::TrajectoryPoint;
 
 EmergencyStopStageApproach::EmergencyStopStageApproach(
     const ScenarioConfig::StageConfig& config)
-    : Stage(config) {}
+    : Stage(config) {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyStopStageApproach::EmergencyStopStageApproach";
+}
 
 Stage::StageStatus EmergencyStopStageApproach::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyStopStageApproach::Process";
+
   ADEBUG << "stage: Approach";
   CHECK_NOTNULL(frame);
 
@@ -122,6 +126,8 @@ Stage::StageStatus EmergencyStopStageApproach::Process(
 }
 
 Stage::StageStatus EmergencyStopStageApproach::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: EmergencyStopStageApproach::FinishStage";
+
   next_stage_ = ScenarioConfig::EMERGENCY_STOP_STANDBY;
   return Stage::FINISHED;
 }

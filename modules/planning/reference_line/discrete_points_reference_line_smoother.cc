@@ -32,11 +32,15 @@ namespace planning {
 
 DiscretePointsReferenceLineSmoother::DiscretePointsReferenceLineSmoother(
     const ReferenceLineSmootherConfig& config)
-    : ReferenceLineSmoother(config) {}
+    : ReferenceLineSmoother(config) {
+    AINFO<<"(DMCZP) EnteringMethod: DiscretePointsReferenceLineSmoother::DiscretePointsReferenceLineSmoother";
+}
 
 bool DiscretePointsReferenceLineSmoother::Smooth(
     const ReferenceLine& raw_reference_line,
     ReferenceLine* const smoothed_reference_line) {
+    AINFO<<"(DMCZP) EnteringMethod: DiscretePointsReferenceLineSmoother::Smooth";
+
   const auto start_timestamp = std::chrono::system_clock::now();
 
   std::vector<std::pair<double, double>> raw_point2d;
@@ -112,6 +116,8 @@ bool DiscretePointsReferenceLineSmoother::CosThetaSmooth(
     const std::vector<std::pair<double, double>>& raw_point2d,
     const std::vector<double>& bounds,
     std::vector<std::pair<double, double>>* ptr_smoothed_point2d) {
+    AINFO<<"(DMCZP) EnteringMethod: DiscretePointsReferenceLineSmoother::CosThetaSmooth";
+
   const auto& cos_theta_config =
       config_.discrete_points().cos_theta_smoothing();
 
@@ -153,6 +159,8 @@ bool DiscretePointsReferenceLineSmoother::FemPosSmooth(
     const std::vector<std::pair<double, double>>& raw_point2d,
     const std::vector<double>& bounds,
     std::vector<std::pair<double, double>>* ptr_smoothed_point2d) {
+    AINFO<<"(DMCZP) EnteringMethod: DiscretePointsReferenceLineSmoother::FemPosSmooth";
+
   const auto& fem_pos_config =
       config_.discrete_points().fem_pos_deviation_smoothing();
 
@@ -192,12 +200,16 @@ bool DiscretePointsReferenceLineSmoother::FemPosSmooth(
 
 void DiscretePointsReferenceLineSmoother::SetAnchorPoints(
     const std::vector<AnchorPoint>& anchor_points) {
+    AINFO<<"(DMCZP) EnteringMethod: DiscretePointsReferenceLineSmoother::SetAnchorPoints";
+
   CHECK_GT(anchor_points.size(), 1);
   anchor_points_ = anchor_points;
 }
 
 void DiscretePointsReferenceLineSmoother::NormalizePoints(
     std::vector<std::pair<double, double>>* xy_points) {
+    AINFO<<"(DMCZP) EnteringMethod: DiscretePointsReferenceLineSmoother::NormalizePoints";
+
   zero_x_ = xy_points->front().first;
   zero_y_ = xy_points->front().second;
   std::for_each(xy_points->begin(), xy_points->end(),
@@ -212,6 +224,8 @@ void DiscretePointsReferenceLineSmoother::NormalizePoints(
 
 void DiscretePointsReferenceLineSmoother::DeNormalizePoints(
     std::vector<std::pair<double, double>>* xy_points) {
+    AINFO<<"(DMCZP) EnteringMethod: DiscretePointsReferenceLineSmoother::DeNormalizePoints";
+
   std::for_each(xy_points->begin(), xy_points->end(),
                 [this](std::pair<double, double>& point) {
                   auto curr_x = point.first;
@@ -226,6 +240,8 @@ bool DiscretePointsReferenceLineSmoother::GenerateRefPointProfile(
     const ReferenceLine& raw_reference_line,
     const std::vector<std::pair<double, double>>& xy_points,
     std::vector<ReferencePoint>* reference_points) {
+    AINFO<<"(DMCZP) EnteringMethod: DiscretePointsReferenceLineSmoother::GenerateRefPointProfile";
+
   // Compute path profile
   std::vector<double> headings;
   std::vector<double> kappas;

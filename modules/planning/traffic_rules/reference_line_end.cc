@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -31,10 +32,14 @@ namespace planning {
 using apollo::common::Status;
 
 ReferenceLineEnd::ReferenceLineEnd(const TrafficRuleConfig& config)
-    : TrafficRule(config) {}
+    : TrafficRule(config) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineEnd::ReferenceLineEnd";
+}
 
 Status ReferenceLineEnd::ApplyRule(
     Frame* frame, ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineEnd::ApplyRule";
+
   const auto& reference_line = reference_line_info->reference_line();
   // check
   double remain_s =

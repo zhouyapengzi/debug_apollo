@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -35,12 +36,16 @@ using apollo::common::Status;
 
 PathTimeHeuristicOptimizer::PathTimeHeuristicOptimizer(const TaskConfig& config)
     : SpeedOptimizer(config) {
+    AINFO<<"(DMCZP) EnteringMethod: PathTimeHeuristicOptimizer::PathTimeHeuristicOptimizer";
+
   CHECK(config.has_speed_heuristic_config());
   speed_heuristic_config_ = config.speed_heuristic_config();
 }
 
 bool PathTimeHeuristicOptimizer::SearchPathTimeGraph(
     SpeedData* speed_data) const {
+    AINFO<<"(DMCZP) EnteringMethod: PathTimeHeuristicOptimizer::SearchPathTimeGraph";
+
   GriddedPathTimeGraph st_graph(
       reference_line_info_->st_graph_data(), dp_st_speed_config_,
       reference_line_info_->path_decision()->obstacles().Items(), init_point_);
@@ -55,6 +60,8 @@ bool PathTimeHeuristicOptimizer::SearchPathTimeGraph(
 Status PathTimeHeuristicOptimizer::Process(
     const PathData& path_data, const common::TrajectoryPoint& init_point,
     SpeedData* const speed_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PathTimeHeuristicOptimizer::Process";
+
   init_point_ = init_point;
 
   dp_st_speed_config_ = reference_line_info_->IsChangeLanePath()

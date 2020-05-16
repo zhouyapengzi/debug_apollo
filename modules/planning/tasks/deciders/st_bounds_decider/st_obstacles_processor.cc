@@ -52,6 +52,8 @@ void STObstaclesProcessor::Init(const double planning_distance,
                                 const double planning_time,
                                 const PathData& path_data,
                                 PathDecision* const path_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::Init";
+
   planning_time_ = planning_time;
   planning_distance_ = planning_distance;
   path_data_ = path_data;
@@ -70,6 +72,8 @@ void STObstaclesProcessor::Init(const double planning_distance,
 
 Status STObstaclesProcessor::MapObstaclesToSTBoundaries(
     PathDecision* const path_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::MapObstaclesToSTBoundaries";
+
   // Sanity checks.
   if (path_decision == nullptr) {
     const std::string msg = "path_decision is nullptr";
@@ -265,11 +269,15 @@ Status STObstaclesProcessor::MapObstaclesToSTBoundaries(
 
 std::unordered_map<std::string, STBoundary>
 STObstaclesProcessor::GetAllSTBoundaries() {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::GetAllSTBoundaries";
+
   return obs_id_to_st_boundary_;
 }
 
 bool STObstaclesProcessor::GetLimitingSpeedInfo(
     double t, std::pair<double, double>* const limiting_speed_info) {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::GetLimitingSpeedInfo";
+
   if (obs_id_to_decision_.empty()) {
     // If no obstacle, then no speed limits.
     return false;
@@ -306,6 +314,8 @@ bool STObstaclesProcessor::GetSBoundsFromDecisions(
     double t, std::vector<std::pair<double, double>>* const available_s_bounds,
     std::vector<std::vector<std::pair<std::string, ObjectDecisionType>>>* const
         available_obs_decisions) {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::GetSBoundsFromDecisions";
+
   // Sanity checks.
   available_s_bounds->clear();
   available_obs_decisions->clear();
@@ -438,6 +448,10 @@ bool STObstaclesProcessor::GetSBoundsFromDecisions(
 
 void STObstaclesProcessor::SetObstacleDecision(
     const std::string& obs_id, const ObjectDecisionType& obs_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::SetObstacleDecision";
+
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::SetObstacleDecision";
+
   obs_id_to_decision_[obs_id] = obs_decision;
   ObjectStatus object_status;
   object_status.mutable_motion_type()->mutable_dynamic();
@@ -468,6 +482,8 @@ bool STObstaclesProcessor::ComputeObstacleSTBoundary(
     const Obstacle& obstacle, std::vector<STPoint>* const lower_points,
     std::vector<STPoint>* const upper_points, bool* const is_caution_obstacle,
     double* const obs_caution_end_t) {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::ComputeObstacleSTBoundary";
+
   lower_points->clear();
   upper_points->clear();
   *is_caution_obstacle = false;
@@ -544,6 +560,8 @@ bool STObstaclesProcessor::GetOverlappingS(
     const std::vector<PathPoint>& adc_path_points,
     const Box2d& obstacle_instance, const double adc_l_buffer,
     std::pair<double, double>* const overlapping_s) {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::GetOverlappingS";
+
   // Locate the possible range to search in details.
   int pt_before_idx = GetSBoundingPathPointIndex(
       adc_path_points, obstacle_instance, vehicle_param_.front_edge_to_center(),
@@ -601,6 +619,8 @@ int STObstaclesProcessor::GetSBoundingPathPointIndex(
     const std::vector<PathPoint>& adc_path_points,
     const Box2d& obstacle_instance, const double s_thresh, const bool is_before,
     const int start_idx, const int end_idx) {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::GetSBoundingPathPointIndex";
+
   if (start_idx == end_idx) {
     if (IsPathPointAwayFromObstacle(adc_path_points[start_idx],
                                     adc_path_points[start_idx + 1],
@@ -642,6 +662,8 @@ int STObstaclesProcessor::GetSBoundingPathPointIndex(
 bool STObstaclesProcessor::IsPathPointAwayFromObstacle(
     const PathPoint& path_point, const PathPoint& direction_point,
     const Box2d& obs_box, const double s_thresh, const bool is_before) {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::IsPathPointAwayFromObstacle";
+
   Vec2d path_pt(path_point.x(), path_point.y());
   Vec2d dir_pt(direction_point.x(), direction_point.y());
   LineSegment2d path_dir_lineseg(path_pt, dir_pt);
@@ -667,6 +689,8 @@ bool STObstaclesProcessor::IsPathPointAwayFromObstacle(
 bool STObstaclesProcessor::IsADCOverlappingWithObstacle(
     const PathPoint& adc_path_point, const Box2d& obs_box,
     const double l_buffer) const {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::IsADCOverlappingWithObstacle";
+
   // Convert reference point from center of rear axis to center of ADC.
   Vec2d ego_center_map_frame((vehicle_param_.front_edge_to_center() -
                               vehicle_param_.back_edge_to_center()) *
@@ -732,6 +756,8 @@ std::vector<std::pair<double, double>> STObstaclesProcessor::FindSGaps(
 
 ObjectDecisionType STObstaclesProcessor::DetermineObstacleDecision(
     const double obs_s_min, const double obs_s_max, const double s) const {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::DetermineObstacleDecision";
+
   ObjectDecisionType decision;
   if (s <= obs_s_min) {
     decision.mutable_yield()->set_distance_s(0.0);
@@ -743,6 +769,8 @@ ObjectDecisionType STObstaclesProcessor::DetermineObstacleDecision(
 
 bool STObstaclesProcessor::IsSWithinADCLowRoadRightSegment(
     const double s) const {
+    AINFO<<"(DMCZP) EnteringMethod: STObstaclesProcessor::IsSWithinADCLowRoadRightSegment";
+
   for (const auto& seg : adc_low_road_right_segments_) {
     if (s >= seg.first && s <= seg.second) {
       return true;

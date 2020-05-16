@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -29,10 +30,14 @@ namespace planning {
 using apollo::common::Status;
 using apollo::planning_internal::STGraphDebug;
 
-SpeedOptimizer::SpeedOptimizer(const TaskConfig& config) : Task(config) {}
+SpeedOptimizer::SpeedOptimizer(const TaskConfig& config) : Task(config) {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedOptimizer::SpeedOptimizer";
+}
 
 Status SpeedOptimizer::Execute(Frame* frame,
                                ReferenceLineInfo* reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedOptimizer::Execute";
+
   Task::Execute(frame, reference_line_info);
 
   auto ret =
@@ -44,6 +49,8 @@ Status SpeedOptimizer::Execute(Frame* frame,
 }
 
 void SpeedOptimizer::RecordDebugInfo(const SpeedData& speed_data) {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedOptimizer::RecordDebugInfo";
+
   auto* debug = reference_line_info_->mutable_debug();
   auto ptr_speed_plan = debug->mutable_planning_data()->add_speed_plan();
   ptr_speed_plan->set_name(Name());
@@ -53,6 +60,8 @@ void SpeedOptimizer::RecordDebugInfo(const SpeedData& speed_data) {
 
 void SpeedOptimizer::RecordDebugInfo(const SpeedData& speed_data,
                                      STGraphDebug* st_graph_debug) {
+    AINFO<<"(DMCZP) EnteringMethod: SpeedOptimizer::RecordDebugInfo";
+
   if (!FLAGS_enable_record_debug || !st_graph_debug) {
     ADEBUG << "Skip record debug info";
     return;

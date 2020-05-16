@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -30,6 +31,8 @@ using apollo::common::math::Vec2d;
 using apollo::common::time::Clock;
 
 HybridAStar::HybridAStar(const PlannerOpenSpaceConfig& open_space_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::HybridAStar";
+
   planner_open_space_config_.CopyFrom(open_space_conf);
   reed_shepp_generator_ =
       std::make_unique<ReedShepp>(vehicle_param_, planner_open_space_config_);
@@ -56,6 +59,8 @@ HybridAStar::HybridAStar(const PlannerOpenSpaceConfig& open_space_conf) {
 }
 
 bool HybridAStar::AnalyticExpansion(std::shared_ptr<Node3d> current_node) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::AnalyticExpansion";
+
   std::shared_ptr<ReedSheppPath> reeds_shepp_to_check =
       std::make_shared<ReedSheppPath>();
   if (!reed_shepp_generator_->ShortestRSP(current_node, end_node_,
@@ -76,6 +81,8 @@ bool HybridAStar::AnalyticExpansion(std::shared_ptr<Node3d> current_node) {
 
 bool HybridAStar::RSPCheck(
     const std::shared_ptr<ReedSheppPath> reeds_shepp_to_end) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::RSPCheck";
+
   std::shared_ptr<Node3d> node = std::shared_ptr<Node3d>(new Node3d(
       reeds_shepp_to_end->x, reeds_shepp_to_end->y, reeds_shepp_to_end->phi,
       XYbounds_, planner_open_space_config_));
@@ -83,6 +90,8 @@ bool HybridAStar::RSPCheck(
 }
 
 bool HybridAStar::ValidityCheck(std::shared_ptr<Node3d> node) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::ValidityCheck";
+
   CHECK_NOTNULL(node);
   CHECK_GT(node->GetStepSize(), 0);
 
@@ -199,6 +208,8 @@ std::shared_ptr<Node3d> HybridAStar::Next_node_generator(
 
 void HybridAStar::CalculateNodeCost(std::shared_ptr<Node3d> current_node,
                                     std::shared_ptr<Node3d> next_node) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::CalculateNodeCost";
+
   next_node->SetTrajCost(current_node->GetTrajCost() +
                          TrajCost(current_node, next_node));
   // evaluate heuristic cost
@@ -209,6 +220,8 @@ void HybridAStar::CalculateNodeCost(std::shared_ptr<Node3d> current_node,
 
 double HybridAStar::TrajCost(std::shared_ptr<Node3d> current_node,
                              std::shared_ptr<Node3d> next_node) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::TrajCost";
+
   // evaluate cost on the trajectory and add current cost
   double piecewise_cost = 0.0;
   if (next_node->GetDirec()) {
@@ -228,11 +241,15 @@ double HybridAStar::TrajCost(std::shared_ptr<Node3d> current_node,
 }
 
 double HybridAStar::HoloObstacleHeuristic(std::shared_ptr<Node3d> next_node) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::HoloObstacleHeuristic";
+
   return grid_a_star_heuristic_generator_->CheckDpMap(next_node->GetX(),
                                                       next_node->GetY());
 }
 
 bool HybridAStar::GetResult(HybridAStartResult* result) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::GetResult";
+
   std::shared_ptr<Node3d> current_node = final_node_;
   std::vector<double> hybrid_a_x;
   std::vector<double> hybrid_a_y;
@@ -296,6 +313,8 @@ bool HybridAStar::GetResult(HybridAStartResult* result) {
 }
 
 bool HybridAStar::GenerateSpeedAcceleration(HybridAStartResult* result) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::GenerateSpeedAcceleration";
+
   // Sanity Check
   if (result->x.size() < 2 || result->y.size() < 2 || result->phi.size() < 2) {
     AERROR << "result size check when generating speed and acceleration fail";
@@ -342,6 +361,8 @@ bool HybridAStar::GenerateSpeedAcceleration(HybridAStartResult* result) {
 }
 
 bool HybridAStar::GenerateSCurveSpeedAcceleration(HybridAStartResult* result) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::GenerateSCurveSpeedAcceleration";
+
   // sanity check
   CHECK_NOTNULL(result);
   if (result->x.size() < 2 || result->y.size() < 2 || result->phi.size() < 2) {
@@ -538,6 +559,8 @@ bool HybridAStar::GenerateSCurveSpeedAcceleration(HybridAStartResult* result) {
 bool HybridAStar::TrajectoryPartition(
     const HybridAStartResult& result,
     std::vector<HybridAStartResult>* partitioned_result) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::TrajectoryPartition";
+
   const auto& x = result.x;
   const auto& y = result.y;
   const auto& phi = result.phi;
@@ -604,6 +627,8 @@ bool HybridAStar::TrajectoryPartition(
 }
 
 bool HybridAStar::GetTemporalProfile(HybridAStartResult* result) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::GetTemporalProfile";
+
   std::vector<HybridAStartResult> partitioned_results;
   if (!TrajectoryPartition(*result, &partitioned_results)) {
     AERROR << "TrajectoryPartition fail";
@@ -637,6 +662,8 @@ bool HybridAStar::Plan(
     const std::vector<double>& XYbounds,
     const std::vector<std::vector<common::math::Vec2d>>& obstacles_vertices_vec,
     HybridAStartResult* result) {
+    AINFO<<"(DMCZP) EnteringMethod: HybridAStar::Plan";
+
   // clear containers
   open_set_.clear();
   close_set_.clear();

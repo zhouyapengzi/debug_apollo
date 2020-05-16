@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -25,14 +26,22 @@ namespace planning {
 
 StandingStillTrajectory1d::StandingStillTrajectory1d(const double p,
                                                      const double duration)
-    : fixed_position_(p), duration_(duration) {}
+    : fixed_position_(p), duration_(duration) {
+    AINFO<<"(DMCZP) EnteringMethod: StandingStillTrajectory1d::StandingStillTrajectory1d";
+}
 
-double StandingStillTrajectory1d::ParamLength() const { return duration_; }
+double StandingStillTrajectory1d::ParamLength() const {
+    AINFO<<"(DMCZP) EnteringMethod: StandingStillTrajectory1d::ParamLength";
+ return duration_; }
 
-std::string StandingStillTrajectory1d::ToString() const { return ""; }
+std::string StandingStillTrajectory1d::ToString() const {
+    AINFO<<"(DMCZP) EnteringMethod: StandingStillTrajectory1d::ToString";
+ return ""; }
 
 double StandingStillTrajectory1d::Evaluate(const std::uint32_t order,
                                            const double param) const {
+    AINFO<<"(DMCZP) EnteringMethod: StandingStillTrajectory1d::Evaluate";
+
   //  CHECK(param <= duration_);
   switch (order) {
     case 0:
@@ -48,18 +57,26 @@ double StandingStillTrajectory1d::Evaluate(const std::uint32_t order,
 }
 
 double StandingStillTrajectory1d::Evaluate_s(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: StandingStillTrajectory1d::Evaluate_s";
+
   return fixed_position_;
 }
 
 double StandingStillTrajectory1d::Evaluate_v(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: StandingStillTrajectory1d::Evaluate_v";
+
   return 0.0;
 }
 
 double StandingStillTrajectory1d::Evaluate_a(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: StandingStillTrajectory1d::Evaluate_a";
+
   return 0.0;
 }
 
 double StandingStillTrajectory1d::Evaluate_j(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: StandingStillTrajectory1d::Evaluate_j";
+
   return 0.0;
 }
 

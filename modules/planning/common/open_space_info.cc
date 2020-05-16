@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -25,6 +26,8 @@ namespace planning {
 
 void CopyTrajectory(const DiscretizedTrajectory trajectory_src,
                     apollo::common::Trajectory* trajectory_tgt_ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: CopyTrajectory";
+
   const size_t horizon = trajectory_src.NumOfPoints();
   for (size_t i = 0; i < horizon; ++i) {
     *trajectory_tgt_ptr->add_trajectory_point() =
@@ -34,6 +37,8 @@ void CopyTrajectory(const DiscretizedTrajectory trajectory_src,
 
 // record more trajectory information to info debug
 void OpenSpaceInfo::RecordDebug(apollo::planning_internal::Debug* ptr_debug) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceInfo::RecordDebug";
+
   // 1, Copy info into ptr_debug
   *ptr_debug = debug_instance_;
 

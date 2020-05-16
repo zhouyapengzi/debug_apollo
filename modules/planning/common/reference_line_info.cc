@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -56,9 +57,13 @@ ReferenceLineInfo::ReferenceLineInfo(const common::VehicleState& vehicle_state,
     : vehicle_state_(vehicle_state),
       adc_planning_point_(adc_planning_point),
       reference_line_(reference_line),
-      lanes_(segments) {}
+      lanes_(segments) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::ReferenceLineInfo";
+}
 
 bool ReferenceLineInfo::Init(const std::vector<const Obstacle*>& obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::Init";
+
   const auto& param = VehicleConfigHelper::GetConfig().vehicle_param();
   // stitching point
   const auto& path_point = adc_planning_point_.path_point();
@@ -124,6 +129,8 @@ const std::vector<PathData>& ReferenceLineInfo::GetCandidatePathData() const {
 
 void ReferenceLineInfo::SetCandidatePathData(
     std::vector<PathData> candidate_path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetCandidatePathData";
+
   candidate_path_data_ = std::move(candidate_path_data);
 }
 
@@ -134,15 +141,21 @@ const std::vector<PathBoundary>& ReferenceLineInfo::GetCandidatePathBoundaries()
 
 void ReferenceLineInfo::SetCandidatePathBoundaries(
     std::vector<PathBoundary> path_boundaries) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetCandidatePathBoundaries";
+
   candidate_path_boundaries_ = std::move(path_boundaries);
 }
 
 double ReferenceLineInfo::GetCruiseSpeed() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::GetCruiseSpeed";
+
   return cruise_speed_ > 0.0 ? cruise_speed_ : FLAGS_default_cruise_speed;
 }
 
 hdmap::LaneInfoConstPtr ReferenceLineInfo::LocateLaneInfo(
     const double s) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::LocateLaneInfo";
+
   std::vector<hdmap::LaneInfoConstPtr> lanes;
   reference_line_.GetLaneFromS(s, &lanes);
   if (lanes.empty()) {
@@ -156,6 +169,8 @@ hdmap::LaneInfoConstPtr ReferenceLineInfo::LocateLaneInfo(
 bool ReferenceLineInfo::GetNeighborLaneInfo(
     const ReferenceLineInfo::LaneType lane_type, const double s,
     hdmap::Id* ptr_lane_id, double* ptr_lane_width) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::GetNeighborLaneInfo";
+
   auto ptr_lane_info = LocateLaneInfo(s);
   if (ptr_lane_info == nullptr) {
     return false;
@@ -215,6 +230,8 @@ bool ReferenceLineInfo::GetNeighborLaneInfo(
 bool ReferenceLineInfo::GetFirstOverlap(
     const std::vector<hdmap::PathOverlap>& path_overlaps,
     hdmap::PathOverlap* path_overlap) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::GetFirstOverlap";
+
   CHECK_NOTNULL(path_overlap);
   const double start_s = adc_sl_boundary_.end_s();
   static constexpr double kMaxOverlapRange = 500.0;
@@ -240,6 +257,8 @@ bool ReferenceLineInfo::GetFirstOverlap(
 }
 
 void ReferenceLineInfo::InitFirstOverlaps() {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::InitFirstOverlaps";
+
   const auto& map_path = reference_line_.map_path();
   // clear_zone
   hdmap::PathOverlap clear_area_overlap;
@@ -290,12 +309,16 @@ void ReferenceLineInfo::InitFirstOverlaps() {
 }
 
 bool WithinOverlap(const hdmap::PathOverlap& overlap, double s) {
+    AINFO<<"(DMCZP) EnteringMethod: WithinOverlap";
+
   static constexpr double kEpsilon = 1e-2;
   return overlap.start_s - kEpsilon <= s && s <= overlap.end_s + kEpsilon;
 }
 
 void ReferenceLineInfo::SetJunctionRightOfWay(const double junction_s,
                                               const bool is_protected) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetJunctionRightOfWay";
+
   for (const auto& overlap : reference_line_.map_path().junction_overlaps()) {
     if (WithinOverlap(overlap, junction_s)) {
       junction_right_of_way_map_[overlap.object_id] = is_protected;
@@ -304,6 +327,8 @@ void ReferenceLineInfo::SetJunctionRightOfWay(const double junction_s,
 }
 
 ADCTrajectory::RightOfWayStatus ReferenceLineInfo::GetRightOfWayStatus() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::GetRightOfWayStatus";
+
   for (const auto& overlap : reference_line_.map_path().junction_overlaps()) {
     if (overlap.end_s < adc_sl_boundary_.start_s()) {
       junction_right_of_way_map_.erase(overlap.object_id);
@@ -317,7 +342,9 @@ ADCTrajectory::RightOfWayStatus ReferenceLineInfo::GetRightOfWayStatus() const {
   return ADCTrajectory::UNPROTECTED;
 }
 
-const hdmap::RouteSegments& ReferenceLineInfo::Lanes() const { return lanes_; }
+const hdmap::RouteSegments& ReferenceLineInfo::Lanes() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::Lanes";
+ return lanes_; }
 
 std::list<hdmap::Id> ReferenceLineInfo::TargetLaneId() const {
   std::list<hdmap::Id> lane_ids;
@@ -328,34 +355,50 @@ std::list<hdmap::Id> ReferenceLineInfo::TargetLaneId() const {
 }
 
 const SLBoundary& ReferenceLineInfo::AdcSlBoundary() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::AdcSlBoundary";
+
   return adc_sl_boundary_;
 }
 
-PathDecision* ReferenceLineInfo::path_decision() { return &path_decision_; }
+PathDecision* ReferenceLineInfo::path_decision() {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::path_decision";
+ return &path_decision_; }
 
 const PathDecision& ReferenceLineInfo::path_decision() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::path_decision";
+
   return path_decision_;
 }
 
 const ReferenceLine& ReferenceLineInfo::reference_line() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::reference_line";
+
   return reference_line_;
 }
 
 ReferenceLine* ReferenceLineInfo::mutable_reference_line() {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::mutable_reference_line";
+
   return &reference_line_;
 }
 
 void ReferenceLineInfo::SetTrajectory(const DiscretizedTrajectory& trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetTrajectory";
+
   discretized_trajectory_ = trajectory;
 }
 
 bool ReferenceLineInfo::AddObstacleHelper(
     const std::shared_ptr<Obstacle>& obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::AddObstacleHelper";
+
   return AddObstacle(obstacle.get()) != nullptr;
 }
 
 // AddObstacle is thread safe
 Obstacle* ReferenceLineInfo::AddObstacle(const Obstacle* obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::AddObstacle";
+
   if (!obstacle) {
     AERROR << "The provided obstacle is empty";
     return nullptr;
@@ -404,6 +447,8 @@ Obstacle* ReferenceLineInfo::AddObstacle(const Obstacle* obstacle) {
 
 bool ReferenceLineInfo::AddObstacles(
     const std::vector<const Obstacle*>& obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::AddObstacles";
+
   if (FLAGS_use_multi_thread_to_add_obstacles) {
     std::vector<std::future<Obstacle*>> results;
     for (const auto* obstacle : obstacles) {
@@ -429,6 +474,8 @@ bool ReferenceLineInfo::AddObstacles(
 }
 
 bool ReferenceLineInfo::IsIrrelevantObstacle(const Obstacle& obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::IsIrrelevantObstacle";
+
   if (obstacle.IsCautionLevelObstacle()) {
     return false;
   }
@@ -447,19 +494,27 @@ bool ReferenceLineInfo::IsIrrelevantObstacle(const Obstacle& obstacle) {
 }
 
 const DiscretizedTrajectory& ReferenceLineInfo::trajectory() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::trajectory";
+
   return discretized_trajectory_;
 }
 
 void ReferenceLineInfo::SetLatticeStopPoint(const StopPoint& stop_point) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetLatticeStopPoint";
+
   planning_target_.mutable_stop_point()->CopyFrom(stop_point);
 }
 
 void ReferenceLineInfo::SetLatticeCruiseSpeed(double speed) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetLatticeCruiseSpeed";
+
   planning_target_.set_cruise_speed(speed);
 }
 
 bool ReferenceLineInfo::IsStartFrom(
     const ReferenceLineInfo& previous_reference_line_info) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::IsStartFrom";
+
   if (reference_line_.reference_points().empty()) {
     return false;
   }
@@ -471,29 +526,47 @@ bool ReferenceLineInfo::IsStartFrom(
   return previous_reference_line_info.reference_line_.IsOnLane(sl_point);
 }
 
-const PathData& ReferenceLineInfo::path_data() const { return path_data_; }
+const PathData& ReferenceLineInfo::path_data() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::path_data";
+ return path_data_; }
 
 const PathData& ReferenceLineInfo::fallback_path_data() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::fallback_path_data";
+
   return fallback_path_data_;
 }
 
-const SpeedData& ReferenceLineInfo::speed_data() const { return speed_data_; }
+const SpeedData& ReferenceLineInfo::speed_data() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::speed_data";
+ return speed_data_; }
 
-PathData* ReferenceLineInfo::mutable_path_data() { return &path_data_; }
+PathData* ReferenceLineInfo::mutable_path_data() {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::mutable_path_data";
+ return &path_data_; }
 
 PathData* ReferenceLineInfo::mutable_fallback_path_data() {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::mutable_fallback_path_data";
+
   return &fallback_path_data_;
 }
 
-SpeedData* ReferenceLineInfo::mutable_speed_data() { return &speed_data_; }
+SpeedData* ReferenceLineInfo::mutable_speed_data() {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::mutable_speed_data";
+ return &speed_data_; }
 
-const RSSInfo& ReferenceLineInfo::rss_info() const { return rss_info_; }
+const RSSInfo& ReferenceLineInfo::rss_info() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::rss_info";
+ return rss_info_; }
 
-RSSInfo* ReferenceLineInfo::mutable_rss_info() { return &rss_info_; }
+RSSInfo* ReferenceLineInfo::mutable_rss_info() {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::mutable_rss_info";
+ return &rss_info_; }
 
 bool ReferenceLineInfo::CombinePathAndSpeedProfile(
     const double relative_time, const double start_s,
     DiscretizedTrajectory* ptr_discretized_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::CombinePathAndSpeedProfile";
+
   CHECK(ptr_discretized_trajectory != nullptr);
   // use varied resolution to reduce data load but also provide enough data
   // point for control module
@@ -537,25 +610,37 @@ bool ReferenceLineInfo::CombinePathAndSpeedProfile(
   return true;
 }
 
-void ReferenceLineInfo::SetDrivable(bool drivable) { is_drivable_ = drivable; }
+void ReferenceLineInfo::SetDrivable(bool drivable) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetDrivable";
+ is_drivable_ = drivable; }
 
-bool ReferenceLineInfo::IsDrivable() const { return is_drivable_; }
+bool ReferenceLineInfo::IsDrivable() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::IsDrivable";
+ return is_drivable_; }
 
 bool ReferenceLineInfo::IsChangeLanePath() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::IsChangeLanePath";
+
   return !Lanes().IsOnSegment();
 }
 
 bool ReferenceLineInfo::IsNeighborLanePath() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::IsNeighborLanePath";
+
   return Lanes().IsNeighborSegment();
 }
 
 std::string ReferenceLineInfo::PathSpeedDebugString() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::PathSpeedDebugString";
+
   return absl::StrCat("path_data:", path_data_.DebugString(),
                       "speed_data:", speed_data_.DebugString());
 }
 
 void ReferenceLineInfo::SetTurnSignalBasedOnLaneTurnType(
     common::VehicleSignal* vehicle_signal) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetTurnSignalBasedOnLaneTurnType";
+
   CHECK_NOTNULL(vehicle_signal);
   if (vehicle_signal->has_turn_signal() &&
       vehicle_signal->turn_signal() != VehicleSignal::TURN_NONE) {
@@ -622,26 +707,36 @@ void ReferenceLineInfo::SetTurnSignalBasedOnLaneTurnType(
 
 void ReferenceLineInfo::SetTurnSignal(
     const VehicleSignal::TurnSignal& turn_signal) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetTurnSignal";
+
   vehicle_signal_.set_turn_signal(turn_signal);
 }
 
 void ReferenceLineInfo::SetEmergencyLight() {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetEmergencyLight";
+
   vehicle_signal_.set_emergency_light(true);
 }
 
 void ReferenceLineInfo::ExportVehicleSignal(
     common::VehicleSignal* vehicle_signal) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::ExportVehicleSignal";
+
   CHECK_NOTNULL(vehicle_signal);
   *vehicle_signal = vehicle_signal_;
   SetTurnSignalBasedOnLaneTurnType(vehicle_signal);
 }
 
 bool ReferenceLineInfo::ReachedDestination() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::ReachedDestination";
+
   static constexpr double kDestinationDeltaS = 0.05;
   return SDistanceToDestination() <= kDestinationDeltaS;
 }
 
 double ReferenceLineInfo::SDistanceToDestination() const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SDistanceToDestination";
+
   double res = std::numeric_limits<double>::max();
   const auto* dest_ptr = path_decision_.Find(FLAGS_destination_obstacle_id);
   if (!dest_ptr) {
@@ -659,6 +754,8 @@ double ReferenceLineInfo::SDistanceToDestination() const {
 }
 
 void ReferenceLineInfo::ExportDecision(DecisionResult* decision_result) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::ExportDecision";
+
   MakeDecision(decision_result);
   ExportVehicleSignal(decision_result->mutable_vehicle_signal());
   auto* main_decision = decision_result->mutable_main_decision();
@@ -672,6 +769,8 @@ void ReferenceLineInfo::ExportDecision(DecisionResult* decision_result) const {
 }
 
 void ReferenceLineInfo::MakeDecision(DecisionResult* decision_result) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::MakeDecision";
+
   CHECK_NOTNULL(decision_result);
   decision_result->Clear();
 
@@ -689,6 +788,8 @@ void ReferenceLineInfo::MakeDecision(DecisionResult* decision_result) const {
 
 void ReferenceLineInfo::MakeMainMissionCompleteDecision(
     DecisionResult* decision_result) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::MakeMainMissionCompleteDecision";
+
   if (!decision_result->main_decision().has_stop()) {
     return;
   }
@@ -717,6 +818,8 @@ void ReferenceLineInfo::MakeMainMissionCompleteDecision(
 
 int ReferenceLineInfo::MakeMainStopDecision(
     DecisionResult* decision_result) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::MakeMainStopDecision";
+
   double min_stop_line_s = std::numeric_limits<double>::infinity();
   const Obstacle* stop_obstacle = nullptr;
   const ObjectStop* stop_decision = nullptr;
@@ -769,6 +872,8 @@ int ReferenceLineInfo::MakeMainStopDecision(
 
 void ReferenceLineInfo::SetObjectDecisions(
     ObjectDecisions* object_decisions) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetObjectDecisions";
+
   for (const auto obstacle : path_decision_.obstacles().Items()) {
     if (!obstacle->HasNonIgnoreDecision()) {
       continue;
@@ -790,6 +895,8 @@ void ReferenceLineInfo::SetObjectDecisions(
 }
 
 void ReferenceLineInfo::ExportEngageAdvice(EngageAdvice* engage_advice) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::ExportEngageAdvice";
+
   static EngageAdvice prev_advice;
   static constexpr double kMaxAngleDiff = M_PI / 6.0;
 
@@ -842,6 +949,8 @@ void ReferenceLineInfo::ExportEngageAdvice(EngageAdvice* engage_advice) const {
 
 void ReferenceLineInfo::MakeEStopDecision(
     DecisionResult* decision_result) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::MakeEStopDecision";
+
   decision_result->Clear();
 
   MainEmergencyStop* main_estop =
@@ -862,6 +971,8 @@ void ReferenceLineInfo::MakeEStopDecision(
 }
 
 hdmap::Lane::LaneTurn ReferenceLineInfo::GetPathTurnType(const double s) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::GetPathTurnType";
+
   const double forward_buffer = 20.0;
   double route_s = 0.0;
   for (const auto& seg : Lanes()) {
@@ -885,6 +996,8 @@ hdmap::Lane::LaneTurn ReferenceLineInfo::GetPathTurnType(const double s) const {
 
 bool ReferenceLineInfo::GetIntersectionRightofWayStatus(
     const hdmap::PathOverlap& pnc_junction_overlap) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::GetIntersectionRightofWayStatus";
+
   if (GetPathTurnType(pnc_junction_overlap.start_s) != hdmap::Lane::NO_TURN) {
     return false;
   }
@@ -895,6 +1008,8 @@ bool ReferenceLineInfo::GetIntersectionRightofWayStatus(
 
 int ReferenceLineInfo::GetPnCJunction(
     const double s, hdmap::PathOverlap* pnc_junction_overlap) const {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::GetPnCJunction";
+
   CHECK_NOTNULL(pnc_junction_overlap);
   const std::vector<hdmap::PathOverlap>& pnc_junction_overlaps =
       reference_line_.map_path().pnc_junction_overlaps();
@@ -911,6 +1026,8 @@ int ReferenceLineInfo::GetPnCJunction(
 
 void ReferenceLineInfo::SetBlockingObstacle(
     const std::string& blocking_obstacle_id) {
+    AINFO<<"(DMCZP) EnteringMethod: ReferenceLineInfo::SetBlockingObstacle";
+
   blocking_obstacle_ = path_decision_.Find(blocking_obstacle_id);
 }
 

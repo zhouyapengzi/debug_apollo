@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -60,6 +61,8 @@ std::unordered_map<TaskConfig::TaskType, TaskConfig, std::hash<int>>
     TaskFactory::default_task_configs_;
 
 void TaskFactory::Init(const PlanningConfig& config) {
+    AINFO<<"(DMCZP) EnteringMethod: TaskFactory::Init";
+
   task_factory_.Register(TaskConfig::LANE_CHANGE_DECIDER,
                          [](const TaskConfig& config) -> Task* {
                            return new LaneChangeDecider(config);

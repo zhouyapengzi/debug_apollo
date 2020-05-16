@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -37,6 +38,8 @@ using apollo::routing::RoutingRequest;
 using apollo::routing::RoutingResponse;
 
 bool PlanningComponent::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: PlanningComponent::Init";
+
   if (FLAGS_use_navigation_mode) {
     planning_base_ = std::make_unique<NaviPlanning>();
   } else {
@@ -96,6 +99,8 @@ bool PlanningComponent::Proc(
     const std::shared_ptr<canbus::Chassis>& chassis,
     const std::shared_ptr<localization::LocalizationEstimate>&
         localization_estimate) {
+    AINFO<<"(DMCZP) EnteringMethod: PlanningComponent::Proc";
+
   CHECK(prediction_obstacles != nullptr);
 
   // check and process possible rerouting request
@@ -149,6 +154,8 @@ bool PlanningComponent::Proc(
 }
 
 void PlanningComponent::CheckRerouting() {
+    AINFO<<"(DMCZP) EnteringMethod: PlanningComponent::CheckRerouting";
+
   auto* rerouting = PlanningContext::Instance()
                         ->mutable_planning_status()
                         ->mutable_rerouting();
@@ -161,6 +168,8 @@ void PlanningComponent::CheckRerouting() {
 }
 
 bool PlanningComponent::CheckInput() {
+    AINFO<<"(DMCZP) EnteringMethod: PlanningComponent::CheckInput";
+
   ADCTrajectory trajectory_pb;
   auto* not_ready = trajectory_pb.mutable_decision()
                         ->mutable_main_decision()

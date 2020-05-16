@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -49,12 +50,16 @@ PiecewiseJerkSpeedNonlinearOptimizer::PiecewiseJerkSpeedNonlinearOptimizer(
     : SpeedOptimizer(config),
       smoothed_speed_limit_(0.0, 0.0, 0.0),
       smoothed_path_curvature_(0.0, 0.0, 0.0) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearOptimizer::PiecewiseJerkSpeedNonlinearOptimizer";
+
   CHECK(config_.has_piecewise_jerk_nonlinear_speed_config());
 }
 
 Status PiecewiseJerkSpeedNonlinearOptimizer::Process(
     const PathData& path_data, const TrajectoryPoint& init_point,
     SpeedData* const speed_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearOptimizer::Process";
+
   if (speed_data == nullptr) {
     std::string msg("Null speed_data pointer");
     AERROR << msg;
@@ -177,6 +182,8 @@ Status PiecewiseJerkSpeedNonlinearOptimizer::Process(
 
 Status PiecewiseJerkSpeedNonlinearOptimizer::SetUpStatesAndBounds(
     const PathData& path_data, const SpeedData& speed_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearOptimizer::SetUpStatesAndBounds";
+
   // Set st problem dimensions
   const StGraphData& st_graph_data =
       *reference_line_info_->mutable_st_graph_data();
@@ -306,6 +313,8 @@ Status PiecewiseJerkSpeedNonlinearOptimizer::SetUpStatesAndBounds(
 }
 
 bool PiecewiseJerkSpeedNonlinearOptimizer::CheckSpeedLimitFeasibility() {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearOptimizer::CheckSpeedLimitFeasibility";
+
   // a naive check on first point of speed limit
   static constexpr double kEpsilon = 1e-6;
   const double init_speed_limit = speed_limit_.GetSpeedLimitByS(s_init_);
@@ -318,6 +327,8 @@ bool PiecewiseJerkSpeedNonlinearOptimizer::CheckSpeedLimitFeasibility() {
 }
 
 Status PiecewiseJerkSpeedNonlinearOptimizer::SmoothSpeedLimit() {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearOptimizer::SmoothSpeedLimit";
+
   // using piecewise_jerk_path to fit a curve of speed_ref
   // TODO(Hongyi): move smooth configs to gflags
   double delta_s = 2.0;
@@ -370,6 +381,8 @@ Status PiecewiseJerkSpeedNonlinearOptimizer::SmoothSpeedLimit() {
 
 Status PiecewiseJerkSpeedNonlinearOptimizer::SmoothPathCurvature(
     const PathData& path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearOptimizer::SmoothPathCurvature";
+
   // using piecewise_jerk_path to fit a curve of path kappa profile
   // TODO(Jinyun): move smooth configs to gflags
   const auto& cartesian_path = path_data.discretized_path();
@@ -428,6 +441,8 @@ Status PiecewiseJerkSpeedNonlinearOptimizer::SmoothPathCurvature(
 Status PiecewiseJerkSpeedNonlinearOptimizer::OptimizeByQP(
     SpeedData* const speed_data, std::vector<double>* distance,
     std::vector<double>* velocity, std::vector<double>* acceleration) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearOptimizer::OptimizeByQP";
+
   std::array<double, 3> init_states = {s_init_, s_dot_init_, s_ddot_init_};
   PiecewiseJerkSpeedProblem piecewise_jerk_problem(num_of_knots_, delta_t_,
                                                    init_states);
@@ -471,6 +486,8 @@ Status PiecewiseJerkSpeedNonlinearOptimizer::OptimizeByQP(
 Status PiecewiseJerkSpeedNonlinearOptimizer::OptimizeByNLP(
     std::vector<double>* distance, std::vector<double>* velocity,
     std::vector<double>* acceleration) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkSpeedNonlinearOptimizer::OptimizeByNLP";
+
   // Set optimizer instance
   auto ptr_interface = new PiecewiseJerkSpeedNonlinearIpoptInterface(
       s_init_, s_dot_init_, s_ddot_init_, delta_t_, num_of_knots_,

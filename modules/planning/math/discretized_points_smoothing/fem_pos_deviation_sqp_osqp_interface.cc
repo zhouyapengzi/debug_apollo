@@ -29,6 +29,8 @@ namespace apollo {
 namespace planning {
 
 bool FemPosDeviationSqpOsqpInterface::Solve() {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSqpOsqpInterface::Solve";
+
   // Sanity Check
   if (ref_points_.empty()) {
     AERROR << "reference points empty, solver early terminates";
@@ -222,6 +224,8 @@ bool FemPosDeviationSqpOsqpInterface::Solve() {
 void FemPosDeviationSqpOsqpInterface::CalculateKernel(
     std::vector<c_float>* P_data, std::vector<c_int>* P_indices,
     std::vector<c_int>* P_indptr) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSqpOsqpInterface::CalculateKernel";
+
   CHECK_GT(num_of_points_, 2);
 
   // Three quadratic penalties are involved:
@@ -322,6 +326,8 @@ void FemPosDeviationSqpOsqpInterface::CalculateKernel(
 }
 
 void FemPosDeviationSqpOsqpInterface::CalculateOffset(std::vector<c_float>* q) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSqpOsqpInterface::CalculateOffset";
+
   q->resize(num_of_variables_);
   for (int i = 0; i < num_of_points_; ++i) {
     const auto& ref_point_xy = ref_points_[i];
@@ -336,6 +342,8 @@ void FemPosDeviationSqpOsqpInterface::CalculateOffset(std::vector<c_float>* q) {
 std::vector<double>
 FemPosDeviationSqpOsqpInterface::CalculateLinearizedFemPosParams(
     const std::vector<std::pair<double, double>>& points, const size_t index) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSqpOsqpInterface::CalculateLinearizedFemPosParams";
+
   CHECK_GT(index, 0);
   CHECK_LT(index, points.size() - 1);
 
@@ -368,6 +376,8 @@ void FemPosDeviationSqpOsqpInterface::CalculateAffineConstraint(
     std::vector<c_float>* A_data, std::vector<c_int>* A_indices,
     std::vector<c_int>* A_indptr, std::vector<c_float>* lower_bounds,
     std::vector<c_float>* upper_bounds) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSqpOsqpInterface::CalculateAffineConstraint";
+
   const double scale_factor = 1;
 
   std::vector<std::vector<double>> lin_cache;
@@ -450,6 +460,8 @@ void FemPosDeviationSqpOsqpInterface::CalculateAffineConstraint(
 void FemPosDeviationSqpOsqpInterface::SetPrimalWarmStart(
     const std::vector<std::pair<double, double>>& points,
     std::vector<c_float>* primal_warm_start) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSqpOsqpInterface::SetPrimalWarmStart";
+
   CHECK_EQ(points.size(), num_of_points_);
   CHECK_GT(points.size(), 1);
 
@@ -481,6 +493,8 @@ void FemPosDeviationSqpOsqpInterface::SetPrimalWarmStart(
 
 bool FemPosDeviationSqpOsqpInterface::OptimizeWithOsqp(
     const std::vector<c_float>& primal_warm_start, OSQPWorkspace** work) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSqpOsqpInterface::OptimizeWithOsqp";
+
   osqp_warm_start_x(*work, primal_warm_start.data());
 
   // Solve Problem
@@ -516,6 +530,8 @@ bool FemPosDeviationSqpOsqpInterface::OptimizeWithOsqp(
 
 double FemPosDeviationSqpOsqpInterface::CalculateConstraintViolation(
     const std::vector<std::pair<double, double>>& points) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSqpOsqpInterface::CalculateConstraintViolation";
+
   CHECK_GT(points.size(), 2);
 
   double total_length = 0.0;

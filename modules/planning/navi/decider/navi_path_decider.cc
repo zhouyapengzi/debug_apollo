@@ -38,10 +38,14 @@ using apollo::common::math::Box2d;
 using apollo::common::math::Vec2d;
 
 NaviPathDecider::NaviPathDecider() : NaviTask("NaviPathDecider") {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::NaviPathDecider";
+
   // TODO(all): Add your other initialization.
 }
 
 bool NaviPathDecider::Init(const PlanningConfig& config) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::Init";
+
   move_dest_lane_config_talbe_.clear();
   max_speed_levels_.clear();
   PlannerNaviConfig planner_navi_conf =
@@ -79,6 +83,8 @@ bool NaviPathDecider::Init(const PlanningConfig& config) {
 
 Status NaviPathDecider::Execute(Frame* frame,
                                 ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::Execute";
+
   NaviTask::Execute(frame, reference_line_info);
   vehicle_state_ = frame->vehicle_state();
   cur_reference_line_lane_id_ = reference_line_info->Lanes().Id();
@@ -100,6 +106,8 @@ apollo::common::Status NaviPathDecider::Process(
     const common::TrajectoryPoint& init_point,
     const std::vector<const Obstacle*>& obstacles,
     PathDecision* const path_decision, PathData* const path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::Process";
+
   CHECK_NOTNULL(path_decision);
   CHECK_NOTNULL(path_data);
   start_plan_point_.set_x(vehicle_state_.x());
@@ -148,6 +156,8 @@ apollo::common::Status NaviPathDecider::Process(
 void NaviPathDecider::MoveToDestLane(
     const double dest_ref_line_y,
     std::vector<common::PathPoint>* const path_points) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::MoveToDestLane";
+
   double dest_lateral_distance = std::fabs(dest_ref_line_y);
   if (dest_lateral_distance < max_keep_lane_distance_) {
     return;
@@ -181,6 +191,8 @@ void NaviPathDecider::MoveToDestLane(
 void NaviPathDecider::KeepLane(
     const double dest_ref_line_y,
     std::vector<common::PathPoint>* const path_points) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::KeepLane";
+
   double dest_lateral_distance = std::fabs(dest_ref_line_y);
   if (dest_lateral_distance <= max_keep_lane_distance_) {
     auto& reference_line = reference_line_info_->reference_line();
@@ -218,6 +230,8 @@ void NaviPathDecider::KeepLane(
 }
 
 void NaviPathDecider::RecordDebugInfo(const PathData& path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::RecordDebugInfo";
+
   const auto& path_points = path_data.discretized_path();
   auto* ptr_optimized_path = reference_line_info_->mutable_debug()
                                  ->mutable_planning_data()
@@ -230,6 +244,8 @@ void NaviPathDecider::RecordDebugInfo(const PathData& path_data) {
 bool NaviPathDecider::GetBasicPathData(
     const ReferenceLine& reference_line,
     std::vector<common::PathPoint>* const path_points) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::GetBasicPathData";
+
   CHECK_NOTNULL(path_points);
 
   double min_path_len = config_.min_path_length();
@@ -280,6 +296,8 @@ bool NaviPathDecider::GetBasicPathData(
 
 bool NaviPathDecider::IsSafeChangeLane(const ReferenceLine& reference_line,
                                        const PathDecision& path_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::IsSafeChangeLane";
+
   const auto& adc_param =
       common::VehicleConfigHelper::GetConfig().vehicle_param();
 
@@ -334,6 +352,8 @@ double NaviPathDecider::NudgeProcess(
     const std::vector<const Obstacle*>& obstacles,
     const PathDecision& path_decision,
     const common::VehicleState& vehicle_state) {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::NudgeProcess";
+
   double nudge_position_y = 0.0;
 
   // get nudge latteral position
@@ -371,6 +391,8 @@ double NaviPathDecider::NudgeProcess(
 }
 
 double NaviPathDecider::CalculateDistanceToDestLane() {
+    AINFO<<"(DMCZP) EnteringMethod: NaviPathDecider::CalculateDistanceToDestLane";
+
   // match an appropriate lateral shift param from the configuration file
   // based on the current state of the vehicle state
   double move_distance = 0.0;

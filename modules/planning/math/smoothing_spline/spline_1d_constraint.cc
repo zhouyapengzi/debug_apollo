@@ -34,11 +34,15 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 
 Spline1dConstraint::Spline1dConstraint(const Spline1d& pss)
-    : Spline1dConstraint(pss.x_knots(), pss.spline_order()) {}
+    : Spline1dConstraint(pss.x_knots(), pss.spline_order()) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::Spline1dConstraint";
+}
 
 Spline1dConstraint::Spline1dConstraint(const std::vector<double>& x_knots,
                                        const uint32_t spline_order)
     : x_knots_(x_knots), spline_order_(spline_order) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::Spline1dConstraint";
+
   inequality_constraint_.SetIsEquality(false);
   equality_constraint_.SetIsEquality(true);
 }
@@ -46,6 +50,8 @@ Spline1dConstraint::Spline1dConstraint(const std::vector<double>& x_knots,
 bool Spline1dConstraint::AddInequalityConstraint(
     const Eigen::MatrixXd& constraint_matrix,
     const Eigen::MatrixXd& constraint_boundary) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddInequalityConstraint";
+
   return inequality_constraint_.AddConstraint(constraint_matrix,
                                               constraint_boundary);
 }
@@ -53,6 +59,8 @@ bool Spline1dConstraint::AddInequalityConstraint(
 bool Spline1dConstraint::AddEqualityConstraint(
     const Eigen::MatrixXd& constraint_matrix,
     const Eigen::MatrixXd& constraint_boundary) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddEqualityConstraint";
+
   return equality_constraint_.AddConstraint(constraint_matrix,
                                             constraint_boundary);
 }
@@ -60,6 +68,8 @@ bool Spline1dConstraint::AddEqualityConstraint(
 bool Spline1dConstraint::AddBoundary(const std::vector<double>& x_coord,
                                      const std::vector<double>& lower_bound,
                                      const std::vector<double>& upper_bound) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddBoundary";
+
   std::vector<double> filtered_lower_bound;
   std::vector<double> filtered_upper_bound;
   std::vector<double> filtered_lower_bound_x;
@@ -114,6 +124,8 @@ bool Spline1dConstraint::AddBoundary(const std::vector<double>& x_coord,
 bool Spline1dConstraint::AddDerivativeBoundary(
     const std::vector<double>& x_coord, const std::vector<double>& lower_bound,
     const std::vector<double>& upper_bound) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddDerivativeBoundary";
+
   std::vector<double> filtered_lower_bound;
   std::vector<double> filtered_upper_bound;
   std::vector<double> filtered_lower_bound_x;
@@ -167,6 +179,8 @@ bool Spline1dConstraint::AddDerivativeBoundary(
 bool Spline1dConstraint::AddSecondDerivativeBoundary(
     const std::vector<double>& x_coord, const std::vector<double>& lower_bound,
     const std::vector<double>& upper_bound) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddSecondDerivativeBoundary";
+
   std::vector<double> filtered_lower_bound;
   std::vector<double> filtered_upper_bound;
   std::vector<double> filtered_lower_bound_x;
@@ -220,6 +234,8 @@ bool Spline1dConstraint::AddSecondDerivativeBoundary(
 bool Spline1dConstraint::AddThirdDerivativeBoundary(
     const std::vector<double>& x_coord, const std::vector<double>& lower_bound,
     const std::vector<double>& upper_bound) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddThirdDerivativeBoundary";
+
   std::vector<double> filtered_lower_bound;
   std::vector<double> filtered_upper_bound;
   std::vector<double> filtered_lower_bound_x;
@@ -275,6 +291,8 @@ bool Spline1dConstraint::AddThirdDerivativeBoundary(
 }
 
 bool Spline1dConstraint::AddPointConstraint(const double x, const double fx) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddPointConstraint";
+
   uint32_t index = FindIndex(x);
   std::vector<double> power_x;
   const uint32_t num_params = spline_order_ + 1;
@@ -293,6 +311,8 @@ bool Spline1dConstraint::AddPointConstraint(const double x, const double fx) {
 bool Spline1dConstraint::AddConstraintInRange(AddConstraintInRangeFunc func,
                                               const double x, const double val,
                                               const double range) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddConstraintInRange";
+
   if (range < 0.0) {
     return false;
   }
@@ -309,6 +329,8 @@ bool Spline1dConstraint::AddConstraintInRange(AddConstraintInRangeFunc func,
 bool Spline1dConstraint::AddPointConstraintInRange(const double x,
                                                    const double fx,
                                                    const double range) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddPointConstraintInRange";
+
   return AddConstraintInRange(
       std::bind(&Spline1dConstraint::AddBoundary, this, _1, _2, _3), x, fx,
       range);
@@ -316,6 +338,8 @@ bool Spline1dConstraint::AddPointConstraintInRange(const double x,
 
 bool Spline1dConstraint::AddPointDerivativeConstraint(const double x,
                                                       const double dfx) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddPointDerivativeConstraint";
+
   uint32_t index = FindIndex(x);
   std::vector<double> power_x;
   const uint32_t num_params = spline_order_ + 1;
@@ -333,6 +357,8 @@ bool Spline1dConstraint::AddPointDerivativeConstraint(const double x,
 
 bool Spline1dConstraint::AddPointDerivativeConstraintInRange(
     const double x, const double dfx, const double range) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddPointDerivativeConstraintInRange";
+
   return AddConstraintInRange(
       std::bind(&Spline1dConstraint::AddDerivativeBoundary, this, _1, _2, _3),
       x, dfx, range);
@@ -340,6 +366,8 @@ bool Spline1dConstraint::AddPointDerivativeConstraintInRange(
 
 bool Spline1dConstraint::AddPointSecondDerivativeConstraint(const double x,
                                                             const double ddfx) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddPointSecondDerivativeConstraint";
+
   uint32_t index = FindIndex(x);
   std::vector<double> power_x;
   const uint32_t num_params = spline_order_ + 1;
@@ -357,6 +385,8 @@ bool Spline1dConstraint::AddPointSecondDerivativeConstraint(const double x,
 
 bool Spline1dConstraint::AddPointSecondDerivativeConstraintInRange(
     const double x, const double ddfx, const double range) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddPointSecondDerivativeConstraintInRange";
+
   return AddConstraintInRange(
       std::bind(&Spline1dConstraint::AddSecondDerivativeBoundary, this, _1, _2,
                 _3),
@@ -365,6 +395,8 @@ bool Spline1dConstraint::AddPointSecondDerivativeConstraintInRange(
 
 bool Spline1dConstraint::AddPointThirdDerivativeConstraint(const double x,
                                                            const double dddfx) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddPointThirdDerivativeConstraint";
+
   uint32_t index = FindIndex(x);
   std::vector<double> power_x;
   const uint32_t num_params = spline_order_ + 1;
@@ -383,6 +415,8 @@ bool Spline1dConstraint::AddPointThirdDerivativeConstraint(const double x,
 
 bool Spline1dConstraint::AddPointThirdDerivativeConstraintInRange(
     const double x, const double dddfx, const double range) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddPointThirdDerivativeConstraintInRange";
+
   return AddConstraintInRange(
       std::bind(&Spline1dConstraint::AddSecondDerivativeBoundary, this, _1, _2,
                 _3),
@@ -390,6 +424,8 @@ bool Spline1dConstraint::AddPointThirdDerivativeConstraintInRange(
 }
 
 bool Spline1dConstraint::AddSmoothConstraint() {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddSmoothConstraint";
+
   if (x_knots_.size() < 3) {
     return false;
   }
@@ -416,6 +452,8 @@ bool Spline1dConstraint::AddSmoothConstraint() {
 }
 
 bool Spline1dConstraint::AddDerivativeSmoothConstraint() {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddDerivativeSmoothConstraint";
+
   if (x_knots_.size() < 3) {
     return false;
   }
@@ -453,6 +491,8 @@ bool Spline1dConstraint::AddDerivativeSmoothConstraint() {
 }
 
 bool Spline1dConstraint::AddSecondDerivativeSmoothConstraint() {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddSecondDerivativeSmoothConstraint";
+
   if (x_knots_.size() < 3) {
     return false;
   }
@@ -503,6 +543,8 @@ bool Spline1dConstraint::AddSecondDerivativeSmoothConstraint() {
 }
 
 bool Spline1dConstraint::AddThirdDerivativeSmoothConstraint() {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddThirdDerivativeSmoothConstraint";
+
   if (x_knots_.size() < 3) {
     return false;
   }
@@ -566,6 +608,8 @@ bool Spline1dConstraint::AddThirdDerivativeSmoothConstraint() {
 
 bool Spline1dConstraint::AddMonotoneInequalityConstraint(
     const std::vector<double>& x_coord) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddMonotoneInequalityConstraint";
+
   if (x_coord.size() < 2) {
     // Skip because NO inequality constraint is needed.
     return false;
@@ -611,18 +655,26 @@ bool Spline1dConstraint::AddMonotoneInequalityConstraint(
 }
 
 bool Spline1dConstraint::AddMonotoneInequalityConstraintAtKnots() {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::AddMonotoneInequalityConstraintAtKnots";
+
   return AddMonotoneInequalityConstraint(x_knots_);
 }
 
 const AffineConstraint& Spline1dConstraint::inequality_constraint() const {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::inequality_constraint";
+
   return inequality_constraint_;
 }
 
 const AffineConstraint& Spline1dConstraint::equality_constraint() const {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::equality_constraint";
+
   return equality_constraint_;
 }
 
 uint32_t Spline1dConstraint::FindIndex(const double x) const {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::FindIndex";
+
   auto upper_bound = std::upper_bound(x_knots_.begin() + 1, x_knots_.end(), x);
   return std::min(static_cast<uint32_t>(x_knots_.size() - 1),
                   static_cast<uint32_t>(upper_bound - x_knots_.begin())) -
@@ -636,6 +688,8 @@ bool Spline1dConstraint::FilterConstraints(
     std::vector<double>* const filtered_lower_bound,
     std::vector<double>* const filtered_upper_bound_x,
     std::vector<double>* const filtered_upper_bound) {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::FilterConstraints";
+
   filtered_lower_bound->clear();
   filtered_upper_bound->clear();
   filtered_lower_bound_x->clear();
@@ -674,6 +728,8 @@ bool Spline1dConstraint::FilterConstraints(
 void Spline1dConstraint::GeneratePowerX(
     const double x, const uint32_t order,
     std::vector<double>* const power_x) const {
+    AINFO<<"(DMCZP) EnteringMethod: Spline1dConstraint::GeneratePowerX";
+
   double cur_x = 1.0;
   for (uint32_t i = 0; i < order; ++i) {
     power_x->push_back(cur_x);

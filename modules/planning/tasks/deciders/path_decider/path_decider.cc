@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -33,10 +34,14 @@ using apollo::common::ErrorCode;
 using apollo::common::Status;
 using apollo::common::VehicleConfigHelper;
 
-PathDecider::PathDecider(const TaskConfig &config) : Task(config) {}
+PathDecider::PathDecider(const TaskConfig &config) : Task(config) {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecider::PathDecider";
+}
 
 Status PathDecider::Execute(Frame *frame,
                             ReferenceLineInfo *reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecider::Execute";
+
   Task::Execute(frame, reference_line_info);
   return Process(reference_line_info, reference_line_info->path_data(),
                  reference_line_info->path_decision());
@@ -45,6 +50,8 @@ Status PathDecider::Execute(Frame *frame,
 Status PathDecider::Process(const ReferenceLineInfo *reference_line_info,
                             const PathData &path_data,
                             PathDecision *const path_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecider::Process";
+
   // skip path_decider if reused path
   if (FLAGS_enable_skip_path_tasks && reference_line_info->path_reusable()) {
     return Status::OK();
@@ -64,6 +71,8 @@ Status PathDecider::Process(const ReferenceLineInfo *reference_line_info,
 bool PathDecider::MakeObjectDecision(const PathData &path_data,
                                      const std::string &blocking_obstacle_id,
                                      PathDecision *const path_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecider::MakeObjectDecision";
+
   if (!MakeStaticObstacleDecision(path_data, blocking_obstacle_id,
                                   path_decision)) {
     AERROR << "Failed to make decisions for static obstacles";
@@ -78,6 +87,8 @@ bool PathDecider::MakeObjectDecision(const PathData &path_data,
 bool PathDecider::MakeStaticObstacleDecision(
     const PathData &path_data, const std::string &blocking_obstacle_id,
     PathDecision *const path_decision) {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecider::MakeStaticObstacleDecision";
+
   // Sanity checks and get important values.
   CHECK(path_decision);
   const auto &frenet_path = path_data.frenet_frame_path();
@@ -202,6 +213,8 @@ bool PathDecider::MakeStaticObstacleDecision(
 
 ObjectStop PathDecider::GenerateObjectStopDecision(
     const Obstacle &obstacle) const {
+    AINFO<<"(DMCZP) EnteringMethod: PathDecider::GenerateObjectStopDecision";
+
   ObjectStop object_stop;
 
   double stop_distance = obstacle.MinRadiusStopDistance(

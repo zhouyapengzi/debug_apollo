@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -44,6 +45,8 @@ DpStCost::DpStCost(const DpStSpeedConfig& config, const double total_t,
       init_point_(init_point),
       unit_t_(config.unit_t()),
       total_s_(total_s) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::DpStCost";
+
   int index = 0;
   for (const auto& obstacle : obstacles) {
     boundary_map_[obstacle->path_st_boundary().id()] = index++;
@@ -64,6 +67,8 @@ DpStCost::DpStCost(const DpStSpeedConfig& config, const double total_t,
 
 void DpStCost::AddToKeepClearRange(
     const std::vector<const Obstacle*>& obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::AddToKeepClearRange";
+
   for (const auto& obstacle : obstacles) {
     if (obstacle->path_st_boundary().IsEmpty()) {
       continue;
@@ -82,6 +87,8 @@ void DpStCost::AddToKeepClearRange(
 
 void DpStCost::SortAndMergeRange(
     std::vector<std::pair<double, double>>* keep_clear_range) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::SortAndMergeRange";
+
   if (!keep_clear_range || keep_clear_range->empty()) {
     return;
   }
@@ -102,6 +109,8 @@ void DpStCost::SortAndMergeRange(
 }
 
 bool DpStCost::InKeepClearRange(double s) const {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::InKeepClearRange";
+
   for (const auto& p : keep_clear_range_) {
     if (p.first <= s && p.second >= s) {
       return true;
@@ -111,6 +120,8 @@ bool DpStCost::InKeepClearRange(double s) const {
 }
 
 double DpStCost::GetObstacleCost(const StGraphPoint& st_graph_point) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetObstacleCost";
+
   const double s = st_graph_point.point().s();
   const double t = st_graph_point.point().t();
 
@@ -192,11 +203,15 @@ double DpStCost::GetObstacleCost(const StGraphPoint& st_graph_point) {
 }
 
 double DpStCost::GetSpatialPotentialCost(const StGraphPoint& point) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetSpatialPotentialCost";
+
   return (total_s_ - point.point().s()) * config_.spatial_potential_penalty();
 }
 
 double DpStCost::GetReferenceCost(const STPoint& point,
                                   const STPoint& reference_point) const {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetReferenceCost";
+
   return config_.reference_weight() * (point.s() - reference_point.s()) *
          (point.s() - reference_point.s()) * unit_t_;
 }
@@ -204,6 +219,8 @@ double DpStCost::GetReferenceCost(const STPoint& point,
 double DpStCost::GetSpeedCost(const STPoint& first, const STPoint& second,
                               const double speed_limit,
                               const double cruise_speed) const {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetSpeedCost";
+
   double cost = 0.0;
   const double speed = (second.s() - first.s()) / unit_t_;
   if (speed < 0) {
@@ -239,6 +256,8 @@ double DpStCost::GetSpeedCost(const STPoint& first, const STPoint& second,
 }
 
 double DpStCost::GetAccelCost(const double accel) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetAccelCost";
+
   double cost = 0.0;
   static constexpr double kEpsilon = 0.1;
   static constexpr size_t kShift = 100;
@@ -274,6 +293,8 @@ double DpStCost::GetAccelCost(const double accel) {
 double DpStCost::GetAccelCostByThreePoints(const STPoint& first,
                                            const STPoint& second,
                                            const STPoint& third) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetAccelCostByThreePoints";
+
   double accel = (first.s() + third.s() - 2 * second.s()) / (unit_t_ * unit_t_);
   return GetAccelCost(accel);
 }
@@ -281,12 +302,16 @@ double DpStCost::GetAccelCostByThreePoints(const STPoint& first,
 double DpStCost::GetAccelCostByTwoPoints(const double pre_speed,
                                          const STPoint& pre_point,
                                          const STPoint& curr_point) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetAccelCostByTwoPoints";
+
   double current_speed = (curr_point.s() - pre_point.s()) / unit_t_;
   double accel = (current_speed - pre_speed) / unit_t_;
   return GetAccelCost(accel);
 }
 
 double DpStCost::JerkCost(const double jerk) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::JerkCost";
+
   double cost = 0.0;
   static constexpr double kEpsilon = 0.1;
   static constexpr size_t kShift = 200;
@@ -315,6 +340,8 @@ double DpStCost::GetJerkCostByFourPoints(const STPoint& first,
                                          const STPoint& second,
                                          const STPoint& third,
                                          const STPoint& fourth) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetJerkCostByFourPoints";
+
   double jerk = (fourth.s() - 3 * third.s() + 3 * second.s() - first.s()) /
                 (unit_t_ * unit_t_ * unit_t_);
   return JerkCost(jerk);
@@ -324,6 +351,8 @@ double DpStCost::GetJerkCostByTwoPoints(const double pre_speed,
                                         const double pre_acc,
                                         const STPoint& pre_point,
                                         const STPoint& curr_point) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetJerkCostByTwoPoints";
+
   const double curr_speed = (curr_point.s() - pre_point.s()) / unit_t_;
   const double curr_accel = (curr_speed - pre_speed) / unit_t_;
   const double jerk = (curr_accel - pre_acc) / unit_t_;
@@ -334,6 +363,8 @@ double DpStCost::GetJerkCostByThreePoints(const double first_speed,
                                           const STPoint& first,
                                           const STPoint& second,
                                           const STPoint& third) {
+    AINFO<<"(DMCZP) EnteringMethod: DpStCost::GetJerkCostByThreePoints";
+
   const double pre_speed = (second.s() - first.s()) / unit_t_;
   const double pre_acc = (pre_speed - first_speed) / unit_t_;
   const double curr_speed = (third.s() - second.s()) / unit_t_;

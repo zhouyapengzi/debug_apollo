@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -32,9 +33,13 @@ namespace planning {
 using apollo::common::Status;
 using apollo::common::time::Clock;
 
-Rerouting::Rerouting(const TrafficRuleConfig& config) : TrafficRule(config) {}
+Rerouting::Rerouting(const TrafficRuleConfig& config) : TrafficRule(config) {
+    AINFO<<"(DMCZP) EnteringMethod: Rerouting::Rerouting";
+}
 
 bool Rerouting::ChangeLaneFailRerouting() {
+    AINFO<<"(DMCZP) EnteringMethod: Rerouting::ChangeLaneFailRerouting";
+
   static constexpr double kRerouteThresholdToEnd = 20.0;
   for (const auto& ref_line_info : frame_->reference_line_info()) {
     if (ref_line_info.ReachedDestination() ||
@@ -114,6 +119,8 @@ bool Rerouting::ChangeLaneFailRerouting() {
 
 Status Rerouting::ApplyRule(Frame* const frame,
                             ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: Rerouting::ApplyRule";
+
   frame_ = frame;
   reference_line_info_ = reference_line_info;
   if (!ChangeLaneFailRerouting()) {

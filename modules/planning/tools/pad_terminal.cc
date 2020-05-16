@@ -119,6 +119,8 @@ class PadTerminal {
 }  // namespace
 
 int main(int argc, char **argv) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
   apollo::cyber::Init("planning_pad_terminal");
   FLAGS_alsologtostderr = true;
   FLAGS_v = 3;

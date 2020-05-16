@@ -29,6 +29,8 @@ PiecewiseJerkPathIpoptSolver::PiecewiseJerkPathIpoptSolver(
     const double x_init, const double dx_init, const double ddx_init,
     const double delta_s, const double dddx_max,
     std::vector<std::pair<double, double>> d_bounds) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::PiecewiseJerkPathIpoptSolver";
+
   CHECK_GT(d_bounds.size(), 1);
 
   x_init_ = x_init;
@@ -57,6 +59,8 @@ void PiecewiseJerkPathIpoptSolver::set_objective_weights(const double w_x,
                                                          const double w_ddx,
                                                          const double w_dddx,
                                                          const double w_obs) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::set_objective_weights";
+
   w_x_ = w_x;
 
   w_dx_ = w_dx;
@@ -71,6 +75,8 @@ void PiecewiseJerkPathIpoptSolver::set_objective_weights(const double w_x,
 bool PiecewiseJerkPathIpoptSolver::get_nlp_info(int& n, int& m, int& nnz_jac_g,
                                                 int& nnz_h_lag,
                                                 IndexStyleEnum& index_style) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::get_nlp_info";
+
   // variables
   n = num_of_variables_;
 
@@ -90,6 +96,8 @@ bool PiecewiseJerkPathIpoptSolver::get_nlp_info(int& n, int& m, int& nnz_jac_g,
 bool PiecewiseJerkPathIpoptSolver::get_bounds_info(int n, double* x_l,
                                                    double* x_u, int m,
                                                    double* g_l, double* g_u) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::get_bounds_info";
+
   const double LARGE_VALUE = 1.0;
   // bounds for variables
   // x bounds;
@@ -144,6 +152,8 @@ bool PiecewiseJerkPathIpoptSolver::get_starting_point(int n, bool init_x,
                                                       double* z_L, double* z_U,
                                                       int m, bool init_lambda,
                                                       double* lambda) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::get_starting_point";
+
   CHECK_EQ(num_of_variables_, n);
 
   auto offset_dx = num_of_points_;
@@ -162,6 +172,8 @@ bool PiecewiseJerkPathIpoptSolver::get_starting_point(int n, bool init_x,
 
 bool PiecewiseJerkPathIpoptSolver::eval_f(int n, const double* x, bool new_x,
                                           double& obj_value) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::eval_f";
+
   obj_value = 0.0;
 
   int offset_dx = num_of_points_;
@@ -192,6 +204,8 @@ bool PiecewiseJerkPathIpoptSolver::eval_f(int n, const double* x, bool new_x,
 
 bool PiecewiseJerkPathIpoptSolver::eval_grad_f(int n, const double* x,
                                                bool new_x, double* grad_f) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::eval_grad_f";
+
   std::fill(grad_f, grad_f + n, 0.0);
 
   int offset_dx = num_of_points_;
@@ -218,6 +232,8 @@ bool PiecewiseJerkPathIpoptSolver::eval_grad_f(int n, const double* x,
 
 bool PiecewiseJerkPathIpoptSolver::eval_g(int n, const double* x, bool new_x,
                                           int m, double* g) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::eval_g";
+
   std::fill(g, g + m, 0.0);
   int offset_v = num_of_points_;
   int offset_a = 2 * num_of_points_;
@@ -254,6 +270,8 @@ bool PiecewiseJerkPathIpoptSolver::eval_jac_g(int n, const double* x,
                                               bool new_x, int m, int nele_jac,
                                               int* iRow, int* jCol,
                                               double* values) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::eval_jac_g";
+
   CHECK_EQ(n, num_of_variables_);
   CHECK_EQ(m, num_of_constraints_);
 
@@ -395,6 +413,8 @@ bool PiecewiseJerkPathIpoptSolver::eval_h(int n, const double* x, bool new_x,
                                           const double* lambda, bool new_lambda,
                                           int nele_hess, int* iRow, int* jCol,
                                           double* values) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::eval_h";
+
   CHECK_EQ(num_of_variables_ + num_of_points_ - 1, nele_hess);
   if (values == nullptr) {
     for (int i = 0; i < num_of_variables_; ++i) {
@@ -448,6 +468,8 @@ void PiecewiseJerkPathIpoptSolver::finalize_solution(
     const double* z_U, int m, const double* g, const double* lambda,
     double obj_value, const Ipopt::IpoptData* ip_data,
     Ipopt::IpoptCalculatedQuantities* ip_cq) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::finalize_solution";
+
   opt_x_.reserve(num_of_points_);
   opt_dx_.reserve(num_of_points_);
   opt_ddx_.reserve(num_of_points_);
@@ -465,6 +487,8 @@ void PiecewiseJerkPathIpoptSolver::finalize_solution(
 void PiecewiseJerkPathIpoptSolver::GetOptimizationResult(
     std::vector<double>* ptr_opt_d, std::vector<double>* ptr_opt_d_prime,
     std::vector<double>* ptr_opt_d_pprime) const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathIpoptSolver::GetOptimizationResult";
+
   *ptr_opt_d = opt_x_;
   *ptr_opt_d_prime = opt_dx_;
   *ptr_opt_d_pprime = opt_ddx_;

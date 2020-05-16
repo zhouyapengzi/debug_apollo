@@ -85,6 +85,8 @@ DualVariableWarmStartSlackOSQPInterface::
 void DualVariableWarmStartSlackOSQPInterface::printMatrix(
     const int r, const int c, const std::vector<c_float>& P_data,
     const std::vector<c_int>& P_indices, const std::vector<c_int>& P_indptr) {
+    AINFO<<"(DMCZP) EnteringMethod: DualVariableWarmStartSlackOSQPInterface::printMatrix";
+
   Eigen::MatrixXf tmp = Eigen::MatrixXf::Zero(r, c);
 
   for (size_t i = 0; i < P_indptr.size() - 1; ++i) {
@@ -110,6 +112,8 @@ void DualVariableWarmStartSlackOSQPInterface::printMatrix(
 void DualVariableWarmStartSlackOSQPInterface::assembleA(
     const int r, const int c, const std::vector<c_float>& P_data,
     const std::vector<c_int>& P_indices, const std::vector<c_int>& P_indptr) {
+    AINFO<<"(DMCZP) EnteringMethod: DualVariableWarmStartSlackOSQPInterface::assembleA";
+
   constraint_A_ = Eigen::MatrixXf::Zero(r, c);
 
   for (size_t i = 0; i < P_indptr.size() - 1; ++i) {
@@ -126,6 +130,8 @@ void DualVariableWarmStartSlackOSQPInterface::assembleA(
 }
 
 bool DualVariableWarmStartSlackOSQPInterface::optimize() {
+    AINFO<<"(DMCZP) EnteringMethod: DualVariableWarmStartSlackOSQPInterface::optimize";
+
   // int kNumParam = num_of_variables_;
   // int kNumConst = num_of_constraints_;
 
@@ -301,12 +307,16 @@ bool DualVariableWarmStartSlackOSQPInterface::optimize() {
 
 void DualVariableWarmStartSlackOSQPInterface::checkSolution(
     const Eigen::MatrixXd& l_warm_up, const Eigen::MatrixXd& n_warm_up) {
+    AINFO<<"(DMCZP) EnteringMethod: DualVariableWarmStartSlackOSQPInterface::checkSolution";
+
   // TODO(Runxin): extend
 }
 
 void DualVariableWarmStartSlackOSQPInterface::assembleP(
     std::vector<c_float>* P_data, std::vector<c_int>* P_indices,
     std::vector<c_int>* P_indptr) {
+    AINFO<<"(DMCZP) EnteringMethod: DualVariableWarmStartSlackOSQPInterface::assembleP";
+
   // the objective function is norm(A' * lambda)
   std::vector<c_float> P_tmp;
   int edges_counter = 0;
@@ -370,6 +380,8 @@ void DualVariableWarmStartSlackOSQPInterface::assembleP(
 void DualVariableWarmStartSlackOSQPInterface::assembleConstraint(
     std::vector<c_float>* A_data, std::vector<c_int>* A_indices,
     std::vector<c_int>* A_indptr) {
+    AINFO<<"(DMCZP) EnteringMethod: DualVariableWarmStartSlackOSQPInterface::assembleConstraint";
+
   /*
    * The constraint matrix is as the form,
    *  |R' * A',   G', 0|, #: 2 * obstacles_num_ * (horizon_ + 1)
@@ -500,6 +512,8 @@ void DualVariableWarmStartSlackOSQPInterface::assembleConstraint(
 void DualVariableWarmStartSlackOSQPInterface::get_optimization_results(
     Eigen::MatrixXd* l_warm_up, Eigen::MatrixXd* n_warm_up,
     Eigen::MatrixXd* s_warm_up) const {
+    AINFO<<"(DMCZP) EnteringMethod: DualVariableWarmStartSlackOSQPInterface::get_optimization_results";
+
   *l_warm_up = l_warm_up_;
   *n_warm_up = n_warm_up_;
   *s_warm_up = slacks_;

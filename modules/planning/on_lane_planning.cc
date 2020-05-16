@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -73,9 +74,13 @@ OnLanePlanning::~OnLanePlanning() {
   EgoInfo::Instance()->Clear();
 }
 
-std::string OnLanePlanning::Name() const { return "on_lane_planning"; }
+std::string OnLanePlanning::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::Name";
+ return "on_lane_planning"; }
 
 Status OnLanePlanning::Init(const PlanningConfig& config) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::Init";
+
   config_ = config;
   if (!CheckPlanningConfig(config_)) {
     return Status(ErrorCode::PLANNING_ERROR,
@@ -120,6 +125,8 @@ Status OnLanePlanning::Init(const PlanningConfig& config) {
 Status OnLanePlanning::InitFrame(const uint32_t sequence_num,
                                  const TrajectoryPoint& planning_start_point,
                                  const VehicleState& vehicle_state) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::InitFrame";
+
   frame_.reset(new Frame(sequence_num, local_view_, planning_start_point,
                          vehicle_state, reference_line_provider_.get()));
 
@@ -165,6 +172,8 @@ Status OnLanePlanning::InitFrame(const uint32_t sequence_num,
 
 // TODO(all): fix this! this will cause unexpected behavior from controller
 void OnLanePlanning::GenerateStopTrajectory(ADCTrajectory* ptr_trajectory_pb) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::GenerateStopTrajectory";
+
   ptr_trajectory_pb->clear_trajectory_point();
 
   const auto& vehicle_state = VehicleStateProvider::Instance()->vehicle_state();
@@ -188,6 +197,8 @@ void OnLanePlanning::GenerateStopTrajectory(ADCTrajectory* ptr_trajectory_pb) {
 
 void OnLanePlanning::RunOnce(const LocalView& local_view,
                              ADCTrajectory* const ptr_trajectory_pb) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::RunOnce";
+
   local_view_ = local_view;
   const double start_timestamp = Clock::NowInSeconds();
   const double start_system_timestamp =
@@ -374,6 +385,8 @@ void OnLanePlanning::RunOnce(const LocalView& local_view,
 }
 
 void OnLanePlanning::ExportReferenceLineDebug(planning_internal::Debug* debug) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::ExportReferenceLineDebug";
+
   if (!FLAGS_enable_record_debug) {
     return;
   }
@@ -449,6 +462,8 @@ Status OnLanePlanning::Plan(
     const double current_time_stamp,
     const std::vector<TrajectoryPoint>& stitching_trajectory,
     ADCTrajectory* const ptr_trajectory_pb) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::Plan";
+
   auto* ptr_debug = ptr_trajectory_pb->mutable_debug();
   if (FLAGS_enable_record_debug) {
     ptr_debug->mutable_planning_data()->mutable_init_point()->CopyFrom(
@@ -605,6 +620,8 @@ Status OnLanePlanning::Plan(
 }
 
 bool OnLanePlanning::CheckPlanningConfig(const PlanningConfig& config) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::CheckPlanningConfig";
+
   if (!config.has_standard_planning_config()) {
     return false;
   }
@@ -618,6 +635,8 @@ bool OnLanePlanning::CheckPlanningConfig(const PlanningConfig& config) {
 void PopulateChartOptions(double x_min, double x_max, std::string x_label,
                           double y_min, double y_max, std::string y_label,
                           bool display, Chart* chart) {
+    AINFO<<"(DMCZP) EnteringMethod: PopulateChartOptions";
+
   auto* options = chart->mutable_options();
   options->mutable_x()->set_min(x_min);
   options->mutable_x()->set_max(x_max);
@@ -629,6 +648,8 @@ void PopulateChartOptions(double x_min, double x_max, std::string x_label,
 }
 
 void AddSTGraph(const STGraphDebug& st_graph, Chart* chart) {
+    AINFO<<"(DMCZP) EnteringMethod: AddSTGraph";
+
   if (st_graph.name() == "DP_ST_SPEED_OPTIMIZER") {
     chart->set_title("Speed Heuristic");
   } else {
@@ -677,6 +698,8 @@ void AddSTGraph(const STGraphDebug& st_graph, Chart* chart) {
 }
 
 void AddSLFrame(const SLFrameDebug& sl_frame, Chart* chart) {
+    AINFO<<"(DMCZP) EnteringMethod: AddSLFrame";
+
   chart->set_title(sl_frame.name());
   PopulateChartOptions(0.0, 80.0, "s (meter)", -8.0, 8.0, "l (meter)", false,
                        chart);
@@ -692,6 +715,8 @@ void AddSLFrame(const SLFrameDebug& sl_frame, Chart* chart) {
 void AddSpeedPlan(
     const ::google::protobuf::RepeatedPtrField<SpeedPlan>& speed_plans,
     Chart* chart) {
+    AINFO<<"(DMCZP) EnteringMethod: AddSpeedPlan";
+
   chart->set_title("Speed Plan");
   PopulateChartOptions(0.0, 80.0, "s (meter)", 0.0, 50.0, "v (m/s)", false,
                        chart);
@@ -722,6 +747,8 @@ void AddSpeedPlan(
 void OnLanePlanning::ExportFailedLaneChangeSTChart(
     const planning_internal::Debug& debug_info,
     planning_internal::Debug* debug_chart) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::ExportFailedLaneChangeSTChart";
+
   const auto& src_data = debug_info.planning_data();
   auto* dst_data = debug_chart->mutable_planning_data();
   for (const auto& st_graph : src_data.st_graph()) {
@@ -732,6 +759,8 @@ void OnLanePlanning::ExportFailedLaneChangeSTChart(
 void OnLanePlanning::ExportOnLaneChart(
     const planning_internal::Debug& debug_info,
     planning_internal::Debug* debug_chart) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::ExportOnLaneChart";
+
   const auto& src_data = debug_info.planning_data();
   auto* dst_data = debug_chart->mutable_planning_data();
   for (const auto& st_graph : src_data.st_graph()) {
@@ -746,6 +775,8 @@ void OnLanePlanning::ExportOnLaneChart(
 void OnLanePlanning::ExportOpenSpaceChart(
     const planning_internal::Debug& debug_info,
     const ADCTrajectory& trajectory_pb, planning_internal::Debug* debug_chart) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::ExportOpenSpaceChart";
+
   // Export Trajectory Visualization Chart.
   if (FLAGS_enable_record_debug) {
     AddOpenSpaceOptimizerResult(debug_info, debug_chart);
@@ -760,6 +791,8 @@ void OnLanePlanning::ExportOpenSpaceChart(
 void OnLanePlanning::AddOpenSpaceOptimizerResult(
     const planning_internal::Debug& debug_info,
     planning_internal::Debug* debug_chart) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::AddOpenSpaceOptimizerResult";
+
   // if open space info provider success run
   if (!frame_->open_space_info().open_space_provider_success()) {
     return;
@@ -848,6 +881,8 @@ void OnLanePlanning::AddOpenSpaceOptimizerResult(
 void OnLanePlanning::AddPartitionedTrajectory(
     const planning_internal::Debug& debug_info,
     planning_internal::Debug* debug_chart) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::AddPartitionedTrajectory";
+
   // if open space info provider success run
   if (!frame_->open_space_info().open_space_provider_success()) {
     return;
@@ -978,6 +1013,8 @@ void OnLanePlanning::AddPartitionedTrajectory(
 
 void OnLanePlanning::AddStitchSpeedProfile(
     planning_internal::Debug* debug_chart) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::AddStitchSpeedProfile";
+
   if (!FrameHistory::Instance()->Latest()) {
     AINFO << "Planning frame is empty!";
     return;
@@ -1020,6 +1057,8 @@ void OnLanePlanning::AddStitchSpeedProfile(
 
 void OnLanePlanning::AddPublishedSpeed(const ADCTrajectory& trajectory_pb,
                                        planning_internal::Debug* debug_chart) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::AddPublishedSpeed";
+
   // if open space info provider success run
   if (!frame_->open_space_info().open_space_provider_success()) {
     return;
@@ -1078,6 +1117,8 @@ void OnLanePlanning::AddPublishedSpeed(const ADCTrajectory& trajectory_pb,
 
 VehicleState OnLanePlanning::AlignTimeStamp(const VehicleState& vehicle_state,
                                             const double curr_timestamp) const {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::AlignTimeStamp";
+
   // TODO(Jinyun): use the same method in trajectory stitching
   //               for forward prediction
   auto future_xy = VehicleStateProvider::Instance()->EstimateFuturePosition(
@@ -1092,6 +1133,8 @@ VehicleState OnLanePlanning::AlignTimeStamp(const VehicleState& vehicle_state,
 
 void OnLanePlanning::AddPublishedAcceleration(
     const ADCTrajectory& trajectory_pb, planning_internal::Debug* debug) {
+    AINFO<<"(DMCZP) EnteringMethod: OnLanePlanning::AddPublishedAcceleration";
+
   // if open space info provider success run
   if (!frame_->open_space_info().open_space_provider_success()) {
     return;

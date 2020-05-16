@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -26,6 +27,8 @@ namespace valet_parking {
 
 Stage::StageStatus StageParking::Process(
     const common::TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: StageParking::Process";
+
   // Open space planning doesn't use planning_init_point from upstream because
   // of different stitching strategy
   frame->mutable_open_space_info()->set_is_on_open_space_trajectory(true);
@@ -37,7 +40,9 @@ Stage::StageStatus StageParking::Process(
   return StageStatus::RUNNING;
 }
 
-Stage::StageStatus StageParking::FinishStage() { return Stage::FINISHED; }
+Stage::StageStatus StageParking::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: StageParking::FinishStage";
+ return Stage::FINISHED; }
 
 }  // namespace valet_parking
 }  // namespace scenario

@@ -49,6 +49,8 @@ static constexpr double kDoubleEpsilon = 1.0e-6;
 // dynamics
 bool CheckOverlapOnDpStGraph(const std::vector<const STBoundary*>& boundaries,
                              const StGraphPoint& p1, const StGraphPoint& p2) {
+    AINFO<<"(DMCZP) EnteringMethod: CheckOverlapOnDpStGraph";
+
   if (FLAGS_use_st_drivable_boundary) {
     return false;
   }
@@ -76,6 +78,8 @@ GriddedPathTimeGraph::GriddedPathTimeGraph(
       dp_st_cost_(dp_config, st_graph_data_.total_time_by_conf(),
                   st_graph_data_.path_length(), obstacles,
                   st_graph_data_.st_drivable_boundary(), init_point_) {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::GriddedPathTimeGraph";
+
   total_length_t_ = st_graph_data_.total_time_by_conf();
   unit_t_ = gridded_path_time_graph_config_.unit_t();
   total_length_s_ = st_graph_data_.path_length();
@@ -93,6 +97,8 @@ GriddedPathTimeGraph::GriddedPathTimeGraph(
 }
 
 Status GriddedPathTimeGraph::Search(SpeedData* const speed_data) {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::Search";
+
   static constexpr double kBounadryEpsilon = 1e-2;
   for (const auto& boundary : st_graph_data_.st_boundaries()) {
     // KeepClear obstacles not considered in Dp St decision
@@ -143,6 +149,8 @@ Status GriddedPathTimeGraph::Search(SpeedData* const speed_data) {
 }
 
 Status GriddedPathTimeGraph::InitCostTable() {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::InitCostTable";
+
   // Time dimension is homogeneous while Spatial dimension has two resolutions,
   // dense and sparse with dense resolution coming first in the spatial horizon
 
@@ -212,6 +220,8 @@ Status GriddedPathTimeGraph::InitCostTable() {
 }
 
 Status GriddedPathTimeGraph::InitSpeedLimitLookUp() {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::InitSpeedLimitLookUp";
+
   speed_limit_by_index_.clear();
 
   speed_limit_by_index_.resize(dimension_s_);
@@ -225,6 +235,8 @@ Status GriddedPathTimeGraph::InitSpeedLimitLookUp() {
 }
 
 Status GriddedPathTimeGraph::CalculateTotalCost() {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::CalculateTotalCost";
+
   // col and row are for STGraph
   // t corresponding to col
   // s corresponding to row
@@ -275,6 +287,8 @@ Status GriddedPathTimeGraph::CalculateTotalCost() {
 void GriddedPathTimeGraph::GetRowRange(const StGraphPoint& point,
                                        size_t* next_highest_row,
                                        size_t* next_lowest_row) {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::GetRowRange";
+
   double v0 = 0.0;
   // TODO(all): Record speed information in StGraphPoint and deprecate this.
   // A scaling parameter for DP range search due to the lack of accurate
@@ -318,6 +332,8 @@ void GriddedPathTimeGraph::GetRowRange(const StGraphPoint& point,
 
 void GriddedPathTimeGraph::CalculateCostAt(
     const std::shared_ptr<StGraphMessage>& msg) {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::CalculateCostAt";
+
   const uint32_t c = msg->c;
   const uint32_t r = msg->r;
   auto& cost_cr = cost_table_[c][r];
@@ -497,6 +513,8 @@ void GriddedPathTimeGraph::CalculateCostAt(
 }
 
 Status GriddedPathTimeGraph::RetrieveSpeedProfile(SpeedData* const speed_data) {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::RetrieveSpeedProfile";
+
   double min_cost = std::numeric_limits<double>::infinity();
   const StGraphPoint* best_end_point = nullptr;
   for (const StGraphPoint& cur_point : cost_table_.back()) {
@@ -557,6 +575,8 @@ Status GriddedPathTimeGraph::RetrieveSpeedProfile(SpeedData* const speed_data) {
 double GriddedPathTimeGraph::CalculateEdgeCost(
     const STPoint& first, const STPoint& second, const STPoint& third,
     const STPoint& forth, const double speed_limit, const double cruise_speed) {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::CalculateEdgeCost";
+
   return dp_st_cost_.GetSpeedCost(third, forth, speed_limit, cruise_speed) +
          dp_st_cost_.GetAccelCostByThreePoints(second, third, forth) +
          dp_st_cost_.GetJerkCostByFourPoints(first, second, third, forth);
@@ -564,6 +584,8 @@ double GriddedPathTimeGraph::CalculateEdgeCost(
 
 double GriddedPathTimeGraph::CalculateEdgeCostForSecondCol(
     const uint32_t row, const double speed_limit, const double cruise_speed) {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::CalculateEdgeCostForSecondCol";
+
   double init_speed = init_point_.v();
   double init_acc = init_point_.a();
   const STPoint& pre_point = cost_table_[0][0].point();
@@ -579,6 +601,8 @@ double GriddedPathTimeGraph::CalculateEdgeCostForSecondCol(
 double GriddedPathTimeGraph::CalculateEdgeCostForThirdCol(
     const uint32_t curr_row, const uint32_t pre_row, const double speed_limit,
     const double cruise_speed) {
+    AINFO<<"(DMCZP) EnteringMethod: GriddedPathTimeGraph::CalculateEdgeCostForThirdCol";
+
   double init_speed = init_point_.v();
   const STPoint& first = cost_table_[0][0].point();
   const STPoint& second = cost_table_[1][pre_row].point();

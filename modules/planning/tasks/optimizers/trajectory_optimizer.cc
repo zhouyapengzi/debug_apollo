@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -26,9 +27,13 @@ namespace planning {
 using apollo::common::Status;
 
 TrajectoryOptimizer::TrajectoryOptimizer(const TaskConfig& config)
-    : Task(config) {}
+    : Task(config) {
+    AINFO<<"(DMCZP) EnteringMethod: TrajectoryOptimizer::TrajectoryOptimizer";
+}
 
 Status TrajectoryOptimizer::Execute(Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: TrajectoryOptimizer::Execute";
+
   Task::Execute(frame);
   return Process();
 }

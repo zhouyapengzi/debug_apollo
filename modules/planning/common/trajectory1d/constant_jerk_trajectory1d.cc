@@ -32,6 +32,8 @@ ConstantJerkTrajectory1d::ConstantJerkTrajectory1d(const double p0,
                                                    const double j,
                                                    const double param)
     : p0_(p0), v0_(v0), a0_(a0), param_(param), jerk_(j) {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::ConstantJerkTrajectory1d";
+
   CHECK_GT(param, FLAGS_numerical_epsilon);
   p1_ = Evaluate(0, param_);
   v1_ = Evaluate(1, param_);
@@ -40,6 +42,8 @@ ConstantJerkTrajectory1d::ConstantJerkTrajectory1d(const double p0,
 
 double ConstantJerkTrajectory1d::Evaluate(const std::uint32_t order,
                                           const double param) const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::Evaluate";
+
   switch (order) {
     case 0: {
       return p0_ + v0_ * param + 0.5 * a0_ * param * param +
@@ -59,23 +63,41 @@ double ConstantJerkTrajectory1d::Evaluate(const std::uint32_t order,
   }
 }
 
-double ConstantJerkTrajectory1d::start_position() const { return p0_; }
+double ConstantJerkTrajectory1d::start_position() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::start_position";
+ return p0_; }
 
-double ConstantJerkTrajectory1d::start_velocity() const { return v0_; }
+double ConstantJerkTrajectory1d::start_velocity() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::start_velocity";
+ return v0_; }
 
-double ConstantJerkTrajectory1d::start_acceleration() const { return a0_; }
+double ConstantJerkTrajectory1d::start_acceleration() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::start_acceleration";
+ return a0_; }
 
-double ConstantJerkTrajectory1d::end_position() const { return p1_; }
+double ConstantJerkTrajectory1d::end_position() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::end_position";
+ return p1_; }
 
-double ConstantJerkTrajectory1d::end_velocity() const { return v1_; }
+double ConstantJerkTrajectory1d::end_velocity() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::end_velocity";
+ return v1_; }
 
-double ConstantJerkTrajectory1d::end_acceleration() const { return a1_; }
+double ConstantJerkTrajectory1d::end_acceleration() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::end_acceleration";
+ return a1_; }
 
-double ConstantJerkTrajectory1d::ParamLength() const { return param_; }
+double ConstantJerkTrajectory1d::ParamLength() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::ParamLength";
+ return param_; }
 
-std::string ConstantJerkTrajectory1d::ToString() const { return ""; }
+std::string ConstantJerkTrajectory1d::ToString() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::ToString";
+ return ""; }
 
-double ConstantJerkTrajectory1d::jerk() const { return jerk_; }
+double ConstantJerkTrajectory1d::jerk() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantJerkTrajectory1d::jerk";
+ return jerk_; }
 
 }  // namespace planning
 }  // namespace apollo

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -19,11 +20,17 @@
 namespace apollo {
 namespace planning {
 
-PlanningContext::PlanningContext() {}
+PlanningContext::PlanningContext() {
+    AINFO<<"(DMCZP) EnteringMethod: PlanningContext::PlanningContext";
+}
 
-void PlanningContext::Init() {}
+void PlanningContext::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: PlanningContext::Init";
+}
 
-void PlanningContext::Clear() { planning_status_.Clear(); }
+void PlanningContext::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: PlanningContext::Clear";
+ planning_status_.Clear(); }
 
 }  // namespace planning
 }  // namespace apollo

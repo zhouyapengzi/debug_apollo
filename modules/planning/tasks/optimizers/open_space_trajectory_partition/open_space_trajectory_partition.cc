@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -42,6 +43,8 @@ using apollo::common::time::Clock;
 OpenSpaceTrajectoryPartition::OpenSpaceTrajectoryPartition(
     const TaskConfig& config)
     : TrajectoryOptimizer(config) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::OpenSpaceTrajectoryPartition";
+
   open_space_trajectory_partition_config_ =
       config_.open_space_trajectory_partition_config();
   heading_search_range_ =
@@ -71,6 +74,8 @@ OpenSpaceTrajectoryPartition::OpenSpaceTrajectoryPartition(
 }
 
 void OpenSpaceTrajectoryPartition::Restart() {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::Restart";
+
   auto* current_gear_status =
       frame_->mutable_open_space_info()->mutable_gear_switch_states();
   current_gear_status->gear_switching_flag = false;
@@ -82,6 +87,8 @@ void OpenSpaceTrajectoryPartition::Restart() {
 }
 
 Status OpenSpaceTrajectoryPartition::Process() {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::Process";
+
   const auto& open_space_info = frame_->open_space_info();
   auto open_space_info_ptr = frame_->mutable_open_space_info();
   const auto& stitched_trajectory_result =
@@ -268,6 +275,8 @@ Status OpenSpaceTrajectoryPartition::Process() {
 void OpenSpaceTrajectoryPartition::InterpolateTrajectory(
     const DiscretizedTrajectory& stitched_trajectory_result,
     DiscretizedTrajectory* interpolated_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::InterpolateTrajectory";
+
   if (FLAGS_use_iterative_anchoring_smoother) {
     *interpolated_trajectory = stitched_trajectory_result;
     return;
@@ -300,6 +309,8 @@ void OpenSpaceTrajectoryPartition::InterpolateTrajectory(
 }
 
 void OpenSpaceTrajectoryPartition::UpdateVehicleInfo() {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::UpdateVehicleInfo";
+
   const common::VehicleState& vehicle_state = frame_->vehicle_state();
   ego_theta_ = vehicle_state.heading();
   ego_x_ = vehicle_state.x();
@@ -318,6 +329,8 @@ void OpenSpaceTrajectoryPartition::UpdateVehicleInfo() {
 
 bool OpenSpaceTrajectoryPartition::EncodeTrajectory(
     const DiscretizedTrajectory& trajectory, std::string* const encoding) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::EncodeTrajectory";
+
   if (trajectory.empty()) {
     AERROR << "Fail to encode trajectory because it is empty";
     return false;
@@ -350,6 +363,8 @@ bool OpenSpaceTrajectoryPartition::EncodeTrajectory(
 
 bool OpenSpaceTrajectoryPartition::CheckTrajTraversed(
     const std::string& trajectory_encoding_to_check) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::CheckTrajTraversed";
+
   const auto& open_space_status =
       PlanningContext::Instance()->planning_status().open_space();
   const int index_history_size =
@@ -370,6 +385,8 @@ bool OpenSpaceTrajectoryPartition::CheckTrajTraversed(
 
 void OpenSpaceTrajectoryPartition::UpdateTrajHistory(
     const std::string& chosen_trajectory_encoding) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::UpdateTrajHistory";
+
   auto* open_space_status = PlanningContext::Instance()
                                 ->mutable_planning_status()
                                 ->mutable_open_space();
@@ -394,6 +411,8 @@ void OpenSpaceTrajectoryPartition::UpdateTrajHistory(
 void OpenSpaceTrajectoryPartition::PartitionTrajectory(
     const DiscretizedTrajectory& raw_trajectory,
     std::vector<TrajGearPair>* partitioned_trajectories) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::PartitionTrajectory";
+
   CHECK_NOTNULL(partitioned_trajectories);
 
   size_t horizon = raw_trajectory.size();
@@ -466,6 +485,8 @@ void OpenSpaceTrajectoryPartition::LoadTrajectoryPoint(
     const TrajectoryPoint& trajectory_point,
     const canbus::Chassis::GearPosition& gear, Vec2d* last_pos_vec,
     double* distance_s, DiscretizedTrajectory* current_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::LoadTrajectoryPoint";
+
   current_trajectory->emplace_back();
   TrajectoryPoint* point = &(current_trajectory->back());
   point->set_relative_time(trajectory_point.relative_time());
@@ -489,6 +510,8 @@ bool OpenSpaceTrajectoryPartition::CheckReachTrajectoryEnd(
     const canbus::Chassis::GearPosition& gear, const size_t trajectories_size,
     const size_t trajectories_index, size_t* current_trajectory_index,
     size_t* current_trajectory_point_index) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::CheckReachTrajectoryEnd";
+
   // Check if have reached endpoint of trajectory
   const TrajectoryPoint& trajectory_end_point = trajectory.back();
   const size_t trajectory_size = trajectory.size();
@@ -565,6 +588,8 @@ bool OpenSpaceTrajectoryPartition::UseFailSafeSearch(
     const std::vector<TrajGearPair>& partitioned_trajectories,
     const std::vector<std::string>& trajectories_encodings,
     size_t* current_trajectory_index, size_t* current_trajectory_point_index) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::UseFailSafeSearch";
+
   AERROR << "Trajectory partition fail, using failsafe search";
   const size_t trajectories_size = partitioned_trajectories.size();
   std::priority_queue<std::pair<std::pair<size_t, size_t>, double>,
@@ -636,6 +661,8 @@ bool OpenSpaceTrajectoryPartition::InsertGearShiftTrajectory(
     const bool flag_change_to_next, const size_t current_trajectory_index,
     const std::vector<TrajGearPair>& partitioned_trajectories,
     TrajGearPair* gear_switch_idle_time_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::InsertGearShiftTrajectory";
+
   const auto* last_frame = FrameHistory::Instance()->Latest();
   const auto& last_gear_status =
       last_frame->open_space_info().gear_switch_states();
@@ -670,6 +697,8 @@ bool OpenSpaceTrajectoryPartition::InsertGearShiftTrajectory(
 void OpenSpaceTrajectoryPartition::GenerateGearShiftTrajectory(
     const canbus::Chassis::GearPosition& gear_position,
     TrajGearPair* gear_switch_idle_time_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::GenerateGearShiftTrajectory";
+
   gear_switch_idle_time_trajectory->first.clear();
   const double gear_shift_max_t =
       open_space_trajectory_partition_config_.gear_shift_max_t();
@@ -699,6 +728,8 @@ void OpenSpaceTrajectoryPartition::AdjustRelativeTimeAndS(
     const size_t closest_trajectory_point_index,
     DiscretizedTrajectory* unpartitioned_trajectory_result,
     TrajGearPair* current_partitioned_trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::AdjustRelativeTimeAndS";
+
   const size_t partitioned_trajectories_size = partitioned_trajectories.size();
   CHECK_GT(partitioned_trajectories_size, current_trajectory_index);
 

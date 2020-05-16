@@ -33,6 +33,14 @@ DEFINE_double(minimum_point_spacing, 5.0,
               "The minimum distance for input points.");
 
 namespace apollo {
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
 namespace planning {
 
 class SpiralSmootherUtil {
@@ -157,6 +165,8 @@ class SpiralSmootherUtil {
 }  // namespace apollo
 
 int main(int argc, char* argv[]) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, true);
 

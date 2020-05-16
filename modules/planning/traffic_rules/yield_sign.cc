@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /*****************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -31,16 +32,22 @@ namespace planning {
 using apollo::common::Status;
 using apollo::hdmap::PathOverlap;
 
-YieldSign::YieldSign(const TrafficRuleConfig& config) : TrafficRule(config) {}
+YieldSign::YieldSign(const TrafficRuleConfig& config) : TrafficRule(config) {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSign::YieldSign";
+}
 
 Status YieldSign::ApplyRule(Frame* const frame,
                             ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSign::ApplyRule";
+
   MakeDecisions(frame, reference_line_info);
   return Status::OK();
 }
 
 void YieldSign::MakeDecisions(Frame* const frame,
                               ReferenceLineInfo* const reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSign::MakeDecisions";
+
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
 

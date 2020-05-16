@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -43,6 +44,8 @@ DistanceApproachIPOPTFixedTsInterface::DistanceApproachIPOPTFixedTsInterface(
       obstacles_edges_num_(obstacles_edges_num),
       obstacles_A_(obstacles_A),
       obstacles_b_(obstacles_b) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::DistanceApproachIPOPTFixedTsInterface";
+
   CHECK(horizon < std::numeric_limits<int>::max())
       << "Invalid cast on horizon in open space planner";
   horizon_ = static_cast<int>(horizon);
@@ -107,6 +110,8 @@ DistanceApproachIPOPTFixedTsInterface::DistanceApproachIPOPTFixedTsInterface(
 bool DistanceApproachIPOPTFixedTsInterface::get_nlp_info(
     int& n, int& m, int& nnz_jac_g, int& nnz_h_lag,
     IndexStyleEnum& index_style) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::get_nlp_info";
+
   ADEBUG << "get_nlp_info";
   // n1 : states variables, 4 * (N+1)
   int n1 = 4 * (horizon_ + 1);
@@ -151,6 +156,8 @@ bool DistanceApproachIPOPTFixedTsInterface::get_bounds_info(int n, double* x_l,
                                                             double* x_u, int m,
                                                             double* g_l,
                                                             double* g_u) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::get_bounds_info";
+
   ADEBUG << "get_bounds_info";
   CHECK(XYbounds_.size() == 4)
       << "XYbounds_ size is not 4, but" << XYbounds_.size();
@@ -341,6 +348,8 @@ bool DistanceApproachIPOPTFixedTsInterface::get_bounds_info(int n, double* x_l,
 bool DistanceApproachIPOPTFixedTsInterface::get_starting_point(
     int n, bool init_x, double* x, bool init_z, double* z_L, double* z_U, int m,
     bool init_lambda, double* lambda) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::get_starting_point";
+
   ADEBUG << "get_starting_point";
   CHECK(init_x) << "Warm start init_x setting failed";
 
@@ -393,6 +402,8 @@ bool DistanceApproachIPOPTFixedTsInterface::get_starting_point(
 bool DistanceApproachIPOPTFixedTsInterface::eval_f(int n, const double* x,
                                                    bool new_x,
                                                    double& obj_value) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::eval_f";
+
   eval_obj(n, x, &obj_value);
   return true;
 }
@@ -400,6 +411,8 @@ bool DistanceApproachIPOPTFixedTsInterface::eval_f(int n, const double* x,
 bool DistanceApproachIPOPTFixedTsInterface::eval_grad_f(int n, const double* x,
                                                         bool new_x,
                                                         double* grad_f) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::eval_grad_f";
+
   gradient(tag_f, n, x, grad_f);
   return true;
 }
@@ -407,6 +420,8 @@ bool DistanceApproachIPOPTFixedTsInterface::eval_grad_f(int n, const double* x,
 bool DistanceApproachIPOPTFixedTsInterface::eval_g(int n, const double* x,
                                                    bool new_x, int m,
                                                    double* g) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::eval_g";
+
   eval_constraints(n, x, m, g);
   if (enable_constraint_check_) {
     check_g(n, x, m, g);
@@ -419,6 +434,8 @@ bool DistanceApproachIPOPTFixedTsInterface::eval_jac_g(int n, const double* x,
                                                        int nele_jac, int* iRow,
                                                        int* jCol,
                                                        double* values) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::eval_jac_g";
+
   if (values == nullptr) {
     // return the structure of the jacobian
     for (int idx = 0; idx < nnz_jac; idx++) {
@@ -440,6 +457,8 @@ bool DistanceApproachIPOPTFixedTsInterface::eval_jac_g(int n, const double* x,
 bool DistanceApproachIPOPTFixedTsInterface::eval_jac_g_ser(
     int n, const double* x, bool new_x, int m, int nele_jac, int* iRow,
     int* jCol, double* values) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::eval_jac_g_ser";
+
   AERROR << "NOT VALID NOW";
   return false;
 }  // NOLINT
@@ -448,6 +467,8 @@ bool DistanceApproachIPOPTFixedTsInterface::eval_h(
     int n, const double* x, bool new_x, double obj_factor, int m,
     const double* lambda, bool new_lambda, int nele_hess, int* iRow, int* jCol,
     double* values) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::eval_h";
+
   if (values == nullptr) {
     // return the structure. This is a symmetric matrix, fill the lower left
     // triangle only.
@@ -483,6 +504,8 @@ void DistanceApproachIPOPTFixedTsInterface::finalize_solution(
     const double* z_U, int m, const double* g, const double* lambda,
     double obj_value, const Ipopt::IpoptData* ip_data,
     Ipopt::IpoptCalculatedQuantities* ip_cq) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::finalize_solution";
+
   int state_index = state_start_index_;
   int control_index = control_start_index_;
   // int time_index = time_start_index_;
@@ -550,6 +573,8 @@ void DistanceApproachIPOPTFixedTsInterface::get_optimization_results(
     Eigen::MatrixXd* state_result, Eigen::MatrixXd* control_result,
     Eigen::MatrixXd* time_result, Eigen::MatrixXd* dual_l_result,
     Eigen::MatrixXd* dual_n_result) const {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::get_optimization_results";
+
   ADEBUG << "get_optimization_results";
   *state_result = state_result_;
   *control_result = control_result_;
@@ -612,6 +637,8 @@ void DistanceApproachIPOPTFixedTsInterface::get_optimization_results(
 template <class T>
 void DistanceApproachIPOPTFixedTsInterface::eval_obj(int n, const T* x,
                                                      T* obj_value) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::eval_obj";
+
   // Objective is :
   // min control inputs
   // min input rate
@@ -668,6 +695,8 @@ void DistanceApproachIPOPTFixedTsInterface::eval_obj(int n, const T* x,
 template <class T>
 void DistanceApproachIPOPTFixedTsInterface::eval_constraints(int n, const T* x,
                                                              int m, T* g) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::eval_constraints";
+
   // state start index
   int state_index = state_start_index_;
 
@@ -879,6 +908,8 @@ void DistanceApproachIPOPTFixedTsInterface::eval_constraints(int n, const T* x,
 
 bool DistanceApproachIPOPTFixedTsInterface::check_g(int n, const double* x,
                                                     int m, const double* g) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::check_g";
+
   int kN = n;
   int kM = m;
   double x_u_tmp[kN];
@@ -959,6 +990,8 @@ bool DistanceApproachIPOPTFixedTsInterface::check_g(int n, const double* x,
 void DistanceApproachIPOPTFixedTsInterface::generate_tapes(int n, int m,
                                                            int* nnz_jac_g,
                                                            int* nnz_h_lag) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceApproachIPOPTFixedTsInterface::generate_tapes";
+
   std::vector<double> xp(n);
   std::vector<double> lamp(m);
   std::vector<double> zl(m);

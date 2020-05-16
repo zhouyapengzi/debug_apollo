@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -25,6 +26,8 @@ namespace planning {
 
 void STDrivingLimits::Init(const double max_acc, const double max_dec,
                            const double max_v, double curr_v) {
+    AINFO<<"(DMCZP) EnteringMethod: STDrivingLimits::Init";
+
   max_acc_ = max_acc;
   max_dec_ = max_dec;
   max_v_ = max_v;
@@ -67,6 +70,8 @@ void STDrivingLimits::UpdateBlockingInfo(const double t, const double lower_s,
                                          const double lower_v,
                                          const double upper_s,
                                          const double upper_v) {
+    AINFO<<"(DMCZP) EnteringMethod: STDrivingLimits::UpdateBlockingInfo";
+
   auto curr_bounds = GetVehicleDynamicsLimits(t);
   if (curr_bounds.first < lower_s) {
     // lower_v0_ = std::fmax(lower_v, 0.0);

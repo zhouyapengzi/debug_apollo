@@ -51,6 +51,8 @@ using StopSignLaneVehicles =
 
 Stage::StageStatus StopSignUnprotectedStageStop::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: StopSignUnprotectedStageStop::Process";
+
   ADEBUG << "stage: Stop";
   CHECK_NOTNULL(frame);
 
@@ -152,6 +154,8 @@ Stage::StageStatus StopSignUnprotectedStageStop::Process(
  */
 int StopSignUnprotectedStageStop::RemoveWatchVehicle(
     const PathDecision& path_decision, StopSignLaneVehicles* watch_vehicles) {
+    AINFO<<"(DMCZP) EnteringMethod: StopSignUnprotectedStageStop::RemoveWatchVehicle";
+
   CHECK_NOTNULL(watch_vehicles);
 
   for (auto& vehicle : *watch_vehicles) {
@@ -227,6 +231,8 @@ int StopSignUnprotectedStageStop::RemoveWatchVehicle(
 }
 
 Stage::StageStatus StopSignUnprotectedStageStop::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: StopSignUnprotectedStageStop::FinishStage";
+
   // update PlanningContext
   PlanningContext::Instance()
       ->mutable_planning_status()

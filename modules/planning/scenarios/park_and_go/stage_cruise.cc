@@ -35,6 +35,8 @@ using apollo::common::TrajectoryPoint;
 
 Stage::StageStatus ParkAndGoStageCruise::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStageCruise::Process";
+
   ADEBUG << "stage: Cruise";
   CHECK_NOTNULL(frame);
 
@@ -59,12 +61,16 @@ Stage::StageStatus ParkAndGoStageCruise::Process(
 }
 
 Stage::StageStatus ParkAndGoStageCruise::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStageCruise::FinishStage";
+
   return FinishScenario();
 }
 
 ParkAndGoStageCruise::ParkAndGoStatus
 ParkAndGoStageCruise::CheckADCParkAndGoCruiseCompleted(
     const ReferenceLineInfo& reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: ParkAndGoStageCruise::CheckADCParkAndGoCruiseCompleted";
+
   const auto& reference_line = reference_line_info.reference_line();
 
   // check l delta

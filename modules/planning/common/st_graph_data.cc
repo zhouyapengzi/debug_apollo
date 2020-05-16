@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -35,6 +36,8 @@ void StGraphData::LoadData(const std::vector<const STBoundary*>& st_boundaries,
                            const double path_data_length,
                            const double total_time_by_conf,
                            planning_internal::STGraphDebug* st_graph_debug) {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::LoadData";
+
   init_ = true;
   st_boundaries_ = st_boundaries;
   min_s_on_st_boundaries_ = min_s_on_st_boundaries;
@@ -51,28 +54,44 @@ const std::vector<const STBoundary*>& StGraphData::st_boundaries() const {
 }
 
 double StGraphData::min_s_on_st_boundaries() const {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::min_s_on_st_boundaries";
+
   return min_s_on_st_boundaries_;
 }
 
-const TrajectoryPoint& StGraphData::init_point() const { return init_point_; }
+const TrajectoryPoint& StGraphData::init_point() const {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::init_point";
+ return init_point_; }
 
-const SpeedLimit& StGraphData::speed_limit() const { return speed_limit_; }
+const SpeedLimit& StGraphData::speed_limit() const {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::speed_limit";
+ return speed_limit_; }
 
 double StGraphData::cruise_speed() const {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::cruise_speed";
+
   return cruise_speed_ > 0.0 ? cruise_speed_ : FLAGS_default_cruise_speed;
 }
 
-double StGraphData::path_length() const { return path_data_length_; }
+double StGraphData::path_length() const {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::path_length";
+ return path_data_length_; }
 
-double StGraphData::total_time_by_conf() const { return total_time_by_conf_; }
+double StGraphData::total_time_by_conf() const {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::total_time_by_conf";
+ return total_time_by_conf_; }
 
 planning_internal::STGraphDebug* StGraphData::mutable_st_graph_debug() {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::mutable_st_graph_debug";
+
   return st_graph_debug_;
 }
 
 bool StGraphData::SetSTDrivableBoundary(
     const std::vector<std::tuple<double, double, double>>& s_boundary,
     const std::vector<std::tuple<double, double, double>>& v_obs_info) {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::SetSTDrivableBoundary";
+
   if (s_boundary.size() != v_obs_info.size()) {
     return false;
   }
@@ -92,6 +111,8 @@ bool StGraphData::SetSTDrivableBoundary(
 }
 
 const STDrivableBoundary& StGraphData::st_drivable_boundary() const {
+    AINFO<<"(DMCZP) EnteringMethod: StGraphData::st_drivable_boundary";
+
   return st_drivable_boundary_;
 }
 

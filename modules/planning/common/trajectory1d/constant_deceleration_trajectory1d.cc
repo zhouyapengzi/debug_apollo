@@ -31,6 +31,8 @@ namespace planning {
 ConstantDecelerationTrajectory1d::ConstantDecelerationTrajectory1d(
     const double init_s, const double init_v, const double a)
     : init_s_(init_s), init_v_(init_v), deceleration_(-a) {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantDecelerationTrajectory1d::ConstantDecelerationTrajectory1d";
+
   if (init_v_ < -FLAGS_numerical_epsilon) {
     AERROR << "negative init v = " << init_v_;
   }
@@ -41,6 +43,8 @@ ConstantDecelerationTrajectory1d::ConstantDecelerationTrajectory1d(
 }
 
 double ConstantDecelerationTrajectory1d::Evaluate_s(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantDecelerationTrajectory1d::Evaluate_s";
+
   if (t < end_t_) {
     double curr_v = init_v_ - deceleration_ * t;
     double delta_s = (curr_v + init_v_) * t * 0.5;
@@ -51,6 +55,8 @@ double ConstantDecelerationTrajectory1d::Evaluate_s(const double t) const {
 }
 
 double ConstantDecelerationTrajectory1d::Evaluate_v(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantDecelerationTrajectory1d::Evaluate_v";
+
   if (t < end_t_) {
     return init_v_ - deceleration_ * t;
   } else {
@@ -59,6 +65,8 @@ double ConstantDecelerationTrajectory1d::Evaluate_v(const double t) const {
 }
 
 double ConstantDecelerationTrajectory1d::Evaluate_a(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantDecelerationTrajectory1d::Evaluate_a";
+
   if (t < end_t_) {
     return -deceleration_;
   } else {
@@ -67,15 +75,23 @@ double ConstantDecelerationTrajectory1d::Evaluate_a(const double t) const {
 }
 
 double ConstantDecelerationTrajectory1d::Evaluate_j(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantDecelerationTrajectory1d::Evaluate_j";
+
   return 0.0;
 }
 
-double ConstantDecelerationTrajectory1d::ParamLength() const { return end_t_; }
+double ConstantDecelerationTrajectory1d::ParamLength() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantDecelerationTrajectory1d::ParamLength";
+ return end_t_; }
 
-std::string ConstantDecelerationTrajectory1d::ToString() const { return ""; }
+std::string ConstantDecelerationTrajectory1d::ToString() const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantDecelerationTrajectory1d::ToString";
+ return ""; }
 
 double ConstantDecelerationTrajectory1d::Evaluate(const std::uint32_t order,
                                                   const double param) const {
+    AINFO<<"(DMCZP) EnteringMethod: ConstantDecelerationTrajectory1d::Evaluate";
+
   switch (order) {
     case 0:
       return Evaluate_s(param);

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -40,6 +41,8 @@ apollo::common::util::Factory<
     ValetParkingScenario::s_stage_factory_;
 
 void ValetParkingScenario::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: ValetParkingScenario::Init";
+
   if (init_) {
     return;
   }
@@ -56,6 +59,8 @@ void ValetParkingScenario::Init() {
 }
 
 void ValetParkingScenario::RegisterStages() {
+    AINFO<<"(DMCZP) EnteringMethod: ValetParkingScenario::RegisterStages";
+
   if (s_stage_factory_.Empty()) {
     s_stage_factory_.Clear();
   }
@@ -85,6 +90,8 @@ std::unique_ptr<Stage> ValetParkingScenario::CreateStage(
 }
 
 bool ValetParkingScenario::GetScenarioConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: ValetParkingScenario::GetScenarioConfig";
+
   if (!config_.has_valet_parking_config()) {
     AERROR << "miss scenario specific config";
     return false;
@@ -95,6 +102,8 @@ bool ValetParkingScenario::GetScenarioConfig() {
 
 bool ValetParkingScenario::IsTransferable(const Frame& frame,
                                           const double parking_start_range) {
+    AINFO<<"(DMCZP) EnteringMethod: ValetParkingScenario::IsTransferable";
+
   // TODO(all) Implement available parking spot detection by preception results
   std::string target_parking_spot_id;
   if (frame.local_view().routing->routing_request().has_parking_space() &&
@@ -137,6 +146,8 @@ bool ValetParkingScenario::IsTransferable(const Frame& frame,
 bool ValetParkingScenario::SearchTargetParkingSpotOnPath(
     const Path& nearby_path, const std::string& target_parking_id,
     PathOverlap* parking_space_overlap) {
+    AINFO<<"(DMCZP) EnteringMethod: ValetParkingScenario::SearchTargetParkingSpotOnPath";
+
   const auto& parking_space_overlaps = nearby_path.parking_space_overlaps();
   for (const auto& parking_overlap : parking_space_overlaps) {
     if (parking_overlap.object_id == target_parking_id) {
@@ -151,6 +162,8 @@ bool ValetParkingScenario::CheckDistanceToParkingSpot(
     const VehicleState& vehicle_state, const Path& nearby_path,
     const double parking_start_range,
     const PathOverlap& parking_space_overlap) {
+    AINFO<<"(DMCZP) EnteringMethod: ValetParkingScenario::CheckDistanceToParkingSpot";
+
   // TODO(Jinyun) parking overlap s are wrong on map, not usable
   // double parking_space_center_s =
   //     (parking_space_overlap.start_s + parking_space_overlap.end_s) / 2.0;

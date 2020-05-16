@@ -47,6 +47,8 @@ apollo::common::util::Factory<
     YieldSignScenario::s_stage_factory_;
 
 void YieldSignScenario::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSignScenario::Init";
+
   if (init_) {
     return;
   }
@@ -85,6 +87,8 @@ void YieldSignScenario::Init() {
 }
 
 void YieldSignScenario::RegisterStages() {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSignScenario::RegisterStages";
+
   if (!s_stage_factory_.Empty()) {
     s_stage_factory_.Clear();
   }
@@ -117,6 +121,8 @@ std::unique_ptr<Stage> YieldSignScenario::CreateStage(
  * read scenario specific configs and set in context_ for stages to read
  */
 bool YieldSignScenario::GetScenarioConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSignScenario::GetScenarioConfig";
+
   if (!config_.has_yield_sign_config()) {
     AERROR << "miss scenario specific config";
     return false;

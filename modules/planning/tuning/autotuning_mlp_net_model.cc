@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -21,6 +22,8 @@ namespace planning {
 
 void AutotuningMLPModel::Run(const std::vector<Eigen::MatrixXf>& inputs,
                              Eigen::MatrixXf* const output) const {
+    AINFO<<"(DMCZP) EnteringMethod: AutotuningMLPModel::Run";
+
   Eigen::MatrixXf inp = inputs[0];
   Eigen::MatrixXf temp;
   for (size_t i = 0; i < layers_.size(); ++i) {

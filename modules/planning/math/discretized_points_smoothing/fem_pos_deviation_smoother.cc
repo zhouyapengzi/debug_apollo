@@ -32,12 +32,16 @@ namespace apollo {
 namespace planning {
 FemPosDeviationSmoother::FemPosDeviationSmoother(
     const FemPosDeviationSmootherConfig& config)
-    : config_(config) {}
+    : config_(config) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSmoother::FemPosDeviationSmoother";
+}
 
 bool FemPosDeviationSmoother::Solve(
     const std::vector<std::pair<double, double>>& raw_point2d,
     const std::vector<double>& bounds, std::vector<double>* opt_x,
     std::vector<double>* opt_y) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSmoother::Solve";
+
   if (config_.apply_curvature_constraint()) {
     if (config_.use_sqp()) {
       return SqpWithOsqp(raw_point2d, bounds, opt_x, opt_y);
@@ -54,6 +58,8 @@ bool FemPosDeviationSmoother::QpWithOsqp(
     const std::vector<std::pair<double, double>>& raw_point2d,
     const std::vector<double>& bounds, std::vector<double>* opt_x,
     std::vector<double>* opt_y) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSmoother::QpWithOsqp";
+
   if (opt_x == nullptr || opt_y == nullptr) {
     AERROR << "opt_x or opt_y is nullptr";
     return false;
@@ -87,6 +93,8 @@ bool FemPosDeviationSmoother::SqpWithOsqp(
     const std::vector<std::pair<double, double>>& raw_point2d,
     const std::vector<double>& bounds, std::vector<double>* opt_x,
     std::vector<double>* opt_y) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSmoother::SqpWithOsqp";
+
   if (opt_x == nullptr || opt_y == nullptr) {
     AERROR << "opt_x or opt_y is nullptr";
     return false;
@@ -136,6 +144,8 @@ bool FemPosDeviationSmoother::NlpWithIpopt(
     const std::vector<std::pair<double, double>>& raw_point2d,
     const std::vector<double>& bounds, std::vector<double>* opt_x,
     std::vector<double>* opt_y) {
+    AINFO<<"(DMCZP) EnteringMethod: FemPosDeviationSmoother::NlpWithIpopt";
+
   if (opt_x == nullptr || opt_y == nullptr) {
     AERROR << "opt_x or opt_y is nullptr";
     return false;

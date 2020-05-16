@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -37,6 +38,8 @@ using apollo::common::VehicleConfigHelper;
 
 PiecewiseJerkPathOptimizer::PiecewiseJerkPathOptimizer(const TaskConfig& config)
     : PathOptimizer(config) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathOptimizer::PiecewiseJerkPathOptimizer";
+
   CHECK(config_.has_piecewise_jerk_path_config());
 }
 
@@ -44,6 +47,8 @@ common::Status PiecewiseJerkPathOptimizer::Process(
     const SpeedData& speed_data, const ReferenceLine& reference_line,
     const common::TrajectoryPoint& init_point, const bool path_reusable,
     PathData* const final_path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathOptimizer::Process";
+
   // skip piecewise_jerk_path_optimizer if reused path
   if (FLAGS_enable_skip_path_tasks && path_reusable) {
     return Status::OK();
@@ -171,6 +176,8 @@ common::Status PiecewiseJerkPathOptimizer::Process(
 common::TrajectoryPoint
 PiecewiseJerkPathOptimizer::InferFrontAxeCenterFromRearAxeCenter(
     const common::TrajectoryPoint& traj_point) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathOptimizer::InferFrontAxeCenterFromRearAxeCenter";
+
   double front_to_rear_axe_distance =
       VehicleConfigHelper::GetConfig().vehicle_param().wheel_base();
   common::TrajectoryPoint ret = traj_point;
@@ -186,6 +193,8 @@ PiecewiseJerkPathOptimizer::InferFrontAxeCenterFromRearAxeCenter(
 std::vector<common::PathPoint>
 PiecewiseJerkPathOptimizer::ConvertPathPointRefFromFrontAxeToRearAxe(
     const PathData& path_data) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathOptimizer::ConvertPathPointRefFromFrontAxeToRearAxe";
+
   std::vector<common::PathPoint> ret;
   double front_to_rear_axe_distance =
       VehicleConfigHelper::GetConfig().vehicle_param().wheel_base();
@@ -207,6 +216,8 @@ bool PiecewiseJerkPathOptimizer::OptimizePath(
     const std::vector<std::pair<double, double>>& ddl_bounds,
     const std::array<double, 5>& w, std::vector<double>* x,
     std::vector<double>* dx, std::vector<double>* ddx, const int max_iter) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathOptimizer::OptimizePath";
+
   PiecewiseJerkPathProblem piecewise_jerk_problem(lat_boundaries.size(),
                                                   delta_s, init_state);
 
@@ -270,6 +281,8 @@ FrenetFramePath PiecewiseJerkPathOptimizer::ToPiecewiseJerkPath(
     const std::vector<double>& x, const std::vector<double>& dx,
     const std::vector<double>& ddx, const double delta_s,
     const double start_s) const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathOptimizer::ToPiecewiseJerkPath";
+
   CHECK(!x.empty());
   CHECK(!dx.empty());
   CHECK(!ddx.empty());
@@ -305,6 +318,8 @@ FrenetFramePath PiecewiseJerkPathOptimizer::ToPiecewiseJerkPath(
 double PiecewiseJerkPathOptimizer::EstimateJerkBoundary(
     const double vehicle_speed, const double axis_distance,
     const double max_yaw_rate) const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseJerkPathOptimizer::EstimateJerkBoundary";
+
   return max_yaw_rate / axis_distance / vehicle_speed;
 }
 

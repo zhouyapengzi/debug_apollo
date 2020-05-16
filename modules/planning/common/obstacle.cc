@@ -66,7 +66,11 @@ Obstacle::Obstacle(const std::string& id,
     : id_(id),
       perception_id_(perception_obstacle.id()),
       perception_obstacle_(perception_obstacle),
-      perception_bounding_box_({perception_obstacle_.position().x(),
+      perception_bounding_box_({
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::Obstacle";
+
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::Obstacle";
+perception_obstacle_.position().x(),
                                 perception_obstacle_.position().y()},
                                perception_obstacle_.theta(),
                                perception_obstacle_.length(),
@@ -122,6 +126,8 @@ Obstacle::Obstacle(const std::string& id,
 
 common::TrajectoryPoint Obstacle::GetPointAtTime(
     const double relative_time) const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::GetPointAtTime";
+
   const auto& points = trajectory_.trajectory_point();
   if (points.size() < 2) {
     common::TrajectoryPoint point;
@@ -157,6 +163,8 @@ common::TrajectoryPoint Obstacle::GetPointAtTime(
 
 common::math::Box2d Obstacle::GetBoundingBox(
     const common::TrajectoryPoint& point) const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::GetBoundingBox";
+
   return common::math::Box2d({point.path_point().x(), point.path_point().y()},
                              point.path_point().theta(),
                              perception_obstacle_.length(),
@@ -164,6 +172,8 @@ common::math::Box2d Obstacle::GetBoundingBox(
 }
 
 bool Obstacle::IsValidPerceptionObstacle(const PerceptionObstacle& obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::IsValidPerceptionObstacle";
+
   if (obstacle.length() <= 0.0) {
     AERROR << "invalid obstacle length:" << obstacle.length();
     return false;
@@ -275,6 +285,8 @@ std::unique_ptr<Obstacle> Obstacle::CreateStaticVirtualObstacles(
 }
 
 bool Obstacle::IsValidTrajectoryPoint(const common::TrajectoryPoint& point) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::IsValidTrajectoryPoint";
+
   return !((!point.has_path_point()) || std::isnan(point.path_point().x()) ||
            std::isnan(point.path_point().y()) ||
            std::isnan(point.path_point().z()) ||
@@ -286,11 +298,15 @@ bool Obstacle::IsValidTrajectoryPoint(const common::TrajectoryPoint& point) {
 }
 
 void Obstacle::SetPerceptionSlBoundary(const SLBoundary& sl_boundary) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::SetPerceptionSlBoundary";
+
   sl_boundary_ = sl_boundary;
 }
 
 double Obstacle::MinRadiusStopDistance(
     const common::VehicleParam& vehicle_param) const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::MinRadiusStopDistance";
+
   if (min_radius_stop_distance_ > 0) {
     return min_radius_stop_distance_;
   }
@@ -314,6 +330,8 @@ double Obstacle::MinRadiusStopDistance(
 
 void Obstacle::BuildReferenceLineStBoundary(const ReferenceLine& reference_line,
                                             const double adc_start_s) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::BuildReferenceLineStBoundary";
+
   const auto& adc_param =
       VehicleConfigHelper::Instance()->GetConfig().vehicle_param();
   const double adc_width = adc_param.width();
@@ -349,6 +367,8 @@ void Obstacle::BuildReferenceLineStBoundary(const ReferenceLine& reference_line,
 bool Obstacle::BuildTrajectoryStBoundary(const ReferenceLine& reference_line,
                                          const double adc_start_s,
                                          STBoundary* const st_boundary) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::BuildTrajectoryStBoundary";
+
   if (!IsValidObstacle(perception_obstacle_)) {
     AERROR << "Fail to build trajectory st boundary because object is not "
               "valid. PerceptionObstacle: "
@@ -514,10 +534,14 @@ bool Obstacle::BuildTrajectoryStBoundary(const ReferenceLine& reference_line,
 }
 
 const STBoundary& Obstacle::reference_line_st_boundary() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::reference_line_st_boundary";
+
   return reference_line_st_boundary_;
 }
 
 const STBoundary& Obstacle::path_st_boundary() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::path_st_boundary";
+
   return path_st_boundary_;
 }
 
@@ -530,16 +554,22 @@ const std::vector<ObjectDecisionType>& Obstacle::decisions() const {
 }
 
 bool Obstacle::IsLateralDecision(const ObjectDecisionType& decision) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::IsLateralDecision";
+
   return decision.has_ignore() || decision.has_nudge();
 }
 
 bool Obstacle::IsLongitudinalDecision(const ObjectDecisionType& decision) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::IsLongitudinalDecision";
+
   return decision.has_ignore() || decision.has_stop() || decision.has_yield() ||
          decision.has_follow() || decision.has_overtake();
 }
 
 ObjectDecisionType Obstacle::MergeLongitudinalDecision(
     const ObjectDecisionType& lhs, const ObjectDecisionType& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::MergeLongitudinalDecision";
+
   if (lhs.object_tag_case() == ObjectDecisionType::OBJECT_TAG_NOT_SET) {
     return rhs;
   }
@@ -574,27 +604,39 @@ ObjectDecisionType Obstacle::MergeLongitudinalDecision(
 }
 
 const ObjectDecisionType& Obstacle::LongitudinalDecision() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::LongitudinalDecision";
+
   return longitudinal_decision_;
 }
 
 const ObjectDecisionType& Obstacle::LateralDecision() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::LateralDecision";
+
   return lateral_decision_;
 }
 
 bool Obstacle::IsIgnore() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::IsIgnore";
+
   return IsLongitudinalIgnore() && IsLateralIgnore();
 }
 
 bool Obstacle::IsLongitudinalIgnore() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::IsLongitudinalIgnore";
+
   return longitudinal_decision_.has_ignore();
 }
 
 bool Obstacle::IsLateralIgnore() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::IsLateralIgnore";
+
   return lateral_decision_.has_ignore();
 }
 
 ObjectDecisionType Obstacle::MergeLateralDecision(
     const ObjectDecisionType& lhs, const ObjectDecisionType& rhs) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::MergeLateralDecision";
+
   if (lhs.object_tag_case() == ObjectDecisionType::OBJECT_TAG_NOT_SET) {
     return rhs;
   }
@@ -628,22 +670,30 @@ ObjectDecisionType Obstacle::MergeLateralDecision(
 }
 
 bool Obstacle::HasLateralDecision() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::HasLateralDecision";
+
   return lateral_decision_.object_tag_case() !=
          ObjectDecisionType::OBJECT_TAG_NOT_SET;
 }
 
 bool Obstacle::HasLongitudinalDecision() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::HasLongitudinalDecision";
+
   return longitudinal_decision_.object_tag_case() !=
          ObjectDecisionType::OBJECT_TAG_NOT_SET;
 }
 
 bool Obstacle::HasNonIgnoreDecision() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::HasNonIgnoreDecision";
+
   return (HasLateralDecision() && !IsLateralIgnore()) ||
          (HasLongitudinalDecision() && !IsLongitudinalIgnore());
 }
 
 void Obstacle::AddLongitudinalDecision(const std::string& decider_tag,
                                        const ObjectDecisionType& decision) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::AddLongitudinalDecision";
+
   DCHECK(IsLongitudinalDecision(decision))
       << "Decision: " << decision.ShortDebugString()
       << " is not a longitudinal decision";
@@ -659,6 +709,8 @@ void Obstacle::AddLongitudinalDecision(const std::string& decider_tag,
 
 void Obstacle::AddLateralDecision(const std::string& decider_tag,
                                   const ObjectDecisionType& decision) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::AddLateralDecision";
+
   DCHECK(IsLateralDecision(decision))
       << "Decision: " << decision.ShortDebugString()
       << " is not a lateral decision";
@@ -672,6 +724,8 @@ void Obstacle::AddLateralDecision(const std::string& decider_tag,
 }
 
 std::string Obstacle::DebugString() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::DebugString";
+
   std::stringstream ss;
   ss << "Obstacle id: " << id_;
   for (size_t i = 0; i < decisions_.size(); ++i) {
@@ -691,35 +745,51 @@ std::string Obstacle::DebugString() const {
 }
 
 const SLBoundary& Obstacle::PerceptionSLBoundary() const {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::PerceptionSLBoundary";
+
   return sl_boundary_;
 }
 
 void Obstacle::set_path_st_boundary(const STBoundary& boundary) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::set_path_st_boundary";
+
   path_st_boundary_ = boundary;
   path_st_boundary_initialized_ = true;
 }
 
 void Obstacle::SetStBoundaryType(const STBoundary::BoundaryType type) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::SetStBoundaryType";
+
   path_st_boundary_.SetBoundaryType(type);
 }
 
-void Obstacle::EraseStBoundary() { path_st_boundary_ = STBoundary(); }
+void Obstacle::EraseStBoundary() {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::EraseStBoundary";
+ path_st_boundary_ = STBoundary(); }
 
 void Obstacle::SetReferenceLineStBoundary(const STBoundary& boundary) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::SetReferenceLineStBoundary";
+
   reference_line_st_boundary_ = boundary;
 }
 
 void Obstacle::SetReferenceLineStBoundaryType(
     const STBoundary::BoundaryType type) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::SetReferenceLineStBoundaryType";
+
   reference_line_st_boundary_.SetBoundaryType(type);
 }
 
 void Obstacle::EraseReferenceLineStBoundary() {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::EraseReferenceLineStBoundary";
+
   reference_line_st_boundary_ = STBoundary();
 }
 
 bool Obstacle::IsValidObstacle(
     const perception::PerceptionObstacle& perception_obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::IsValidObstacle";
+
   const double object_width = perception_obstacle.width();
   const double object_length = perception_obstacle.length();
 
@@ -730,6 +800,8 @@ bool Obstacle::IsValidObstacle(
 }
 
 void Obstacle::CheckLaneBlocking(const ReferenceLine& reference_line) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::CheckLaneBlocking";
+
   if (!IsStatic()) {
     is_lane_blocking_ = false;
     return;
@@ -758,6 +830,8 @@ void Obstacle::CheckLaneBlocking(const ReferenceLine& reference_line) {
 }
 
 void Obstacle::SetLaneChangeBlocking(const bool is_distance_clear) {
+    AINFO<<"(DMCZP) EnteringMethod: Obstacle::SetLaneChangeBlocking";
+
   is_lane_change_blocking_ = is_distance_clear;
 }
 

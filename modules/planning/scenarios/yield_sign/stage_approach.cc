@@ -39,6 +39,8 @@ using apollo::hdmap::PathOverlap;
 
 Stage::StageStatus YieldSignStageApproach::Process(
     const TrajectoryPoint& planning_init_point, Frame* frame) {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSignStageApproach::Process";
+
   ADEBUG << "stage: Approach";
   CHECK_NOTNULL(frame);
 
@@ -149,6 +151,8 @@ Stage::StageStatus YieldSignStageApproach::Process(
 }
 
 Stage::StageStatus YieldSignStageApproach::FinishStage() {
+    AINFO<<"(DMCZP) EnteringMethod: YieldSignStageApproach::FinishStage";
+
   // update PlanningContext
   auto* yield_sign_status = PlanningContext::Instance()
                                 ->mutable_planning_status()

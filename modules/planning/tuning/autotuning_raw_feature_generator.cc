@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -42,6 +43,8 @@ AutotuningRawFeatureGenerator::AutotuningRawFeatureGenerator(
       stop_boundaries_(num_points, std::vector<std::array<double, 3>>()),
       nudge_boundaries_(num_points, std::vector<std::array<double, 3>>()),
       side_pass_boundaries_(num_points, std::vector<std::array<double, 3>>()) {
+    AINFO<<"(DMCZP) EnteringMethod: AutotuningRawFeatureGenerator::AutotuningRawFeatureGenerator";
+
   CHECK_GT(num_points, 0);
   CHECK_GT(time_range, kMinTimeRange);
   double res = time_range / static_cast<double>(num_points);
@@ -53,6 +56,8 @@ AutotuningRawFeatureGenerator::AutotuningRawFeatureGenerator(
 common::Status AutotuningRawFeatureGenerator::EvaluateTrajectory(
     const std::vector<common::TrajectoryPoint>& trajectory,
     autotuning::TrajectoryRawFeature* const trajectory_feature) const {
+    AINFO<<"(DMCZP) EnteringMethod: AutotuningRawFeatureGenerator::EvaluateTrajectory";
+
   return common::Status::OK();
 }
 
@@ -60,6 +65,8 @@ common::Status AutotuningRawFeatureGenerator::EvaluateTrajectoryPoint(
     const common::TrajectoryPoint& trajectory_point,
     autotuning::TrajectoryPointRawFeature* const trajectory_point_feature)
     const {
+    AINFO<<"(DMCZP) EnteringMethod: AutotuningRawFeatureGenerator::EvaluateTrajectoryPoint";
+
   return common::Status::OK();
 }
 
@@ -67,6 +74,8 @@ common::Status AutotuningRawFeatureGenerator::EvaluateSpeedPoint(
     const common::SpeedPoint& speed_point, const size_t index,
     autotuning::TrajectoryPointRawFeature* const trajectory_point_feature)
     const {
+    AINFO<<"(DMCZP) EnteringMethod: AutotuningRawFeatureGenerator::EvaluateSpeedPoint";
+
   auto* speed_feature = trajectory_point_feature->mutable_speed_feature();
   // setup basic speed profile
   const double s = speed_point.s();
@@ -126,6 +135,8 @@ common::Status AutotuningRawFeatureGenerator::EvaluateSpeedPoint(
 common::Status AutotuningRawFeatureGenerator::EvaluateSpeedProfile(
     const std::vector<common::SpeedPoint>& speed_profile,
     autotuning::TrajectoryRawFeature* const trajectory_feature) const {
+    AINFO<<"(DMCZP) EnteringMethod: AutotuningRawFeatureGenerator::EvaluateSpeedProfile";
+
   if (speed_profile.size() != eval_time_.size()) {
     AERROR << "Evaluated time size and speed profile size is different";
     return Status(ErrorCode::PLANNING_ERROR,
@@ -145,6 +156,8 @@ common::Status AutotuningRawFeatureGenerator::EvaluateSpeedProfile(
 
 void AutotuningRawFeatureGenerator::GenerateSTBoundaries(
     const ReferenceLineInfo& reference_line_info) {
+    AINFO<<"(DMCZP) EnteringMethod: AutotuningRawFeatureGenerator::GenerateSTBoundaries";
+
   const auto& path_decision = reference_line_info.path_decision();
   for (auto* obstacle : path_decision.obstacles().Items()) {
     auto id = obstacle->Id();
@@ -158,6 +171,8 @@ void AutotuningRawFeatureGenerator::GenerateSTBoundaries(
 
 void AutotuningRawFeatureGenerator::ConvertToDiscretizedBoundaries(
     const STBoundary& boundary, const double speed) {
+    AINFO<<"(DMCZP) EnteringMethod: AutotuningRawFeatureGenerator::ConvertToDiscretizedBoundaries";
+
   for (size_t i = 0; i < eval_time_.size(); ++i) {
     double upper = 0.0;
     double lower = 0.0;

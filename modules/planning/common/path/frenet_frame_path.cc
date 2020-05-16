@@ -31,9 +31,13 @@ namespace planning {
 using apollo::common::FrenetFramePoint;
 
 FrenetFramePath::FrenetFramePath(std::vector<FrenetFramePoint> points)
-    : std::vector<FrenetFramePoint>(std::move(points)) {}
+    : std::vector<FrenetFramePoint>(std::move(points)) {
+    AINFO<<"(DMCZP) EnteringMethod: FrenetFramePath::FrenetFramePath";
+}
 
 double FrenetFramePath::Length() const {
+    AINFO<<"(DMCZP) EnteringMethod: FrenetFramePath::Length";
+
   if (empty()) {
     return 0.0;
   }
@@ -41,6 +45,8 @@ double FrenetFramePath::Length() const {
 }
 
 FrenetFramePoint FrenetFramePath::GetNearestPoint(const SLBoundary& sl) const {
+    AINFO<<"(DMCZP) EnteringMethod: FrenetFramePath::GetNearestPoint";
+
   auto it_lower =
       std::lower_bound(begin(), end(), sl.start_s(), LowerBoundComparator);
   if (it_lower == end()) {
@@ -71,6 +77,8 @@ FrenetFramePoint FrenetFramePath::GetNearestPoint(const SLBoundary& sl) const {
 }
 
 FrenetFramePoint FrenetFramePath::EvaluateByS(const double s) const {
+    AINFO<<"(DMCZP) EnteringMethod: FrenetFramePath::EvaluateByS";
+
   CHECK_GT(size(), 1);
   auto it_lower = std::lower_bound(begin(), end(), s, LowerBoundComparator);
   if (it_lower == begin()) {

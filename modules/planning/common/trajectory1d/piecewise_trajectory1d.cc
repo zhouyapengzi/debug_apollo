@@ -29,6 +29,8 @@ namespace planning {
 
 double PiecewiseTrajectory1d::Evaluate(const std::uint32_t order,
                                        const double param) const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseTrajectory1d::Evaluate";
+
   auto it_lower = std::lower_bound(accumulated_param_lengths_.begin(),
                                    accumulated_param_lengths_.end(), param);
   CHECK(it_lower != accumulated_param_lengths_.end());
@@ -43,16 +45,22 @@ double PiecewiseTrajectory1d::Evaluate(const std::uint32_t order,
 }
 
 double PiecewiseTrajectory1d::ParamLength() const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseTrajectory1d::ParamLength";
+
   if (accumulated_param_lengths_.empty()) {
     return 0.0;
   }
   return accumulated_param_lengths_.back();
 }
 
-std::string PiecewiseTrajectory1d::ToString() const { return ""; }
+std::string PiecewiseTrajectory1d::ToString() const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseTrajectory1d::ToString";
+ return ""; }
 
 void PiecewiseTrajectory1d::AppendSegment(
     const std::shared_ptr<Curve1d> trajectory) {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseTrajectory1d::AppendSegment";
+
   if (trajectory_segments_.empty()) {
     trajectory_segments_.push_back(trajectory);
   } else {
@@ -94,6 +102,8 @@ void PiecewiseTrajectory1d::AppendSegment(
 }
 
 void PiecewiseTrajectory1d::PopSegment() {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseTrajectory1d::PopSegment";
+
   if (trajectory_segments_.empty()) {
     return;
   }
@@ -102,6 +112,8 @@ void PiecewiseTrajectory1d::PopSegment() {
 }
 
 size_t PiecewiseTrajectory1d::NumOfSegments() const {
+    AINFO<<"(DMCZP) EnteringMethod: PiecewiseTrajectory1d::NumOfSegments";
+
   return trajectory_segments_.size();
 }
 
