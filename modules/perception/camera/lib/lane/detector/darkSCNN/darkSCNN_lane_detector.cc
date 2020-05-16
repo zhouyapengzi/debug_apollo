@@ -220,6 +220,8 @@ bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
       static_cast<float>(image_mean_[2]), false, static_cast<float>(1.0));
   ADEBUG << "resize gpu finish.";
   cudaDeviceSynchronize();
+  AINFO<<"(pengzi) Lane Infer start.";
+   
   cnnadapter_lane_->Infer();
   ADEBUG << "infer finish.";
 

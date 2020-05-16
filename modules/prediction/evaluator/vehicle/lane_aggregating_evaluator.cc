@@ -102,10 +102,12 @@ bool LaneAggregatingEvaluator::Evaluate(
   }
   obstacle_encoding_inputs.push_back(
       std::move(obstacle_encoding_inputs_tensor));
+  AINFO<<"(pengzi) Prediction Lane aggregating: encode obstacle feature start.";
   torch::Tensor obstalce_encoding =
       torch_obstacle_encoding_.forward(obstacle_encoding_inputs)
           .toTensor()
           .to(torch::kCPU);
+  AINFO<<"(pengzi) Prediction Lane aggregating: encode obstacle feature end.";
   // 2. Encode the lane features.
   std::vector<std::vector<double>> lane_feature_values;
   std::vector<int> lane_sequence_idx_to_remove;
@@ -133,10 +135,12 @@ bool LaneAggregatingEvaluator::Evaluate(
     }
     single_lane_encoding_inputs.push_back(
         std::move(single_lane_encoding_inputs_tensor));
+    AINFO<<"(pengzi) Prediction Lane aggregating: encode single lane features start.";
     torch::Tensor single_lane_encoding =
         torch_lane_encoding_.forward(single_lane_encoding_inputs)
             .toTensor()
             .to(torch::kCPU);
+    AINFO<<"(pengzi) Prediction Lane aggregating: encode single lane features end.";
     lane_encoding_list.push_back(std::move(single_lane_encoding));
   }
   // 3. Aggregate the lane features.
@@ -168,11 +172,14 @@ bool LaneAggregatingEvaluator::Evaluate(
     // }
     prediction_layer_inputs.push_back(
         std::move(prediction_layer_inputs_tensor));
+    AINFO<<"(pengzi) Prediction Lane aggregating: make predict using lane and obstacle features start.";
     torch::Tensor prediction_layer_output =
         torch_prediction_layer_.forward(prediction_layer_inputs)
             .toTensor()
             .to(torch::kCPU);
+    AINFO<<"(pengzi) Prediction Lane aggregating: make predict using lane and obstacle features end.";
     auto prediction_score = prediction_layer_output.accessor<float, 2>();
+    AINFO << "(pengzi) Lane aggregating prediction score: " <<prediction_score;
     prediction_scores.push_back(static_cast<double>(prediction_score[0][0]));
   }
 

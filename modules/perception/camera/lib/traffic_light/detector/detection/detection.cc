@@ -223,6 +223,7 @@ bool TrafficLightDetection::Inference(
   }
   // _detection
   cudaDeviceSynchronize();
+  AINFO<<"(pengzi) Traffic Light Detection Infer start.";
   rt_net_->Infer();
   cudaDeviceSynchronize();
   AINFO << "rt_net run success";

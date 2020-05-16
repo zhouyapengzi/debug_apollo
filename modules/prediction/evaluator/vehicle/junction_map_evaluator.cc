@@ -109,8 +109,10 @@ bool JunctionMapEvaluator::Evaluate(Obstacle* obstacle_ptr,
 
   // Compute probability
   std::vector<double> probability;
+  AINFO <<"(pengzi) Prediction junction_map_evaluator infer start";
   at::Tensor torch_output_tensor =
       torch_model_.forward(torch_inputs).toTensor().to(torch::kCPU);
+  AINFO <<"(pengzi) Prediction junction_map_evaluator infer end";
   auto torch_output = torch_output_tensor.accessor<float, 2>();
   for (int i = 0; i < torch_output.size(1); ++i) {
     probability.push_back(static_cast<double>(torch_output[0][i]));

@@ -470,8 +470,11 @@ void LaneScanningEvaluator::ModelInference(
     const std::vector<torch::jit::IValue>& torch_inputs,
     torch::jit::script::Module torch_model, Feature* feature_ptr) {
     AINFO<<"(DMCZP) EnteringMethod: LaneScanningEvaluator::ModelInference";
-
+  
+  AINFO <<"(pengzi) land_scanning prediction start";
   auto torch_output_tensor = torch_model.forward(torch_inputs).toTensor();
+  AINFO <<"(pengzi) land_scanning prediction end";
+
   auto torch_output = torch_output_tensor.accessor<float, 3>();
   for (size_t i = 0; i < SHORT_TERM_TRAJECTORY_SIZE; ++i) {
     TrajectoryPoint point;

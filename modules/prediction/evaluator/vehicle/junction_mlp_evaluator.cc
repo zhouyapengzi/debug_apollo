@@ -115,8 +115,11 @@ bool JunctionMLPEvaluator::Evaluate(Obstacle* obstacle_ptr,
   torch_inputs.push_back(std::move(torch_input.to(device_)));
   std::vector<double> probability;
   if (latest_feature_ptr->junction_feature().junction_exit_size() > 1) {
+    AINFO <<"(pengzi) Prediction junction_mlp_evaluator infer start. use kCPU";
     at::Tensor torch_output_tensor =
         torch_model_.forward(torch_inputs).toTensor().to(torch::kCPU);
+    AINFO <<"(pengzi) Prediction junction_mlp_evaluator infer end. use KCPU";
+
     auto torch_output = torch_output_tensor.accessor<float, 2>();
     for (int i = 0; i < torch_output.size(1); ++i) {
       probability.push_back(static_cast<double>(torch_output[0][i]));

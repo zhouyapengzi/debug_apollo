@@ -311,7 +311,9 @@ bool CNNSegmentation::Segment(const SegmentationOptions& options,
   feature_time_ = timer.toc(true);
 
   // model inference
+  AINFO<<"(pengzi) Lidar cnn_segmentation Obstacle Infer start.";
   inference_->Infer();
+  AINFO<<"(pengzi) Lidar cnn_segmentation  Obstacle Infer end.";
   infer_time_ = timer.toc(true);
 
   // processing clustering

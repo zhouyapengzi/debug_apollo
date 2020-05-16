@@ -139,6 +139,7 @@ void ClassifyBySimple::Perform(const CameraFrame* frame,
 
     AINFO << "resize gpu finish.";
     cudaDeviceSynchronize();
+    AINFO<<"(pengzi) Traffic Light Recognition Infer start.";
     rt_net_->Infer();
     cudaDeviceSynchronize();
     AINFO << "infer finish.";

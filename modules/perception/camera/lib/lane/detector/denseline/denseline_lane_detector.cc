@@ -200,6 +200,7 @@ bool DenselineLaneDetector::Detect(const LaneDetectorOptions &options,
       static_cast<float>(image_mean_[2]), false, static_cast<float>(1.0));
   AINFO << "resize gpu finish.";
   cudaDeviceSynchronize();
+  AINFO<<"(pengzi) Lane Infer start.";
   rt_net_->Infer();
   AINFO << "infer finish.";
 

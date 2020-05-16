@@ -146,7 +146,9 @@ bool YoloObstacleDetector::InitNet(const yolo::YoloParam &yolo_param,
   if (!inference_->Init(shape_map)) {
     return false;
   }
+  AINFO<<"(pengzi) Camera Obstacle Infer start.";
   inference_->Infer();
+  AINFO<<"(pengzi) Camera Obstacle Infer End.";
   return true;
 }
 

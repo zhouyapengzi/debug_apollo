@@ -26,6 +26,7 @@
 #include "modules/prediction/common/prediction_system_gflags.h"
 #include "modules/prediction/common/prediction_util.h"
 #include "modules/prediction/common/validation_checker.h"
+#include <thread>
 
 namespace apollo {
 namespace prediction {
@@ -52,6 +53,17 @@ MLPEvaluator::MLPEvaluator() {
 
   evaluator_type_ = ObstacleConf::MLP_EVALUATOR;
   LoadModel(FLAGS_evaluator_vehicle_mlp_file);
+
+  // pengzi add
+  AINFO<<"(pengzi) initial mlp_evaluator_neuron_coverage.";
+  for(int i = 0; i< model_ptr_->num_layer(); ++i){
+    mlp_evaluator_neuron_coverage.push_back(std::vector<bool>());  
+     for(int col = 0; col < model_ptr_->layer(i).layer_output_dim(); ++col){
+        mlp_evaluator_neuron_coverage[i].push_back(col);
+     }
+   }
+   AINFO<<"(pengzi) initial mlp_evaluator_neuron_coverage success. num_layer:" << mlp_evaluator_neuron_coverage.size() << " ;";
+   // pengzi end insert
 }
 
 void MLPEvaluator::Clear() {
@@ -136,6 +148,25 @@ bool MLPEvaluator::Evaluate(Obstacle* obstacle_ptr,
     probability *= centripetal_acc_probability;
     lane_sequence_ptr->set_probability(probability);
   }
+
+  //pengzi insert:
+   int active_neuron = 0;
+   int total_neuron = 0;
+   for(std::size_t  i = 0; i < mlp_evaluator_neuron_coverage.size(); i++){
+      for(std::size_t j = 0; j < mlp_evaluator_neuron_coverage[i].size(); j++){
+        if(i>0){
+          total_neuron = total_neuron + 1;
+          if(mlp_evaluator_neuron_coverage[i][j]){
+            active_neuron = active_neuron + 1;
+          }
+        }
+      }
+    }
+    AINFO<< " total neuron:" << total_neuron <<" active neuron: "<< active_neuron 
+         << " neuron coverage = " << active_neuron/total_neuron
+        << " thread: " << std::this_thread::get_id();
+  //pengzi end insert
+
   return true;
 }
 
@@ -409,6 +440,11 @@ double MLPEvaluator::ComputeProbability(
         apollo::prediction::math_util::Normalize(feature_values[i], mean, std));
   }
 
+  //pengzi add:
+   int active_neuron = 0;
+   int total_neuron = 0;
+   //pengzi add end
+
   for (int i = 0; i < model_ptr_->num_layer(); ++i) {
     if (i > 0) {
       layer_input.swap(layer_output);
@@ -434,6 +470,16 @@ double MLPEvaluator::ComputeProbability(
         neuron_output = Sigmoid(neuron_output);
       }
       layer_output.push_back(neuron_output);
+
+      //pengzi add:
+      if (i > 0){
+        total_neuron = total_neuron + 1;    
+        if(neuron_output > 0.75){
+          mlp_evaluator_neuron_coverage[i][col] = true;
+          //active_neuron = active_neuron + 1;
+        }
+      }
+      //pengzi add end
     }
   }
 
@@ -444,7 +490,24 @@ double MLPEvaluator::ComputeProbability(
     probability = layer_output[0];
   }
 
+  //pengzi add:
+ for(std::size_t i = 1; i < mlp_evaluator_neuron_coverage.size(); i++){
+      for(std::size_t j = 0; j < mlp_evaluator_neuron_coverage[i].size(); j++){
+        if(mlp_evaluator_neuron_coverage[i][j]){
+          active_neuron = active_neuron + 1;
+        }
+      }
+    }
+AINFO<< "(pengzi)ComputeProbability: " << probability
+         << " model input dim = " << model_ptr_->dim_input()
+         << "; feature value size = " << feature_values.size()    
+         << " total neuron:" << total_neuron <<" active neuron: "<< active_neuron 
+         << " neuron coverage = " << active_neuron/total_neuron
+        << " thread: " << std::this_thread::get_id();
+//pengzi add end
+
   return probability;
+  
 }
 
 }  // namespace prediction

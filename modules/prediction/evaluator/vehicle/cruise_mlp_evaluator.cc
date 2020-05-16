@@ -138,9 +138,13 @@ bool CruiseMLPEvaluator::Evaluate(Obstacle* obstacle_ptr,
     }
     torch_inputs.push_back(std::move(torch_input.to(device_)));
     if (lane_sequence_ptr->vehicle_on_lane()) {
+      AINFO <<"(pengzi) Prediction curise torch_go_model infer start";
       ModelInference(torch_inputs, torch_go_model_, lane_sequence_ptr);
+      AINFO <<"(pengzi) Prediction curise torch_go_model infer end";
     } else {
+      AINFO <<"(pengzi) Prediction curise torch_cutin_model infer start";
       ModelInference(torch_inputs, torch_cutin_model_, lane_sequence_ptr);
+      AINFO <<"(pengzi) Prediction curise torch_cutin_model infer end";
     }
   }
   return true;
