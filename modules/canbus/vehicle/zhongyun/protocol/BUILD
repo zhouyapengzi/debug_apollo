@@ -21,7 +21,7 @@ cc_library(
     name = "brake_control_a4",
     srcs = ["brake_control_a4.cc"],
     hdrs = ["brake_control_a4.h"],
-    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/canbus/proto:canbus_proto",
         "//modules/drivers/canbus/can_comm:message_manager_base",

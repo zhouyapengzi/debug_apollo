@@ -6,7 +6,7 @@ cc_library(
     name = "path_lane_borrow_decider",
     srcs = ["path_lane_borrow_decider.cc"],
     hdrs = ["path_lane_borrow_decider.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/planning/common:obstacle_blocking_analyzer",
         "//modules/planning/common:planning_context",

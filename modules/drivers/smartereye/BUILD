@@ -16,7 +16,7 @@ cc_library(
     name = "smartereye_component_lib",
     srcs = ["smartereye_component.cc"],
     hdrs = ["smartereye_component.h"],
-    copts = ['-DMODULE_NAME=\\"camera\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         ":smartereye_device",
         ":smartereye_handler",

@@ -7,7 +7,7 @@ cc_library(
     srcs = ["cos_theta_smoother.cc"],
     hdrs = ["cos_theta_smoother.h"],
     copts = [
-        "-DMODULE_NAME=\\\"planning\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         ":cos_theta_ipopt_interface",

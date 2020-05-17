@@ -56,7 +56,7 @@ cc_library(
     name = "third_party_perception_component_lib",
     srcs = ["third_party_perception_component.cc"],
     hdrs = ["third_party_perception_component.h"],
-    copts = ['-DMODULE_NAME=\\"third_party_perception\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         ":third_party_perception_lib",
         ":third_party_perception_mobileye_lib",

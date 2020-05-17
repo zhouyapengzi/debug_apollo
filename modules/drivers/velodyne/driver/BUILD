@@ -13,7 +13,7 @@ cc_library(
     name = "velodyne_driver_component_lib",
     srcs = ["velodyne_driver_component.cc"],
     hdrs = ["velodyne_driver_component.h"],
-    copts = ['-DMODULE_NAME=\\"velodyne\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber",
         "//modules/common/util:message_util",

@@ -13,7 +13,7 @@ cc_library(
     name = "fusion_component_lib",
     srcs = ["pri_sec_fusion_component.cc"],
     hdrs = ["pri_sec_fusion_component.h"],
-    copts = ['-DMODULE_NAME=\\"velodyne\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber",
         "//modules/drivers/proto:sensor_proto",

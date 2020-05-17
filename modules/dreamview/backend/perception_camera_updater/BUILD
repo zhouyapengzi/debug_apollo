@@ -6,7 +6,7 @@ cc_library(
     name = "perception_camera_updater",
     srcs = ["perception_camera_updater.cc"],
     hdrs = ["perception_camera_updater.h"],
-    copts = ['-DMODULE_NAME=\\"dreamview\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     linkopts = [
         "-lopencv_core",
         "-lopencv_highgui",

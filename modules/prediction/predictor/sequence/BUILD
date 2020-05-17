@@ -7,7 +7,7 @@ cc_library(
     srcs = ["sequence_predictor.cc"],
     hdrs = ["sequence_predictor.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/prediction/container:container_manager",

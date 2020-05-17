@@ -6,7 +6,7 @@ cc_library(
     name = "guardian_component",
     srcs = ["guardian_component.cc"],
     hdrs = ["guardian_component.h"],
-    copts = ['-DMODULE_NAME=\\"guardian\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber",
         "//modules/canbus/proto:canbus_proto",

@@ -7,7 +7,7 @@ cc_library(
     srcs = ["prediction_component.cc"],
     hdrs = ["prediction_component.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//cyber/common:file",

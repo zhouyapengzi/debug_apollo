@@ -13,7 +13,7 @@ cc_library(
     name = "velodyne_convert_component_lib",
     srcs = ["velodyne_convert_component.cc"],
     hdrs = ["velodyne_convert_component.h"],
-    copts = ['-DMODULE_NAME=\\"velodyne\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber",
         "//modules/drivers/velodyne/parser:convert",

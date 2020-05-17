@@ -7,7 +7,7 @@ cc_library(
     name = "dual_variable_warm_start_problem",
     srcs = ["dual_variable_warm_start_problem.cc"],
     hdrs = ["dual_variable_warm_start_problem.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         ":dual_variable_warm_start_ipopt_interface",
         ":dual_variable_warm_start_ipopt_qp_interface",
@@ -92,7 +92,7 @@ cc_library(
     srcs = ["distance_approach_problem.cc"],
     hdrs = ["distance_approach_problem.h"],
     copts = [
-        "-DMODULE_NAME=\\\"planning\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
         "-fopenmp",
     ],
     deps = [

@@ -16,7 +16,7 @@ cc_library(
         "a_star_strategy.h",
         "strategy.h",
     ],
-    copts = ['-DMODULE_NAME=\\"routing\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/routing/graph",
     ],

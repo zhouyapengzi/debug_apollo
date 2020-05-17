@@ -32,7 +32,7 @@ cc_library(
     name = "static_transform_component_lib",
     srcs = ["static_transform_component.cc"],
     hdrs = ["static_transform_component.h"],
-    copts = ['-DMODULE_NAME=\\"static_transform\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber",
         "//modules/common/adapters:adapter_gflags",

@@ -6,7 +6,7 @@ cc_library(
     name = "edge_creator",
     srcs = ["edge_creator.cc"],
     hdrs = ["edge_creator.h"],
-    copts = ['-DMODULE_NAME=\\"routing\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/routing/common:routing_gflags",
         "//modules/routing/proto:routing_proto",

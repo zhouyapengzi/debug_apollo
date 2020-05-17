@@ -11,7 +11,7 @@ cc_library(
     name = "relative_map_lib",
     srcs = ["relative_map.cc"],
     hdrs = ["relative_map.h"],
-    copts = ["-DMODULE_NAME=\\\"map\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     data = [
         ":relative_map_conf",
     ],

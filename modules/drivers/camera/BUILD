@@ -22,7 +22,7 @@ cc_library(
     name = "camera_component_lib",
     srcs = ["camera_component.cc"],
     hdrs = ["camera_component.h"],
-    copts = ['-DMODULE_NAME=\\"camera\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         ":camera",
         "//cyber",

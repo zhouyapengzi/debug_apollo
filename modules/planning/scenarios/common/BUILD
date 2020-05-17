@@ -6,7 +6,7 @@ cc_library(
     name = "stage_intersection_cruise_impl",
     srcs = ["stage_intersection_cruise_impl.cc"],
     hdrs = ["stage_intersection_cruise_impl.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/planning/common:planning_common",
         "//modules/planning/common/util:util_lib",

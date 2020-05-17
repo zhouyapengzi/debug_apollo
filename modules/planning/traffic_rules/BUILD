@@ -28,7 +28,7 @@ cc_library(
         "traffic_rule.h",
         "yield_sign.h",
     ],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/common/util:factory",
         "//modules/common/util:map_util",

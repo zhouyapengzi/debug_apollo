@@ -19,7 +19,7 @@ cc_library(
     name = "conti_radar_canbus_lib",
     srcs = ["conti_radar_canbus_component.cc"],
     hdrs = ["conti_radar_canbus_component.h"],
-    copts = ['-DMODULE_NAME=\\"conti_radar\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         ":conti_radar_message_manager",
         "//cyber",

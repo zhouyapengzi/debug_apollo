@@ -7,7 +7,7 @@ cc_library(
     srcs = ["adc_trajectory_container.cc"],
     hdrs = ["adc_trajectory_container.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/planning/proto:planning_proto",

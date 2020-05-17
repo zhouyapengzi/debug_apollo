@@ -7,7 +7,7 @@ cc_library(
     srcs = ["constraint_checker.cc"],
     hdrs = ["constraint_checker.h"],
     copts = [
-        "-DMODULE_NAME=\\\"planning\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//cyber/common:log",

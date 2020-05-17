@@ -6,7 +6,7 @@ cc_library(
     name = "path_reuse_decider",
     srcs = ["path_reuse_decider.cc"],
     hdrs = ["path_reuse_decider.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/planning/common:history",
         "//modules/planning/common:obstacle_blocking_analyzer",

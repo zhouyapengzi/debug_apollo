@@ -54,7 +54,7 @@ cc_library(
         "version_7f.h",
         "wheelspeed_6a.h",
     ],
-    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/canbus/proto:canbus_proto",
         "//modules/drivers/canbus/can_comm:message_manager_base",

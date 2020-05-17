@@ -7,7 +7,7 @@ cc_library(
     srcs = ["evaluator_manager.cc"],
     hdrs = ["evaluator_manager.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/common/configs:vehicle_config_helper",

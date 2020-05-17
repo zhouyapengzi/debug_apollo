@@ -6,7 +6,7 @@ cc_library(
     name = "routing_lib",
     srcs = ["routing.cc"],
     hdrs = ["routing.h"],
-    copts = ['-DMODULE_NAME=\\"routing\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/common/adapters:adapter_gflags",
         "//modules/common/monitor_log",

@@ -6,7 +6,7 @@ cc_library(
     name = "st_bounds_decider",
     srcs = ["st_bounds_decider.cc"],
     hdrs = ["st_bounds_decider.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         ":st_driving_limits",
         ":st_guide_line",

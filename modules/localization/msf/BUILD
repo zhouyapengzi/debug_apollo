@@ -14,7 +14,7 @@ cc_library(
     ],
     copts = [
         "-O2",
-        "-DMODULE_NAME=\\\"localization\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
         "-DENABLE_DEBUG_LIB",
         "-DENABLE_OPENCV",
     ],

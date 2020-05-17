@@ -6,7 +6,7 @@ cc_library(
     name = "indexed_list",
     hdrs = ["indexed_list.h"],
     copts = [
-        "-DMODULE_NAME=\\\"planning\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//cyber",
@@ -436,7 +436,7 @@ cc_library(
     name = "st_graph_data",
     srcs = ["st_graph_data.cc"],
     hdrs = ["st_graph_data.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         ":planning_gflags",
         ":speed_limit",

@@ -6,7 +6,7 @@ cc_library(
     name = "monitor_lib",
     srcs = ["monitor.cc"],
     hdrs = ["monitor.h"],
-    copts = ['-DMODULE_NAME=\\"monitor\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber",
         "//modules/common/util:message_util",

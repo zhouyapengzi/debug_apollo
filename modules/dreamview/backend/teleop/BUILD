@@ -18,7 +18,7 @@ cc_library(
         "//conditions:default": [
         ],
     }),
-    copts = ['-DMODULE_NAME=\\"dreamview\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber",
         "//modules/common/adapters:adapter_gflags",

@@ -6,7 +6,7 @@ cc_library(
     name = "speed_bounds_decider",
     srcs = ["speed_bounds_decider.cc"],
     hdrs = ["speed_bounds_decider.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         ":st_boundary_mapper",
         "//modules/common/status",

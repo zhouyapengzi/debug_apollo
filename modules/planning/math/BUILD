@@ -16,7 +16,7 @@ cc_library(
     srcs = ["discrete_points_math.cc"],
     hdrs = ["discrete_points_math.h"],
     copts = [
-        "-DMODULE_NAME=\\\"planning\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//cyber/common:log",

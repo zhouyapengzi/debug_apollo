@@ -14,7 +14,7 @@ cc_library(
         "stage_creep.h",
         "yield_sign_scenario.h",
     ],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber/common:log",
         "//external:gflags",

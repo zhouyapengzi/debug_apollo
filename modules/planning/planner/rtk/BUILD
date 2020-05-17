@@ -6,7 +6,7 @@ cc_library(
     name = "rtk_planner",
     srcs = ["rtk_replay_planner.cc"],
     hdrs = ["rtk_replay_planner.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber/common:log",
         "//external:gflags",

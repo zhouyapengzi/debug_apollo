@@ -6,7 +6,7 @@ cc_library(
     name = "lincoln_vehicle_factory",
     srcs = ["lincoln_vehicle_factory.cc"],
     hdrs = ["lincoln_vehicle_factory.h"],
-    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         ":lincoln_controller",
         ":lincoln_message_manager",

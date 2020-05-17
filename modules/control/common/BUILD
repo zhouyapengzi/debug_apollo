@@ -6,7 +6,7 @@ cc_library(
     name = "control_gflags",
     srcs = ["control_gflags.cc"],
     hdrs = ["control_gflags.h"],
-    copts = ['-DMODULE_NAME=\\"control\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//external:gflags",
     ],

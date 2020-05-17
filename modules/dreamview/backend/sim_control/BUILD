@@ -9,7 +9,7 @@ cc_library(
         "sim_control.h",
         "sim_control_interface.h",
     ],
-    copts = ['-DMODULE_NAME=\\"dreamview\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber",
         "//modules/common/adapters:adapter_gflags",

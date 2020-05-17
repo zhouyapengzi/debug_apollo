@@ -18,7 +18,7 @@ cc_library(
         "stage_stop.h",
         "stop_sign_unprotected_scenario.h",
     ],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber/common:log",
         "//external:gflags",

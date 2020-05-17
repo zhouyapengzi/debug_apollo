@@ -25,7 +25,7 @@ cc_library(
     srcs = ["prediction_util.cc"],
     hdrs = ["prediction_util.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         ":prediction_gflags",

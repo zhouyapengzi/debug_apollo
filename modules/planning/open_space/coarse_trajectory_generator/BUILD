@@ -6,7 +6,7 @@ cc_library(
     name = "node3d",
     srcs = ["node3d.cc"],
     hdrs = ["node3d.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber/common:log",
         "//modules/common/math",
@@ -21,7 +21,7 @@ cc_library(
     srcs = ["reeds_shepp_path.cc"],
     hdrs = ["reeds_shepp_path.h"],
     copts = [
-        "-DMODULE_NAME=\\\"planning\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
         "-fopenmp",
     ],
     deps = [

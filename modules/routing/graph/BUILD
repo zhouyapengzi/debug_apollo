@@ -15,7 +15,7 @@ cc_library(
     name = "routing_topo_range",
     srcs = ["topo_range.cc"],
     hdrs = ["topo_range.h"],
-    copts = ['-DMODULE_NAME=\\"routing\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//modules/routing/common:routing_gflags",
     ],

@@ -7,7 +7,7 @@ cc_library(
     srcs = ["extrapolation_predictor.cc"],
     hdrs = ["extrapolation_predictor.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/common/math:geometry",

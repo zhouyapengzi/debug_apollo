@@ -6,7 +6,7 @@ cc_library(
     name = "data_collection_monitor",
     srcs = ["data_collection_monitor.cc"],
     hdrs = ["data_collection_monitor.h"],
-    copts = ['-DMODULE_NAME=\\"dreamview\\"'],
+    "-DMODULE_NAME=\\\"pz\\\"",    
     deps = [
         "//cyber",
         "//modules/canbus/proto:canbus_proto",

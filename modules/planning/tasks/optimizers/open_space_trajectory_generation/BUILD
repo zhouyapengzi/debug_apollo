@@ -7,7 +7,7 @@ cc_library(
     srcs = ["open_space_trajectory_provider.cc"],
     hdrs = ["open_space_trajectory_provider.h"],
     copts = [
-        "-DMODULE_NAME=\\\"planning\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
         "-fopenmp",
     ],
     deps = [
