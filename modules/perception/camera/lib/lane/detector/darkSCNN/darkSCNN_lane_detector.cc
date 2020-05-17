@@ -52,7 +52,7 @@ bool DarkSCNNLaneDetector::Init(const LaneDetectorInitOptions &options) {
   std::string weight_file =
       GetAbsolutePath(model_root, model_param.weight_file());
   AINFO << " proto_file: " << proto_file;
-  AINFO << " weight_file: " << weight_file;
+  AINFO << "(pengzi) load weight_file: " << weight_file;
   AINFO << " model_root: " << model_root;
 
   base_camera_model_ = options.base_camera_model;

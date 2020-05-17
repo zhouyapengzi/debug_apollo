@@ -92,6 +92,7 @@ bool YoloObstacleDetector::InitNet(const yolo::YoloParam &yolo_param,
       GetAbsolutePath(model_root, model_param.proto_file());
   std::string weight_file =
       GetAbsolutePath(model_root, model_param.weight_file());
+  AINFO << "(pengzi) yolo obstacle weight_file:" << weight_file;
   std::vector<std::string> input_names;
   std::vector<std::string> output_names;
   // init Net

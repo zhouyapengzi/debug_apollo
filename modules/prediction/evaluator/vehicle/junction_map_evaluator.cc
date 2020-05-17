@@ -200,6 +200,7 @@ void JunctionMapEvaluator::LoadModel() {
   torch::set_num_threads(1);
   torch_model_ =
       torch::jit::load(FLAGS_torch_vehicle_junction_map_file, device_);
+  AINFO << "(pengzi) load junction map evaluator model FLAGS_torch_vehicle_junction_map_file"<<FLAGS_torch_vehicle_junction_map_file;
 }
 
 }  // namespace prediction

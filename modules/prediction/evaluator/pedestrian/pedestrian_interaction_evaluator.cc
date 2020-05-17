@@ -79,6 +79,11 @@ void PedestrianInteractionEvaluator::LoadModel() {
       FLAGS_torch_pedestrian_interaction_single_lstm_file, device_);
   torch_prediction_layer_ = torch::jit::load(
       FLAGS_torch_pedestrian_interaction_prediction_layer_file, device_);
+
+      AINFO<<"(pengzi) load pedestrian position embedding model: "<<FLAGS_torch_pedestrian_interaction_position_embedding_file;
+      AINFO<<"(pengzi) load pedestrian social embedding model: "<<FLAGS_torch_pedestrian_interaction_social_embedding_file;
+      AINFO<<"(pengzi) load pedestrian interaction single lstm model: "<<FLAGS_torch_pedestrian_interaction_single_lstm_file;
+      AINFO<<"(pengzi) load pedestrian interaction prediction model: "<<FLAGS_torch_pedestrian_interaction_prediction_layer_file;
 }
 
 torch::Tensor PedestrianInteractionEvaluator::GetSocialPooling() {

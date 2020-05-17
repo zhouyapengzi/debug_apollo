@@ -561,6 +561,9 @@ void CruiseMLPEvaluator::LoadModels() {
       torch::jit::load(FLAGS_torch_vehicle_cruise_go_file, device_);
   torch_cutin_model_ =
       torch::jit::load(FLAGS_torch_vehicle_cruise_cutin_file, device_);
+
+     AINFO << "(pengzi) load vehicle cruise go model:"<<FLAGS_torch_vehicle_cruise_go_file;
+     AINFO << "(pengzi) load vehicle cruise cutin model:"<<FLAGS_torch_vehicle_cruise_cutin_file;
 }
 
 void CruiseMLPEvaluator::ModelInference(

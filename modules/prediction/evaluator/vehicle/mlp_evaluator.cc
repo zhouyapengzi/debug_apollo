@@ -498,11 +498,12 @@ double MLPEvaluator::ComputeProbability(
         }
       }
     }
+double coverage = active_neuron/total_neuron;
 AINFO<< "(pengzi)ComputeProbability: " << probability
          << " model input dim = " << model_ptr_->dim_input()
          << "; feature value size = " << feature_values.size()    
          << " total neuron:" << total_neuron <<" active neuron: "<< active_neuron 
-         << " neuron coverage = " << active_neuron/total_neuron
+         << " neuron coverage = " << coverage
         << " thread: " << std::this_thread::get_id();
 //pengzi add end
 

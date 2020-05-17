@@ -247,6 +247,7 @@ void SemanticLSTMEvaluator::LoadModel() {
   } else {
     torch_model_ =
         torch::jit::load(FLAGS_torch_vehicle_semantic_lstm_cpu_file, device_);
+        AINFO << "(pengzi) load junction map evaluator model FLAGS_torch_vehicle_semantic_lstm_cpu_file:"<<FLAGS_torch_vehicle_semantic_lstm_cpu_file;
   }
   torch::set_num_threads(1);
 

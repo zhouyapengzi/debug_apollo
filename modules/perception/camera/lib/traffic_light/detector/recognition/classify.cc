@@ -61,6 +61,7 @@ void ClassifyBySimple::Init(
   std::string weight_file =
       GetAbsolutePath(work_root, model_config.weight_file());
 
+  AINFO << "(pengzi) trafficlight recognition weight_file" << weight_file;
   AINFO << "model_root" << model_root;
 
   rt_net_.reset(inference::CreateInferenceByName(

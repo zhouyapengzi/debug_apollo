@@ -57,7 +57,7 @@ bool TrafficLightDetection::Init(
 
   std::string weight_file =
       GetAbsolutePath(model_root, detection_param_.weight_file());
-  AINFO << "weight_file " << weight_file;
+  AINFO << "(pengzi) load trafficlight weight_file " << weight_file;
 
   if (detection_param_.is_bgr()) {
     data_provider_image_option_.target_color = base::Color::BGR;

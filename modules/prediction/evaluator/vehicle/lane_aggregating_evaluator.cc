@@ -47,6 +47,10 @@ void LaneAggregatingEvaluator::LoadModel() {
       FLAGS_torch_lane_aggregating_lane_encoding_file, device_);
   torch_prediction_layer_ = torch::jit::load(
       FLAGS_torch_lane_aggregating_prediction_layer_file, device_);
+
+      AINFO <<"(pengzi) load lane aggregating obstacle model:" <<FLAGS_torch_lane_aggregating_obstacle_encoding_file;
+      AINFO <<"(pengzi) load lane aggregating lane model:" <<FLAGS_torch_lane_aggregating_lane_encoding_file;
+      AINFO <<"(pengzi) load lane aggregating prediction model:" <<FLAGS_torch_lane_aggregating_prediction_layer_file;
 }
 
 bool LaneAggregatingEvaluator::Evaluate(

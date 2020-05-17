@@ -281,8 +281,7 @@ void SemanticMap::DrawLanes(const common::PointENU& center_point,
 }
 
 cv::Scalar SemanticMap::HSVtoRGB(double H, double S, double V) {
-    AINFO<<"(DMCZP) EnteringMethod: SemanticMap::HSVtoRGB";
-
+    
   int I = static_cast<int>(floor(H * 6.0));
   double F = H * 6.0 - floor(H * 6.0);
   double M = V * (1.0 - S);
