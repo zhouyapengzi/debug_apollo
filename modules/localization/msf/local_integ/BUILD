@@ -8,7 +8,7 @@ cc_library(
     hdrs = glob(["*.h"]),
     copts = [
         "-O2",
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"localization\\\"",
     ],
     linkopts = [
         "-lopencv_core",

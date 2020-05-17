@@ -14,7 +14,7 @@ cc_library(
         "ndt_localization.h",
         "ndt_localization_component.h",
     ],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"NDTlocalization\\\""],
     deps = [
         "//cyber",
         "//modules/common/adapters:adapter_gflags",

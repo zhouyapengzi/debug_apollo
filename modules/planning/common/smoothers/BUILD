@@ -6,7 +6,7 @@ cc_library(
     name = "smoother",
     srcs = ["smoother.cc"],
     hdrs = ["smoother.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//modules/common/status",
         "//modules/planning/common:frame",

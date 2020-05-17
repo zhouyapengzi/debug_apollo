@@ -7,7 +7,7 @@ cc_library(
     srcs = ["empty_predictor.cc"],
     hdrs = ["empty_predictor.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/prediction/predictor",

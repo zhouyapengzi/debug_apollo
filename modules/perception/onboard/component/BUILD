@@ -24,7 +24,7 @@ cc_library(
         "trafficlights_perception_component.h",
     ],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        '-DMODULE_NAME=\\"perception\\"',
     ],
     deps = [
         "//cyber",

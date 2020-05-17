@@ -32,7 +32,7 @@ cc_test(
     size = "small",
     srcs = ["quartic_polynomial_curve1d_test.cc"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         ":cubic_polynomial_curve1d",

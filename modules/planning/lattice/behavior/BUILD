@@ -6,7 +6,7 @@ cc_library(
     name = "feasible_region",
     srcs = ["feasible_region.cc"],
     hdrs = ["feasible_region.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//cyber/common:log",
         "//modules/common/proto:pnc_point_proto",

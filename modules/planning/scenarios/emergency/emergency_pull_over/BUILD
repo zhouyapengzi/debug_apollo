@@ -16,7 +16,7 @@ cc_library(
         "stage_slow_down.h",
         "stage_standby.h",
     ],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//cyber/common:log",
         "//external:gflags",

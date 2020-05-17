@@ -6,7 +6,7 @@ cc_library(
     name = "canbus_lib",
     srcs = ["canbus_component.cc"],
     hdrs = ["canbus_component.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
     deps = [
         "//cyber",
         "//external:gflags",

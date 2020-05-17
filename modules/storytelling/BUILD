@@ -17,7 +17,7 @@ cc_library(
     name = "storytelling_lib",
     srcs = ["storytelling.cc"],
     hdrs = ["storytelling.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"storytelling\\"'],
     deps = [
         "//cyber",
         "//modules/storytelling/story_tellers:close_to_junction_teller",

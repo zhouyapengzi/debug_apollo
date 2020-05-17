@@ -7,7 +7,7 @@ cc_library(
     srcs = ["pose_container.cc"],
     hdrs = ["pose_container.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/common/math:quaternion",

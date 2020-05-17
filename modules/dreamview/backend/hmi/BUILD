@@ -6,7 +6,7 @@ cc_library(
     name = "vehicle_manager",
     srcs = ["vehicle_manager.cc"],
     hdrs = ["vehicle_manager.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"dreamview\\"'],
     deps = [
         "//cyber",
         "//modules/common/configs:vehicle_config_helper",

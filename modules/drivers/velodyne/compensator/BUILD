@@ -13,7 +13,7 @@ cc_library(
     name = "compensator_component_lib",
     srcs = ["compensator_component.cc"],
     hdrs = ["compensator_component.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"velodyne\\"'],
     deps = [
         "//cyber",
         "//modules/common/adapters:adapter_gflags",

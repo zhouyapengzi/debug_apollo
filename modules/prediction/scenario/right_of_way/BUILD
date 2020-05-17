@@ -7,7 +7,7 @@ cc_library(
     srcs = ["right_of_way.cc"],
     hdrs = ["right_of_way.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/prediction/container:container_manager",

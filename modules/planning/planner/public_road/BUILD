@@ -6,7 +6,7 @@ cc_library(
     name = "public_road_planner",
     srcs = ["public_road_planner.cc"],
     hdrs = ["public_road_planner.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//cyber/common:log",
         "//external:gflags",

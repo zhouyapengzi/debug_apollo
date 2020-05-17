@@ -14,7 +14,7 @@ cc_library(
         "stage_parking.h",
         "valet_parking_scenario.h",
     ],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//cyber/common:log",
         "//modules/planning/proto:planning_proto",

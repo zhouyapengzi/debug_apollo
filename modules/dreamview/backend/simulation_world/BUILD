@@ -6,7 +6,7 @@ cc_library(
     name = "simulation_world_service",
     srcs = ["simulation_world_service.cc"],
     hdrs = ["simulation_world_service.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"dreamview\\"'],
     deps = [
         "//cyber",
         "//modules/canbus/proto:canbus_proto",

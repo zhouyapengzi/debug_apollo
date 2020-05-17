@@ -6,7 +6,7 @@ cc_library(
     name = "rule_based_stop_decider",
     srcs = ["rule_based_stop_decider.cc"],
     hdrs = ["rule_based_stop_decider.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//modules/common/status",
         "//modules/planning/common:frame",

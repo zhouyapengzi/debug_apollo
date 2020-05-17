@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "control_lib",
     srcs = [],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"control\\"'],
     deps = [
         "//cyber",
         "//external:gflags",

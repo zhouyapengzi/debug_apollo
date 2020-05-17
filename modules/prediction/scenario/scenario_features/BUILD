@@ -7,7 +7,7 @@ cc_library(
     srcs = ["scenario_features.cc"],
     hdrs = ["scenario_features.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//cyber",

@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 cc_binary(
     name = "navigation_dummy",
     srcs = ["navigation_dummy.cc"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"map\\\""],
     deps = [
         "//cyber",
         "//modules/common/adapters:adapter_gflags",

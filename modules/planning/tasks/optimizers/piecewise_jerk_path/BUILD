@@ -6,7 +6,7 @@ cc_library(
     name = "piecewise_jerk_path_optimizer",
     srcs = ["piecewise_jerk_path_optimizer.cc"],
     hdrs = ["piecewise_jerk_path_optimizer.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//modules/common/configs:vehicle_config_helper",
         "//modules/common/math",

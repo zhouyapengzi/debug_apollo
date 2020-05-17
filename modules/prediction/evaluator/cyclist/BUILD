@@ -7,7 +7,7 @@ cc_library(
     srcs = ["cyclist_keep_lane_evaluator.cc"],
     hdrs = ["cyclist_keep_lane_evaluator.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/prediction/container/obstacles:obstacles_container",

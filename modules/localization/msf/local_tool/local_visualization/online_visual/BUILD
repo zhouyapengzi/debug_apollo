@@ -8,7 +8,7 @@ cc_library(
     hdrs = ["online_visualizer_component.h"],
     copts = [
         "-O2",
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"localization_visualizer\\\"",
     ],
     deps = [
         "//cyber",

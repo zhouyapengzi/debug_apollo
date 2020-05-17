@@ -24,7 +24,7 @@ cc_library(
     name = "adc_auxiliarycontrol_110",
     srcs = ["adc_auxiliarycontrol_110.cc"],
     hdrs = ["adc_auxiliarycontrol_110.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
     deps = [
         "//modules/canbus/proto:canbus_proto",
         "//modules/drivers/canbus/can_comm:message_manager_base",

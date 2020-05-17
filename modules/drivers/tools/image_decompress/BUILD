@@ -6,7 +6,7 @@ cc_library(
     name = "image_decompress_lib",
     srcs = ["image_decompress.cc"],
     hdrs = ["image_decompress.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"image_decompress\\"'],
     linkopts = [
         "-lopencv_core",
         "-lopencv_highgui",

@@ -30,7 +30,7 @@ cc_library(
     name = "racobit_radar_canbus_lib",
     srcs = ["racobit_radar_canbus_component.cc"],
     hdrs = ["racobit_radar_canbus_component.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"racobit_radar_canbus\\"'],
     deps = [
         ":racobit_radar_message_manager",
         "//cyber",

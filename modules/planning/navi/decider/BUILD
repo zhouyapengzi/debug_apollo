@@ -6,7 +6,7 @@ cc_library(
     name = "navi_task",
     srcs = ["navi_task.cc"],
     hdrs = ["navi_task.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//cyber/common:log",
         "//modules/common/status",

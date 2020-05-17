@@ -6,7 +6,7 @@ cc_library(
     name = "rss_decider",
     srcs = ["rss_decider.cc"],
     hdrs = ["rss_decider.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//modules/common/status",
         "//modules/planning/common:planning_context",

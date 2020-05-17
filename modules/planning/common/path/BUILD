@@ -7,7 +7,7 @@ cc_library(
     srcs = ["discretized_path.cc"],
     hdrs = ["discretized_path.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         "//modules/common/math:linear_interpolation",

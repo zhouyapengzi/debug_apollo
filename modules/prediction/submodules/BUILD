@@ -7,7 +7,7 @@ cc_library(
     srcs = ["submodule_output.cc"],
     hdrs = ["submodule_output.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/common/util:lru_cache",

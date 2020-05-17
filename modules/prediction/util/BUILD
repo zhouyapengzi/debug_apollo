@@ -8,7 +8,7 @@ cc_library(
     srcs = ["data_extraction.cc"],
     hdrs = ["data_extraction.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//cyber",

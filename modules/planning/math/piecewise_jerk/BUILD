@@ -7,7 +7,7 @@ cc_library(
     srcs = ["piecewise_jerk_problem.cc"],
     hdrs = ["piecewise_jerk_problem.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         "//cyber/common:log",

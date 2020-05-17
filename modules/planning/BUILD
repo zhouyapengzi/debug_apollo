@@ -7,7 +7,7 @@ cc_library(
     srcs = ["planning_component.cc"],
     hdrs = ["planning_component.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         ":navi_planning",

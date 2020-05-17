@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "manual_traffic_light",
     srcs = ["manual_traffic_light.cc"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"manual_traffic_light\\\""],
     deps = [
         "//cyber",
         "//modules/common/adapters:adapter_gflags",

@@ -7,7 +7,7 @@ cc_library(
     srcs = ["junction_predictor.cc"],
     hdrs = ["junction_predictor.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/prediction/common:prediction_util",

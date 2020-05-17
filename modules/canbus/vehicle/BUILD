@@ -6,7 +6,7 @@ cc_library(
     name = "vehicle_controller_base",
     srcs = ["vehicle_controller.cc"],
     hdrs = ["vehicle_controller.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
     deps = [
         "//modules/canbus/proto:canbus_proto",
         "//modules/common/configs:vehicle_config_helper",

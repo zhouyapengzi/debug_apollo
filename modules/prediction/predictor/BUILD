@@ -7,7 +7,7 @@ cc_library(
     srcs = ["predictor_manager.cc"],
     hdrs = ["predictor_manager.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/prediction/common:feature_output",

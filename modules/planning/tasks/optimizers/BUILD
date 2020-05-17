@@ -6,7 +6,7 @@ cc_library(
     name = "path_optimizer",
     srcs = ["path_optimizer.cc"],
     hdrs = ["path_optimizer.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//modules/common/status",
         "//modules/planning/common:path_decision",

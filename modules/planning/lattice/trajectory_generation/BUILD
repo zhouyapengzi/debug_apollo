@@ -7,7 +7,7 @@ cc_library(
     srcs = ["lattice_trajectory1d.cc"],
     hdrs = ["lattice_trajectory1d.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         "//cyber/common:log",

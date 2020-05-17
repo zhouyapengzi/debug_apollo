@@ -7,7 +7,7 @@ cc_library(
     srcs = ["util.cc"],
     hdrs = ["util.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         "//cyber/common:log",

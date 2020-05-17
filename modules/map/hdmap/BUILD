@@ -15,7 +15,7 @@ cc_library(
         "hdmap_impl.h",
         "hdmap_util.h",
     ],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"map\\\""],
     deps = [
         "//cyber/common:file",
         "//cyber/common:macros",

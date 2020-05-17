@@ -13,7 +13,7 @@ cc_library(
     name = "routing_navigator",
     srcs = ["navigator.cc"],
     hdrs = ["navigator.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"routing\\"'],
     deps = [
         ":routing_black_list_range_generator",
         ":routing_result_generator",

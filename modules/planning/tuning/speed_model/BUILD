@@ -7,7 +7,7 @@ cc_library(
     srcs = ["autotuning_speed_feature_builder.cc"],
     hdrs = ["autotuning_speed_feature_builder.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         "//cyber/common:log",

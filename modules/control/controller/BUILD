@@ -6,7 +6,7 @@ cc_library(
     name = "controller_interface",
     srcs = [],
     hdrs = ["controller.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"control\\"'],
 )
 
 cc_library(

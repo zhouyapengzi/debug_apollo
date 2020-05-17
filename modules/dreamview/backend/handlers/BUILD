@@ -6,7 +6,7 @@ cc_library(
     name = "websocket_handler",
     srcs = ["websocket_handler.cc"],
     hdrs = ["websocket_handler.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"dreamview\\"'],
     deps = [
         "//modules/common/time",
         "//modules/common/util:map_util",

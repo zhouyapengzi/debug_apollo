@@ -29,7 +29,7 @@ cc_binary(
     name = "open_space_roi_wrapper_lib.so",
     srcs = ["open_space_roi_wrapper.cc"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     linkshared = True,
     linkstatic = False,

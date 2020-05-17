@@ -6,7 +6,7 @@ cc_library(
     name = "task",
     srcs = ["task.cc"],
     hdrs = ["task.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//modules/common/status",
         "//modules/planning/common:frame",
@@ -22,7 +22,7 @@ cc_library(
     srcs = ["task_factory.cc"],
     hdrs = ["task_factory.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
         "-fopenmp",
     ],
     deps = [

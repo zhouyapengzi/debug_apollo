@@ -7,7 +7,7 @@ cc_library(
     srcs = ["scenario_analyzer.cc"],
     hdrs = ["scenario_analyzer.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/prediction/scenario/scenario_features:cruise_scenario_features",

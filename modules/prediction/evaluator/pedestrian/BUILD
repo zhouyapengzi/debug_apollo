@@ -7,7 +7,7 @@ cc_library(
     srcs = ["pedestrian_interaction_evaluator.cc"],
     hdrs = ["pedestrian_interaction_evaluator.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/prediction/container:container_manager",

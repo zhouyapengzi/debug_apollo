@@ -7,7 +7,7 @@ cc_library(
     srcs = ["mlp_evaluator.cc"],
     hdrs = ["mlp_evaluator.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/prediction/common:feature_output",

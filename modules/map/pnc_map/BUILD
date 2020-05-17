@@ -32,7 +32,7 @@ cc_library(
     name = "path",
     srcs = ["path.cc"],
     hdrs = ["path.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"map\\\""],
     deps = [
         "//modules/common/math",
         "//modules/map/hdmap",

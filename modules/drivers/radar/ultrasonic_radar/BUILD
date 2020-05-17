@@ -58,7 +58,7 @@ cc_library(
     name = "ultrasonic_radar_canbus_component_lib",
     srcs = ["ultrasonic_radar_canbus_component.cc"],
     hdrs = ["ultrasonic_radar_canbus_component.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"ultrasonic_radar_canbus\\"'],
     deps = [
         ":ultrasonic_radar_canbus_lib",
         "//modules/common/adapters:adapter_gflags",

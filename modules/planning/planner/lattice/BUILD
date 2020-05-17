@@ -6,7 +6,7 @@ cc_library(
     name = "lattice_planner",
     srcs = ["lattice_planner.cc"],
     hdrs = ["lattice_planner.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//cyber/common:log",
         "//modules/common/math:path_matcher",

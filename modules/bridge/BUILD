@@ -4,7 +4,7 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "udp_bridge",
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"bridge\\"'],
     deps = [
         "//cyber",
         "//external:gflags",

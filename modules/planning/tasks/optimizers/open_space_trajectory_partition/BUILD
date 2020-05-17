@@ -7,7 +7,7 @@ cc_library(
     srcs = ["open_space_trajectory_partition.cc"],
     hdrs = ["open_space_trajectory_partition.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         "//modules/common/status",

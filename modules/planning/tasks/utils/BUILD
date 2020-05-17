@@ -6,7 +6,7 @@ cc_library(
     name = "st_gap_estimator",
     srcs = ["st_gap_estimator.cc"],
     hdrs = ["st_gap_estimator.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//modules/planning/common:planning_gflags",
     ],

@@ -6,7 +6,7 @@ cc_library(
     name = "open_space_roi_decider",
     srcs = ["open_space_roi_decider.cc"],
     hdrs = ["open_space_roi_decider.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//modules/planning/common:planning_context",
         "//modules/planning/common:planning_gflags",

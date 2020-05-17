@@ -13,7 +13,7 @@ cc_library(
     name = "gnss_component_lib",
     srcs = ["gnss_component.cc"],
     hdrs = ["gnss_component.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ['-DMODULE_NAME=\\"gnss\\"'],
     deps = [
         "//cyber",
         "//modules/common/monitor_log",

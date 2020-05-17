@@ -12,7 +12,7 @@ cc_library(
         "reference_line.h",
         "reference_point.h",
     ],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//cyber/common:log",
         "//modules/common/math",

@@ -7,7 +7,7 @@ cc_library(
     srcs = ["feature_extractor.cc"],
     hdrs = ["feature_extractor.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"prediction\\\"",
     ],
     deps = [
         "//modules/prediction/container:container_manager",

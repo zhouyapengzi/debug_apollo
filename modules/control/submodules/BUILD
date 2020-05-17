@@ -24,7 +24,7 @@ cc_library(
     srcs = ["preprocessor_submodule.cc"],
     hdrs = ["preprocessor_submodule.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"preprocessor_submodule\\\"",
     ],
     deps = [
         "//cyber",
@@ -58,7 +58,7 @@ cc_library(
     srcs = ["mpc_controller_submodule.cc"],
     hdrs = ["mpc_controller_submodule.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"mpc_controller_submodule\\\"",
     ],
     deps = [
         "//cyber",
@@ -95,7 +95,7 @@ cc_library(
     srcs = ["lat_lon_controller_submodule.cc"],
     hdrs = ["lat_lon_controller_submodule.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"lat_lon_controller_submodule\\\"",
     ],
     deps = [
         "//cyber",
@@ -131,7 +131,7 @@ cc_library(
     srcs = ["postprocessor_submodule.cc"],
     hdrs = ["postprocessor_submodule.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"postprocessor_submodule\\\"",
     ],
     deps = [
         "//cyber",

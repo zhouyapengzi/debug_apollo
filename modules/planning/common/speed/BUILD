@@ -17,7 +17,7 @@ cc_library(
     srcs = ["st_boundary.cc"],
     hdrs = ["st_boundary.h"],
     copts = [
-    "-DMODULE_NAME=\\\"pz\\\"",    
+        "-DMODULE_NAME=\\\"planning\\\"",
     ],
     deps = [
         ":st_point",

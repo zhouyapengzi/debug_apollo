@@ -6,7 +6,7 @@ cc_library(
     name = "transit_vehicle_factory",
     srcs = ["transit_vehicle_factory.cc"],
     hdrs = ["transit_vehicle_factory.h"],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
     deps = [
         ":transit_controller",
         ":transit_message_manager",

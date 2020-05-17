@@ -18,7 +18,7 @@ cc_library(
         "stage_cruise.h",
         "stage_pre_cruise.h",
     ],
-    "-DMODULE_NAME=\\\"pz\\\"",    
+    copts = ["-DMODULE_NAME=\\\"planning\\\""],
     deps = [
         "//cyber/common:log",
         "//external:gflags",
