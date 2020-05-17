@@ -107,7 +107,7 @@ class MLPEvaluator : public Evaluator {
  private:
   static const size_t OBSTACLE_FEATURE_SIZE = 22;
   static const size_t LANE_FEATURE_SIZE = 40;
-
+std::vector<std::vector<bool>> mlp_evaluator_neuron_coverage; //added by pengzi
   std::unique_ptr<FnnVehicleModel> model_ptr_;
 };
 
