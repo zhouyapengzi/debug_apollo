@@ -179,7 +179,7 @@ bool LaneAggregatingEvaluator::Evaluate(
             .to(torch::kCPU);
     AINFO<<"(pengzi) Prediction Lane aggregating: make predict using lane and obstacle features end.";
     auto prediction_score = prediction_layer_output.accessor<float, 2>();
-    AINFO << "(pengzi) Lane aggregating prediction score: " <<prediction_score;
+    AINFO << "(pengzi) Lane aggregating prediction score: ";
     prediction_scores.push_back(static_cast<double>(prediction_score[0][0]));
   }
 
