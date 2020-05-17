@@ -6,7 +6,7 @@ cc_library(
     name = "navi_planner",
     srcs = ["navi_planner.cc"],
     hdrs = ["navi_planner.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//cyber/common:log",
         "//external:gflags",

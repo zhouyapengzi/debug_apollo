@@ -6,7 +6,7 @@ cc_library(
     name = "path_decider",
     srcs = ["path_decider.cc"],
     hdrs = ["path_decider.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//modules/common/configs:vehicle_config_helper",
         "//modules/common/math",

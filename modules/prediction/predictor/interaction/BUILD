@@ -7,7 +7,7 @@ cc_library(
     srcs = ["interaction_predictor.cc"],
     hdrs = ["interaction_predictor.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/common/adapters/proto:adapter_config_proto",

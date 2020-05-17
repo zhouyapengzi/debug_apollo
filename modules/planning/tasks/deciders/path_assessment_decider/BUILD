@@ -6,7 +6,7 @@ cc_library(
     name = "path_assessment_decider",
     srcs = ["path_assessment_decider.cc"],
     hdrs = ["path_assessment_decider.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//modules/planning/common:planning_context",
         "//modules/planning/common:planning_gflags",

@@ -6,7 +6,7 @@ cc_library(
     name = "creep_decider",
     srcs = ["creep_decider.cc"],
     hdrs = ["creep_decider.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//modules/planning/common:planning_context",
         "//modules/planning/common:reference_line_info",

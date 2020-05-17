@@ -7,7 +7,7 @@ cc_library(
     srcs = ["lane_sequence_predictor.cc"],
     hdrs = ["lane_sequence_predictor.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/prediction/common:validation_checker",

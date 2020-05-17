@@ -4,7 +4,7 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "narrow_street_u_turn",
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         ":narrow_street_u_turn_scenario",
     ],

@@ -7,7 +7,7 @@ cc_library(
     srcs = ["storytelling_container.cc"],
     hdrs = ["storytelling_container.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction_container\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/prediction/common:prediction_map",

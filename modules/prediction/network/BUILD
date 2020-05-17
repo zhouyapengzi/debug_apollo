@@ -7,7 +7,7 @@ cc_library(
     srcs = ["net_util.cc"],
     hdrs = ["net_util.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//cyber",

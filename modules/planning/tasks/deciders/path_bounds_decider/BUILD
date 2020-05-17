@@ -6,7 +6,7 @@ cc_library(
     name = "path_bounds_decider",
     srcs = ["path_bounds_decider.cc"],
     hdrs = ["path_bounds_decider.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//modules/planning/common:planning_context",
         "//modules/planning/common:planning_gflags",

@@ -6,7 +6,7 @@ cc_library(
     name = "lexus_vehicle_factory",
     srcs = ["lexus_vehicle_factory.cc"],
     hdrs = ["lexus_vehicle_factory.h"],
-    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         ":lexus_controller",
         ":lexus_message_manager",

@@ -16,7 +16,7 @@ cc_library(
         "stage_retry_approach_parking.h",
         "stage_retry_parking.h",
     ],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//cyber/common:log",
         "//external:gflags",

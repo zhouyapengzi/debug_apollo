@@ -6,7 +6,7 @@ cc_library(
     name = "st_graph_point",
     srcs = ["st_graph_point.cc"],
     hdrs = ["st_graph_point.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//modules/planning/common:planning_gflags",
         "//modules/planning/common/speed:st_point",

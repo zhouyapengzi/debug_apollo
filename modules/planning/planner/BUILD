@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "planner",
     hdrs = ["planner.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//modules/common/proto:pnc_point_proto",
         "//modules/common/status",
@@ -30,7 +30,7 @@ cc_library(
         "planner_dispatcher.h",
     ],
     copts = [
-        "-DMODULE_NAME=\\\"planning\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
         "-fopenmp",
     ],
     deps = [

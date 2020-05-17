@@ -6,7 +6,7 @@ cc_library(
     name = "decider_base",
     srcs = ["decider.cc"],
     hdrs = ["decider.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//modules/common/status",
         "//modules/planning/common:frame",

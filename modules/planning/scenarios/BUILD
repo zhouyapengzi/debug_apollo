@@ -6,7 +6,7 @@ cc_library(
     name = "scenario",
     srcs = ["scenario.cc"],
     hdrs = ["scenario.h"],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         ":stage",
         "//modules/planning/common:planning_common",

@@ -14,7 +14,7 @@ cc_library(
         "stage_approach.h",
         "stage_intersection_cruise.h",
     ],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//cyber/common:log",
         "//external:gflags",

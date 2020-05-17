@@ -7,7 +7,7 @@ cc_library(
     srcs = ["obstacles_container.cc"],
     hdrs = ["obstacles_container.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/prediction/common:environment_features",

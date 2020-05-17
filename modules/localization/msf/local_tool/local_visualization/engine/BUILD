@@ -14,7 +14,7 @@ cc_library(
     ],
     copts = [
         "-O2",
-        "-DMODULE_NAME=\\\"localization_visualizer\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//cyber",

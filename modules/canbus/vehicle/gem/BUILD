@@ -6,7 +6,7 @@ cc_library(
     name = "gem_vehicle_factory",
     srcs = ["gem_vehicle_factory.cc"],
     hdrs = ["gem_vehicle_factory.h"],
-    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         ":gem_controller",
         ":gem_message_manager",

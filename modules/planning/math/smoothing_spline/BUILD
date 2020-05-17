@@ -51,7 +51,7 @@ cc_library(
     srcs = ["spline_seg_kernel.cc"],
     hdrs = ["spline_seg_kernel.h"],
     copts = [
-        "-DMODULE_NAME=\\\"planning\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//cyber/common:log",

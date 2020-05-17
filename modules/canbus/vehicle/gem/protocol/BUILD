@@ -68,7 +68,7 @@ cc_library(
         "wiper_rpt_91.h",
         "yaw_rate_rpt_81.h",
     ],
-    copts = ["-DMODULE_NAME=\\\"canbus\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//modules/canbus/proto:canbus_proto",
         "//modules/drivers/canbus/can_comm:message_manager_base",

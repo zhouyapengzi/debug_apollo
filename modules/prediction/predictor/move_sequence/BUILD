@@ -7,7 +7,7 @@ cc_library(
     srcs = ["move_sequence_predictor.cc"],
     hdrs = ["move_sequence_predictor.h"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/prediction/common:prediction_util",

@@ -6,7 +6,7 @@ cc_binary(
     name = "records_to_offline_data",
     srcs = ["records_to_offline_data.cc"],
     copts = [
-        "-DMODULE_NAME=\\\"prediction\\\"",
+    "-DMODULE_NAME=\\\"pz\\\"",    
     ],
     deps = [
         "//modules/prediction/common:message_process",

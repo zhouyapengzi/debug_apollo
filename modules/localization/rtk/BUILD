@@ -12,7 +12,7 @@ cc_library(
         "rtk_localization.h",
         "rtk_localization_component.h",
     ],
-    copts = ["-DMODULE_NAME=\\\"localization\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//cyber",
         "//modules/common/math",

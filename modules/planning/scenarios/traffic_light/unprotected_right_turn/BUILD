@@ -16,7 +16,7 @@ cc_library(
         "stage_stop.h",
         "traffic_light_unprotected_right_turn_scenario.h",
     ],
-    copts = ["-DMODULE_NAME=\\\"planning\\\""],
+  copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
         "//cyber/common:log",
         "//external:gflags",
