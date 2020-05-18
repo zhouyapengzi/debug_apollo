@@ -26,7 +26,9 @@ bool ObstacleMultiSensorFusion::Init(
 
   if (fusion_ != nullptr) {
     AINFO << "Already inited";
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObstacleMultiSensorFusion::Init";
+  return true;
   }
   fusion_ = BaseFusionSystemRegisterer::GetInstanceByName(param.fusion_method);
 
@@ -34,18 +36,28 @@ bool ObstacleMultiSensorFusion::Init(
   init_options.main_sensor = param.main_sensor;
   if (fusion_ == nullptr || !fusion_->Init(init_options)) {
     AINFO << "Failed to Get Instance or Initialize " << param.fusion_method;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObstacleMultiSensorFusion::Init";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObstacleMultiSensorFusion::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObstacleMultiSensorFusion::Init";
+ }
 
 bool ObstacleMultiSensorFusion::Process(const base::FrameConstPtr& frame,
                                         std::vector<base::ObjectPtr>* objects) {
     AINFO<<"(DMCZP) EnteringMethod: ObstacleMultiSensorFusion::Process";
 
   FusionOptions options;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObstacleMultiSensorFusion::Process";
   return fusion_->Fuse(options, frame, objects);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObstacleMultiSensorFusion::Process";
+ }
 
 }  // namespace fusion
 }  // namespace perception

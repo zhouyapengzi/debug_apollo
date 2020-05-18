@@ -56,7 +56,9 @@ void YoloObstacleDetector::LoadInputShape(const yolo::ModelParam &model_param) {
         << "roi_ratio=" << roi_ratio;
   AINFO << "offset_y=" << offset_y_ << ", height=" << height_
         << ", width=" << width_;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::LoadInputShape";
+ }
 
 void YoloObstacleDetector::LoadParam(const yolo::YoloParam &yolo_param) {
     AINFO<<"(DMCZP) EnteringMethod: YoloObstacleDetector::LoadParam";
@@ -80,7 +82,9 @@ void YoloObstacleDetector::LoadParam(const yolo::YoloParam &yolo_param) {
   nms_.threshold = nms_param.threshold();
   nms_.inter_cls_nms_thresh = nms_param.inter_cls_nms_thresh();
   nms_.inter_cls_conf_thresh = nms_param.inter_cls_conf_thresh();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::LoadParam";
+ }
 
 bool YoloObstacleDetector::InitNet(const yolo::YoloParam &yolo_param,
                                    const std::string &model_root) {
@@ -137,7 +141,9 @@ bool YoloObstacleDetector::InitNet(const yolo::YoloParam &yolo_param,
                                                     input_names, model_root));
   if (nullptr == inference_.get()) {
     AERROR << "Failed to init CNNAdapter";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
   inference_->set_gpu_id(gpu_id_);
   std::vector<int> shape = {1, height_, width_, 3};
@@ -145,11 +151,15 @@ bool YoloObstacleDetector::InitNet(const yolo::YoloParam &yolo_param,
       {net_param.input_blob(), shape}};
 
   if (!inference_->Init(shape_map)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
   AINFO<<"(pengzi) Camera Obstacle Infer start.";
   inference_->Infer();
   AINFO<<"(pengzi) Camera Obstacle Infer End.";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return true;
 }
 
@@ -257,7 +267,9 @@ void YoloObstacleDetector::InitYoloBlob(const yolo::NetworkParam &net_param) {
       inference_->get_blob(yolo_param_.net_param().visible_ratio_blob());
   yolo_blobs_.cut_off_ratio_blob =
       inference_->get_blob(yolo_param_.net_param().cut_off_ratio_blob());
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::InitYoloBlob";
+ }
 
 bool YoloObstacleDetector::Init(const ObstacleDetectorInitOptions &options) {
     AINFO<<"(DMCZP) EnteringMethod: YoloObstacleDetector::Init";
@@ -272,7 +284,11 @@ bool YoloObstacleDetector::Init(const ObstacleDetectorInitOptions &options) {
       GetAbsolutePath(options.root_dir, options.conf_file);
   if (!cyber::common::GetProtoFromFile(config_path, &yolo_param_)) {
     AERROR << "read proto_config fail";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
   const auto &model_param = yolo_param_.model_param();
   std::string model_root =
@@ -288,24 +304,50 @@ bool YoloObstacleDetector::Init(const ObstacleDetectorInitOptions &options) {
   min_dims_.min_2d_height /= static_cast<float>(height_);
 
   if (!LoadAnchors(anchors_file, &anchors_)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
   if (!LoadTypes(types_file, &types_)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
   if (!LoadExpand(expand_file, &expands_)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
   CHECK(expands_.size() == types_.size());
   if (!InitNet(yolo_param_, model_root)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
   InitYoloBlob(yolo_param_.net_param());
   if (!InitFeatureExtractor(model_root)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::Init";
+ }
 
 bool YoloObstacleDetector::InitFeatureExtractor(const std::string &root_dir) {
     AINFO<<"(DMCZP) EnteringMethod: YoloObstacleDetector::InitFeatureExtractor";
@@ -321,23 +363,41 @@ bool YoloObstacleDetector::InitFeatureExtractor(const std::string &root_dir) {
   feature_extractor_.reset(BaseFeatureExtractorRegisterer::GetInstanceByName(
       "TrackingFeatureExtractor"));
   if (!feature_extractor_->Init(feat_options)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitFeatureExtractor";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitFeatureExtractor";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::InitFeatureExtractor";
+ }
 
 bool YoloObstacleDetector::Detect(const ObstacleDetectorOptions &options,
                                   CameraFrame *frame) {
     AINFO<<"(DMCZP) EnteringMethod: YoloObstacleDetector::Detect";
 
   if (frame == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
 
   Timer timer;
   if (cudaSetDevice(gpu_id_) != cudaSuccess) {
     AERROR << "Failed to set device to " << gpu_id_;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
+  return false;
   }
 
   auto input_blob = inference_->get_blob(yolo_param_.net_param().input_blob());
@@ -397,11 +457,19 @@ bool YoloObstacleDetector::Detect(const ObstacleDetectorOptions &options,
   }
   AINFO << "Post2: " << static_cast<double>(timer.Toc()) * 0.001 << "ms";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::Detect";
+ }
 
 REGISTER_OBSTACLE_DETECTOR(YoloObstacleDetector);
 
-}  // namespace camera
+
+   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::InitNet";
+ }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

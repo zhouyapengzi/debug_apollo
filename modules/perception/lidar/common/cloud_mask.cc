@@ -32,15 +32,21 @@ size_t CloudMask::ValidIndicesCount() const {
       ++count;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CloudMask::ValidIndicesCount";
   return count;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::ValidIndicesCount";
+ }
 
 void CloudMask::GetValidCloud(const AttributePointCloud<PointF>& source_cloud,
                               AttributePointCloud<PointF>* target_cloud) const {
     AINFO<<"(DMCZP) EnteringMethod: CloudMask::GetValidCloud";
 
   if (target_cloud == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CloudMask::GetValidCloud";
+  return;
   }
   indices_.clear();
   indices_.reserve(mask_.size());
@@ -50,7 +56,9 @@ void CloudMask::GetValidCloud(const AttributePointCloud<PointF>& source_cloud,
     }
   }
   target_cloud->CopyPointCloud(source_cloud, indices_);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::GetValidCloud";
+ }
 
 void CloudMask::GetValidIndices(base::PointIndices* indices) {
     AINFO<<"(DMCZP) EnteringMethod: CloudMask::GetValidIndices";
@@ -62,7 +70,9 @@ void CloudMask::GetValidIndices(base::PointIndices* indices) {
       indices->indices.push_back(static_cast<int>(i));
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::GetValidIndices";
+ }
 
 void CloudMask::Flip() {
     AINFO<<"(DMCZP) EnteringMethod: CloudMask::Flip";
@@ -70,13 +80,17 @@ void CloudMask::Flip() {
   for (auto& i : mask_) {
     i = i > 0 ? 0 : 1;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::Flip";
+ }
 
 void CloudMask::AddIndices(const base::PointIndices& indices, int value) {
     AINFO<<"(DMCZP) EnteringMethod: CloudMask::AddIndices";
 
   AddIndices(indices.indices, value);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::AddIndices";
+ }
 
 void CloudMask::AddIndicesOfIndices(
     const base::PointIndices& indices,
@@ -86,13 +100,17 @@ void CloudMask::AddIndicesOfIndices(
   for (auto& id : indices_of_indices.indices) {
     mask_[indices.indices[id]] = value;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::AddIndicesOfIndices";
+ }
 
 void CloudMask::RemoveIndices(const base::PointIndices& indices) {
     AINFO<<"(DMCZP) EnteringMethod: CloudMask::RemoveIndices";
 
   RemoveIndices(indices.indices);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::RemoveIndices";
+ }
 
 void CloudMask::RemoveIndicesOfIndices(
     const base::PointIndices& indices,
@@ -102,13 +120,17 @@ void CloudMask::RemoveIndicesOfIndices(
   for (auto& id : indices_of_indices.indices) {
     mask_[indices.indices[id]] = 0;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::RemoveIndicesOfIndices";
+ }
 
 void CloudMask::GetValidMask(CloudMask* rhs) const {
     AINFO<<"(DMCZP) EnteringMethod: CloudMask::GetValidMask";
 
   if (rhs == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CloudMask::GetValidMask";
+  return;
   }
   rhs->clear();
   for (const auto& i : mask_) {
@@ -116,7 +138,9 @@ void CloudMask::GetValidMask(CloudMask* rhs) const {
       rhs->mask_.push_back(i);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::GetValidMask";
+ }
 
 void CloudMask::ResetValue(int source_value, int target_value) {
     AINFO<<"(DMCZP) EnteringMethod: CloudMask::ResetValue";
@@ -126,7 +150,9 @@ void CloudMask::ResetValue(int source_value, int target_value) {
       i = target_value;
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CloudMask::ResetValue";
+ }
 
 }  // namespace lidar
 }  // namespace perception

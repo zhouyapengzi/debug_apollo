@@ -33,25 +33,35 @@ void Visibility::set_car_pos(const Eigen::Vector3d& car_pos) {
     AINFO<<"(DMCZP) EnteringMethod: Visibility::set_car_pos";
 
   car_pos_ = car_pos;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::set_car_pos";
+ }
 
 void Visibility::fill_objects(std::vector<ObjectPtr>* objs, float thresh) {
     AINFO<<"(DMCZP) EnteringMethod: Visibility::fill_objects";
 
   auto get_interval = [](float num, float thresh) -> int {
     if (num < -thresh) {
-      return -1;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::fill_objects";
+  return -1;
     } else if (num > thresh) {
-      return 1;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::fill_objects";
+  return 1;
     } else {
-      return 0;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::fill_objects";
+  return 0;
     }
   };
 
   auto point_in_rectangle = [this](const VisPoint& point) -> bool {
     const float x = point.x();
     const float y = point.y();
-    return x < half_length_ && x > -half_length_ && y < half_width_ &&
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::fill_objects";
+  return x < half_length_ && x > -half_length_ && y < half_width_ &&
            y > -half_width_;
   };
 
@@ -116,13 +126,17 @@ void Visibility::fill_objects(std::vector<ObjectPtr>* objs, float thresh) {
   }
   visual_angle_.assign(objs->size(), 0);
   calculate(objs, thresh);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::fill_objects";
+ }
 
 float Visibility::calculate(std::vector<ObjectPtr>* objs, float thresh) {
     AINFO<<"(DMCZP) EnteringMethod: Visibility::calculate";
 
   if (points_.empty()) {
-    return 0.0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::calculate";
+  return 0.0;
   }
 
   latest_query_segments_cache_.reserve(points_.size());
@@ -204,8 +218,12 @@ float Visibility::calculate(std::vector<ObjectPtr>* objs, float thresh) {
     objs->at(i)->visible = objs->at(i)->visible_ratio >= thresh;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::calculate";
   return ret;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::calculate";
+ }
 
 void Visibility::reset_state() {
     AINFO<<"(DMCZP) EnteringMethod: Visibility::reset_state";
@@ -216,7 +234,9 @@ void Visibility::reset_state() {
   candidate_segment_.clear();
   full_visual_angle_.clear();
   visual_angle_.clear();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::reset_state";
+ }
 
 void Visibility::add_region() {
     AINFO<<"(DMCZP) EnteringMethod: Visibility::add_region";
@@ -230,13 +250,17 @@ void Visibility::add_region() {
   add_segment(b, c, -1);
   add_segment(c, d, -1);
   add_segment(d, a, -1);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::add_region";
+ }
 
 void Visibility::add_segment(const VisPoint& a, const VisPoint& b, int idx) {
     AINFO<<"(DMCZP) EnteringMethod: Visibility::add_segment";
 
   if (compute_orientation(VisPoint(0, 0), a, b) == Orientation::collinear) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::add_segment";
+  return;
   }
 
   if (approx_equal(a.x(), 0.0) || approx_equal(b.x(), 0.0)) {
@@ -247,7 +271,9 @@ void Visibility::add_segment(const VisPoint& a, const VisPoint& b, int idx) {
     Segment seg = tb.x() < 0 ? Segment(tb, ta, idx) : Segment(ta, tb, idx);
     points_.insert(std::make_pair(ta, seg));
     points_.insert(std::make_pair(tb, seg));
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::add_segment";
+  return;
   }
 
   VisPoint intersection;
@@ -267,13 +293,17 @@ void Visibility::add_segment(const VisPoint& a, const VisPoint& b, int idx) {
     points_.insert(std::make_pair(a, seg));
     points_.insert(std::make_pair(b, seg));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::add_segment";
+ }
 
 void Visibility::query_segments(const VisPoint& p) {
     AINFO<<"(DMCZP) EnteringMethod: Visibility::query_segments";
 
   if (p == latest_query_point_) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::query_segments";
+  return;
   }
   latest_query_segments_cache_.clear();
   auto ret = points_.equal_range(p);
@@ -283,7 +313,9 @@ void Visibility::query_segments(const VisPoint& p) {
     ++it;
   }
   latest_query_point_ = p;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::query_segments";
+ }
 
 void Visibility::update_candidate_segment(const VisPoint& p,
                                           UpdateOperation op) {
@@ -298,7 +330,9 @@ void Visibility::update_candidate_segment(const VisPoint& p,
                        segments.erase(seg);
                      });
   auto update = [this, func](const Segment& seg) {
-    return func(seg, candidate_segment_);
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::update_candidate_segment";
+  return func(seg, candidate_segment_);
   };
 
   for (const auto& seg : latest_query_segments_cache_) {
@@ -307,7 +341,9 @@ void Visibility::update_candidate_segment(const VisPoint& p,
       update(seg);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::update_candidate_segment";
+ }
 
 float Visibility::calculate_area(const VisPoint& a, const VisPoint& b) {
     AINFO<<"(DMCZP) EnteringMethod: Visibility::calculate_area";
@@ -316,8 +352,12 @@ float Visibility::calculate_area(const VisPoint& a, const VisPoint& b) {
   float area = static_cast<float>(
       sqrt(a.length_squared() * b.length_squared() - dot * dot) / 2);
   area = static_cast<float>(std::isfinite(area) ? area : 0.0);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::calculate_area";
   return area;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::calculate_area";
+ }
 
 float Visibility::calculate_visual_angle(const VisPoint& a, const VisPoint& b) {
     AINFO<<"(DMCZP) EnteringMethod: Visibility::calculate_visual_angle";
@@ -327,8 +367,12 @@ float Visibility::calculate_visual_angle(const VisPoint& a, const VisPoint& b) {
   float theta =
       static_cast<float>(approx_equal(cos_theta, 1.0) ? 0.0 : acos(cos_theta));
   // theta = theta * 180 / M_PI;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visibility::calculate_visual_angle";
   return theta;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visibility::calculate_visual_angle";
+ }
 
 }  // namespace benchmark
 }  // namespace perception

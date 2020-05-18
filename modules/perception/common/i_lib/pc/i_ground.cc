@@ -47,7 +47,9 @@ void PlaneFitGroundDetectorParam::SetDefault() {
   nr_ransac_iter_threshold = 32;
   candidate_filter_threshold = 1.0f;  // 1 meter
   nr_smooth_iter = 1;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetectorParam::SetDefault";
+ }
 
 bool PlaneFitGroundDetectorParam::Validate() const {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetectorParam::Validate";
@@ -60,10 +62,16 @@ bool PlaneFitGroundDetectorParam::Validate() const {
       roi_region_rad_z <= 0.f ||
       planefit_dist_threshold_near > planefit_dist_threshold_far) {
     std::cerr << "Invalid ground detector parameters... " << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetectorParam::Validate";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetectorParam::Validate";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetectorParam::Validate";
+ }
 
 int PlaneFitPointCandIndices::Prune(unsigned int min_nr_samples,
                                     unsigned int max_nr_samples) {
@@ -95,8 +103,12 @@ int PlaneFitPointCandIndices::Prune(unsigned int min_nr_samples,
       indices.resize(size);
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitPointCandIndices::Prune";
   return static_cast<int>(indices.size());
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitPointCandIndices::Prune";
+ }
 
 PlaneFitGroundDetector::PlaneFitGroundDetector(
     const PlaneFitGroundDetectorParam &param)
@@ -104,7 +116,9 @@ PlaneFitGroundDetector::PlaneFitGroundDetector(
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::PlaneFitGroundDetector";
 
   assert(Init());
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::PlaneFitGroundDetector";
+ }
 
 PlaneFitGroundDetector::~PlaneFitGroundDetector() { CleanUp(); }
 
@@ -130,7 +144,9 @@ void PlaneFitGroundDetector::InitOrderTable(const VoxelGridXY<float> *vg,
   }
   sort(map_dist.begin(), map_dist.end(),
        [](const std::pair<float, int> &a, const std::pair<float, int> &b) {
-         return a.first < b.first;
+         
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::InitOrderTable";
+  return a.first < b.first;
        });
   for (i = 0; i < map_dist.size(); ++i) {
     id = map_dist[i].second;
@@ -138,7 +154,9 @@ void PlaneFitGroundDetector::InitOrderTable(const VoxelGridXY<float> *vg,
     order[i].first = voxel.iy_;
     order[i].second = voxel.ix_;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::InitOrderTable";
+ }
 
 bool PlaneFitGroundDetector::Init() {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::Init";
@@ -151,29 +169,39 @@ bool PlaneFitGroundDetector::Init() {
   unsigned int capacity = 0;
   unsigned int sf = param_.nr_grids_fine / param_.nr_grids_coarse;
   if (!param_.Validate()) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   // fine grid:
   vg_fine_ = new VoxelGridXY<float>();
   if (vg_fine_ == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   if (!vg_fine_->Alloc(param_.nr_grids_fine, param_.nr_grids_fine,
                        -param_.roi_region_rad_x, param_.roi_region_rad_x,
                        -param_.roi_region_rad_y, param_.roi_region_rad_y,
                        -param_.roi_region_rad_z, param_.roi_region_rad_z)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   // coarse grid:
   vg_coarse_ = new VoxelGridXY<float>();
   if (vg_coarse_ == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   if (!vg_coarse_->Alloc(param_.nr_grids_coarse, param_.nr_grids_coarse,
                          -param_.roi_region_rad_x, param_.roi_region_rad_x,
                          -param_.roi_region_rad_y, param_.roi_region_rad_y,
                          -param_.roi_region_rad_z, param_.roi_region_rad_z)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
 
   // Init order lookup table
@@ -184,23 +212,31 @@ bool PlaneFitGroundDetector::Init() {
   ground_planes_ =
       IAlloc2<GroundPlaneLiDAR>(param_.nr_grids_coarse, param_.nr_grids_coarse);
   if (!ground_planes_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   ground_planes_sphe_ = IAlloc2<GroundPlaneSpherical>(param_.nr_grids_coarse,
                                                       param_.nr_grids_coarse);
   if (!ground_planes_sphe_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   ground_z_ = IAlloc2<std::pair<float, bool> >(param_.nr_grids_coarse,
                                                param_.nr_grids_coarse);
   if (!ground_z_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   // sample candis:
   local_candis_ = IAlloc2<PlaneFitPointCandIndices>(param_.nr_grids_coarse,
                                                     param_.nr_grids_coarse);
   if (!local_candis_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   // Reserve space to avoid runtime memory re-allocation
   for (r = 0; r < param_.nr_grids_coarse; ++r) {
@@ -224,14 +260,18 @@ bool PlaneFitGroundDetector::Init() {
   pf_threeds_ =
       IAllocAligned<float>(param_.nr_samples_max_threshold * dim_point_, 4);
   if (!pf_threeds_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   memset(reinterpret_cast<void *>(pf_threeds_), 0,
          param_.nr_samples_max_threshold * dim_point_ * sizeof(float));
   // labels:
   labels_ = IAllocAligned<char>(param_.nr_points_max, 4);
   if (!labels_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   memset(reinterpret_cast<void *>(labels_), 0,
          param_.nr_points_max * sizeof(char));
@@ -239,7 +279,9 @@ bool PlaneFitGroundDetector::Init() {
   map_fine_to_coarse_ = IAllocAligned<unsigned int>(
       param_.nr_grids_fine * param_.nr_grids_fine, 4);
   if (!map_fine_to_coarse_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   for (r = 0; r < param_.nr_grids_fine; ++r) {
     pr = r / sf;
@@ -252,14 +294,18 @@ bool PlaneFitGroundDetector::Init() {
   // ransac memory:
   sampled_z_values_ = IAllocAligned<float>(param_.nr_z_comp_candis, 4);
   if (!sampled_z_values_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   memset(reinterpret_cast<void *>(sampled_z_values_), 0,
          param_.nr_z_comp_candis * sizeof(float));
   // ransac memory:
   sampled_indices_ = IAllocAligned<int>(param_.nr_z_comp_candis, 4);
   if (!sampled_indices_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   memset(reinterpret_cast<void *>(sampled_indices_), 0,
          param_.nr_z_comp_candis * sizeof(int));
@@ -267,12 +313,18 @@ bool PlaneFitGroundDetector::Init() {
   pf_thresholds_ =
       IAlloc2<float>(param_.nr_grids_coarse, param_.nr_grids_coarse);
   if (!pf_thresholds_) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
+  return false;
   }
   // compute thresholds
   ComputeAdaptiveThreshold();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::Init";
+ }
 
 void PlaneFitGroundDetector::CleanUp() {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::CleanUp";
@@ -294,7 +346,9 @@ void PlaneFitGroundDetector::CleanUp() {
   IFreeAligned<int>(&sampled_indices_);
   IFree2<float>(&pf_thresholds_);
   IFree<std::pair<int, int> >(&order_table_);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::CleanUp";
+ }
 
 int PlaneFitGroundDetector::CompareZ(const float *point_cloud,
                                      const std::vector<int> &indices,
@@ -348,8 +402,12 @@ int PlaneFitGroundDetector::CompareZ(const float *point_cloud,
       nr_candis++;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::CompareZ";
   return nr_candis;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::CompareZ";
+ }
 
 void PlaneFitGroundDetector::ComputeAdaptiveThreshold() {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::ComputeAdaptiveThreshold";
@@ -401,7 +459,9 @@ void PlaneFitGroundDetector::ComputeAdaptiveThreshold() {
       }
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::ComputeAdaptiveThreshold";
+ }
 
 void PlaneFitGroundDetector::ComputeSignedGroundHeight(
     const float *point_cloud, float *height_above_ground,
@@ -426,7 +486,9 @@ void PlaneFitGroundDetector::ComputeSignedGroundHeight(
                                 ground_planes_[nm1], ground_planes_[nm1],
                                 height_above_ground, nm1, nr_points,
                                 nr_point_elements);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::ComputeSignedGroundHeight";
+ }
 
 void PlaneFitGroundDetector::ComputeSignedGroundHeightLine(
     const float *point_cloud, const GroundPlaneLiDAR *up,
@@ -560,7 +622,9 @@ void PlaneFitGroundDetector::ComputeSignedGroundHeightLine(
     height_above_ground[pos] = dist[id];
     ++iter;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::ComputeSignedGroundHeightLine";
+ }
 
 int PlaneFitGroundDetector::FilterGrid(const Voxel<float> &vx,
                                        const float *point_cloud,
@@ -575,7 +639,9 @@ int PlaneFitGroundDetector::FilterGrid(const Voxel<float> &vx,
   unsigned int i = 0;
   unsigned int nr_samples = IMin(param_.nr_z_comp_candis, vx.NrPoints());
   if (vx.Empty()) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FilterGrid";
+  return 0;
   }
   //  generate sampled indices
   if (vx.NrPoints() <= param_.nr_z_comp_candis) {
@@ -599,8 +665,12 @@ int PlaneFitGroundDetector::FilterGrid(const Voxel<float> &vx,
   // Filter points and get plane fitting candidates
   nr_candis = CompareZ(point_cloud, vx.indices_, sampled_z_values_, candi,
                        nr_points, nr_point_element, nr_samples);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FilterGrid";
   return nr_candis;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::FilterGrid";
+ }
 
 int PlaneFitGroundDetector::FilterLine(unsigned int r) {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::FilterLine";
@@ -618,8 +688,12 @@ int PlaneFitGroundDetector::FilterLine(unsigned int r) {
         FilterGrid((*vg_fine_)(r, c), point_cloud, &local_candis_[0][parent],
                    nr_points, nr_point_element);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FilterLine";
   return nr_candis;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::FilterLine";
+ }
 
 int PlaneFitGroundDetector::Filter() {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::Filter";
@@ -637,8 +711,12 @@ int PlaneFitGroundDetector::Filter() {
   for (r = 0; r < param_.nr_grids_fine; ++r) {
     nr_candis += FilterLine(r);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Filter";
   return nr_candis;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::Filter";
+ }
 
 int PlaneFitGroundDetector::FitGrid(const float *point_cloud,
                                     PlaneFitPointCandIndices *candi,
@@ -652,7 +730,9 @@ int PlaneFitGroundDetector::FitGrid(const float *point_cloud,
   groundplane->ForceInvalid();
   // not enough samples, failed and return
   if (candi->Size() < param_.nr_inliers_min_threshold) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGrid";
+  return 0;
   }
   GroundPlaneLiDAR plane;
   float ptp_dist = 0.0f;
@@ -729,12 +809,16 @@ int PlaneFitGroundDetector::FitGrid(const float *point_cloud,
   }
   // check if meet the inlier number requirement
   if (!groundplane->IsValid()) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGrid";
+  return 0;
   }
   if (groundplane->GetNrSupport() <
       static_cast<int>(param_.nr_inliers_min_threshold)) {
     groundplane->ForceInvalid();
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGrid";
+  return 0;
   }
   // iterate samples and check if the point to plane distance is within
   // threshold
@@ -757,10 +841,16 @@ int PlaneFitGroundDetector::FitGrid(const float *point_cloud,
   // std::cout << groundplane->GetDegreeNormalToZ() << std::endl;
   if (groundplane->GetDegreeNormalToZ() > param_.planefit_orien_threshold) {
     groundplane->ForceInvalid();
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGrid";
+  return 0;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGrid";
   return nr_inliers;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::FitGrid";
+ }
 
 int PlaneFitGroundDetector::FitLine(unsigned int r) {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::FitLine";
@@ -782,8 +872,12 @@ int PlaneFitGroundDetector::FitLine(unsigned int r) {
       ground_planes_[r][c].ForceInvalid();
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitLine";
   return nr_grids;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::FitLine";
+ }
 
 int PlaneFitGroundDetector::Fit() {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::Fit";
@@ -792,8 +886,12 @@ int PlaneFitGroundDetector::Fit() {
   for (unsigned int r = 0; r < param_.nr_grids_coarse; ++r) {
     nr_grids += FitLine(r);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Fit";
   return nr_grids;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::Fit";
+ }
 
 //  Filter candidates by neighbors
 int PlaneFitGroundDetector::FilterCandidates(
@@ -835,8 +933,12 @@ int PlaneFitGroundDetector::FilterCandidates(
       candi->indices.assign(filtered_indices.begin(), filtered_indices.end());
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FilterCandidates";
   return count;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::FilterCandidates";
+ }
 
 inline float calculate_two_angles(const GroundPlaneLiDAR &p1,
                                   const GroundPlaneLiDAR &p2) {
@@ -844,8 +946,12 @@ inline float calculate_two_angles(const GroundPlaneLiDAR &p1,
 
   float numerator = IDot3(p1.params, p2.params);
   float denominator = IL2Norm(p1.params, 3) * IL2Norm(p2.params, 3);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: calculate_two_angles";
   return IAcos(numerator * IRec(denominator));
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: calculate_two_angles";
+ }
 
 int PlaneFitGroundDetector::FitGridWithNeighbors(
     int r, int c, const float *point_cloud, GroundPlaneLiDAR *groundplane,
@@ -863,7 +969,9 @@ int PlaneFitGroundDetector::FitGridWithNeighbors(
   FilterCandidates(r, c, point_cloud, &candi, &neighbors, nr_point_element);
 
   if (candi.Size() < param_.nr_inliers_min_threshold) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGridWithNeighbors";
+  return 0;
   }
 
   GroundPlaneLiDAR plane;
@@ -871,7 +979,9 @@ int PlaneFitGroundDetector::FitGridWithNeighbors(
       param_.nr_ransac_iter_threshold + static_cast<int>(neighbors.size());
   //  check hypothesis initialized correct or not
   if (kNr_iter < 1) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGridWithNeighbors";
+  return 0;
   }
   GroundPlaneLiDAR hypothesis[kNr_iter];
 
@@ -980,12 +1090,16 @@ int PlaneFitGroundDetector::FitGridWithNeighbors(
 
   // check if meet the inlier number requirement
   if (!groundplane->IsValid()) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGridWithNeighbors";
+  return 0;
   }
   if (groundplane->GetNrSupport() <
       static_cast<int>(param_.nr_inliers_min_threshold)) {
     groundplane->ForceInvalid();
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGridWithNeighbors";
+  return 0;
   }
   // iterate samples and check if the point to plane distance is within
   // threshold
@@ -1012,7 +1126,9 @@ int PlaneFitGroundDetector::FitGridWithNeighbors(
 
   if (groundplane->GetDegreeNormalToZ() > param_.planefit_orien_threshold) {
     groundplane->ForceInvalid();
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGridWithNeighbors";
+  return 0;
   }
 
   const auto &voxel_cur = (*vg_coarse_)(r, c);
@@ -1025,8 +1141,12 @@ int PlaneFitGroundDetector::FitGridWithNeighbors(
   ground_z_[r][c].first = cz;
   ground_z_[r][c].second = true;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitGridWithNeighbors";
   return nr_inliers;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::FitGridWithNeighbors";
+ }
 
 float PlaneFitGroundDetector::CalculateAngleDist(
     const GroundPlaneLiDAR &plane,
@@ -1047,10 +1167,16 @@ float PlaneFitGroundDetector::CalculateAngleDist(
     }
   }
   if (count == 0) {
-    return -1;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::CalculateAngleDist";
+  return -1;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::CalculateAngleDist";
   return angle_dist / static_cast<float>(count);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::CalculateAngleDist";
+ }
 
 int PlaneFitGroundDetector::FitInOrder() {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::FitInOrder";
@@ -1082,8 +1208,12 @@ int PlaneFitGroundDetector::FitInOrder() {
       ground_planes_[r][c].ForceInvalid();
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::FitInOrder";
   return nr_grids;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::FitInOrder";
+ }
 
 void PlaneFitGroundDetector::GetNeighbors(
     int r, int c, int rows, int cols,
@@ -1105,7 +1235,9 @@ void PlaneFitGroundDetector::GetNeighbors(
       neighbors->push_back(std::pair<int, int>(y, x));
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::GetNeighbors";
+ }
 
 int PlaneFitGroundDetector::SmoothLine(unsigned int up, unsigned int r,
                                        unsigned int dn) {
@@ -1161,8 +1293,12 @@ int PlaneFitGroundDetector::SmoothLine(unsigned int up, unsigned int r,
     IPlaneSpherToEucli(plane, &ground_planes_[r][nm1]);
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::SmoothLine";
   return nr_grids;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::SmoothLine";
+ }
 
 int PlaneFitGroundDetector::CompleteGrid(const GroundPlaneSpherical &lt,
                                          const GroundPlaneSpherical &rt,
@@ -1181,7 +1317,9 @@ int PlaneFitGroundDetector::CompleteGrid(const GroundPlaneSpherical &lt,
   int support_sum = 0;
   support_sum = ISum4(supports);
   if (!support_sum) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::CompleteGrid";
+  return 0;
   }
   weights[0] =
       static_cast<float>(supports[0]) / static_cast<float>(support_sum);
@@ -1201,8 +1339,12 @@ int PlaneFitGroundDetector::CompleteGrid(const GroundPlaneSpherical &lt,
   // compute average - diveided by 4, round to nearest int
   support_sum = IMax(((support_sum + 2) >> 2), 1);
   gp->SetNrSupport(support_sum);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::CompleteGrid";
   return 1;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::CompleteGrid";
+ }
 
 int PlaneFitGroundDetector::SmoothGrid(const GroundPlaneSpherical &g,
                                        const GroundPlaneSpherical &lt,
@@ -1216,7 +1358,9 @@ int PlaneFitGroundDetector::SmoothGrid(const GroundPlaneSpherical &g,
   float weights[] = {0.f, 0.f, 0.f, 0.f, 0.f};
   gp->ForceInvalid();
   if (!g.IsValid()) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::SmoothGrid";
+  return 0;
   }
   //  geometry weight:
   //   1
@@ -1239,7 +1383,9 @@ int PlaneFitGroundDetector::SmoothGrid(const GroundPlaneSpherical &g,
   support_sum = ISum4(supports);
   if (support_sum == 0) {
     *gp = g;
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::SmoothGrid";
+  return 0;
   }
   support_sum += supports[4];
   weights[0] =
@@ -1263,8 +1409,12 @@ int PlaneFitGroundDetector::SmoothGrid(const GroundPlaneSpherical &g,
   // compute weighted average - diveided by 8, round to nearest int
   support_sum = IMax(((support_sum + 2) >> 3), 1);
   gp->SetNrSupport(support_sum);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::SmoothGrid";
   return 1;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::SmoothGrid";
+ }
 
 int PlaneFitGroundDetector::Smooth() {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::Smooth";
@@ -1284,8 +1434,12 @@ int PlaneFitGroundDetector::Smooth() {
       IPlaneEucliToSpher(ground_planes_[r][c], &ground_planes_sphe_[r][c]);
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Smooth";
   return nr_grids;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::Smooth";
+ }
 
 bool PlaneFitGroundDetector::Detect(const float *point_cloud,
                                     float *height_above_ground,
@@ -1299,11 +1453,15 @@ bool PlaneFitGroundDetector::Detect(const float *point_cloud,
   assert(nr_point_elements >= 3);
   // setup the fine voxel grid
   if (!vg_fine_->SetS(point_cloud, nr_points, nr_point_elements)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Detect";
+  return false;
   }
   // setup the coarse voxel grid
   if (!vg_coarse_->SetS(point_cloud, nr_points, nr_point_elements)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Detect";
+  return false;
   }
   // int nr_candis = 0;
   // int nr_valid_grid = 0;
@@ -1337,12 +1495,20 @@ bool PlaneFitGroundDetector::Detect(const float *point_cloud,
   // compute point to ground distance
   ComputeSignedGroundHeight(point_cloud, height_above_ground, nr_points,
                             nr_point_elements);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::Detect";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::Detect";
+ }
 
 const char *PlaneFitGroundDetector::GetLabel() const {
     AINFO<<"(DMCZP) EnteringMethod: *PlaneFitGroundDetector::GetLabel";
- return labels_; }
+ 
+  AINFO<<"(DMCZ
+   AINFO<<"(DMCZP) LeaveMethod: *PlaneFitGroundDetector::GetLabel";
+ P) (return) LeaveMethod: *PlaneFitGroundDetector::GetLabel";
+  return labels_; }
 
 const VoxelGridXY<float> *PlaneFitGroundDetector::GetGrid() const {
   return vg_coarse_;
@@ -1354,30 +1520,50 @@ const GroundPlaneLiDAR *PlaneFitGroundDetector::GetGroundPlane(int r,
 
   assert(r >= 0 && r < static_cast<int>(param_.nr_grids_coarse));
   assert(c >= 0 && c < static_cast<int>(param_.nr_grids_coarse));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: *PlaneFitGroundDetector::GetGroundPlane";
   return ground_planes_ != nullptr ? ground_planes_[r] + c : nullptr;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: *PlaneFitGroundDetector::GetGroundPlane";
+ }
 
 unsigned int PlaneFitGroundDetector::GetGridDimX() const {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::GetGridDimX";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::GetGridDimX";
   return vg_coarse_->NrVoxelX();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::GetGridDimX";
+ }
 
 unsigned int PlaneFitGroundDetector::GetGridDimY() const {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::GetGridDimY";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneFitGroundDetector::GetGridDimY";
   return vg_coarse_->NrVoxelY();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::GetGridDimY";
+ }
 
 float PlaneFitGroundDetector::GetUnknownHeight() {
     AINFO<<"(DMCZP) EnteringMethod: PlaneFitGroundDetector::GetUnknownHeight";
- return FLT_MAX; }
+ 
+  AINFO<<"(DMCZ
+   AINFO<<"(DMCZP) LeaveMethod: PlaneFitGroundDetector::GetUnknownHeight";
+ P) (return) LeaveMethod: PlaneFitGroundDetector::GetUnknownHeight";
+  return FLT_MAX; }
 
 PlaneFitPointCandIndices **PlaneFitGroundDetector::GetCandis() const {
     AINFO<<"(DMCZP) EnteringMethod: **PlaneFitGroundDetector::GetCandis";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: **PlaneFitGroundDetector::GetCandis";
   return local_candis_;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: **PlaneFitGroundDetector::GetCandis";
+ }
 
 void IPlaneEucliToSpher(const GroundPlaneLiDAR &src,
                         GroundPlaneSpherical *dst) {
@@ -1396,7 +1582,9 @@ void IPlaneEucliToSpher(const GroundPlaneLiDAR &src,
     dst->SetNrSupport(src.GetNrSupport());
     dst->SetStatus(src.GetStatus());
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: IPlaneEucliToSpher";
+ }
 
 void IPlaneSpherToEucli(const GroundPlaneSpherical &src,
                         GroundPlaneLiDAR *dst) {
@@ -1423,7 +1611,9 @@ void IPlaneSpherToEucli(const GroundPlaneSpherical &src,
     dst->SetNrSupport(src.GetNrSupport());
     dst->SetStatus(src.GetStatus());
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: IPlaneSpherToEucli";
+ }
 } /*namespace common*/
 } /*namespace perception*/
 } /*namespace apollo*/

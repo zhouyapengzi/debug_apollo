@@ -35,12 +35,18 @@ int RadarTrackManager::RemoveLostTracks() {
   int removed_count = static_cast<int>(tracks_.size() - track_count);
   ADEBUG << "Remove " << removed_count << " tracks";
   tracks_.resize(track_count);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RadarTrackManager::RemoveLostTracks";
   return static_cast<int>(track_count);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RadarTrackManager::RemoveLostTracks";
+ }
 
 void RadarTrackManager::ClearTracks() {
     AINFO<<"(DMCZP) EnteringMethod: RadarTrackManager::ClearTracks";
- tracks_.clear(); }
+ tracks_.clear(); 
+   AINFO<<"(DMCZP) LeaveMethod: RadarTrackManager::ClearTracks";
+ }
 
 }  // namespace radar
 }  // namespace perception

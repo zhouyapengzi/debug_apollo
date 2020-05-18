@@ -66,8 +66,12 @@ bool LaneCameraPerception::Init(const CameraPerceptionInitOptions &options) {
   // Init calibration service
   InitCalibrationService(work_root, model, perception_param_);
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::Init";
+ }
 
 void LaneCameraPerception::InitLane(
     const std::string &work_root, base::BaseCameraModelPtr &model,
@@ -139,7 +143,9 @@ void LaneCameraPerception::InitLane(
       EnsureDirectory(out_calib_dir_);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::InitLane";
+ }
 
 void LaneCameraPerception::InitCalibrationService(
     const std::string &work_root, const base::BaseCameraModelPtr model,
@@ -170,7 +176,9 @@ void LaneCameraPerception::InitCalibrationService(
         << "Failed to init " << calibration_service_param.plugin_param().name();
     AINFO << "Calibration service: " << calibration_service_->Name();
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::InitCalibrationService";
+ }
 
 void LaneCameraPerception::SetCameraHeightAndPitch(
     const std::map<std::string, float> name_camera_ground_height_map,
@@ -180,12 +188,16 @@ void LaneCameraPerception::SetCameraHeightAndPitch(
 
   if (calibration_service_ == nullptr) {
     AERROR << "Calibraion service is not available";
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::SetCameraHeightAndPitch";
+  return;
   }
   calibration_service_->SetCameraHeightAndPitch(
       name_camera_ground_height_map, name_camera_pitch_angle_diff_map,
       pitch_angle_calibrator_working_sensor);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::SetCameraHeightAndPitch";
+ }
 
 void LaneCameraPerception::SetIm2CarHomography(
     Eigen::Matrix3d homography_im2car) {
@@ -193,18 +205,26 @@ void LaneCameraPerception::SetIm2CarHomography(
 
   if (calibration_service_ == nullptr) {
     AERROR << "Calibraion service is not available";
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::SetIm2CarHomography";
+  return;
   }
   lane_postprocessor_->SetIm2CarHomography(homography_im2car);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::SetIm2CarHomography";
+ }
 
 bool LaneCameraPerception::GetCalibrationService(
     BaseCalibrationService **calibration_service) {
     AINFO<<"(DMCZP) EnteringMethod: LaneCameraPerception::GetCalibrationService";
 
   *calibration_service = calibration_service_.get();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::GetCalibrationService";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::GetCalibrationService";
+ }
 
 bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
                                       CameraFrame *frame) {
@@ -216,7 +236,9 @@ bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
 
   if (frame->calibration_service == nullptr) {
     AERROR << "Calibraion service is not available";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::Perception";
+  return false;
   }
 
   // Lane detector and postprocessor: work on front_6mm only
@@ -228,14 +250,18 @@ bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
     LanePostprocessorOptions lane_postprocessor_options;
     if (!lane_detector_->Detect(lane_detetor_options, frame)) {
       AERROR << "Failed to detect lane.";
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::Perception";
+  return false;
     }
     PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
         frame->data_provider->sensor_name(), "LaneDetector");
 
     if (!lane_postprocessor_->Process2D(lane_postprocessor_options, frame)) {
       AERROR << "Failed to postprocess lane 2D.";
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::Perception";
+  return false;
     }
     PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
         frame->data_provider->sensor_name(), "LanePostprocessor2D");
@@ -247,7 +273,9 @@ bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
 
     if (!lane_postprocessor_->Process3D(lane_postprocessor_options, frame)) {
       AERROR << "Failed to postprocess lane 3D.";
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::Perception";
+  return false;
     }
     PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
         frame->data_provider->sensor_name(), "LanePostprocessor3D");
@@ -271,8 +299,12 @@ bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
         absl::StrCat(out_calib_dir_, "/", frame->frame_id, ".txt");
     WriteCalibrationOutput(write_out_calib_file_, calib_file_path, frame);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::Perception";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::Perception";
+ }
 }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

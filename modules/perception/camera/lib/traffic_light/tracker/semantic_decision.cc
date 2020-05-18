@@ -35,8 +35,12 @@ std::map<base::TLColor, std::string> s_color_strs = {
 bool compare(const SemanticTable &s1, const SemanticTable &s2) {
     AINFO<<"(DMCZP) EnteringMethod: compare";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: compare";
   return s1.semantic == s2.semantic;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: compare";
+ }
 
 bool SemanticReviser::Init(const TrafficLightTrackerInitOptions &options) {
     AINFO<<"(DMCZP) EnteringMethod: SemanticReviser::Init";
@@ -45,7 +49,9 @@ bool SemanticReviser::Init(const TrafficLightTrackerInitOptions &options) {
       cyber::common::GetAbsolutePath(options.root_dir, options.conf_file);
   if (!cyber::common::GetProtoFromFile(proto_path, &semantic_param_)) {
     AERROR << "load proto param failed, root dir: " << options.root_dir;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::Init";
+  return false;
   }
 
   int non_blink_coef = 2;
@@ -59,8 +65,12 @@ bool SemanticReviser::Init(const TrafficLightTrackerInitOptions &options) {
   ADEBUG << "blink_threshold_s_: " << blink_threshold_s_;
   ADEBUG << "hysteretic_threshold_: " << hysteretic_threshold_;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::Init";
+ }
 
 void SemanticReviser::UpdateHistoryAndLights(
     const SemanticTable &cur, std::vector<base::TrafficLightPtr> *lights,
@@ -89,7 +99,9 @@ void SemanticReviser::UpdateHistoryAndLights(
   } else {
     (*history)->color = cur.color;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::UpdateHistoryAndLights";
+ }
 
 base::TLColor SemanticReviser::ReviseBySemantic(
     SemanticTable semantic_table, std::vector<base::TrafficLightPtr> *lights) {
@@ -110,9 +122,13 @@ base::TLColor SemanticReviser::ReviseBySemantic(
       (vote.at(static_cast<size_t>(base::TLColor::TL_GREEN)) == 0) &&
       (vote.at(static_cast<size_t>(base::TLColor::TL_YELLOW)) == 0)) {
     if (vote.at(static_cast<size_t>(base::TLColor::TL_BLACK)) > 0) {
-      return base::TLColor::TL_BLACK;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::ReviseBySemantic";
+  return base::TLColor::TL_BLACK;
     } else {
-      return base::TLColor::TL_UNKNOWN_COLOR;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::ReviseBySemantic";
+  return base::TLColor::TL_UNKNOWN_COLOR;
     }
   }
 
@@ -131,11 +147,17 @@ base::TLColor SemanticReviser::ReviseBySemantic(
   ADEBUG << "color " << s_color_strs[max_color] << " is max " << max_color_num;
 
   if (max_color_num == *second_biggest) {
-    return base::TLColor::TL_UNKNOWN_COLOR;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::ReviseBySemantic";
+  return base::TLColor::TL_UNKNOWN_COLOR;
   } else {
-    return max_color;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::ReviseBySemantic";
+  return max_color;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::ReviseBySemantic";
+ }
 
 void SemanticReviser::ReviseLights(std::vector<base::TrafficLightPtr> *lights,
                                    const std::vector<int> &light_ids,
@@ -148,7 +170,9 @@ void SemanticReviser::ReviseLights(std::vector<base::TrafficLightPtr> *lights,
 
   ADEBUG << "revise " << light_ids.size() << " lights to "
          << s_color_strs[dst_color];
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::ReviseLights";
+ }
 
 void SemanticReviser::ReviseByTimeSeries(
     double time_stamp, SemanticTable semantic_table,
@@ -238,7 +262,9 @@ void SemanticReviser::ReviseByTimeSeries(
     semantic_table.last_bright_time_stamp = semantic_table.time_stamp;
     history_semantic_.push_back(semantic_table);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::ReviseByTimeSeries";
+ }
 
 bool SemanticReviser::Track(const TrafficLightTrackerOptions &options,
                             CameraFrame *frame) {
@@ -252,7 +278,9 @@ bool SemanticReviser::Track(const TrafficLightTrackerOptions &options,
   if (lights_ref.empty()) {
     history_semantic_.clear();
     ADEBUG << "no lights to revise, return";
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::Track";
+  return true;
   }
 
   for (size_t i = 0; i < lights_ref.size(); i++) {
@@ -290,12 +318,20 @@ bool SemanticReviser::Track(const TrafficLightTrackerOptions &options,
     ReviseByTimeSeries(time_stamp, cur_semantic_table, &lights_ref);
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::Track";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::Track";
+ }
 
 std::string SemanticReviser::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: SemanticReviser::Name";
- return "SemanticReviser"; }
+ 
+  AINFO<<"(DMCZP) (return
+   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::Name";
+ ) LeaveMethod: SemanticReviser::Name";
+  return "SemanticReviser"; }
 
 REGISTER_TRAFFIC_LIGHT_TRACKER(SemanticReviser);
 

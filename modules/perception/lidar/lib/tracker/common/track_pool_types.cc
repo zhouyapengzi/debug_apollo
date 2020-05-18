@@ -28,7 +28,9 @@ __attribute__((constructor)) void TrackPoolInitialize() {
   TrackDataPool::Instance();
   MlfTrackDataPool::Instance();
   AINFO << "Initialize track pool.";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: __attribute__";
+ }
 
 }  // namespace lidar
 }  // namespace perception

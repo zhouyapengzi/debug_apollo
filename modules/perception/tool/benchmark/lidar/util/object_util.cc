@@ -30,10 +30,14 @@ bool get_bbox_vertices(const ObjectConstPtr object,
     AINFO<<"(DMCZP) EnteringMethod: get_bbox_vertices";
 
   if (object == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: get_bbox_vertices";
+  return false;
   }
   if (vertices == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: get_bbox_vertices";
+  return false;
   }
   vertices->resize(8);
   Eigen::Vector2d pts[4];
@@ -56,15 +60,21 @@ bool get_bbox_vertices(const ObjectConstPtr object,
     (*vertices)[i + 4].head(2) = pts[i] + object->center.head(2);
     (*vertices)[i + 4](2) = object->center(2);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: get_bbox_vertices";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: get_bbox_vertices";
+ }
 
 bool fill_objects_with_point_cloud(std::vector<ObjectPtr>* objects,
                                    const PointCloudConstPtr cloud) {
     AINFO<<"(DMCZP) EnteringMethod: fill_objects_with_point_cloud";
 
   if (objects == nullptr || cloud == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: fill_objects_with_point_cloud";
+  return false;
   }
   struct ObjectUtil {
     ObjectPtr object_ptr;
@@ -102,7 +112,9 @@ bool fill_objects_with_point_cloud(std::vector<ObjectPtr>* objects,
 
   std::sort(object_utils.begin(), object_utils.end(),
             [](const ObjectUtil& lhs, const ObjectUtil& rhs) {
-              return lhs.object_square_radius < rhs.object_square_radius;
+              
+  AINFO<<"(DMCZP) (return) LeaveMethod: fill_objects_with_point_cloud";
+  return lhs.object_square_radius < rhs.object_square_radius;
             });
 
   for (std::size_t n = 0; n < cloud->points.size(); ++n) {
@@ -135,14 +147,20 @@ bool fill_objects_with_point_cloud(std::vector<ObjectPtr>* objects,
       }
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: fill_objects_with_point_cloud";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: fill_objects_with_point_cloud";
+ }
 
 bool fill_axis_align_box(ObjectPtr object) {
     AINFO<<"(DMCZP) EnteringMethod: fill_axis_align_box";
 
   if (object->cloud == nullptr || object->cloud->size() == 0) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: fill_axis_align_box";
+  return false;
   }
   auto& points = object->cloud->points;
   float min_x = points[0].x;
@@ -165,8 +183,12 @@ bool fill_axis_align_box(ObjectPtr object) {
   object->center << static_cast<double>((max_x + min_x) * 0.5f),
       static_cast<double>((max_y + min_y) * 0.5f), static_cast<double>(min_z);
   object->yaw = 0.0;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: fill_axis_align_box";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: fill_axis_align_box";
+ }
 
 }  // namespace benchmark
 }  // namespace perception

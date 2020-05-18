@@ -83,8 +83,12 @@ bool MlfTrackObjectDistance::Init(
     background_weight_table_.emplace(name, weights);
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MlfTrackObjectDistance::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfTrackObjectDistance::Init";
+ }
 
 float MlfTrackObjectDistance::ComputeDistance(
     const TrackedObjectConstPtr& object,
@@ -112,7 +116,9 @@ float MlfTrackObjectDistance::ComputeDistance(
   }
   if (weights == nullptr || weights->size() < 7) {
     AERROR << "Invalid weights";
-    return 1e+10f;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MlfTrackObjectDistance::ComputeDistance";
+  return 1e+10f;
   }
   float distance = 0.f;
   float delta = 1e-10f;
@@ -157,8 +163,12 @@ float MlfTrackObjectDistance::ComputeDistance(
                 BboxIouDistance(latest_object, track->predict_.state, object,
                                 time_diff, background_object_match_threshold_);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MlfTrackObjectDistance::ComputeDistance";
   return distance;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfTrackObjectDistance::ComputeDistance";
+ }
 
 }  // namespace lidar
 }  // namespace perception

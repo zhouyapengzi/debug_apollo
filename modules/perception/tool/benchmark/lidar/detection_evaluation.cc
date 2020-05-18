@@ -61,8 +61,12 @@ bool DetectionEvaluation::init(const std::string& clouds,
 
   _initialized = true;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DetectionEvaluation::init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DetectionEvaluation::init";
+ }
 
 void DetectionEvaluation::run_evaluation() {
     AINFO<<"(DMCZP) EnteringMethod: DetectionEvaluation::run_evaluation";
@@ -134,7 +138,9 @@ void DetectionEvaluation::run_evaluation() {
   // self-evaluation metrics
   _self_stat.get_classification_type_change_rates(
       &_classification_change_rate_per_class, &_classification_change_rate);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DetectionEvaluation::run_evaluation";
+ }
 
 std::ostream& operator<<(std::ostream& out, const DetectionEvaluation& rhs) {
   auto pad_str = [](std::string* str, size_t num, char c = ' ') {

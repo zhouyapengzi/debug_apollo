@@ -28,7 +28,9 @@ namespace perception {
 
 Cipv::Cipv() {
     AINFO<<"(DMCZP) EnteringMethod: Cipv::Cipv";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::Cipv";
+ }
 
 Cipv::~Cipv() {}
 
@@ -64,8 +66,12 @@ bool Cipv::Init(const Eigen::Matrix3d &homography_im2car,
       single_virtual_egolane_width_in_meter_ * 0.5f;
   old_cipv_track_id_ = -2;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::Init";
+ }
 
 // Distance from a point to a line segment
 bool Cipv::DistanceFromPointToLineSegment(const Point2Df &point,
@@ -80,11 +86,17 @@ bool Cipv::DistanceFromPointToLineSegment(const Point2Df &point,
       {line_seg_end_point(0), line_seg_end_point(1)});
   if (line_seg.length_sqr() <= kFloatEpsilon) {
     // line length = 0
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::DistanceFromPointToLineSegment";
+  return false;
   }
   *distance = static_cast<float>(line_seg.DistanceTo(p));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::DistanceFromPointToLineSegment";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::DistanceFromPointToLineSegment";
+ }
 
 // Select CIPV among multiple objects
 bool Cipv::GetEgoLane(const std::vector<base::LaneLine> &lane_objects,
@@ -152,8 +164,12 @@ bool Cipv::GetEgoLane(const std::vector<base::LaneLine> &lane_objects,
       }
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::GetEgoLane";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::GetEgoLane";
+ }
 
 // Make a virtual lane line using a reference lane line and its offset distance
 bool Cipv::MakeVirtualLane(const LaneLineSimple &ref_lane_line,
@@ -169,8 +185,12 @@ bool Cipv::MakeVirtualLane(const LaneLineSimple &ref_lane_line,
         ref_lane_line.line_point[i](0),
         ref_lane_line.line_point[i](1) + offset_distance);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::MakeVirtualLane";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::MakeVirtualLane";
+ }
 
 float Cipv::VehicleDynamics(const uint32_t tick, const float yaw_rate,
                             const float velocity, const float time_unit,
@@ -193,8 +213,16 @@ float Cipv::VehicleDynamics(const uint32_t tick, const float yaw_rate,
   // Option 3. Bicycle model
   // TODO(techoe): Apply bicycle model for vehicle dynamics (need wheel base)
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::VehicleDynamics";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::VehicleDynamics";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::VehicleDynamics";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::VehicleDynamics";
+ }
 
 // Provide vehicle dynamics considersing vehicle size
 float Cipv::VehicleDynamics(const uint32_t tick, const float yaw_rate,
@@ -254,8 +282,12 @@ bool Cipv::MakeVirtualEgoLaneFromYawRate(const float yaw_rate,
     Point2Df right_point(right_x, right_y);
     right_lane_line->line_point.emplace_back(right_point);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::MakeVirtualEgoLaneFromYawRate";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::MakeVirtualEgoLaneFromYawRate";
+ }
 
 // Elongate lane line
 bool Cipv::ElongateEgoLane(const std::vector<base::LaneLine> &lane_objects,
@@ -291,8 +323,12 @@ bool Cipv::ElongateEgoLane(const std::vector<base::LaneLine> &lane_objects,
       AINFO << "Made right lane with offset: " << offset_distance;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::ElongateEgoLane";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::ElongateEgoLane";
+ }
 
 // Create virtual lane line
 bool Cipv::CreateVirtualEgoLane(const float yaw_rate, const float velocity,
@@ -309,8 +345,12 @@ bool Cipv::CreateVirtualEgoLane(const float yaw_rate, const float velocity,
           << egolane_ground->left_line.line_point.size();
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::CreateVirtualEgoLane";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::CreateVirtualEgoLane";
+ }
 
 // Get closest edge of an object in image coordinate
 bool Cipv::FindClosestObjectImage(const std::shared_ptr<base::Object> &object,
@@ -327,7 +367,9 @@ bool Cipv::FindClosestObjectImage(const std::shared_ptr<base::Object> &object,
     // size_x = 0.1;
     // size_y = 0.1;
     // size_z = 0.1;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::FindClosestObjectImage";
+  return false;
   }
   // Footprint (left + width/2, top + height) as a center position
   float center_x = (object->camera_supplement.box.xmin +
@@ -361,8 +403,12 @@ bool Cipv::FindClosestObjectImage(const std::shared_ptr<base::Object> &object,
           << closted_object_edge->end_point(1) << ")";
     AINFO << "closest distance: " << *distance;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::FindClosestObjectImage";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::FindClosestObjectImage";
+ }
 // Get closest edge of an object in ground coordinate
 // TODO(techoe): This function should be changed to find min-y and max-y edges
 // to decide CIPV.
@@ -383,7 +429,9 @@ bool Cipv::FindClosestObjectGround(const std::shared_ptr<base::Object> &object,
     // size_x = 0.1;
     // size_y = 0.1;
     // size_z = 0.1;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::FindClosestObjectGround";
+  return false;
   }
   // Option 1. Get position from center
   auto pos = world2camera * object->center;
@@ -493,7 +541,9 @@ bool Cipv::FindClosestObjectGround(const std::shared_ptr<base::Object> &object,
       AINFO << "left_index: " << left_index;
       AINFO << "right_index: " << right_index;
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::FindClosestObjectGround";
+  return false;
   }
 
   closted_object_edge->start_point(0) = p[right_index](0);
@@ -505,7 +555,9 @@ bool Cipv::FindClosestObjectGround(const std::shared_ptr<base::Object> &object,
   // Added filter to consider an object only in front of ego-car.
   if ((p[left_index](0) < 0 && p[right_index](0) < 0) ||
       (p[closest_index](0) < 0)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::FindClosestObjectGround";
+  return false;
   }
 
   *distance =
@@ -520,8 +572,12 @@ bool Cipv::FindClosestObjectGround(const std::shared_ptr<base::Object> &object,
           << p[closest_index](0) << ", " << p[closest_index](1)
           << "): " << *distance;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::FindClosestObjectGround";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::FindClosestObjectGround";
+ }
 
 // Check if the distance between lane and object are OK
 bool Cipv::AreDistancesSane(const float distance_start_point_to_right_lane,
@@ -536,28 +592,36 @@ bool Cipv::AreDistancesSane(const float distance_start_point_to_right_lane,
       AINFO << "distance from start to right lane("
             << distance_start_point_to_right_lane << " m) is too long";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::AreDistancesSane";
+  return false;
   }
   if (distance_start_point_to_left_lane > kMaxDistObjectToLaneInMeter) {
     if (debug_level_ >= 1) {
       AINFO << "distance from start to left lane("
             << distance_start_point_to_left_lane << " m) is too long";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::AreDistancesSane";
+  return false;
   }
   if (distance_end_point_to_right_lane > kMaxDistObjectToLaneInMeter) {
     if (debug_level_ >= 1) {
       AINFO << "distance from end to right lane("
             << distance_end_point_to_right_lane << " m) is too long";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::AreDistancesSane";
+  return false;
   }
   if (distance_end_point_to_left_lane > kMaxDistObjectToLaneInMeter) {
     if (debug_level_ >= 1) {
       AINFO << "distance from end to left lane("
             << distance_end_point_to_left_lane << " m) is too long";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::AreDistancesSane";
+  return false;
   }
   distance = static_cast<float>(fabs(distance_start_point_to_right_lane -
                                      distance_end_point_to_right_lane));
@@ -565,7 +629,9 @@ bool Cipv::AreDistancesSane(const float distance_start_point_to_right_lane,
     if (debug_level_ >= 1) {
       AINFO << "width of vehicle (" << distance << " m) is too long";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::AreDistancesSane";
+  return false;
   }
 
   distance = static_cast<float>(fabs(distance_end_point_to_left_lane -
@@ -574,14 +640,20 @@ bool Cipv::AreDistancesSane(const float distance_start_point_to_right_lane,
     if (debug_level_ >= 1) {
       AINFO << "width of vehicle (" << distance << " m) is too long";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::AreDistancesSane";
+  return false;
   }
   // put more conditions here if required.
 
   // AINFO << "Distances are sane!";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::AreDistancesSane";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::AreDistancesSane";
+ }
 
 // Check if a point is left of a line segment
 bool Cipv::IsPointLeftOfLine(const Point2Df &point,
@@ -602,7 +674,9 @@ bool Cipv::IsPointLeftOfLine(const Point2Df &point,
             << ", " << line_seg_end_point(1)
             << "), cross_product: " << cross_product;
     }
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsPointLeftOfLine";
+  return true;
   }
   if (debug_level_ >= 2) {
     AINFO << "point (" << point(0) << ", " << point(1)
@@ -610,8 +684,12 @@ bool Cipv::IsPointLeftOfLine(const Point2Df &point,
           << line_seg_start_point(1) << ")->(" << line_seg_end_point(0) << ", "
           << line_seg_end_point(1) << "), cross_product: " << cross_product;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsPointLeftOfLine";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::IsPointLeftOfLine";
+ }
 
 // Check if the object is in the lane in image space
 bool Cipv::IsObjectInTheLaneImage(const std::shared_ptr<base::Object> &object,
@@ -633,7 +711,9 @@ bool Cipv::IsObjectInTheLaneImage(const std::shared_ptr<base::Object> &object,
     if (debug_level_ >= 1) {
       AINFO << "The closest edge of an object is not available";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneImage";
+  return false;
   }
   *object_distance = distance;
 
@@ -645,7 +725,9 @@ bool Cipv::IsObjectInTheLaneImage(const std::shared_ptr<base::Object> &object,
     if (debug_level_ >= 1) {
       AINFO << "No left lane";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneImage";
+  return false;
   }
 
   // Check end_point and left lane
@@ -691,7 +773,9 @@ bool Cipv::IsObjectInTheLaneImage(const std::shared_ptr<base::Object> &object,
     if (debug_level_ >= 1) {
       AINFO << "No right lane";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneImage";
+  return false;
   }
   closest_index = -1;
   shortest_distance = kMaxFloat;
@@ -730,8 +814,12 @@ bool Cipv::IsObjectInTheLaneImage(const std::shared_ptr<base::Object> &object,
   } else {
     AINFO << "The object is out of the ego lane";
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneImage";
   return (b_left_lane_clear && b_right_lane_clear);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::IsObjectInTheLaneImage";
+ }
 
 // Check if the object is in the lane in ego-ground space
 //  |           |
@@ -764,7 +852,9 @@ bool Cipv::IsObjectInTheLaneGround(const std::shared_ptr<base::Object> &object,
     if (debug_level_ >= 1) {
       AINFO << "The closest edge of an object is not available";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneGround";
+  return false;
   }
   *object_distance = distance;
 
@@ -776,7 +866,9 @@ bool Cipv::IsObjectInTheLaneGround(const std::shared_ptr<base::Object> &object,
     if (debug_level_ >= 1) {
       AINFO << "No left lane";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneGround";
+  return false;
   }
 
   // Check end_point and left lane
@@ -821,7 +913,9 @@ bool Cipv::IsObjectInTheLaneGround(const std::shared_ptr<base::Object> &object,
     if (debug_level_ >= 1) {
       AINFO << "No right lane";
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneGround";
+  return false;
   }
   closest_index = -1;
   shortest_distance = kMaxFloat;
@@ -854,8 +948,12 @@ bool Cipv::IsObjectInTheLaneGround(const std::shared_ptr<base::Object> &object,
     }
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneGround";
   return b_left_lane_clear && b_right_lane_clear;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::IsObjectInTheLaneGround";
+ }
 
 // Check if the object is in the lane in ego-ground space
 bool Cipv::IsObjectInTheLane(const std::shared_ptr<base::Object> &object,
@@ -866,11 +964,17 @@ bool Cipv::IsObjectInTheLane(const std::shared_ptr<base::Object> &object,
     AINFO<<"(DMCZP) EnteringMethod: Cipv::IsObjectInTheLane";
 
   if (b_image_based_cipv_) {
-    return IsObjectInTheLaneImage(object, egolane_image, distance);
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLane";
+  return IsObjectInTheLaneImage(object, egolane_image, distance);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLane";
   return IsObjectInTheLaneGround(object, egolane_ground, world2camera,
                                  b_virtual, distance);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::IsObjectInTheLane";
+ }
 
 // =====================================================================
 // Decide CIPV among multiple objects
@@ -963,8 +1067,12 @@ bool Cipv::DetermineCipv(const std::vector<base::LaneLine> &lane_objects,
     }
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::DetermineCipv";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::DetermineCipv";
+ }
 
 bool Cipv::TranformPoint(const Eigen::VectorXf &in,
                          const Eigen::Matrix4f &motion_matrix,
@@ -976,13 +1084,19 @@ bool Cipv::TranformPoint(const Eigen::VectorXf &in,
   }
   Eigen::VectorXf trans_pt = motion_matrix * in;
   if (fabs(trans_pt(3)) < kFloatEpsilon) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::TranformPoint";
+  return false;
   }
 
   trans_pt /= trans_pt(3);
   *out << trans_pt(0), trans_pt(1), trans_pt(2);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::TranformPoint";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::TranformPoint";
+ }
 
 bool Cipv::CollectDrops(const base::MotionBufferPtr &motion_buffer,
                         const Eigen::Affine3d &world2camera,
@@ -995,7 +1109,9 @@ bool Cipv::CollectDrops(const base::MotionBufferPtr &motion_buffer,
   }
   if (motion_size <= 0) {
     ADEBUG << " motion_size: " << motion_size;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::CollectDrops";
+  return false;
   }
   // std::map<int, std::vector<std::pair<float, float>>>
   //     tmp_object_trackjectories;
@@ -1104,8 +1220,12 @@ bool Cipv::CollectDrops(const base::MotionBufferPtr &motion_buffer,
       AINFO << "obj->drop_num: " << obj->drop_num;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::CollectDrops";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::CollectDrops";
+ }
 
 bool Cipv::image2ground(const float image_x, const float image_y,
                         float *ground_x, float *ground_y) {
@@ -1119,13 +1239,19 @@ bool Cipv::image2ground(const float image_x, const float image_y,
   if (fabs(p_ground(2)) > std::numeric_limits<double>::min()) {
     *ground_x = static_cast<float>(p_ground(0) / p_ground(2));
     *ground_y = static_cast<float>(p_ground(1) / p_ground(2));
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::image2ground";
+  return true;
   }
   if (debug_level_ >= 1) {
     AINFO << "p_ground(2) too small :" << p_ground(2);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::image2ground";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::image2ground";
+ }
 
 bool Cipv::ground2image(const float ground_x, const float ground_y,
                         float *image_x, float *image_y) {
@@ -1139,17 +1265,27 @@ bool Cipv::ground2image(const float ground_x, const float ground_y,
   if (fabs(p_image(2)) > std::numeric_limits<double>::min()) {
     *image_x = static_cast<float>(p_image(0) / p_image(2));
     *image_y = static_cast<float>(p_image(1) / p_image(2));
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::ground2image";
+  return true;
   }
   if (debug_level_ >= 1) {
     AINFO << "p_image(2) too small :" << p_image(2);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::ground2image";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::ground2image";
+ }
 
 std::string Cipv::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: Cipv::Name";
- return "Cipv"; }
+ 
+  AINFO<<"(DMC
+   AINFO<<"(DMCZP) LeaveMethod: Cipv::Name";
+ ZP) (return) LeaveMethod: Cipv::Name";
+  return "Cipv"; }
 
 // Register plugin.
 // REGISTER_CIPV(Cipv);

@@ -26,14 +26,22 @@ namespace inference {
 inline std::string get_dtype(const base::Blob<double> &blob) {
     AINFO<<"(DMCZP) EnteringMethod: get_dtype";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: get_dtype";
   return "float64";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: get_dtype";
+ }
 
 inline std::string get_dtype(const base::Blob<float> &blob) {
     AINFO<<"(DMCZP) EnteringMethod: get_dtype";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: get_dtype";
   return "float32";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: get_dtype";
+ }
 
 size_t BinaryReadString(FILE *fp, char *name) {
     AINFO<<"(DMCZP) EnteringMethod: BinaryReadString";
@@ -41,14 +49,20 @@ size_t BinaryReadString(FILE *fp, char *name) {
   size_t len = 0;
   size_t nmemb = fread(&len, sizeof(len), 1, fp);
   if (nmemb != 1 || len == 0) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: BinaryReadString";
+  return 0;
   }
   CHECK_LT(len, kMaxStrLen);
   nmemb = fread(name, sizeof(name[0]), len, fp);
   CHECK_EQ(nmemb, len);
   name[len] = 0;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: BinaryReadString";
   return len;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: BinaryReadString";
+ }
 
 size_t BinaryWriteString(FILE *fp, const std::string &str) {
     AINFO<<"(DMCZP) EnteringMethod: BinaryWriteString";
@@ -56,8 +70,12 @@ size_t BinaryWriteString(FILE *fp, const std::string &str) {
   size_t len = str.length();
   fwrite(&len, sizeof(len), 1, fp);
   fwrite(str.c_str(), sizeof(str[0]), len, fp);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: BinaryWriteString";
   return len;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: BinaryWriteString";
+ }
 
 template <typename Dtype>
 boost::shared_ptr<base::Blob<Dtype>> BinaryReadBlob(FILE *fp) {
@@ -112,7 +130,9 @@ void BinaryWriteBlob(FILE *fp, const base::Blob<Dtype> &blob) {
   if (blob.count() > 0) {
     fwrite(blob.cpu_data(), sizeof(Dtype), blob.count(), fp);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: BinaryWriteBlob";
+ }
 
 template boost::shared_ptr<base::Blob<float>> BinaryReadBlob(FILE *fp);
 template boost::shared_ptr<base::Blob<double>> BinaryReadBlob(FILE *fp);
@@ -133,7 +153,11 @@ std::map<std::string, boost::shared_ptr<base::Blob<Dtype>>> BinaryReadFile(
   FILE *fp = fopen(file_path, "rb");
   if (NULL == fp) {
     AERROR << "Failed opening Binaryary file: " << file_path;
-    return data_dict;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: BinaryWriteBlob";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: BinaryWriteBlob";
+  return data_dict;
   }
 
   // read blob name
@@ -143,8 +167,16 @@ std::map<std::string, boost::shared_ptr<base::Blob<Dtype>>> BinaryReadFile(
   }
 
   fclose(fp);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: BinaryWriteBlob";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: BinaryWriteBlob";
   return data_dict;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: BinaryWriteBlob";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: BinaryWriteBlob";
+ }
 
 template <typename Btype>
 bool BinaryWriteFile(const char *file_path,
@@ -154,7 +186,9 @@ bool BinaryWriteFile(const char *file_path,
   FILE *fp = fopen(file_path, "wb");
   if (NULL == fp) {
     AERROR << "Failed opening Binaryary file: " << file_path;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: BinaryWriteFile";
+  return false;
   }
 
   typename std::map<std::string, Btype>::const_iterator it = data_dict.begin();
@@ -170,8 +204,12 @@ bool BinaryWriteFile(const char *file_path,
   fwrite(&end, sizeof(end), 1, fp);
 
   fclose(fp);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: BinaryWriteFile";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: BinaryWriteFile";
+ }
 
 template std::map<std::string, boost::shared_ptr<base::Blob<float>>>
 BinaryReadFile(const char *file_path);

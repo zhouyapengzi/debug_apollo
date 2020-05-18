@@ -143,5 +143,35 @@ int main(int argc, char **argv) {
   // rt_net has deletle calibrator?
   // delete calibrator;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: main";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_int32";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_int32";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_int32";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_int32";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_int32";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_int32";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_int32";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
   return 0;
 }

@@ -23,13 +23,17 @@ namespace benchmark {
 /**LidarSupplement implementation*/
 LidarSupplement::LidarSupplement() {
     AINFO<<"(DMCZP) EnteringMethod: LidarSupplement::LidarSupplement";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LidarSupplement::LidarSupplement";
+ }
 
 LidarSupplement::~LidarSupplement() {}
 
 LidarSupplement::LidarSupplement(const LidarSupplement& rhs) {
     AINFO<<"(DMCZP) EnteringMethod: LidarSupplement::LidarSupplement";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LidarSupplement::LidarSupplement";
+ }
 
 LidarSupplement& LidarSupplement::operator=(const LidarSupplement& rhs) {
   return (*this);
@@ -37,12 +41,16 @@ LidarSupplement& LidarSupplement::operator=(const LidarSupplement& rhs) {
 
 void LidarSupplement::clone(const LidarSupplement& rhs) {
     AINFO<<"(DMCZP) EnteringMethod: LidarSupplement::clone";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LidarSupplement::clone";
+ }
 
 /**RadarSupplement implementation*/
 RadarSupplement::RadarSupplement() {
     AINFO<<"(DMCZP) EnteringMethod: RadarSupplement::RadarSupplement";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RadarSupplement::RadarSupplement";
+ }
 
 RadarSupplement::~RadarSupplement() {}
 
@@ -53,7 +61,9 @@ RadarSupplement::RadarSupplement(const RadarSupplement& rhs) {
   angle = rhs.angle;
   relative_radial_velocity = rhs.relative_radial_velocity;
   relative_tangential_velocity = rhs.relative_tangential_velocity;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RadarSupplement::RadarSupplement";
+ }
 
 RadarSupplement& RadarSupplement::operator=(const RadarSupplement& rhs) {
   range = rhs.range;
@@ -70,12 +80,16 @@ void RadarSupplement::clone(const RadarSupplement& rhs) {
   angle = rhs.angle;
   relative_radial_velocity = rhs.relative_radial_velocity;
   relative_tangential_velocity = rhs.relative_tangential_velocity;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RadarSupplement::clone";
+ }
 
 /**CameraSupplement implementation*/
 CameraSupplement::CameraSupplement() {
     AINFO<<"(DMCZP) EnteringMethod: CameraSupplement::CameraSupplement";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CameraSupplement::CameraSupplement";
+ }
 
 CameraSupplement::~CameraSupplement() {}
 
@@ -84,7 +98,9 @@ CameraSupplement::CameraSupplement(const CameraSupplement& rhs) {
 
   upper_left = rhs.upper_left;
   lower_right = rhs.lower_right;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CameraSupplement::CameraSupplement";
+ }
 
 CameraSupplement& CameraSupplement::operator=(const CameraSupplement& rhs) {
   upper_left = rhs.upper_left;
@@ -97,7 +113,9 @@ void CameraSupplement::clone(const CameraSupplement& rhs) {
 
   upper_left = rhs.upper_left;
   lower_right = rhs.lower_right;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CameraSupplement::clone";
+ }
 
 }  // namespace benchmark
 }  // namespace perception

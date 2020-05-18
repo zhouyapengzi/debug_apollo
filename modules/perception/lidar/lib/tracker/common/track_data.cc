@@ -23,11 +23,15 @@ namespace lidar {
 const int TrackData::kMaxHistorySize = 40;
 TrackData::TrackData() {
     AINFO<<"(DMCZP) EnteringMethod: TrackData::TrackData";
- Reset(); }
+ Reset(); 
+   AINFO<<"(DMCZP) LeaveMethod: TrackData::TrackData";
+ }
 
 TrackData::TrackData(TrackedObjectPtr obj, int track_id) {
     AINFO<<"(DMCZP) EnteringMethod: TrackData::TrackData";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackData::TrackData";
+ }
 
 TrackData::~TrackData() {}
 
@@ -100,7 +104,9 @@ void TrackData::Reset() {
   should_check_velocity_consistency_ = true;
   history_norm_variance_.clear();
   history_theta_variance_.clear();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackData::Reset";
+ }
 
 void TrackData::Reset(TrackedObjectPtr obj, double time, int track_id) {
     AINFO<<"(DMCZP) EnteringMethod: TrackData::Reset";
@@ -108,7 +114,9 @@ void TrackData::Reset(TrackedObjectPtr obj, double time, int track_id) {
   Reset();
   track_id_ = track_id;
   PushTrackedObjectToTrack(obj, time);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackData::Reset";
+ }
 
 void TrackData::PushTrackedObjectToTrack(TrackedObjectPtr obj, double time) {
     AINFO<<"(DMCZP) EnteringMethod: TrackData::PushTrackedObjectToTrack";
@@ -131,7 +139,9 @@ void TrackData::PushTrackedObjectToTrack(TrackedObjectPtr obj, double time) {
     AWARN << "push object time " << time
           << " already exist in track, ignore insert.";
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackData::PushTrackedObjectToTrack";
+ }
 
 }  // namespace lidar
 }  // namespace perception

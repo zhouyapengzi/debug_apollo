@@ -52,8 +52,12 @@ bool MlfTracker::Init(const MlfTrackerInitOptions options) {
     AINFO << "MlfTracker add filter: " << filter->Name();
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MlfTracker::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfTracker::Init";
+ }
 
 void MlfTracker::InitializeTrack(MlfTrackDataPtr new_track_data,
                                  TrackedObjectPtr new_object) {
@@ -61,7 +65,9 @@ void MlfTracker::InitializeTrack(MlfTrackDataPtr new_track_data,
 
   new_track_data->Reset(new_object, GetNextTrackId());
   new_track_data->is_current_state_predicted_ = false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfTracker::InitializeTrack";
+ }
 
 void MlfTracker::UpdateTrackDataWithObject(MlfTrackDataPtr track_data,
                                            TrackedObjectPtr new_object) {
@@ -74,7 +80,9 @@ void MlfTracker::UpdateTrackDataWithObject(MlfTrackDataPtr track_data,
   // 2. push new_obect to track_data
   track_data->PushTrackedObjectToTrack(new_object);
   track_data->is_current_state_predicted_ = false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfTracker::UpdateTrackDataWithObject";
+ }
 
 void MlfTracker::UpdateTrackDataWithoutObject(double timestamp,
                                               MlfTrackDataPtr track_data) {
@@ -84,7 +92,9 @@ void MlfTracker::UpdateTrackDataWithoutObject(double timestamp,
     filter->UpdateWithoutObject(filter_options_, timestamp, track_data);
   }
   track_data->is_current_state_predicted_ = true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfTracker::UpdateTrackDataWithoutObject";
+ }
 
 }  // namespace lidar
 }  // namespace perception

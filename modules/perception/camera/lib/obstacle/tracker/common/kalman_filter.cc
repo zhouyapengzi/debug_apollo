@@ -34,14 +34,18 @@ KalmanFilterConstVelocity::KalmanFilterConstVelocity() {
   measure_noise_.setIdentity();
   process_noise_.setIdentity();
   inited_ = false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: KalmanFilterConstVelocity::KalmanFilterConstVelocity";
+ }
 
 void KalmanFilterConstVelocity::Init(Eigen::VectorXd x) {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilterConstVelocity::Init";
 
   state_ << x(0), x(1), 0, 0;
   inited_ = true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: KalmanFilterConstVelocity::Init";
+ }
 
 void KalmanFilterConstVelocity::Predict(float delta_t) {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilterConstVelocity::Predict";
@@ -55,13 +59,17 @@ void KalmanFilterConstVelocity::Predict(float delta_t) {
                     state_transition_matrix_.transpose() +
                 process_noise_;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: KalmanFilterConstVelocity::Predict";
+ }
 void KalmanFilterConstVelocity::MagicVelocity(const Eigen::VectorXd &vel) {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilterConstVelocity::MagicVelocity";
 
   state_(2) = vel(0);
   state_(3) = vel(1);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: KalmanFilterConstVelocity::MagicVelocity";
+ }
 void KalmanFilterConstVelocity::Correct(const Eigen::VectorXd &z) {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilterConstVelocity::Correct";
 
@@ -85,17 +93,25 @@ void KalmanFilterConstVelocity::Correct(const Eigen::VectorXd &z) {
   } else {
     Init(z);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: KalmanFilterConstVelocity::Correct";
+ }
 
 Eigen::Vector4d KalmanFilterConstVelocity::get_state() const {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilterConstVelocity::get_state";
- return state_; }
+ 
+  AINFO<<"(DMC
+   AINFO<<"(DMCZP) LeaveMethod: KalmanFilterConstVelocity::get_state";
+ ZP) (return) LeaveMethod: KalmanFilterConstVelocity::get_state";
+  return state_; }
 void KalmanFilterConstVelocity::MagicPosition(const Eigen::VectorXd &pos) {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilterConstVelocity::MagicPosition";
 
   state_(0) = pos(0);
   state_(1) = pos(1);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: KalmanFilterConstVelocity::MagicPosition";
+ }
 
 void ExtendedKalmanFilter::Init() {
     AINFO<<"(DMCZP) EnteringMethod: ExtendedKalmanFilter::Init";
@@ -107,7 +123,9 @@ void ExtendedKalmanFilter::Init() {
   measure_noise_.setIdentity();
   process_noise_.setIdentity();
   inited_ = false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ExtendedKalmanFilter::Init";
+ }
 
 void ExtendedKalmanFilter::Init(Eigen::VectorXd x) {
     AINFO<<"(DMCZP) EnteringMethod: ExtendedKalmanFilter::Init";
@@ -115,7 +133,9 @@ void ExtendedKalmanFilter::Init(Eigen::VectorXd x) {
   Init();
   state_ << x(0), x(1), 0, x(2);
   inited_ = true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ExtendedKalmanFilter::Init";
+ }
 
 void ExtendedKalmanFilter::Predict(float delta_t) {
     AINFO<<"(DMCZP) EnteringMethod: ExtendedKalmanFilter::Predict";
@@ -136,7 +156,9 @@ void ExtendedKalmanFilter::Predict(float delta_t) {
                     state_transition_matrix_.transpose() +
                 process_noise_;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ExtendedKalmanFilter::Predict";
+ }
 
 void ExtendedKalmanFilter::Correct(const Eigen::VectorXd &z) {
     AINFO<<"(DMCZP) EnteringMethod: ExtendedKalmanFilter::Correct";
@@ -155,18 +177,26 @@ void ExtendedKalmanFilter::Correct(const Eigen::VectorXd &z) {
     inited_ = true;
     state_ << z[0], z[1], 0, z[2];
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ExtendedKalmanFilter::Correct";
+ }
 
 Eigen::Vector4d ExtendedKalmanFilter::get_state() const {
     AINFO<<"(DMCZP) EnteringMethod: ExtendedKalmanFilter::get_state";
- return state_; }
+ 
+  AINFO<<"(DMC
+   AINFO<<"(DMCZP) LeaveMethod: ExtendedKalmanFilter::get_state";
+ ZP) (return) LeaveMethod: ExtendedKalmanFilter::get_state";
+  return state_; }
 
 void MeanFilter::SetWindow(int window) {
     AINFO<<"(DMCZP) EnteringMethod: MeanFilter::SetWindow";
 
   window_ = window;
   index_ = 0;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MeanFilter::SetWindow";
+ }
 
 void MeanFilter::AddMeasure(const Eigen::VectorXd &z) {
     AINFO<<"(DMCZP) EnteringMethod: MeanFilter::AddMeasure";
@@ -195,22 +225,34 @@ void MeanFilter::AddMeasure(const Eigen::VectorXd &z) {
   if (n > 1) {
     variance_ /= n - 1;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MeanFilter::AddMeasure";
+ }
 
 const Eigen::VectorXd &MeanFilter::get_state() const {
     AINFO<<"(DMCZP) EnteringMethod: &MeanFilter::get_state";
- return state_; }
+ 
+  AINFO<<"(DMC
+   AINFO<<"(DMCZP) LeaveMethod: &MeanFilter::get_state";
+ ZP) (return) LeaveMethod: &MeanFilter::get_state";
+  return state_; }
 
 const Eigen::MatrixXd &MeanFilter::get_variance() const {
     AINFO<<"(DMCZP) EnteringMethod: &MeanFilter::get_variance";
- return variance_; }
+ 
+  AINFO<<"(DMCZP)
+   AINFO<<"(DMCZP) LeaveMethod: &MeanFilter::get_variance";
+  (return) LeaveMethod: &MeanFilter::get_variance";
+  return variance_; }
 
 void FirstOrderRCLowPassFilter::SetAlpha(float alpha) {
     AINFO<<"(DMCZP) EnteringMethod: FirstOrderRCLowPassFilter::SetAlpha";
 
   alpha_ = alpha;
   inited_ = false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FirstOrderRCLowPassFilter::SetAlpha";
+ }
 
 void FirstOrderRCLowPassFilter::AddMeasure(const Eigen::VectorXd &z) {
     AINFO<<"(DMCZP) EnteringMethod: FirstOrderRCLowPassFilter::AddMeasure";
@@ -221,11 +263,17 @@ void FirstOrderRCLowPassFilter::AddMeasure(const Eigen::VectorXd &z) {
     state_ = z;
     inited_ = true;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FirstOrderRCLowPassFilter::AddMeasure";
+ }
 
 Eigen::VectorXd FirstOrderRCLowPassFilter::get_state() const {
     AINFO<<"(DMCZP) EnteringMethod: FirstOrderRCLowPassFilter::get_state";
- return state_; }
+ 
+  AINFO<<"(DMC
+   AINFO<<"(DMCZP) LeaveMethod: FirstOrderRCLowPassFilter::get_state";
+ ZP) (return) LeaveMethod: FirstOrderRCLowPassFilter::get_state";
+  return state_; }
 
 struct {
   bool operator()(Eigen::VectorXd a, Eigen::VectorXd b) const {
@@ -238,7 +286,9 @@ void MaxNMeanFilter::SetWindow(int window) {
 
   window_ = window;
   index_ = 0;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MaxNMeanFilter::SetWindow";
+ }
 
 void MaxNMeanFilter::AddMeasure(const Eigen::VectorXd &z) {
     AINFO<<"(DMCZP) EnteringMethod: MaxNMeanFilter::AddMeasure";
@@ -248,7 +298,9 @@ void MaxNMeanFilter::AddMeasure(const Eigen::VectorXd &z) {
   if (measures_.size() > static_cast<unsigned int>(window_)) {
     measures_.resize(window_);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MaxNMeanFilter::AddMeasure";
+ }
 
 Eigen::VectorXd MaxNMeanFilter::get_state() const {
     AINFO<<"(DMCZP) EnteringMethod: MaxNMeanFilter::get_state";
@@ -258,11 +310,17 @@ Eigen::VectorXd MaxNMeanFilter::get_state() const {
     x += measures_[i];
   }
   x = x / static_cast<double>(measures_.size());
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MaxNMeanFilter::get_state";
   return x;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MaxNMeanFilter::get_state";
+ }
 void MaxNMeanFilter::Clear() {
     AINFO<<"(DMCZP) EnteringMethod: MaxNMeanFilter::Clear";
- measures_.clear(); }
+ measures_.clear(); 
+   AINFO<<"(DMCZP) LeaveMethod: MaxNMeanFilter::Clear";
+ }
 }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

@@ -28,7 +28,11 @@ CaffeNet::CaffeNet(const std::string &net_file, const std::string &model_file,
     AINFO<<"(DMCZP) EnteringMethod: CaffeNet::CaffeNet";
 
     AINFO<<"(DMCZP) EnteringMethod: CaffeNet::CaffeNet";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::CaffeNet";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::CaffeNet";
+ }
 
 bool CaffeNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
     AINFO<<"(DMCZP) EnteringMethod: CaffeNet::Init";
@@ -44,7 +48,9 @@ bool CaffeNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
   // init Net
   net_.reset(new caffe::Net<float>(net_file_, caffe::TEST));
   if (net_ == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CaffeNet::Init";
+  return false;
   }
   net_->CopyTrainedLayersFrom(model_file_);
   for (auto tmp : shapes) {
@@ -72,8 +78,12 @@ bool CaffeNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
     blob.reset(new apollo::perception::base::Blob<float>(caffe_blob->shape()));
     blobs_.insert(std::make_pair(name, blob));
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CaffeNet::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::Init";
+ }
 
 CaffeNet::CaffeNet(const std::string &net_file, const std::string &model_file,
                    const std::vector<std::string> &outputs,
@@ -106,8 +116,12 @@ bool CaffeNet::reshape() {
   }
   net_->Reshape();
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CaffeNet::reshape";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::reshape";
+ }
 
 void CaffeNet::Infer() {
     AINFO<<"(DMCZP) EnteringMethod: CaffeNet::Infer";
@@ -140,18 +154,26 @@ void CaffeNet::Infer() {
                  caffe_blob->count() * sizeof(float), cudaMemcpyDeviceToDevice);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::Infer";
+ }
 
 bool CaffeNet::shape(const std::string &name, std::vector<int> *res) {
     AINFO<<"(DMCZP) EnteringMethod: CaffeNet::shape";
 
   auto blob = net_->blob_by_name(name);
   if (blob == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CaffeNet::shape";
+  return false;
   }
   *res = blob->shape();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CaffeNet::shape";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::shape";
+ }
 
 }  // namespace inference
 }  // namespace perception

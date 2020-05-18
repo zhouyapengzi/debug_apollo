@@ -42,44 +42,66 @@ bool DstManager::AddApp(const std::string &app_name,
                   "Dst %s: The input fod subsets"
                   " have repetitive elements.") %
                   app_name;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::AddApp";
+  return false;
   }
   FodCheck(&dst_data);
   ComputeCardinalities(&dst_data);
   if (!ComputeRelations(&dst_data)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::AddApp";
+  return false;
   }
   dst_data.init_ = true;
   BuildNamesMap(fod_subset_names, &dst_data);
 
   std::lock_guard<std::mutex> lock(map_mutex_);
   dst_common_data_[app_name] = dst_data;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::AddApp";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::AddApp";
+ }
 
 bool DstManager::IsAppAdded(const std::string &app_name) {
     AINFO<<"(DMCZP) EnteringMethod: DstManager::IsAppAdded";
 
   auto iter = dst_common_data_.find(app_name);
   if (iter == dst_common_data_.end()) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::IsAppAdded";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::IsAppAdded";
   return iter->second.init_;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::IsAppAdded";
+ }
 
 DstCommonDataPtr DstManager::GetAppDataPtr(const std::string &app_name) {
     AINFO<<"(DMCZP) EnteringMethod: DstManager::GetAppDataPtr";
 
   if (!IsAppAdded(app_name)) {
     AERROR << "app_name is not available";
-    return nullptr;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::GetAppDataPtr";
+  return nullptr;
   }
   auto iter = dst_common_data_.find(app_name);
   if (iter != dst_common_data_.end()) {
-    return &iter->second;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::GetAppDataPtr";
+  return &iter->second;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::GetAppDataPtr";
   return nullptr;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::GetAppDataPtr";
+ }
 
 size_t DstManager::FodSubsetToInd(const std::string &app_name,
                                   const uint64_t &fod_subset) {
@@ -89,8 +111,12 @@ size_t DstManager::FodSubsetToInd(const std::string &app_name,
   CHECK(iter0 != dst_common_data_.end());
   auto iter = iter0->second.subsets_ind_map_.find(fod_subset);
   CHECK(iter != iter0->second.subsets_ind_map_.end());
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::FodSubsetToInd";
   return iter->second;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::FodSubsetToInd";
+ }
 
 uint64_t DstManager::IndToFodSubset(const std::string &app_name,
                                     const size_t &ind) {
@@ -98,8 +124,12 @@ uint64_t DstManager::IndToFodSubset(const std::string &app_name,
 
   auto iter = dst_common_data_.find(app_name);
   CHECK(iter != dst_common_data_.end());
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::IndToFodSubset";
   return iter->second.fod_subsets_[ind];
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::IndToFodSubset";
+ }
 
 void DstManager::BuildSubsetsIndMap(DstCommonData *dst_data) {
     AINFO<<"(DMCZP) EnteringMethod: DstManager::BuildSubsetsIndMap";
@@ -108,7 +138,9 @@ void DstManager::BuildSubsetsIndMap(DstCommonData *dst_data) {
   for (size_t i = 0; i < dst_data->fod_subsets_.size(); ++i) {
     dst_data->subsets_ind_map_[dst_data->fod_subsets_[i]] = i;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::BuildSubsetsIndMap";
+ }
 
 void DstManager::FodCheck(DstCommonData *dst_data) {
     AINFO<<"(DMCZP) EnteringMethod: DstManager::FodCheck";
@@ -125,7 +157,9 @@ void DstManager::FodCheck(DstCommonData *dst_data) {
   } else {
     dst_data->fod_loc_ = find_res.first->second;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::FodCheck";
+ }
 
 void DstManager::ComputeCardinalities(DstCommonData *dst_data) {
     AINFO<<"(DMCZP) EnteringMethod: DstManager::ComputeCardinalities";
@@ -136,13 +170,17 @@ void DstManager::ComputeCardinalities(DstCommonData *dst_data) {
       fod_subset &= (fod_subset - 1);
       ++count;
     }
-    return count;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::ComputeCardinalities";
+  return count;
   };
   dst_data->fod_subset_cardinalities_.reserve(dst_data->fod_subsets_.size());
   for (auto fod_subset : dst_data->fod_subsets_) {
     dst_data->fod_subset_cardinalities_.push_back(count_set_bits(fod_subset));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::ComputeCardinalities";
+ }
 
 bool DstManager::ComputeRelations(DstCommonData *dst_data) {
     AINFO<<"(DMCZP) EnteringMethod: DstManager::ComputeRelations";
@@ -181,15 +219,21 @@ bool DstManager::ComputeRelations(DstCommonData *dst_data) {
               "Dst: The input set "
               "of fod subsets has no closure under the operation "
               "intersection");
-          return false;
+          
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::ComputeRelations";
+  return false;
         }
         dst_data->combination_relations_[find_res->second].push_back(
             std::make_pair(i, j));
       }
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::ComputeRelations";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::ComputeRelations";
+ }
 
 void DstManager::BuildNamesMap(const std::vector<std::string> &fod_subset_names,
                                DstCommonData *dst_data) {
@@ -209,7 +253,9 @@ void DstManager::BuildNamesMap(const std::vector<std::string> &fod_subset_names,
        ++i) {
     dst_data->fod_subset_names_[i] = fod_subset_names[i];
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DstManager::BuildNamesMap";
+ }
 
 Dst::Dst(const std::string &app_name) : app_name_(app_name) {
     AINFO<<"(DMCZP) EnteringMethod: Dst::Dst";
@@ -220,7 +266,9 @@ Dst::Dst(const std::string &app_name) : app_name_(app_name) {
     bba_vec_.resize(dst_data_ptr_->fod_subsets_.size(), 0.0);
     bba_vec_[dst_data_ptr_->fod_loc_] = 1.0;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::Dst";
+ }
 
 void Dst::SelfCheck() const {
     AINFO<<"(DMCZP) EnteringMethod: Dst::SelfCheck";
@@ -232,22 +280,32 @@ void Dst::SelfCheck() const {
     bba_vec_.resize(dst_data_ptr_->fod_subsets_.size(), 0.0);
     bba_vec_[dst_data_ptr_->fod_loc_] = 1.0;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::SelfCheck";
+ }
 
 double Dst::GetSubsetBfmass(uint64_t fod_subset) const {
     AINFO<<"(DMCZP) EnteringMethod: Dst::GetSubsetBfmass";
 
   SelfCheck();
   size_t idx = DstManager::Instance()->FodSubsetToInd(app_name_, fod_subset);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::GetSubsetBfmass";
   return bba_vec_[idx];
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::GetSubsetBfmass";
+ }
 
 double Dst::GetIndBfmass(size_t ind) const {
     AINFO<<"(DMCZP) EnteringMethod: Dst::GetIndBfmass";
 
   SelfCheck();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::GetIndBfmass";
   return bba_vec_[ind];
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::GetIndBfmass";
+ }
 
 bool Dst::SetBbaVec(const std::vector<double> &bba_vec) {
     AINFO<<"(DMCZP) EnteringMethod: Dst::SetBbaVec";
@@ -256,21 +314,29 @@ bool Dst::SetBbaVec(const std::vector<double> &bba_vec) {
   if (bba_vec.size() != dst_data_ptr_->fod_subsets_.size()) {
     AERROR << boost::format("input bba_vec size: %d !=  Dst subsets size: %d") %
                   bba_vec.size() % dst_data_ptr_->fod_subsets_.size();
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::SetBbaVec";
+  return false;
   }
   // check belief mass valid
   for (auto belief_mass : bba_vec) {
     if (belief_mass < 0.0) {
       AWARN << boost::format(" belief mass: %lf is not valid") % belief_mass;
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::SetBbaVec";
+  return false;
     }
   }
   // reset
   // *this = Dst(app_name_);
   bba_vec_ = bba_vec;
   Normalize();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::SetBbaVec";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::SetBbaVec";
+ }
 
 bool Dst::SetBba(const std::map<uint64_t, double> &bba_map) {
     AINFO<<"(DMCZP) EnteringMethod: Dst::SetBba";
@@ -284,12 +350,16 @@ bool Dst::SetBba(const std::map<uint64_t, double> &bba_map) {
     auto find_res = subsets_ind_map.find(fod_subset);
     if (find_res == subsets_ind_map.end()) {
       AERROR << "the input bba map has invalid fod subset";
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::SetBba";
+  return false;
     }
     if (belief_mass < 0.0) {
       AWARN << boost::format("belief mass: %lf is not valid. Dst name: %s") %
                    belief_mass % app_name_;
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::SetBba";
+  return false;
     }
     bba_vec[find_res->second] = belief_mass;
   }
@@ -297,8 +367,12 @@ bool Dst::SetBba(const std::map<uint64_t, double> &bba_map) {
   // *this = Dst(app_name_);
   bba_vec_ = bba_vec;
   Normalize();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::SetBba";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::SetBba";
+ }
 
 std::string Dst::PrintBba() const {
     AINFO<<"(DMCZP) EnteringMethod: Dst::PrintBba";
@@ -314,7 +388,9 @@ std::string Dst::PrintBba() const {
       row_str += (boost::format("%20.6lf") % (flt * 100)).str();
     }
     row_str += "\n";
-    return row_str;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::PrintBba";
+  return row_str;
   };
   std::string res;
   res.reserve(total_res_size);
@@ -332,8 +408,12 @@ std::string Dst::PrintBba() const {
   // res += print_row("support", support_vec_);
   // res += print_row("uncertainty", uncertainty_vec_);
   // res += print_row("probability", probability_vec_);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Dst::PrintBba";
   return res;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::PrintBba";
+ }
 
 void Dst::ComputeSptPlsUct() const {
     AINFO<<"(DMCZP) EnteringMethod: Dst::ComputeSptPlsUct";
@@ -367,7 +447,9 @@ void Dst::ComputeSptPlsUct() const {
     // AINFO << boost::format("pls: (%d %lf)") % i % pls;
     uct = pls - spt;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::ComputeSptPlsUct";
+ }
 
 // use combination_relations to compute all the probability at one time
 void Dst::ComputeProbability() const {
@@ -391,7 +473,9 @@ void Dst::ComputeProbability() const {
           bba_vec_[b_ind];
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::ComputeProbability";
+ }
 
 void Dst::Normalize() {
     AINFO<<"(DMCZP) EnteringMethod: Dst::Normalize";
@@ -404,7 +488,9 @@ void Dst::Normalize() {
   for (auto &belief_mass : bba_vec_) {
     belief_mass /= mass_sum;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Dst::Normalize";
+ }
 
 Dst operator+(const Dst &lhs, const Dst &rhs) {
   CHECK_EQ(lhs.app_name_, rhs.app_name_)
@@ -440,9 +526,13 @@ Dst operator*(const Dst &dst, double w) {
   // check w
   if (w < 0.0 || w > 1.0) {
     AERROR << boost::format(
-                  "the weight of bba %lf is not valid, return default bba") %
+                  "the weight of bba %lf is not valid, 
+  AINFO<<"(DMCZP) (return) LeaveMethod: operator*";
+  return default bba") %
                   w;
-    return res;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: operator*";
+  return res;
   }
   size_t fod_loc = dst.dst_data_ptr_->fod_loc_;
   std::vector<double> &resbba_vec_ = res.bba_vec_;
@@ -454,8 +544,12 @@ Dst operator*(const Dst &dst, double w) {
       resbba_vec_[i] = w * bba_vec[i];
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: operator*";
   return res;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: operator*";
+ }
 
 }  // namespace fusion
 }  // namespace perception

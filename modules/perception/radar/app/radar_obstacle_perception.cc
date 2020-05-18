@@ -65,8 +65,12 @@ bool RadarObstaclePerception::Init(const std::string& pipeline_name) {
   CHECK(roi_filter_->Init()) << "radar roi filter init error";
   CHECK(tracker_->Init()) << "radar tracker init error";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RadarObstaclePerception::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RadarObstaclePerception::Init";
+ }
 
 bool RadarObstaclePerception::Perceive(
     const drivers::ContiRadar& corrected_obstacles,
@@ -82,7 +86,9 @@ bool RadarObstaclePerception::Perceive(
   if (!detector_->Detect(corrected_obstacles, options.detector_options,
                          detect_frame_ptr)) {
     AERROR << "radar detect error";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: RadarObstaclePerception::Perceive";
+  return false;
   }
   ADEBUG << "Detected frame objects number: "
          << detect_frame_ptr->objects.size();
@@ -98,7 +104,9 @@ bool RadarObstaclePerception::Perceive(
   if (!tracker_->Track(*detect_frame_ptr, options.track_options,
                        tracker_frame_ptr)) {
     AERROR << "radar track error";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: RadarObstaclePerception::Perceive";
+  return false;
   }
   ADEBUG << "tracked frame objects number: "
          << tracker_frame_ptr->objects.size();
@@ -106,14 +114,22 @@ bool RadarObstaclePerception::Perceive(
 
   *objects = tracker_frame_ptr->objects;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RadarObstaclePerception::Perceive";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RadarObstaclePerception::Perceive";
+ }
 
 std::string RadarObstaclePerception::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: RadarObstaclePerception::Name";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RadarObstaclePerception::Name";
   return "RadarObstaclePerception";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RadarObstaclePerception::Name";
+ }
 
 PERCEPTION_REGISTER_RADAR_OBSTACLE_PERCEPTION(RadarObstaclePerception);
 

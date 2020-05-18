@@ -33,7 +33,13 @@ SensorObject::SensorObject(
     AINFO<<"(DMCZP) EnteringMethod: SensorObject::SensorObject";
 
     AINFO<<"(DMCZP) EnteringMethod: SensorObject::SensorObject";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorObject::SensorObject";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: SensorObject::SensorObject";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: SensorObject::SensorObject";
+ }
 
 SensorObject::SensorObject(
     const std::shared_ptr<const base::Object>& object_ptr,
@@ -51,46 +57,72 @@ double SensorObject::GetTimestamp() const {
     AINFO<<"(DMCZP) EnteringMethod: SensorObject::GetTimestamp";
 
   if (frame_header_ == nullptr) {
-    return 0.0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObject::GetTimestamp";
+  return 0.0;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObject::GetTimestamp";
   return frame_header_->timestamp;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorObject::GetTimestamp";
+ }
 
 bool SensorObject::GetRelatedFramePose(Eigen::Affine3d* pose) const {
     AINFO<<"(DMCZP) EnteringMethod: SensorObject::GetRelatedFramePose";
 
   if (pose == nullptr) {
     AERROR << "pose is not available";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObject::GetRelatedFramePose";
+  return false;
   }
   if (frame_header_ == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObject::GetRelatedFramePose";
+  return false;
   }
 
   *pose = frame_header_->sensor2world_pose;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObject::GetRelatedFramePose";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorObject::GetRelatedFramePose";
+ }
 
 std::string SensorObject::GetSensorId() const {
     AINFO<<"(DMCZP) EnteringMethod: SensorObject::GetSensorId";
 
   if (frame_header_ == nullptr) {
-    return std::string("");
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObject::GetSensorId";
+  return std::string("");
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObject::GetSensorId";
   return frame_header_->sensor_info.name;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorObject::GetSensorId";
+ }
 
 base::SensorType SensorObject::GetSensorType() const {
     AINFO<<"(DMCZP) EnteringMethod: SensorObject::GetSensorType";
 
   if (frame_header_ == nullptr) {
-    return base::SensorType::UNKNOWN_SENSOR_TYPE;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObject::GetSensorType";
+  return base::SensorType::UNKNOWN_SENSOR_TYPE;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObject::GetSensorType";
   return frame_header_->sensor_info.type;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorObject::GetSensorType";
+ }
 
 // FusedObject implementations
 FusedObject::FusedObject() {
@@ -98,28 +130,42 @@ FusedObject::FusedObject() {
 
   base::ObjectPool& object_pool = base::ObjectPool::Instance();
   object_ = object_pool.Get();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FusedObject::FusedObject";
+ }
 
 bool IsLidar(const SensorObjectConstPtr& obj) {
     AINFO<<"(DMCZP) EnteringMethod: IsLidar";
 
   base::SensorType type = obj->GetSensorType();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsLidar";
   return common::SensorManager::Instance()->IsLidar(type);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: IsLidar";
+ }
 
 bool IsRadar(const SensorObjectConstPtr& obj) {
     AINFO<<"(DMCZP) EnteringMethod: IsRadar";
 
   base::SensorType type = obj->GetSensorType();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsRadar";
   return common::SensorManager::Instance()->IsRadar(type);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: IsRadar";
+ }
 
 bool IsCamera(const SensorObjectConstPtr& obj) {
     AINFO<<"(DMCZP) EnteringMethod: IsCamera";
 
   base::SensorType type = obj->GetSensorType();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsCamera";
   return common::SensorManager::Instance()->IsCamera(type);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: IsCamera";
+ }
 
 }  // namespace fusion
 }  // namespace perception

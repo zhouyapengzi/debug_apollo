@@ -30,7 +30,9 @@ using cyber::common::GetAbsolutePath;
 
 HMMatcher::HMMatcher() {
     AINFO<<"(DMCZP) EnteringMethod: HMMatcher::HMMatcher";
- name_ = "HMMatcher"; }
+ name_ = "HMMatcher"; 
+   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::HMMatcher";
+ }
 
 HMMatcher::~HMMatcher() {}
 
@@ -43,7 +45,9 @@ bool HMMatcher::Init() {
   AINFO << "matcher name: " << name_;
   if (!config_manager->GetModelConfig(model_name, &model_config)) {
     AERROR << "not found model: " << model_name;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::Init";
+  return false;
   }
 
   const std::string &work_root = config_manager->work_root();
@@ -61,8 +65,12 @@ bool HMMatcher::Init() {
   double bound_match_distance = config_params.bound_match_distance();
   BaseMatcher::SetMaxMatchDistance(max_match_distance);
   BaseMatcher::SetBoundMatchDistance(bound_match_distance);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::Init";
+ }
 // @brief match radar objects to tracks
 // @params[IN] radar_tracks: global tracks
 // @params[IN] radar_frame: current radar frame
@@ -83,8 +91,12 @@ bool HMMatcher::Match(const std::vector<RadarTrackPtr> &radar_tracks,
           unassigned_objects);
   TrackObjectPropertyMatch(radar_tracks, radar_frame, assignments,
                            unassigned_tracks, unassigned_objects);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::Match";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::Match";
+ }
 
 bool HMMatcher::RefinedTrack(const base::ObjectPtr &track_object,
                              double track_timestamp,
@@ -96,7 +108,9 @@ bool HMMatcher::RefinedTrack(const base::ObjectPtr &track_object,
                              const base::ObjectPtr &object2,
                              double timestamp2) -> double {
     double time_diff = timestamp2 - timestamp1;
-    return (object2->center - object1->center -
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::RefinedTrack";
+  return (object2->center - object1->center -
             object1->velocity.cast<double>() * time_diff)
         .head(2)
         .norm();
@@ -106,8 +120,12 @@ bool HMMatcher::RefinedTrack(const base::ObjectPtr &track_object,
                 0.5 * compute_distance(radar_object, radar_timestamp,
                                        track_object, track_timestamp);
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::RefinedTrack";
   return dist < BaseMatcher::GetMaxMatchDistance();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::RefinedTrack";
+ }
 
 void HMMatcher::TrackObjectPropertyMatch(
     const std::vector<RadarTrackPtr> &radar_tracks,
@@ -117,7 +135,9 @@ void HMMatcher::TrackObjectPropertyMatch(
     AINFO<<"(DMCZP) EnteringMethod: HMMatcher::TrackObjectPropertyMatch";
 
   if (unassigned_tracks->empty() || unassigned_objects->empty()) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::TrackObjectPropertyMatch";
+  return;
   }
   std::vector<std::vector<double> > association_mat(unassigned_tracks->size());
   for (size_t i = 0; i < association_mat.size(); ++i) {
@@ -161,7 +181,9 @@ void HMMatcher::TrackObjectPropertyMatch(
   }
   *unassigned_tracks = temp_unassigned_tracks;
   *unassigned_objects = temp_unassigned_objects;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::TrackObjectPropertyMatch";
+ }
 void HMMatcher::ComputeAssociationMat(
     const std::vector<RadarTrackPtr> &radar_tracks,
     const base::Frame &radar_frame,
@@ -187,7 +209,9 @@ void HMMatcher::ComputeAssociationMat(
           0.5 * distance_forward + 0.5 * distance_backward;
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::ComputeAssociationMat";
+ }
 double HMMatcher::DistanceBetweenObs(const base::ObjectPtr &obs1,
                                      double timestamp1,
                                      const base::ObjectPtr &obs2,
@@ -195,11 +219,15 @@ double HMMatcher::DistanceBetweenObs(const base::ObjectPtr &obs1,
     AINFO<<"(DMCZP) EnteringMethod: HMMatcher::DistanceBetweenObs";
 
   double time_diff = timestamp2 - timestamp1;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::DistanceBetweenObs";
   return (obs2->center - obs1->center -
           obs1->velocity.cast<double>() * time_diff)
       .head(2)
       .norm();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::DistanceBetweenObs";
+ }
 
 PERCEPTION_REGISTER_MATCHER(HMMatcher);
 

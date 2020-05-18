@@ -38,16 +38,24 @@ bool IsPtInRoi(const HdmapStructConstPtr roi, const PointD pt) {
 
   for (std::size_t j = 0; j < roi->road_polygons.size(); j++) {
     if (IsPointXYInPolygon2DXY(pt, roi->road_polygons[j])) {
-      return true;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsPtInRoi";
+  return true;
     }
   }
   for (std::size_t j = 0; j < roi->junction_polygons.size(); j++) {
     if (IsPointXYInPolygon2DXY(pt, roi->junction_polygons[j])) {
-      return true;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsPtInRoi";
+  return true;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsPtInRoi";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: IsPtInRoi";
+ }
 
 bool IsObjectInRoi(const HdmapStructConstPtr roi, const ObjectConstPtr obj) {
     AINFO<<"(DMCZP) EnteringMethod: IsObjectInRoi";
@@ -56,8 +64,12 @@ bool IsObjectInRoi(const HdmapStructConstPtr roi, const ObjectConstPtr obj) {
   ct.x = obj->center[0];
   ct.y = obj->center[1];
   ct.z = obj->center[2];
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsObjectInRoi";
   return IsPtInRoi(roi, ct);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: IsObjectInRoi";
+ }
 
 bool IsObjectBboxInRoi(const HdmapStructConstPtr roi,
                        const ObjectConstPtr obj) {
@@ -71,7 +83,9 @@ bool IsObjectBboxInRoi(const HdmapStructConstPtr roi,
   Eigen::Vector3d bbox_dir = obj->direction.cast<double>();
   bbox_dir(2) = 0.0;
   if (bbox_dir.norm() < FLT_EPSILON) {
-    return IsPtInRoi(roi, ct);
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsObjectBboxInRoi";
+  return IsPtInRoi(roi, ct);
   }
   bbox_dir.normalize();
   Eigen::Vector3d bbox_ortho_dir =
@@ -93,11 +107,17 @@ bool IsObjectBboxInRoi(const HdmapStructConstPtr roi,
     corner.y = bbox_corners[i][1];
     corner.z = bbox_corners[i][2];
     if (IsPtInRoi(roi, corner)) {
-      return true;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsObjectBboxInRoi";
+  return true;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsObjectBboxInRoi";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: IsObjectBboxInRoi";
+ }
 
 bool ObjectInRoiCheck(const HdmapStructConstPtr roi,
                       const std::vector<ObjectPtr>& objects,
@@ -107,7 +127,9 @@ bool ObjectInRoiCheck(const HdmapStructConstPtr roi,
   if (roi == nullptr ||
       (roi->road_polygons.empty() && roi->junction_polygons.empty())) {
     valid_objects->assign(objects.begin(), objects.end());
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjectInRoiCheck";
+  return true;
   }
 
   valid_objects->clear();
@@ -118,8 +140,12 @@ bool ObjectInRoiCheck(const HdmapStructConstPtr roi,
     }
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjectInRoiCheck";
   return valid_objects->size() > 0;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjectInRoiCheck";
+ }
 
 }  // namespace common
 }  // namespace perception

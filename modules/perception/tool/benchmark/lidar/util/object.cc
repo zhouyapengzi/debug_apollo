@@ -34,7 +34,9 @@ Object::Object() {
   type_probs.resize(MAX_OBJECT_TYPE, 0);
   internal_type_probs.resize(INT_MAX_OBJECT_TYPE, 0);
   confidence = 1.f;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Object::Object";
+ }
 
 Object::Object(const Object& rhs) {
     AINFO<<"(DMCZP) EnteringMethod: Object::Object";
@@ -69,7 +71,9 @@ Object::Object(const Object& rhs) {
   lidar_supplement = rhs.lidar_supplement;
   radar_supplement = rhs.radar_supplement;
   camera_supplement = rhs.camera_supplement;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Object::Object";
+ }
 
 Object& Object::operator=(const Object& rhs) {
   id = rhs.id;
@@ -152,7 +156,9 @@ void Object::clone(const Object& rhs) {
     camera_supplement.reset(new CameraSupplement());
     camera_supplement->clone(*(rhs.camera_supplement));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Object::clone";
+ }
 
 std::string Object::to_string() const {
     AINFO<<"(DMCZP) EnteringMethod: Object::to_string";
@@ -172,8 +178,12 @@ std::string Object::to_string() const {
       << ", latest_tracked_time: " << GLOG_TIMESTAMP(latest_tracked_time)
       << "]";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Object::to_string";
   return oss.str();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Object::to_string";
+ }
 
 std::string get_object_name(ObjectType obj_type) {
     AINFO<<"(DMCZP) EnteringMethod: get_object_name";
@@ -202,8 +212,12 @@ std::string get_object_name(ObjectType obj_type) {
       obj_name = "error";
       break;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: get_object_name";
   return obj_name;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: get_object_name";
+ }
 
 std::string get_sensor_name(SensorType sensor_type) {
     AINFO<<"(DMCZP) EnteringMethod: get_sensor_name";
@@ -226,8 +240,12 @@ std::string get_sensor_name(SensorType sensor_type) {
       sensor_name = "unknown_sensor_type";
       break;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: get_sensor_name";
   return sensor_name;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: get_sensor_name";
+ }
 
 std::string SensorObjects::to_string() const {
     AINFO<<"(DMCZP) EnteringMethod: SensorObjects::to_string";
@@ -241,69 +259,115 @@ std::string SensorObjects::to_string() const {
     oss << "\n" << obj->to_string();
   }
   oss << " >]";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorObjects::to_string";
   return oss.str();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorObjects::to_string";
+ }
 
 ObjectType translate_string_to_type(const std::string& str) {
     AINFO<<"(DMCZP) EnteringMethod: translate_string_to_type";
 
   if (str == "bigMot" || str == "smallMot" || str == "vehicle" ||
       str == "midMot" || str == "5") {
-    return VEHICLE;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_type";
+  return VEHICLE;
   } else if (str == "pedestrian" || str == "3") {
-    return PEDESTRIAN;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_type";
+  return PEDESTRIAN;
   } else if (str == "nonMot" || str == "cyclist" || str == "motorcyclist" ||
              str == "bicyclist" || str == "4") {
-    return BICYCLE;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_type";
+  return BICYCLE;
   } else {
-    return UNKNOWN;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_type";
+  return UNKNOWN;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: translate_string_to_type";
+ }
 
 unsigned int translate_type_to_index(const ObjectType& type) {
     AINFO<<"(DMCZP) EnteringMethod: translate_type_to_index";
 
   if (type <= UNKNOWN) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_to_index";
+  return 0;
   } else if (type < MAX_OBJECT_TYPE) {
-    return static_cast<unsigned int>(type) - 2;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_to_index";
+  return static_cast<unsigned int>(type) - 2;
   } else {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_to_index";
+  return 0;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: translate_type_to_index";
+ }
 
 std::string translate_type_index_to_string(unsigned int index) {
     AINFO<<"(DMCZP) EnteringMethod: translate_type_index_to_string";
 
   switch (index) {
     case 0:
-      return "others";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_index_to_string";
+  return "others";
     case 1:
-      return "pedestrian";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_index_to_string";
+  return "pedestrian";
     case 2:
-      return "cyclist";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_index_to_string";
+  return "cyclist";
     case 3:
-      return "vehicle";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_index_to_string";
+  return "vehicle";
     default:
-      return "others";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_index_to_string";
+  return "others";
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: translate_type_index_to_string";
+ }
 
 SensorType translate_string_to_sensor_type(const std::string& str) {
     AINFO<<"(DMCZP) EnteringMethod: translate_string_to_sensor_type";
 
   if (str == "velodyne_64") {
-    return VELODYNE_64;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_sensor_type";
+  return VELODYNE_64;
   } else if (str == "velodyne_16") {
-    return VELODYNE_16;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_sensor_type";
+  return VELODYNE_16;
   } else if (str == "radar") {
-    return RADAR;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_sensor_type";
+  return RADAR;
   } else if (str == "camera") {
-    return CAMERA;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_sensor_type";
+  return CAMERA;
   } else {
-    return UNKNOWN_SENSOR_TYPE;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_sensor_type";
+  return UNKNOWN_SENSOR_TYPE;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: translate_string_to_sensor_type";
+ }
 
 std::string translate_type_to_string(ObjectType type) {
     AINFO<<"(DMCZP) EnteringMethod: translate_type_to_string";
@@ -312,35 +376,59 @@ std::string translate_type_to_string(ObjectType type) {
     case UNKNOWN:
     case UNKNOWN_MOVABLE:
     case UNKNOWN_UNMOVABLE:
-      return "others";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_to_string";
+  return "others";
     case PEDESTRIAN:
-      return "pedestrian";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_to_string";
+  return "pedestrian";
     case BICYCLE:
-      return "cyclist";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_to_string";
+  return "cyclist";
     case VEHICLE:
-      return "vehicle";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_to_string";
+  return "vehicle";
     case MAX_OBJECT_TYPE:
     default:
-      return "others";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_type_to_string";
+  return "others";
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: translate_type_to_string";
+ }
 
 std::string translate_sensor_type_to_string(const SensorType& type) {
     AINFO<<"(DMCZP) EnteringMethod: translate_sensor_type_to_string";
 
   switch (type) {
     case VELODYNE_64:
-      return "velodyne_64";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_sensor_type_to_string";
+  return "velodyne_64";
     case VELODYNE_16:
-      return "velodyne_16";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_sensor_type_to_string";
+  return "velodyne_16";
     case RADAR:
-      return "radar";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_sensor_type_to_string";
+  return "radar";
     case CAMERA:
-      return "camera";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_sensor_type_to_string";
+  return "camera";
     default:
-      return "unknown_sensor_type";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: translate_sensor_type_to_string";
+  return "unknown_sensor_type";
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: translate_sensor_type_to_string";
+ }
 
 }  // namespace benchmark
 }  // namespace perception

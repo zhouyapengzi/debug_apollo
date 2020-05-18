@@ -32,7 +32,9 @@ void Timer::Start() {
   gettimeofday(&tv, nullptr);
 
   start_time_ = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Timer::Start";
+ }
 
 uint64_t Timer::End(const string &msg) {
     AINFO<<"(DMCZP) EnteringMethod: Timer::End";
@@ -46,8 +48,12 @@ uint64_t Timer::End(const string &msg) {
 
   // start new timer.
   start_time_ = end_time_;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Timer::End";
   return elapsed_time;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Timer::End";
+ }
 
 }  // namespace lib
 }  // namespace perception

@@ -31,7 +31,9 @@ void FromStdToVector(const std::vector<float>& src_prob, Vectord* dst_prob) {
        ++i) {
     (*dst_prob)(i - 2) = static_cast<double>(src_prob[i]);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FromStdToVector";
+ }
 
 void FromEigenToVector(const Vectord& src_prob, std::vector<float>* dst_prob) {
     AINFO<<"(DMCZP) EnteringMethod: FromEigenToVector";
@@ -42,7 +44,9 @@ void FromEigenToVector(const Vectord& src_prob, std::vector<float>* dst_prob) {
        ++i) {
     dst_prob->at(i) = static_cast<float>(src_prob(i - 2));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FromEigenToVector";
+ }
 
 void ToLog(Vectord* prob) {
     AINFO<<"(DMCZP) EnteringMethod: ToLog";
@@ -50,7 +54,9 @@ void ToLog(Vectord* prob) {
   for (size_t i = 0; i < VALID_OBJECT_TYPE; ++i) {
     (*prob)(i) = log((*prob)(i));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ToLog";
+ }
 
 void ToExp(Vectord* prob) {
     AINFO<<"(DMCZP) EnteringMethod: ToExp";
@@ -58,7 +64,9 @@ void ToExp(Vectord* prob) {
   for (size_t i = 0; i < VALID_OBJECT_TYPE; ++i) {
     (*prob)(i) = exp((*prob)(i));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ToExp";
+ }
 
 void ToExpStable(Vectord* prob) {
     AINFO<<"(DMCZP) EnteringMethod: ToExpStable";
@@ -67,7 +75,9 @@ void ToExpStable(Vectord* prob) {
   for (size_t i = 0; i < VALID_OBJECT_TYPE; ++i) {
     (*prob)(i) = exp((*prob)(i)-min_value);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ToExpStable";
+ }
 
 void Normalize(Vectord* prob) {
     AINFO<<"(DMCZP) EnteringMethod: Normalize";
@@ -75,7 +85,9 @@ void Normalize(Vectord* prob) {
   double sum = prob->sum();
   sum = sum < 1e-9 ? 1e-9 : sum;
   *prob /= sum;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Normalize";
+ }
 
 void NormalizeRow(Matrixd* prob) {
     AINFO<<"(DMCZP) EnteringMethod: NormalizeRow";
@@ -91,7 +103,9 @@ void NormalizeRow(Matrixd* prob) {
       (*prob)(row, col) /= sum;
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: NormalizeRow";
+ }
 
 bool LoadSingleMatrix(std::ifstream& fin, Matrixd* matrix) {
     AINFO<<"(DMCZP) EnteringMethod: LoadSingleMatrix";
@@ -101,36 +115,52 @@ bool LoadSingleMatrix(std::ifstream& fin, Matrixd* matrix) {
       fin >> (*matrix)(row, col);
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadSingleMatrix";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LoadSingleMatrix";
+ }
 
 bool LoadSingleMatrixFile(const std::string& filename, Matrixd* matrix) {
     AINFO<<"(DMCZP) EnteringMethod: LoadSingleMatrixFile";
 
   if (matrix == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadSingleMatrixFile";
+  return false;
   }
   std::ifstream fin(filename);
   if (!fin.is_open()) {
     AERROR << "Fail to open file: " << filename;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadSingleMatrixFile";
+  return false;
   }
   LoadSingleMatrix(fin, matrix);
   fin.close();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadSingleMatrixFile";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LoadSingleMatrixFile";
+ }
 
 bool LoadMultipleMatricesFile(const std::string& filename,
                               std::map<std::string, Matrixd>* matrices) {
     AINFO<<"(DMCZP) EnteringMethod: LoadMultipleMatricesFile";
 
   if (matrices == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadMultipleMatricesFile";
+  return false;
   }
   std::ifstream fin(filename);
   if (!fin.is_open()) {
     AERROR << "Fail to open file: " << filename;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadMultipleMatricesFile";
+  return false;
   }
   matrices->clear();
   size_t num = 0;
@@ -143,8 +173,12 @@ bool LoadMultipleMatricesFile(const std::string& filename,
     matrices->emplace(name, matrix);
   }
   fin.close();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadMultipleMatricesFile";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LoadMultipleMatricesFile";
+ }
 
 }  // namespace util
 }  // namespace lidar

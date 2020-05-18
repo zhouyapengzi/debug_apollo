@@ -46,7 +46,9 @@ void GetYawVelocityInfo(const float &time_diff, const double cam_coord_cur[3],
   double yaw_pre = atan2(offset_pre[1], offset_pre[0]);
   double yaw_rate_db = (yaw_cur - yaw_pre) * time_diff_r;
   *yaw_rate = static_cast<float>(yaw_rate_db);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: GetYawVelocityInfo";
+ }
 
 void CalibratorParams::Init() {
     AINFO<<"(DMCZP) EnteringMethod: CalibratorParams::Init";
@@ -92,7 +94,9 @@ void CalibratorParams::Init() {
   hist_estimator_params.histogram_mass_limit = 50;
   // Decay 6-times to half value
   hist_estimator_params.decay_factor = 0.8908987f;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CalibratorParams::Init";
+ }
 
 void LaneBasedCalibrator::Init(const LocalCalibratorInitOptions &options,
                                const CalibratorParams *params) {
@@ -114,7 +118,9 @@ void LaneBasedCalibrator::Init(const LocalCalibratorInitOptions &options,
     params_ = *params;
   }
   pitch_histogram_.Init(&params_.hist_estimator_params);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::Init";
+ }
 
 void LaneBasedCalibrator::ClearUp() {
     AINFO<<"(DMCZP) EnteringMethod: LaneBasedCalibrator::ClearUp";
@@ -128,7 +134,9 @@ void LaneBasedCalibrator::ClearUp() {
   pitch_estimation_ = 0.0f;
   vanishing_row_ = 0.0f;
   accumulated_straight_driving_in_meter_ = 0.0f;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::ClearUp";
+ }
 
 bool LaneBasedCalibrator::Process(const EgoLane &lane, const float &velocity,
                                   const float &yaw_rate,
@@ -147,7 +155,9 @@ bool LaneBasedCalibrator::Process(const EgoLane &lane, const float &velocity,
     AINFO << "Do not calibate if not moving straight: "
           << "yaw angle changed " << vehicle_yaw_changed;
     vp_buffer_.clear();
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::Process";
+  return false;
   }
 
   VanishingPoint vp_cur;
@@ -156,7 +166,9 @@ bool LaneBasedCalibrator::Process(const EgoLane &lane, const float &velocity,
   // Get the current estimation on vanishing point from lane
   if (!GetVanishingPoint(lane, &vp_cur)) {
     AINFO << "Lane is not valid for calibration.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::Process";
+  return false;
   }
   vp_cur.distance_traveled = distance_traveled_in_meter;
   //  std::cout << "#current v-row: " << vp_cur.pixel_pos[1] << std::endl;
@@ -165,14 +177,18 @@ bool LaneBasedCalibrator::Process(const EgoLane &lane, const float &velocity,
   PushVanishingPoint(vp_cur);
   if (!PopVanishingPoint(&vp_work)) {
     AINFO << "Driving distance is not long enough";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::Process";
+  return false;
   }
 
   // Get current estimation on pitch
   pitch_cur_ = 0.0f;
   if (!GetPitchFromVanishingPoint(vp_work, &pitch_cur_)) {
     AINFO << "Failed to estimate pitch from vanishing point.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::Process";
+  return false;
   }
   //  std::cout << "#current pitch: " << pitch_cur_ << std::endl;
   vanishing_row_ = vp_work.pixel_pos[1];
@@ -180,7 +196,9 @@ bool LaneBasedCalibrator::Process(const EgoLane &lane, const float &velocity,
   // Get the filtered output using histogram
   if (!AddPitchToHistogram(pitch_cur_)) {
     AINFO << "Calculated pitch is out-of-range.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::Process";
+  return false;
   }
 
   accumulated_straight_driving_in_meter_ += distance_traveled_in_meter;
@@ -193,10 +211,16 @@ bool LaneBasedCalibrator::Process(const EgoLane &lane, const float &velocity,
     const float fy = k_mat_[4];
     vanishing_row_ = tanf(pitch_estimation_) * fy + cy;
     accumulated_straight_driving_in_meter_ = 0.0f;
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::Process";
+  return true;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::Process";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::Process";
+ }
 
 void LaneBasedCalibrator::PushVanishingPoint(const VanishingPoint &v_point) {
     AINFO<<"(DMCZP) EnteringMethod: LaneBasedCalibrator::PushVanishingPoint";
@@ -208,7 +232,9 @@ void LaneBasedCalibrator::PushVanishingPoint(const VanishingPoint &v_point) {
     vp_buffer_.pop_front();
     vp_buffer_.push_back(v_point);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::PushVanishingPoint";
+ }
 
 bool LaneBasedCalibrator::PopVanishingPoint(VanishingPoint *v_point) {
     AINFO<<"(DMCZP) EnteringMethod: LaneBasedCalibrator::PopVanishingPoint";
@@ -219,18 +245,28 @@ bool LaneBasedCalibrator::PopVanishingPoint(VanishingPoint *v_point) {
   }
   if (accumulated_distance <
       params_.min_required_straight_driving_distance_in_meter) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::PopVanishingPoint";
+  return false;
   }
   *v_point = vp_buffer_.back();
   vp_buffer_.pop_back();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::PopVanishingPoint";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::PopVanishingPoint";
+ }
 
 bool LaneBasedCalibrator::AddPitchToHistogram(float pitch) {
     AINFO<<"(DMCZP) EnteringMethod: LaneBasedCalibrator::AddPitchToHistogram";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::AddPitchToHistogram";
   return pitch_histogram_.Push(pitch);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::AddPitchToHistogram";
+ }
 
 bool LaneBasedCalibrator::GetPitchFromVanishingPoint(const VanishingPoint &vp,
                                                      float *pitch) const {
@@ -243,11 +279,17 @@ bool LaneBasedCalibrator::GetPitchFromVanishingPoint(const VanishingPoint &vp,
   const float fy = k_mat_[4];
   float yaw_check = static_cast<float>(atan2(vp.pixel_pos[0] - cx, fx));
   if (fabs(yaw_check) > params_.max_allowed_yaw_angle_in_radian) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::GetPitchFromVanishingPoint";
+  return false;
   }
   *pitch = static_cast<float>(atan2(vp.pixel_pos[1] - cy, fy));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::GetPitchFromVanishingPoint";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::GetPitchFromVanishingPoint";
+ }
 
 bool LaneBasedCalibrator::GetVanishingPoint(const EgoLane &lane,
                                             VanishingPoint *v_point) {
@@ -262,19 +304,27 @@ bool LaneBasedCalibrator::GetVanishingPoint(const EgoLane &lane,
       SelectTwoPointsFromLineForVanishingPoint(lane.left_line, line_seg_l);
   if (!get_line_seg_left) {
     AINFO << "Left lane is too short.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::GetVanishingPoint";
+  return false;
   }
 
   bool get_line_seg_right =
       SelectTwoPointsFromLineForVanishingPoint(lane.right_line, line_seg_r);
   if (!get_line_seg_right) {
     AINFO << "Right lane is too short.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::GetVanishingPoint";
+  return false;
   }
 
   // Get vanishing point by line segments intersection
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::GetVanishingPoint";
   return GetIntersectionFromTwoLineSegments(line_seg_l, line_seg_r, v_point);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::GetVanishingPoint";
+ }
 
 int LaneBasedCalibrator::GetCenterIndex(const Eigen::Vector2f *points,
                                         int nr_pts) const {
@@ -282,7 +332,9 @@ int LaneBasedCalibrator::GetCenterIndex(const Eigen::Vector2f *points,
 
   assert(points != nullptr);
   if (nr_pts <= 0) {
-    return -1;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::GetCenterIndex";
+  return -1;
   }
   float center_x = 0.0f;
   float center_y = 0.0f;
@@ -304,8 +356,12 @@ int LaneBasedCalibrator::GetCenterIndex(const Eigen::Vector2f *points,
       center_index = i;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::GetCenterIndex";
   return is_in_image(points[center_index]) ? center_index : -1;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::GetCenterIndex";
+ }
 
 bool LaneBasedCalibrator::SelectTwoPointsFromLineForVanishingPoint(
     const LaneLine &line, float line_seg[4]) {
@@ -313,7 +369,9 @@ bool LaneBasedCalibrator::SelectTwoPointsFromLineForVanishingPoint(
 
   int nr_pts = static_cast<int>(line.lane_point.size());
   if (nr_pts < params_.min_nr_pts_laneline) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::SelectTwoPointsFromLineForVanishingPoint";
+  return false;
   }
 
   int nr_samples = nr_pts * static_cast<int>(params_.sampling_lane_point_rate);
@@ -340,8 +398,12 @@ bool LaneBasedCalibrator::SelectTwoPointsFromLineForVanishingPoint(
     std::swap(line_seg[0], line_seg[2]);
     std::swap(line_seg[1], line_seg[3]);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::SelectTwoPointsFromLineForVanishingPoint";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::SelectTwoPointsFromLineForVanishingPoint";
+ }
 
 bool LaneBasedCalibrator::GetIntersectionFromTwoLineSegments(
     const float line_seg_l[4], const float line_seg_r[4],
@@ -385,7 +447,9 @@ bool LaneBasedCalibrator::GetIntersectionFromTwoLineSegments(
 
   // Colinear
   if (fabs(dn) < 1e-5) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::GetIntersectionFromTwoLineSegments";
+  return false;
   }
 
   float v13[2] = {left_start_x - right_start_x, left_start_y - right_start_y};
@@ -394,8 +458,12 @@ bool LaneBasedCalibrator::GetIntersectionFromTwoLineSegments(
 
   v_point->pixel_pos[0] = left_start_x + t * v10[0];
   v_point->pixel_pos[1] = left_start_y + t * v10[1];
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneBasedCalibrator::GetIntersectionFromTwoLineSegments";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneBasedCalibrator::GetIntersectionFromTwoLineSegments";
+ }
 
 }  // namespace camera
 }  // namespace perception

@@ -57,15 +57,21 @@ bool FusedClassifier::Init(const ClassifierInitOptions& options) {
       sequence_fusion_method_));
   CHECK_NOTNULL(sequence_fuser_.get());
   CHECK(sequence_fuser_->Init(init_option_));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: FusedClassifier::Init";
   return init_success;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FusedClassifier::Init";
+ }
 
 bool FusedClassifier::Classify(const ClassifierOptions& options,
                                LidarFrame* frame) {
     AINFO<<"(DMCZP) EnteringMethod: FusedClassifier::Classify";
 
   if (frame == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: FusedClassifier::Classify";
+  return false;
   }
   std::vector<ObjectPtr>* objects = use_tracked_objects_
                                         ? &(frame->tracked_objects)
@@ -117,8 +123,12 @@ bool FusedClassifier::Classify(const ClassifierOptions& options,
       }
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: FusedClassifier::Classify";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FusedClassifier::Classify";
+ }
 
 PERCEPTION_REGISTER_CLASSIFIER(FusedClassifier);
 

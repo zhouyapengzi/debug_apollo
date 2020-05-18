@@ -32,7 +32,9 @@ bool TrafficLightRecognition::Init(
   AINFO << "proto_path " << proto_path;
   if (!cyber::common::GetProtoFromFile(proto_path, &recognize_param_)) {
     AINFO << "load proto param failed, root dir: " << options.root_dir;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightRecognition::Init";
+  return false;
   }
 
   classify_quadrate_.reset(new ClassifyBySimple);
@@ -46,8 +48,12 @@ bool TrafficLightRecognition::Init(
   classify_horizontal_->Init(recognize_param_.horizontal_model(),
                              options.gpu_id, options.root_dir);
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightRecognition::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightRecognition::Init";
+ }
 
 bool TrafficLightRecognition::Detect(const TrafficLightDetectorOptions& options,
                                      CameraFrame* frame) {
@@ -71,7 +77,9 @@ bool TrafficLightRecognition::Detect(const TrafficLightDetectorOptions& options,
         AINFO << "Recognize Use Horizonal Model!";
         classify_horizontal_->Perform(frame, &candidate);
       } else {
-        return false;
+        
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightRecognition::Detect";
+  return false;
       }
     } else {
       light->status.color = base::TLColor::TL_UNKNOWN_COLOR;
@@ -79,14 +87,22 @@ bool TrafficLightRecognition::Detect(const TrafficLightDetectorOptions& options,
     }
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightRecognition::Detect";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightRecognition::Detect";
+ }
 
 std::string TrafficLightRecognition::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: TrafficLightRecognition::Name";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightRecognition::Name";
   return "TrafficLightRecognition";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightRecognition::Name";
+ }
 
 REGISTER_TRAFFIC_LIGHT_DETECTOR(TrafficLightRecognition);
 

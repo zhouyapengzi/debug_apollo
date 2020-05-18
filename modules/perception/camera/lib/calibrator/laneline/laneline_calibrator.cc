@@ -33,8 +33,12 @@ bool LaneLineCalibrator::Init(const CalibratorInitOptions &options) {
   image_width_ = local_options.image_width = options.image_width;
   image_height_ = local_options.image_height = options.image_height;
   calibrator_.Init(local_options);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneLineCalibrator::Init";
+ }
 
 bool LaneLineCalibrator::Calibrate(const CalibratorOptions &options,
                                    float *pitch_angle) {
@@ -42,12 +46,16 @@ bool LaneLineCalibrator::Calibrate(const CalibratorOptions &options,
 
   if (pitch_angle == nullptr) {
     AERROR << "pitch_angle is not available";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::Calibrate";
+  return false;
   }
   EgoLane ego_lane;
   if (!LoadEgoLaneline(*options.lane_objects, &ego_lane)) {
     AINFO << "Failed to get the ego lane.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::Calibrate";
+  return false;
   }
 
   double cam_ori[4] = {0};
@@ -99,8 +107,12 @@ bool LaneLineCalibrator::Calibrate(const CalibratorOptions &options,
   is_first_frame_ = false;
   memcpy(cam_coord_pre_, cam_coord_cur_, sizeof(double) * 3);
   timestamp_pre_ = timestamp_cur_;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::Calibrate";
   return updated;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneLineCalibrator::Calibrate";
+ }
 
 bool LaneLineCalibrator::LoadEgoLaneline(
     const std::vector<base::LaneLine> &lane_objects, EgoLane *ego_lane) {
@@ -108,7 +120,9 @@ bool LaneLineCalibrator::LoadEgoLaneline(
 
   if (ego_lane == nullptr) {
     AERROR << "ego_lane is not available";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::LoadEgoLaneline";
+  return false;
   }
 
   bool found_ego_left = false;
@@ -152,11 +166,17 @@ bool LaneLineCalibrator::LoadEgoLaneline(
       found_ego_right = true;
     }
     if (found_ego_left && found_ego_right) {
-      return true;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::LoadEgoLaneline";
+  return true;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::LoadEgoLaneline";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LaneLineCalibrator::LoadEgoLaneline";
+ }
 
 // Register plugin.
 REGISTER_CALIBRATOR(LaneLineCalibrator);

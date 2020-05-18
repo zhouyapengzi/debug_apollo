@@ -24,7 +24,11 @@ namespace radar {
 
 bool ContiArsDetector::Init() {
     AINFO<<"(DMCZP) EnteringMethod: ContiArsDetector::Init";
- return true; }
+ 
+  AINFO<<"(D
+   AINFO<<"(DMCZP) LeaveMethod: ContiArsDetector::Init";
+ MCZP) (return) LeaveMethod: ContiArsDetector::Init";
+  return true; }
 
 bool ContiArsDetector::Detect(const drivers::ContiRadar& corrected_obstacles,
                               const DetectorOptions& options,
@@ -34,12 +38,20 @@ bool ContiArsDetector::Detect(const drivers::ContiRadar& corrected_obstacles,
   RawObs2Frame(corrected_obstacles, options, radar_frame);
   radar_frame->timestamp = corrected_obstacles.header().timestamp_sec();
   radar_frame->sensor2world_pose = *(options.radar2world_pose);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ContiArsDetector::Detect";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ContiArsDetector::Detect";
+ }
 
 std::string ContiArsDetector::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: ContiArsDetector::Name";
- return "ContiArsDetector"; }
+ 
+  AINFO<<"(DMCZP) (return)
+   AINFO<<"(DMCZP) LeaveMethod: ContiArsDetector::Name";
+  LeaveMethod: ContiArsDetector::Name";
+  return "ContiArsDetector"; }
 
 void ContiArsDetector::RawObs2Frame(
     const drivers::ContiRadar& corrected_obstacles,
@@ -171,7 +183,9 @@ void ContiArsDetector::RawObs2Frame(
            << "rcs: " << radar_obs.rcs() << ", "
            << "meas_state: " << radar_obs.meas_state();
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ContiArsDetector::RawObs2Frame";
+ }
 
 PERCEPTION_REGISTER_DETECTOR(ContiArsDetector);
 

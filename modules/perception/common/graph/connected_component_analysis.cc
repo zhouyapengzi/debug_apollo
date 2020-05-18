@@ -26,7 +26,9 @@ void ConnectedComponentAnalysis(const std::vector<std::vector<int>>& graph,
 
   if (components == nullptr) {
     AERROR << "components is not available";
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ConnectedComponentAnalysis";
+  return;
   }
   int num_item = static_cast<int>(graph.size());
   std::vector<int> visited;
@@ -59,7 +61,9 @@ void ConnectedComponentAnalysis(const std::vector<std::vector<int>>& graph,
     components->push_back(component);
     component.clear();
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ConnectedComponentAnalysis";
+ }
 
 }  // namespace common
 }  // namespace perception

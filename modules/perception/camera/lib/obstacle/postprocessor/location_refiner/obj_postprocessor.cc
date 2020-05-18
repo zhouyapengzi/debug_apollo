@@ -32,7 +32,9 @@ void ObjPostProcessorParams::set_default() {
   dist_far = 15.0f;
   shrink_ratio_iou = 0.9f;
   iou_good = 0.5f;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjPostProcessorParams::set_default";
+ }
 
 bool ObjPostProcessor::PostProcessObjWithGround(
     const ObjPostProcessorOptions &options, float center[3], float hwl[3],
@@ -48,7 +50,9 @@ bool ObjPostProcessor::PostProcessObjWithGround(
   bool adjust_soft =
       AdjustCenterWithGround(bbox, hwl, *ry, options.plane, center);
   if (center[2] > params_.dist_far) {
-    return adjust_soft;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::PostProcessObjWithGround";
+  return adjust_soft;
   }
 
   // hard constraints
@@ -56,16 +60,24 @@ bool ObjPostProcessor::PostProcessObjWithGround(
       bbox, hwl, *ry, options.plane, options.line_segs, center,
       options.check_lowerbound);
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::PostProcessObjWithGround";
   return adjust_soft || adjust_hard;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjPostProcessor::PostProcessObjWithGround";
+ }
 
 bool ObjPostProcessor::PostProcessObjWithDispmap(
     const ObjPostProcessorOptions &options, float center[3], float hwl[3],
     float *ry) {
     AINFO<<"(DMCZP) EnteringMethod: ObjPostProcessor::PostProcessObjWithDispmap";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::PostProcessObjWithDispmap";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjPostProcessor::PostProcessObjWithDispmap";
+ }
 
 bool ObjPostProcessor::AdjustCenterWithGround(const float *bbox,
                                               const float *hwl, float ry,
@@ -75,7 +87,9 @@ bool ObjPostProcessor::AdjustCenterWithGround(const float *bbox,
 
   float iou_ini = GetProjectionScore(ry, bbox, hwl, center);
   if (iou_ini < params_.iou_good) {  // ini pos is not good enough
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::AdjustCenterWithGround";
+  return false;
   }
   const float MIN_COST = hwl[2] * params_.sampling_ratio_low;
   const float EPS_COST_DELTA = 1e-1f;
@@ -100,7 +114,9 @@ bool ObjPostProcessor::AdjustCenterWithGround(const float *bbox,
         x, k_mat_, plane, center_test);
     if (!in_front) {
       memcpy(center, center_input, sizeof(float) * 3);
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::AdjustCenterWithGround";
+  return false;
     }
     float iou_cur = GetProjectionScore(ry, bbox, hwl, center);
     float iou_test = GetProjectionScore(ry, bbox, hwl, center_test);
@@ -124,10 +140,16 @@ bool ObjPostProcessor::AdjustCenterWithGround(const float *bbox,
   float iou_res = GetProjectionScore(ry, bbox, hwl, center);
   if (iou_res < iou_ini * params_.shrink_ratio_iou) {
     memcpy(center, center_input, sizeof(float) * 3);
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::AdjustCenterWithGround";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::AdjustCenterWithGround";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjPostProcessor::AdjustCenterWithGround";
+ }
 
 bool ObjPostProcessor::PostRefineCenterWithGroundBoundary(
     const float *bbox, const float *hwl, float ry, const float *plane,
@@ -139,7 +161,9 @@ bool ObjPostProcessor::PostRefineCenterWithGroundBoundary(
       bbox[3] >= static_cast<float>(height_) -
                      (bbox[3] - bbox[1]) * params_.sampling_ratio_low;
   if (truncated_on_bottom) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::PostRefineCenterWithGroundBoundary";
+  return false;
   }
 
   float iou_before = GetProjectionScore(ry, bbox, hwl, center);
@@ -167,10 +191,16 @@ bool ObjPostProcessor::PostRefineCenterWithGroundBoundary(
   if (iou_after < iou_before * params_.shrink_ratio_iou) {
     center[0] -= dxdz_acc[0];
     center[2] -= dxdz_acc[1];
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::PostRefineCenterWithGroundBoundary";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::PostRefineCenterWithGroundBoundary";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjPostProcessor::PostRefineCenterWithGroundBoundary";
+ }
 
 int ObjPostProcessor::GetDepthXPair(const float *bbox, const float *hwl,
                                     const float *center, float ry,
@@ -208,8 +238,12 @@ int ObjPostProcessor::GetDepthXPair(const float *bbox, const float *hwl,
     }
     pt += 3;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjPostProcessor::GetDepthXPair";
   return y_min;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjPostProcessor::GetDepthXPair";
+ }
 }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

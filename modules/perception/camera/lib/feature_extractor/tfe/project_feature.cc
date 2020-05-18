@@ -60,6 +60,8 @@ bool ProjectFeature::Init(const FeatureExtractorInitOptions &options) {
 
   CHECK(inference_->Init(shape_map));
   inference_->Infer();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ProjectFeature::Init";
   return true;
 }
 
@@ -70,7 +72,11 @@ bool ProjectFeature::Extract(const FeatureExtractorOptions &options,
   auto input_blob = inference_->get_blob(param_.input_blob());
   auto output_blob = inference_->get_blob(param_.feat_blob());
   if (frame->detected_objects.empty()) {
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ProjectFeature::Extract";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ProjectFeature::Init";
+  return true;
   }
   input_blob->Reshape(frame->track_feature_blob->shape());
   cudaMemcpy(
@@ -89,14 +95,28 @@ bool ProjectFeature::Extract(const FeatureExtractorOptions &options,
       frame->track_feature_blob->count() * sizeof(float), cudaMemcpyDefault);
 
   norm_.L2Norm(frame->track_feature_blob.get());
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ProjectFeature::Extract";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ProjectFeature::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ProjectFeature::Extract";
+ }
 
 std::string ProjectFeature::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: ProjectFeature::Name";
- return "ProjectFeature"; }
+ 
+  AINFO<<"(DMCZP) (retur
+   AINFO<<"(DMCZP) LeaveMethod: ProjectFeature::Name";
+ n) LeaveMethod: ProjectFeature::Name";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ProjectFeature::Init";
+  return "ProjectFeature"; }
 
 REGISTER_FEATURE_EXTRACTOR(ProjectFeature);
-}  // namespace camera
+
+   AINFO<<"(DMCZP) LeaveMethod: ProjectFeature::Init";
+ }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

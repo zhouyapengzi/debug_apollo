@@ -35,13 +35,17 @@ bool ReadPoseFile(const std::string &filename, Eigen::Affine3d *pose,
 
   if (pose == nullptr || frame_id == nullptr || time_stamp == nullptr) {
     AERROR << "Nullptr error.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ReadPoseFile";
+  return false;
   }
 
   std::ifstream fin(filename.c_str());
   if (!fin.is_open()) {
     AERROR << "Failed to open pose file: " << filename;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ReadPoseFile";
+  return false;
   }
 
   Eigen::Vector3d translation;
@@ -54,21 +58,29 @@ bool ReadPoseFile(const std::string &filename, Eigen::Affine3d *pose,
   pose->pretranslate(translation);
 
   fin.close();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ReadPoseFile";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ReadPoseFile";
+ }
 
 bool LoadBrownCameraIntrinsic(const std::string &yaml_file,
                               base::BrownCameraDistortionModel *model) {
     AINFO<<"(DMCZP) EnteringMethod: LoadBrownCameraIntrinsic";
 
   if (!PathExists(yaml_file) || model == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadBrownCameraIntrinsic";
+  return false;
   }
 
   YAML::Node node = YAML::LoadFile(yaml_file);
   if (node.IsNull()) {
     AINFO << "Load " << yaml_file << " failed! please check!";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadBrownCameraIntrinsic";
+  return false;
   }
 
   float camera_width = 0.0f;
@@ -89,11 +101,17 @@ bool LoadBrownCameraIntrinsic(const std::string &yaml_file,
   } catch (YAML::Exception &e) {
     AERROR << "load camera intrisic file " << yaml_file
            << " with error, YAML exception: " << e.what();
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadBrownCameraIntrinsic";
+  return false;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadBrownCameraIntrinsic";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LoadBrownCameraIntrinsic";
+ }
 
 bool LoadOmnidirectionalCameraIntrinsics(
     const std::string &yaml_file,
@@ -101,13 +119,17 @@ bool LoadOmnidirectionalCameraIntrinsics(
     AINFO<<"(DMCZP) EnteringMethod: LoadOmnidirectionalCameraIntrinsics";
 
   if (!PathExists(yaml_file) || model == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadOmnidirectionalCameraIntrinsics";
+  return false;
   }
 
   YAML::Node node = YAML::LoadFile(yaml_file);
   if (node.IsNull()) {
     AINFO << "Load " << yaml_file << " failed! please check!";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadOmnidirectionalCameraIntrinsics";
+  return false;
   }
 
   if (!node["width"].IsDefined() || !node["height"].IsDefined() ||
@@ -115,7 +137,9 @@ bool LoadOmnidirectionalCameraIntrinsics(
       !node["cam2world"].IsDefined() || !node["world2cam"].IsDefined() ||
       !node["focallength"].IsDefined() || !node["principalpoint"].IsDefined()) {
     AINFO << "Invalid intrinsics file for an omnidirectional camera.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadOmnidirectionalCameraIntrinsics";
+  return false;
   }
 
   try {
@@ -159,11 +183,17 @@ bool LoadOmnidirectionalCameraIntrinsics(
   } catch (YAML::Exception &e) {
     AERROR << "load camera intrisic file " << yaml_file
            << " with error, YAML exception: " << e.what();
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadOmnidirectionalCameraIntrinsics";
+  return false;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LoadOmnidirectionalCameraIntrinsics";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LoadOmnidirectionalCameraIntrinsics";
+ }
 
 bool GetFileList(const std::string &path, const std::string &suffix,
                  std::vector<std::string> *files) {
@@ -171,7 +201,9 @@ bool GetFileList(const std::string &path, const std::string &suffix,
 
   if (!PathExists(path)) {
     AINFO << path << " not exist.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: GetFileList";
+  return false;
   }
 
   boost::filesystem::recursive_directory_iterator itr(path);
@@ -186,8 +218,12 @@ bool GetFileList(const std::string &path, const std::string &suffix,
       continue;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: GetFileList";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: GetFileList";
+ }
 
 }  // namespace common
 }  // namespace perception

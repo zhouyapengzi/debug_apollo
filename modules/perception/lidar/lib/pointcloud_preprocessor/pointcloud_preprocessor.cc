@@ -61,8 +61,12 @@ bool PointCloudPreprocessor::Init(
   box_backward_y_ = static_cast<float>(-vehicle_param.back_edge_to_center());*/
   filter_high_z_points_ = static_cast<float>(config.filter_high_z_points());
   z_threshold_ = config.z_threshold();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PointCloudPreprocessor::Init";
+ }
 
 bool PointCloudPreprocessor::Preprocess(
     const PointCloudPreprocessorOptions& options,
@@ -73,7 +77,11 @@ bool PointCloudPreprocessor::Preprocess(
     AINFO<<"(DMCZP) EnteringMethod: PointCloudPreprocessor::Preprocess";
 
   if (frame == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Preprocess";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Preprocess";
+  return false;
   }
   if (frame->cloud == nullptr) {
     frame->cloud = base::PointFCloudPool::Instance().Get();
@@ -118,8 +126,16 @@ bool PointCloudPreprocessor::Preprocess(
     }
     TransformCloud(frame->cloud, frame->lidar2world_pose, frame->world_cloud);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Preprocess";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Preprocess";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PointCloudPreprocessor::Preprocess";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: PointCloudPreprocessor::Preprocess";
+ }
 
 bool PointCloudPreprocessor::Preprocess(
     const PointCloudPreprocessorOptions& options, LidarFrame* frame) const {
@@ -175,7 +191,9 @@ bool PointCloudPreprocessor::TransformCloud(
     AINFO<<"(DMCZP) EnteringMethod: PointCloudPreprocessor::TransformCloud";
 
   if (local_cloud == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::TransformCloud";
+  return false;
   }
   world_cloud->clear();
   world_cloud->reserve(local_cloud->size());
@@ -191,8 +209,12 @@ bool PointCloudPreprocessor::TransformCloud(
     world_cloud->push_back(world_point, local_cloud->points_timestamp(i),
                            FLT_MAX, local_cloud->points_beam_id()[i], 0);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::TransformCloud";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PointCloudPreprocessor::TransformCloud";
+ }
 
 }  // namespace lidar
 }  // namespace perception

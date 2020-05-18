@@ -31,7 +31,9 @@ void OrientationSimilarityMetric::cal_orientation_similarity(
     AINFO<<"(DMCZP) EnteringMethod: OrientationSimilarityMetric::cal_orientation_similarity";
 
   if (object.get() == nullptr || gt_object.get() == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: OrientationSimilarityMetric::cal_orientation_similarity";
+  return;
   }
   // yaw range is (-PI, PI]
   double gt_theta = gt_object->yaw;
@@ -44,7 +46,9 @@ void OrientationSimilarityMetric::cal_orientation_similarity(
     delta = delta > M_PI / 2 ? M_PI - delta : delta;
     similarity = (1 - sin(delta));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OrientationSimilarityMetric::cal_orientation_similarity";
+ }
 
 std::unique_ptr<BaseRangeInterface> MetaStatistics::_s_range_interface(
     new DistanceBasedRangeInterface);
@@ -69,85 +73,135 @@ void MetaStatistics::set_range_type(RangeType type) {
     default:
       _s_range_interface.reset(new DistanceBasedRangeInterface);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::set_range_type";
+ }
 
 void MetaStatistics::set_recall_dim(unsigned int recall_dim) {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::set_recall_dim";
 
   _s_recall_dim = recall_dim;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::set_recall_dim";
+ }
 
 unsigned int MetaStatistics::get_type_index(const ObjectType& type) {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_type_index";
 
   unsigned index = translate_type_to_index(type);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_type_index";
   return index;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_type_index";
+ }
 
 unsigned int MetaStatistics::get_range_index(const PositionMetric& position) {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_range_index";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_range_index";
   return _s_range_interface->get_index(position);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_range_index";
+ }
 
 unsigned int MetaStatistics::get_confidence_index(double confidence) {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_confidence_index";
 
   unsigned int index = static_cast<unsigned int>(confidence / 0.0001);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_confidence_index";
   return index;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_confidence_index";
+ }
 
 unsigned int MetaStatistics::get_type_dim() {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_type_dim";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_type_dim";
   return 4;  // should be sync with get_type_index and object.h!
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_type_dim";
+ }
 
 unsigned int MetaStatistics::get_range_dim() {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_range_dim";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_range_dim";
   return _s_range_interface->get_dim();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_range_dim";
+ }
 
 unsigned int MetaStatistics::get_confidence_dim() {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_confidence_dim";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_confidence_dim";
   return 10001;  // should be sync with get_confidence_index!
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_confidence_dim";
+ }
 
 std::string MetaStatistics::get_type(unsigned int index) {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_type";
 
   if (index >= get_type_dim()) {
-    return "";
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_type";
+  return "";
   } else {
-    return translate_type_index_to_string(index);
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_type";
+  return translate_type_index_to_string(index);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_type";
+ }
 
 std::string MetaStatistics::get_range(unsigned int index) {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_range";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_range";
   return _s_range_interface->get_element(index);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_range";
+ }
 
 double MetaStatistics::get_confidence(unsigned int index) {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_confidence";
 
   if (index >= get_confidence_dim()) {
-    return -1.0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_confidence";
+  return -1.0;
   } else {
-    return 0.01 * index;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_confidence";
+  return 0.01 * index;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_confidence";
+ }
 
 unsigned int MetaStatistics::get_recall_dim() {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_recall_dim";
- return _s_recall_dim; }
+ 
+  AINFO<<"(DMCZP) (re
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_recall_dim";
+ turn) LeaveMethod: MetaStatistics::get_recall_dim";
+  return _s_recall_dim; }
 
 MetaStatistics::MetaStatistics() {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::MetaStatistics";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::MetaStatistics";
+ }
 
 void MetaStatistics::reset() {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::reset";
@@ -179,7 +233,9 @@ void MetaStatistics::reset() {
                    std::vector<unsigned int>(get_type_dim(), 0));
 
   _underseg_gt_num.assign(get_type_dim(), 0);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::reset";
+ }
 
 template <typename T>
 void vec_add1(std::vector<T>* dst, const std::vector<T>& src) {
@@ -188,7 +244,9 @@ void vec_add1(std::vector<T>* dst, const std::vector<T>& src) {
   for (std::size_t i = 0; i < dst->size(); ++i) {
     dst->at(i) += src[i];
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: vec_add1";
+ }
 
 template <typename T>
 void vec_add2(std::vector<std::vector<T>>* dst,
@@ -200,7 +258,9 @@ void vec_add2(std::vector<std::vector<T>>* dst,
       dst->at(i)[j] += src[i][j];
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: vec_add2";
+ }
 
 template <typename T>
 void vec_add3(std::vector<std::vector<std::vector<T>>>* dst,
@@ -214,7 +274,9 @@ void vec_add3(std::vector<std::vector<std::vector<T>>>* dst,
       }
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: vec_add3";
+ }
 
 void compute_ap_aos(
     const std::vector<unsigned int>& cumulated_match_num_per_conf,
@@ -226,7 +288,9 @@ void compute_ap_aos(
     AINFO<<"(DMCZP) EnteringMethod: compute_ap_aos";
 
   if (ap == nullptr || tuples == nullptr || aos == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: compute_ap_aos";
+  return;
   }
   *ap = 0.0;
   tuples->assign(recall_dim, SPRCTuple());
@@ -242,7 +306,9 @@ void compute_ap_aos(
   }
 
   if (total_gt_num == 0) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: compute_ap_aos";
+  return;
   }
   int total_det_num = 0;
   int total_tp_num = 0;
@@ -311,7 +377,9 @@ void compute_ap_aos(
     tuples->at(prc_id).recall = current_recall;
     current_recall += recall_step;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: compute_ap_aos";
+ }
 
 MetaStatistics& MetaStatistics::operator+=(const MetaStatistics& rhs) {
   vec_add1(&_total_detection_num, rhs._total_detection_num);
@@ -344,7 +412,9 @@ void MetaStatistics::get_2017_detection_precision_and_recall(
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_detection_precision_and_recall";
 
   if (precisions == nullptr || recalls == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+  return;
   }
   precisions->resize(get_range_dim() + 1, 0.0);
   recalls->resize(get_range_dim() + 1, 0.0);
@@ -382,7 +452,11 @@ void MetaStatistics::get_2017_detection_visible_recall(
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_detection_visible_recall";
 
   if (recalls == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_visible_recall";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+  return;
   }
   recalls->resize(get_range_dim() + 1, 0.0);
   unsigned int total_groundtruth_num_sum = 0;
@@ -401,13 +475,19 @@ void MetaStatistics::get_2017_detection_visible_recall(
       total_groundtruth_num_sum > 0
           ? static_cast<double>(total_match_num_sum) / total_groundtruth_num_sum
           : 0;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2017_detection_visible_recall";
+ }
 
 void MetaStatistics::get_2017_aad(std::vector<double>* aad) const {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_aad";
 
   if (aad == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+  return;
   }
   unsigned int total_yaw_angle_diff_sum = 0;
   unsigned int total_match_num_sum = 0;
@@ -446,14 +526,22 @@ void MetaStatistics::get_2016_detection_precision_and_recall(
                                _total_groundtruth_num[i]
                          : 0;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2016_detection_precision_and_recall";
+ }
 
 void MetaStatistics::get_2017_detection_ap_per_type(
     std::vector<double>* ap, std::vector<std::vector<SPRCTuple>>* tuples) {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_detection_ap_per_type";
 
   if (ap == nullptr || tuples == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_ap_per_type";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+  return;
   }
   ap->assign(get_type_dim(), 0.0);
   tuples->assign(get_type_dim(), std::vector<SPRCTuple>());
@@ -474,14 +562,22 @@ void MetaStatistics::get_2017_detection_ap_per_type(
                    cumulated_detection_num_per_conf, gt_num, _s_recall_dim,
                    &(ap->at(t)), &(tuples->at(t)));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2017_detection_ap_per_type";
+ }
 
 void MetaStatistics::get_2017_detection_ap_aos(
     double* ap, double* aos, std::vector<SPRCTuple>* tuples) const {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_detection_ap_aos";
 
   if (ap == nullptr || aos == nullptr || tuples == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_ap_aos";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+  return;
   }
 
   std::vector<unsigned int> cumulated_match_num_per_conf(get_confidence_dim(),
@@ -500,14 +596,22 @@ void MetaStatistics::get_2017_detection_ap_aos(
   compute_ap_aos(cumulated_match_num_per_conf, cumulated_detection_num_per_conf,
                  total_gt_num, _s_recall_dim, ap, tuples,
                  _cumulated_orientation_similarity_sum_per_conf, aos);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2017_detection_ap_aos";
+ }
 
 void MetaStatistics::get_2017_classification_accuracy(
     std::vector<std::vector<double>>* accuracys) const {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2017_classification_accuracy";
 
   if (accuracys == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_classification_accuracy";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+  return;
   }
   accuracys->resize(get_type_dim(),
                     std::vector<double>(get_range_dim() + 1, 0));
@@ -538,14 +642,22 @@ void MetaStatistics::get_2017_classification_accuracy(
     accuracys->at(type_id).back() =
         static_cast<double>(numerator_sum[type_id]) / denominator_sum[type_id];
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2017_classification_accuracy";
+ }
 
 void MetaStatistics::get_2016_classification_accuracy(
     std::vector<std::vector<double>>* accuracys) const {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_2016_classification_accuracy";
 
   if (accuracys == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2016_classification_accuracy";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+  return;
   }
   accuracys->resize(get_type_dim(), std::vector<double>(get_range_dim(), 0.0));
 
@@ -561,7 +673,9 @@ void MetaStatistics::get_2016_classification_accuracy(
           static_cast<double>(gt_type_confusion_vector[gt_type_id]) / gt_num;
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2016_classification_accuracy";
+ }
 
 void MetaStatistics::get_classification_confusion_matrix(
     std::vector<std::vector<double>>* matrix_gt_major,
@@ -570,7 +684,13 @@ void MetaStatistics::get_classification_confusion_matrix(
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_classification_confusion_matrix";
 
   if (matrix_gt_major == nullptr || matrix_det_major == nullptr) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_classification_confusion_matrix";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+  return;
   }
   matrix_gt_major->resize(get_type_dim(),
                           std::vector<double>(get_type_dim(), 0.0));
@@ -630,7 +750,9 @@ void MetaStatistics::get_classification_confusion_matrix(
           det_num;
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_classification_confusion_matrix";
+ }
 
 std::ostream& operator<<(std::ostream& out, const MetaStatistics& rhs) {
   out << "===========================Meta Statistics========================="
@@ -753,9 +875,17 @@ std::ostream& operator<<(std::ostream& out, const MetaStatistics& rhs) {
   out << "==================================================================="
       << std::endl;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
   return out;
 }
 
-}  // namespace benchmark
-}  // namespace perception
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2017_aad";
+ }  // namespace benchmark
+
+   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
+ }  // namespace perception
 }  // namespace apollo

@@ -29,24 +29,34 @@ void PointCloudFrame::set_cloud_type(const std::string& type) {
     AINFO<<"(DMCZP) EnteringMethod: PointCloudFrame::set_cloud_type";
 
   _s_cloud_type = type;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PointCloudFrame::set_cloud_type";
+ }
 
 bool PointCloudFrame::load(const std::vector<std::string>& filenames) {
     AINFO<<"(DMCZP) EnteringMethod: PointCloudFrame::load";
 
   if (filenames.empty()) {
     std::cerr << "Filenames is empty" << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudFrame::load";
+  return false;
   }
   _name = filenames[0];
   std::cout << _name << std::endl;
   _point_cloud.reset(new PointCloud);
   if (!load_pcl_pcds(filenames[0], _point_cloud, _s_cloud_type)) {
     std::cerr << "Fail to load pcds: " << filenames[0] << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudFrame::load";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudFrame::load";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PointCloudFrame::load";
+ }
 
 }  // namespace benchmark
 }  // namespace perception

@@ -52,10 +52,16 @@ bool GroundServiceDetector::Init(const GroundDetectorInitOptions& options) {
       SceneManager::Instance().Service("GroundService"));
   if (ground_service_ == nullptr) {
     AERROR << "Ground service is nullptr, Init scene manager first !";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: GroundServiceDetector::Init";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: GroundServiceDetector::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: GroundServiceDetector::Init";
+ }
 
 bool GroundServiceDetector::Detect(const GroundDetectorOptions& options,
                                    LidarFrame* frame) {
@@ -63,12 +69,16 @@ bool GroundServiceDetector::Detect(const GroundDetectorOptions& options,
 
   if (frame == nullptr || frame->world_cloud == nullptr) {
     AERROR << "Frame is nullptr.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: GroundServiceDetector::Detect";
+  return false;
   }
   ground_service_->GetServiceContentCopy(&ground_service_content_);
   if (!ground_service_content_.IsServiceReady()) {
     AERROR << "service is not ready.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: GroundServiceDetector::Detect";
+  return false;
   }
   auto& cloud = frame->world_cloud;
   auto& non_ground_indices = frame->non_ground_indices;
@@ -88,8 +98,12 @@ bool GroundServiceDetector::Detect(const GroundDetectorOptions& options,
           static_cast<uint8_t>(LidarPointLabel::GROUND);
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: GroundServiceDetector::Detect";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: GroundServiceDetector::Detect";
+ }
 
 PERCEPTION_REGISTER_GROUNDDETECTOR(GroundServiceDetector);
 

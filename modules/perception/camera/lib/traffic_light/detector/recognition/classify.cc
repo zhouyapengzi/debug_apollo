@@ -115,7 +115,11 @@ void ClassifyBySimple::Perform(const CameraFrame* frame,
 
   if (cudaSetDevice(gpu_id_) != cudaSuccess) {
     AERROR << "Failed to set device to " << gpu_id_;
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ClassifyBySimple::Perform";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ClassifyBySimple::Init";
+  return;
   }
   std::shared_ptr<base::Blob<uint8_t>> rectified_blob;
   auto input_blob_recog = rt_net_->get_blob(net_inputs_[0]);
@@ -148,7 +152,9 @@ void ClassifyBySimple::Perform(const CameraFrame* frame,
     float* out_put_data = output_blob_recog->mutable_cpu_data();
     Prob2Color(out_put_data, unknown_threshold_, light);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ClassifyBySimple::Perform";
+ }
 
 void ClassifyBySimple::Prob2Color(const float* out_put_data, float threshold,
                                   base::TrafficLightPtr light) {
@@ -172,8 +178,12 @@ void ClassifyBySimple::Prob2Color(const float* out_put_data, float threshold,
   for (size_t j = 0; j < status_map.size(); j++) {
     AINFO << out_put_data[j];
   }
-}
 
-}  // namespace camera
+   AINFO<<"(DMCZP) LeaveMethod: ClassifyBySimple::Prob2Color";
+ }
+
+
+   AINFO<<"(DMCZP) LeaveMethod: ClassifyBySimple::Init";
+ }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

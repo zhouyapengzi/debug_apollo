@@ -40,10 +40,16 @@ bool PointCamera1ToCamera2(const Eigen::Vector2d& point,
   double z = camera2_3d(2);
   if (fabs(z) > 1e-6) {
     *point_out = (camera2_intrinsic * camera2_3d / z).head(2);
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCamera1ToCamera2";
+  return true;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PointCamera1ToCamera2";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PointCamera1ToCamera2";
+ }
 
 // @brief: estimate whether two cameras have field overlap.
 bool IsCamerasFieldOverlap(const base::PinholeCameraModel& from_camera,
@@ -82,10 +88,16 @@ bool IsCamerasFieldOverlap(const base::PinholeCameraModel& from_camera,
   (*up_left) = pt_min.cwiseMax(Eigen::Vector2d(0, 0));
   (*low_right) = pt_max.cwiseMin(Eigen::Vector2d(to_width, to_height));
   if ((up_left->array() < low_right->array()).all()) {
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsCamerasFieldOverlap";
+  return true;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: IsCamerasFieldOverlap";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: IsCamerasFieldOverlap";
+ }
 
 }  // namespace common
 }  // namespace perception

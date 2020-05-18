@@ -43,10 +43,16 @@ bool load_pcl_pcds(const std::string& filename, PointCloudPtr cloud_out,
 
   auto iter = s_load_method.find(cloud_type);
   if (iter == s_load_method.end()) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_pcl_pcds";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_pcl_pcds";
   return iter->second(filename, cloud_out);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: load_pcl_pcds";
+ }
 
 bool load_pcl_pcds_xyzit(const std::string& filename, PointCloudPtr cloud_out) {
     AINFO<<"(DMCZP) EnteringMethod: load_pcl_pcds_xyzit";
@@ -54,7 +60,9 @@ bool load_pcl_pcds_xyzit(const std::string& filename, PointCloudPtr cloud_out) {
   PointXYZITCloud org_cloud;
   if (pcl::io::loadPCDFile(filename, org_cloud) < 0) {
     std::cerr << "failed to load pcd file: " << filename << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_pcl_pcds_xyzit";
+  return false;
   }
 
   cloud_out->points.reserve(org_cloud.points.size());
@@ -69,8 +77,12 @@ bool load_pcl_pcds_xyzit(const std::string& filename, PointCloudPtr cloud_out) {
     }
     cloud_out->push_back(point);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_pcl_pcds_xyzit";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: load_pcl_pcds_xyzit";
+ }
 
 bool load_pcl_pcds_xyzl(const std::string& filename, PointCloudPtr cloud_out) {
     AINFO<<"(DMCZP) EnteringMethod: load_pcl_pcds_xyzl";
@@ -78,7 +90,9 @@ bool load_pcl_pcds_xyzl(const std::string& filename, PointCloudPtr cloud_out) {
   PointXYZLCloud org_cloud;
   if (pcl::io::loadPCDFile(filename, org_cloud) < 0) {
     std::cerr << "failed to load pcd file: " << filename << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_pcl_pcds_xyzl";
+  return false;
   }
 
   cloud_out->points.reserve(org_cloud.points.size());
@@ -94,8 +108,12 @@ bool load_pcl_pcds_xyzl(const std::string& filename, PointCloudPtr cloud_out) {
     }
     cloud_out->push_back(point);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_pcl_pcds_xyzl";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: load_pcl_pcds_xyzl";
+ }
 
 bool load_frame_objects(const std::string& filename,
                         const std::set<std::string>& black_list,
@@ -112,7 +130,9 @@ bool load_frame_objects(const std::string& filename,
   if (!fin.is_open()) {
     std::cerr << "frame objects file " << filename << " is not exist!"
               << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_frame_objects";
+  return false;
   }
   int frame_id = -1;
   int object_number = -1;
@@ -188,7 +208,9 @@ bool load_frame_objects(const std::string& filename,
                point_number != indice_number) {
       std::cerr << "illegal object with different points & indices" << filename
                 << " object " << i << std::endl;
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_frame_objects";
+  return false;
     }
 
     obj->id = object_id;
@@ -252,7 +274,9 @@ bool load_frame_objects(const std::string& filename,
         std::cerr << "Label size " << label_size << " not equal to "
                   << "cloud size " << cloud->size() << std::endl;
         fin.close();
-        return false;
+        
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_frame_objects";
+  return false;
       }
       for (size_t i = 0; i < label_size; ++i) {
         fin >> cloud->at(i).label;
@@ -274,8 +298,12 @@ bool load_frame_objects(const std::string& filename,
   }
 
   fin.close();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_frame_objects";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: load_frame_objects";
+ }
 
 bool load_sensor2world_pose(const std::string& filename,
                             Eigen::Matrix4d* pose_out_pt) {
@@ -285,7 +313,9 @@ bool load_sensor2world_pose(const std::string& filename,
   std::ifstream ifs(filename.c_str());
   if (!ifs.is_open()) {
     std::cerr << "failed to open file " << filename << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_sensor2world_pose";
+  return false;
   }
   char buffer[1024];
   ifs.getline(buffer, 1024);
@@ -304,8 +334,12 @@ bool load_sensor2world_pose(const std::string& filename,
     }
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: load_sensor2world_pose";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: load_sensor2world_pose";
+ }
 
 bool save_frame_objects(const std::string& filename,
                         const std::vector<ObjectPtr>& objects, int frame_id) {
@@ -314,7 +348,9 @@ bool save_frame_objects(const std::string& filename,
   std::ofstream fout(filename.c_str());
   if (!fout.is_open()) {
     std::cout << "Failed to open " << filename << "\n";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: save_frame_objects";
+  return false;
   }
 
   int object_number = static_cast<int>(objects.size());
@@ -342,8 +378,12 @@ bool save_frame_objects(const std::string& filename,
     }
     fout << std::endl;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: save_frame_objects";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: save_frame_objects";
+ }
 
 }  // namespace benchmark
 }  // namespace perception

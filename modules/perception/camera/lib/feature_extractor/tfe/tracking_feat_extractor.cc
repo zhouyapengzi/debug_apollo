@@ -38,11 +38,15 @@ bool TrackingFeatureExtractor::Init(
       init_options.root_dir, init_options.conf_file);
   if (!cyber::common::GetProtoFromFile(config_path, &feat_param)) {
     AERROR << "read proto_config fail";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackingFeatureExtractor::Init";
+  return false;
   }
   if (feat_param.extractor_size() != 1) {
     AERROR << "extractor should be 1";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackingFeatureExtractor::Init";
+  return false;
   }
   CHECK_EQ(input_height_ / feat_height, input_width_ / feat_width)
       << "Invalid aspect ratio: " << feat_height << "x" << feat_width
@@ -59,11 +63,17 @@ bool TrackingFeatureExtractor::Init(
   }
   if (roi_poolings_.empty()) {
     AERROR << "no proper extractor";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackingFeatureExtractor::Init";
+  return false;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackingFeatureExtractor::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackingFeatureExtractor::Init";
+ }
 void TrackingFeatureExtractor::init_roipooling(
     const FeatureExtractorInitOptions &options,
     const tracking_feature::ROIPoolingParam &param) {
@@ -86,17 +96,23 @@ void TrackingFeatureExtractor::init_roipooling(
   feature_extractor_layer_ptr->top_blob.reset(
       new base::Blob<float>(1, feat_blob_->channels(), pooled_h, pooled_w));
   roi_poolings_.push_back(feature_extractor_layer_ptr);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackingFeatureExtractor::init_roipooling";
+ }
 
 bool TrackingFeatureExtractor::Extract(const FeatureExtractorOptions &options,
                                        CameraFrame *frame) {
     AINFO<<"(DMCZP) EnteringMethod: TrackingFeatureExtractor::Extract";
 
   if (frame == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackingFeatureExtractor::Extract";
+  return false;
   }
   if (frame->detected_objects.empty()) {
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackingFeatureExtractor::Extract";
+  return true;
   }
   if (!options.normalized) {
     encode_bbox(&(frame->detected_objects));
@@ -129,8 +145,12 @@ bool TrackingFeatureExtractor::Extract(const FeatureExtractorOptions &options,
     }
   }
   norm_.L2Norm(frame->track_feature_blob.get());
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackingFeatureExtractor::Extract";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackingFeatureExtractor::Extract";
+ }
 REGISTER_FEATURE_EXTRACTOR(TrackingFeatureExtractor);
 }  // namespace camera
 }  // namespace perception

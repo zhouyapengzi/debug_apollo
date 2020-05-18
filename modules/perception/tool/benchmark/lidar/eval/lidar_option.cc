@@ -238,8 +238,12 @@ bool LidarOption::set_options() const {
     }
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: LidarOption::set_options";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: LidarOption::set_options";
+ }
 
 }  // namespace benchmark
 }  // namespace perception

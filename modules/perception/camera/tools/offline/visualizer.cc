@@ -85,8 +85,12 @@ Eigen::Matrix3d Camera2CarHomograph(Eigen::Matrix3d intrinsic,
 
   H.block(0, 0, 3, 2) = (K * R.transpose()).block(0, 0, 3, 2);
   H.block(0, 2, 3, 1) = -K * R.transpose() * T;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Camera2CarHomograph";
   return H.inverse();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Camera2CarHomograph";
+ }
 
 bool Visualizer::Init(const std::vector<std::string> &camera_names,
                       TransformServer *tf_server) {
@@ -95,7 +99,9 @@ bool Visualizer::Init(const std::vector<std::string> &camera_names,
   tf_server_ = tf_server;
   if (tf_server_ == nullptr) {
     AERROR << "tf_server is unavailable";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::Init";
+  return false;
   }
   last_timestamp_ = 0;
   small_h_ = static_cast<int>(image_height_ * scale_ratio_);
@@ -109,8 +115,12 @@ bool Visualizer::Init(const std::vector<std::string> &camera_names,
   world_image_ = cv::Mat(world_h_, wide_pixel_, CV_8UC3, black_color);
   color_cipv_ = white_color;
   virtual_lane_color_ = white_color;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::Init";
+ }
 
 bool Visualizer::Init_all_info_single_camera(
     const std::vector<std::string> &camera_names,
@@ -237,8 +247,12 @@ bool Visualizer::Init_all_info_single_camera(
 
   all_camera_recieved_ = 0x0;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::Init_all_info_single_camera";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::Init_all_info_single_camera";
+ }
 
 bool Visualizer::adjust_angles(const std::string &camera_name,
                                const double pitch_adj_degree,
@@ -315,76 +329,130 @@ bool Visualizer::adjust_angles(const std::string &camera_name,
 
   // homography_image2ground_ = homography_ground2image_.inverse();
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::adjust_angles";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::adjust_angles";
+ }
 
 bool Visualizer::SetDirectory(const std::string &path) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::SetDirectory";
 
   if (!cyber::common::EnsureDirectory(path)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::SetDirectory";
+  return false;
   }
   const std::string command = "rm " + path + "/*.jpg";
   int ret = system(command.c_str());
   path_ = path;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::SetDirectory";
   return ret == 0;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::SetDirectory";
+ }
 
 std::string Visualizer::type_to_string(const base::ObjectType type) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::type_to_string";
 
   switch (type) {
     case base::ObjectType::UNKNOWN:
-      return "UNKN";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::type_to_string";
+  return "UNKN";
     case base::ObjectType::UNKNOWN_MOVABLE:
-      return "U_MO";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::type_to_string";
+  return "U_MO";
     case base::ObjectType::UNKNOWN_UNMOVABLE:
-      return "UNMO";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::type_to_string";
+  return "UNMO";
     case base::ObjectType::PEDESTRIAN:
-      return "PED";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::type_to_string";
+  return "PED";
     case base::ObjectType::BICYCLE:
-      return "CYC";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::type_to_string";
+  return "CYC";
     case base::ObjectType::VEHICLE:
-      return "VEH";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::type_to_string";
+  return "VEH";
     default:
       break;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::type_to_string";
   return "WRNG";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::type_to_string";
+ }
 
 std::string Visualizer::sub_type_to_string(const base::ObjectSubType type) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::sub_type_to_string";
 
   switch (type) {
     case base::ObjectSubType::UNKNOWN:
-      return "UNKN";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "UNKN";
     case base::ObjectSubType::UNKNOWN_MOVABLE:
-      return "U_MO";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "U_MO";
     case base::ObjectSubType::UNKNOWN_UNMOVABLE:
-      return "UNMO";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "UNMO";
     case base::ObjectSubType::CAR:
-      return "CAR";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "CAR";
     case base::ObjectSubType::VAN:
-      return "VAN";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "VAN";
     case base::ObjectSubType::TRUCK:
-      return "TRUC";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "TRUC";
     case base::ObjectSubType::BUS:
-      return "BUS";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "BUS";
     case base::ObjectSubType::CYCLIST:
-      return "CYC";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "CYC";
     case base::ObjectSubType::MOTORCYCLIST:
-      return "MCYC";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "MCYC";
     case base::ObjectSubType::TRICYCLIST:
-      return "TCYC";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "TCYC";
     case base::ObjectSubType::PEDESTRIAN:
-      return "PED";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "PED";
     case base::ObjectSubType::TRAFFICCONE:
-      return "CONE";
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
+  return "CONE";
     default:
       break;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
   return "WRNG";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::sub_type_to_string";
+ }
 
 bool Visualizer::reset_key() {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::reset_key";
@@ -412,19 +480,31 @@ bool Visualizer::reset_key() {
   show_help_text_ = false;
   manual_calibration_mode_ = false;
   show_homography_object_ = false;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::reset_key";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::reset_key";
+ }
 
 double Visualizer::regularize_angle(const double radian_angle) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::regularize_angle";
 
   if (radian_angle <= -M_PI) {
-    return radian_angle + M_PI * 2.0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::regularize_angle";
+  return radian_angle + M_PI * 2.0;
   } else if (radian_angle > M_PI) {
-    return radian_angle - M_PI * 2.0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::regularize_angle";
+  return radian_angle - M_PI * 2.0;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::regularize_angle";
   return radian_angle;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::regularize_angle";
+ }
 
 // ZYX Euler angles to quaternion
 bool Visualizer::euler_to_quaternion(Eigen::Vector4d *quaternion,
@@ -483,7 +563,9 @@ bool Visualizer::euler_to_quaternion(Eigen::Vector4d *quaternion,
     double qx = 0.5 * sqrt(1.0 + R(0, 0) - R(1, 1) - R(2, 2));
     if (fabs(qx) < 1.0e-6) {
       AWARN << "quaternion is degenerate qw: " << qw << "qx: " << qx;
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::euler_to_quaternion";
+  return false;
     }
     (*quaternion)(0) = qx;                               // Q.x
     (*quaternion)(1) = 0.25 * (R(0, 1) + R(1, 0)) / qx;  // Q.y
@@ -495,8 +577,12 @@ bool Visualizer::euler_to_quaternion(Eigen::Vector4d *quaternion,
           << (*quaternion)(2) << ", "
           << (*quaternion)(3) << ")";
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::euler_to_quaternion";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::euler_to_quaternion";
+ }
 
 bool Visualizer::copy_backup_file(const std::string &filename) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::copy_backup_file";
@@ -521,8 +607,12 @@ bool Visualizer::copy_backup_file(const std::string &filename) {
     AINFO << "Backup file: " << filename << " saved successfully.";
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::copy_backup_file";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::copy_backup_file";
+ }
 
 bool Visualizer::save_extrinsic_in_yaml(const std::string &camera_name,
                                         const Eigen::Matrix4d &extrinsic,
@@ -571,7 +661,9 @@ bool Visualizer::save_extrinsic_in_yaml(const std::string &camera_name,
   // try{
   //   if (node.IsNull()) {
   //     AINFO << "Load " << yaml_file << " failed! please check!";
-  //     return false;
+  //     
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
+  return false;
   //   }
   //   // Replace rotation only
   //   node["transform"]["rotation"]["x"].as<double>() = quaternion(0);
@@ -582,24 +674,36 @@ bool Visualizer::save_extrinsic_in_yaml(const std::string &camera_name,
   //   node.SaveFile(yaml_file);
   //   if (node.IsNull()) {
   //     AINFO << "Save " << yaml_file << " failed! please check!";
-  //     return false;
+  //     
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
+  return false;
   //   }
   // } catch (YAML::InvalidNode &in) {
   //   AERROR << "load/save camera extrisic file " << yaml_file
   //          << " with error, YAML::InvalidNode exception";
-  //   return false;
+  //   
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
+  return false;
   // } catch (YAML::TypedBadConversion<double> &bc) {
   //   AERROR << "load camera extrisic file " << yaml_file
   //          << " with error, YAML::TypedBadConversion exception";
-  //   return false;
+  //   
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
+  return false;
   // } catch (YAML::Exception &e) {
   //   AERROR << "load camera extrisic file " << yaml_file
   //          << " with error, YAML exception:" << e.what();
-  //   return false;
+  //   
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
+  return false;
   // }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
+ }
 
 bool Visualizer::save_manual_calibration_parameter(
     const std::string &camera_name, const double pitch_adj_degree,
@@ -648,15 +752,21 @@ bool Visualizer::save_manual_calibration_parameter(
   save_extrinsic_in_yaml(camera_name, ex_camera2lidar_[camera_name], quaternion,
                          new_pitch_radian, new_yaw_radian, new_roll_radian);
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_manual_calibration_parameter";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::save_manual_calibration_parameter";
+ }
 
 bool Visualizer::key_handler(const std::string &camera_name, const int key) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::key_handler";
 
   AINFO << "Pressed Key: " << key;
   if (key <= 0) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::key_handler";
+  return false;
   }
   switch (key) {
     case KEY_0:
@@ -875,8 +985,12 @@ bool Visualizer::key_handler(const std::string &camera_name, const int key) {
         }
       }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::key_handler";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::key_handler";
+ }
 
 // Draw trajectory of each object
 bool Visualizer::DrawTrajectories(const base::ObjectPtr &object,
@@ -885,7 +999,9 @@ bool Visualizer::DrawTrajectories(const base::ObjectPtr &object,
 
   if (object->drop_num == 0 || motion_buffer == nullptr ||
       motion_buffer->size() == 0) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::DrawTrajectories";
+  return false;
   }
   std::size_t count = std::min(object->drop_num, motion_buffer->size());
 
@@ -905,8 +1021,12 @@ bool Visualizer::DrawTrajectories(const base::ObjectPtr &object,
              trajectory_line_thickness_);
     start_point = end_point;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::DrawTrajectories";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::DrawTrajectories";
+ }
 
 void Visualizer::Draw2Dand3D(const cv::Mat &img, const CameraFrame &frame) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::Draw2Dand3D";
@@ -919,7 +1039,9 @@ void Visualizer::Draw2Dand3D(const cv::Mat &img, const CameraFrame &frame) {
   Eigen::Affine3d lidar2novatel;
   if (!tf_server_->QueryTransform("velodyne128", "novatel", &lidar2novatel)) {
     AWARN << "Failed to query transform from lidar to ground.";
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::Draw2Dand3D";
+  return;
   }
   Eigen::Affine3d lidar2world = pose * lidar2novatel;
   Eigen::Affine3d world2lidar = lidar2world.inverse();
@@ -990,7 +1112,9 @@ void Visualizer::Draw2Dand3D(const cv::Mat &img, const CameraFrame &frame) {
   last_timestamp_ = frame.timestamp;
   cv::resize(image, camera_image_[frame.data_provider->sensor_name()],
              cv::Size(small_w_, small_h_));
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::Draw2Dand3D";
+ }
 
 void Visualizer::ShowResult(const cv::Mat &img, const CameraFrame &frame) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::ShowResult";
@@ -1032,7 +1156,9 @@ void Visualizer::ShowResult(const cv::Mat &img, const CameraFrame &frame) {
   cv::putText(image, absl::StrCat("frame #: ", frame.frame_id),
               cv::Point(10, 100), cv::FONT_HERSHEY_DUPLEX, 1.3, red_color, 3);
   Draw2Dand3D(image, frame);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::ShowResult";
+ }
 
 void Visualizer::Draw2Dand3D_all_info_single_camera(
     const std::string &camera_name,
@@ -1396,7 +1522,9 @@ void Visualizer::Draw2Dand3D_all_info_single_camera(
   camera_image_[frame.data_provider->sensor_name()] = image_2D;
   cv::resize(image_2D, camera_image_[frame.data_provider->sensor_name()],
              cv::Size(small_w_, small_h_));
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::Draw2Dand3D_all_info_single_camera";
+ }
 
 void Visualizer::ShowResult_all_info_single_camera(
     const cv::Mat &img, const CameraFrame &frame,
@@ -1404,7 +1532,9 @@ void Visualizer::ShowResult_all_info_single_camera(
     const Eigen::Affine3d &world2camera) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::ShowResult_all_info_single_camera";
 
-  if (frame.timestamp - last_timestamp_ < 0.02) return;
+  if (frame.timestamp - last_timestamp_ < 0.02) 
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::ShowResult_all_info_single_camera";
+  return;
 
   world_image_ = cv::Mat(world_h_, wide_pixel_, CV_8UC3, black_color);
 
@@ -1516,7 +1646,9 @@ void Visualizer::ShowResult_all_info_single_camera(
       }  // if (camera_name == visual_camera)
     }    // if (all_camera_recieved_ == 0x3)
   }      // if (cv_imshow_img_)
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::ShowResult_all_info_single_camera";
+ }
 
 void Visualizer::draw_range_circle() {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::draw_range_circle";
@@ -1532,7 +1664,9 @@ void Visualizer::draw_range_circle() {
                 cv::Point(wide_pixel_ / 2, world_h_ - i * m2pixel_),
                 cv::FONT_HERSHEY_DUPLEX, 1, red_color, 2);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::draw_range_circle";
+ }
 
 void Visualizer::draw_selected_image_boundary(const int width, int const height,
                                               cv::Mat *image) {
@@ -1540,7 +1674,9 @@ void Visualizer::draw_selected_image_boundary(const int width, int const height,
 
   cv::Rect image_boundary(0, 0, width, height);
   cv::rectangle(*image, image_boundary, light_green_color, 4);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::draw_selected_image_boundary";
+ }
 
 cv::Point Visualizer::world_point_to_bigimg(const Eigen::Vector2d &p) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::world_point_to_bigimg";
@@ -1548,8 +1684,12 @@ cv::Point Visualizer::world_point_to_bigimg(const Eigen::Vector2d &p) {
   cv::Point point;
   point.x = static_cast<int>(-p(1) * m2pixel_ + wide_pixel_ * 0.5);
   point.y = static_cast<int>(world_h_ - p(0) * m2pixel_);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::world_point_to_bigimg";
   return point;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::world_point_to_bigimg";
+ }
 cv::Point Visualizer::world_point_to_bigimg(const Eigen::Vector4f &p) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::world_point_to_bigimg";
 
@@ -1557,8 +1697,12 @@ cv::Point Visualizer::world_point_to_bigimg(const Eigen::Vector4f &p) {
   point.x = (wide_pixel_ >> 1) -
             static_cast<int>(p(1) * static_cast<float>(m2pixel_));
   point.y = world_h_ - static_cast<int>(p(0) * static_cast<float>(m2pixel_));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::world_point_to_bigimg";
   return point;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::world_point_to_bigimg";
+ }
 
 Eigen::Vector2d Visualizer::image2ground(const std::string &camera_name,
                                          cv::Point p_img) {
@@ -1575,8 +1719,12 @@ Eigen::Vector2d Visualizer::image2ground(const std::string &camera_name,
   } else {
     AWARN << "p_ground(2) too small :" << p_ground(2);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::image2ground";
   return p_ground.block(0, 0, 2, 1);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::image2ground";
+ }
 cv::Point Visualizer::ground2image(const std::string &camera_name,
                                    Eigen::Vector2d p_ground) {
     AINFO<<"(DMCZP) EnteringMethod: Visualizer::ground2image";
@@ -1590,8 +1738,12 @@ cv::Point Visualizer::ground2image(const std::string &camera_name,
     p_img(0) = p_img(0) / p_img(2);
     p_img(1) = p_img(1) / p_img(2);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::ground2image";
   return cv::Point(static_cast<int>(p_img(0)), static_cast<int>(p_img(1)));
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Visualizer::ground2image";
+ }
 
 }  // namespace camera
 }  // namespace perception

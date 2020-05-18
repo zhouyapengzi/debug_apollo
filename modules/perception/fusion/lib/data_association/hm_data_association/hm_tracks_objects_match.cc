@@ -44,7 +44,9 @@ void extract_vector(const std::vector<T>& vec,
   for (auto subset_ind : subset_inds) {
     sub_vec->push_back(vec[subset_ind]);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: extract_vector";
+ }
 
 bool HMTrackersObjectsAssociation::Associate(
     const AssociationOptions& options, SensorFramePtr sensor_measurements,
@@ -63,7 +65,9 @@ bool HMTrackersObjectsAssociation::Associate(
               association_result->unassigned_tracks.end(), 0);
     std::iota(association_result->unassigned_measurements.begin(),
               association_result->unassigned_measurements.end(), 0);
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::Associate";
+  return true;
   }
   std::string measurement_sensor_id = sensor_objects[0]->GetSensorId();
   double measurement_timestamp = sensor_objects[0]->GetTimestamp();
@@ -107,7 +111,9 @@ bool HMTrackersObjectsAssociation::Associate(
 
   if (association_result->unassigned_tracks.empty() ||
       association_result->unassigned_measurements.empty()) {
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::Associate";
+  return true;
   }
 
   bool state = MinimizeAssignment(
@@ -142,8 +148,12 @@ bool HMTrackersObjectsAssociation::Associate(
         << ", unassigned_measuremnets = "
         << association_result->unassigned_measurements.size();
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::Associate";
   return state;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMTrackersObjectsAssociation::Associate";
+ }
 void HMTrackersObjectsAssociation::PostIdAssign(
     const std::vector<TrackPtr>& fusion_tracks,
     const std::vector<SensorObjectPtr>& sensor_objects,
@@ -157,7 +167,9 @@ void HMTrackersObjectsAssociation::PostIdAssign(
   // only camera track
   auto is_valid_track = [](const TrackPtr& fusion_track) {
     SensorObjectConstPtr camera_obj = fusion_track->GetLatestCameraObject();
-    return camera_obj != nullptr &&
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::PostIdAssign";
+  return camera_obj != nullptr &&
            fusion_track->GetLatestLidarObject() == nullptr;
     // && fusion_track->GetLatestRadarObject() == nullptr;
   };
@@ -177,7 +189,9 @@ void HMTrackersObjectsAssociation::PostIdAssign(
     post_assignment.first = valid_unassigned_tracks[post_assignment.first];
     post_assignment.second = unassigned_sensor_objects[post_assignment.second];
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMTrackersObjectsAssociation::PostIdAssign";
+ }
 
 bool HMTrackersObjectsAssociation::MinimizeAssignment(
     const std::vector<std::vector<double>>& association_mat,
@@ -219,8 +233,12 @@ bool HMTrackersObjectsAssociation::MinimizeAssignment(
   for (auto un_mea : local_unassigned_measurements) {
     unassigned_measurements->push_back(measurement_ind_l2g[un_mea]);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::MinimizeAssignment";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMTrackersObjectsAssociation::MinimizeAssignment";
+ }
 
 void HMTrackersObjectsAssociation::ComputeDistance(
     const std::vector<TrackPtr>& fusion_tracks,
@@ -267,7 +285,9 @@ void HMTrackersObjectsAssociation::ComputeDistance(
     SensorObjectConstPtr radar_object = fusion_track->GetLatestRadarObject();
     if (IsCamera(min_sensor_object)) {
       // TODO(linjian) not reasonable,
-      // just for return dist score, the dist score is
+      // just for 
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::ComputeDistance";
+  return dist score, the dist score is
       // a similarity probability [0, 1] 1 is the best
       association_result->track2measurements_dist[track_ind] = 0.0;
       for (size_t j = 0; j < association_mat[track_ind_loc].size(); ++j) {
@@ -300,7 +320,9 @@ void HMTrackersObjectsAssociation::ComputeDistance(
       }
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMTrackersObjectsAssociation::ComputeDistance";
+ }
 
 void HMTrackersObjectsAssociation::ComputeAssociationDistanceMat(
     const std::vector<TrackPtr>& fusion_tracks,
@@ -345,7 +367,9 @@ void HMTrackersObjectsAssociation::ComputeAssociationDistanceMat(
              << ", distance: " << distance;
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMTrackersObjectsAssociation::ComputeAssociationDistanceMat";
+ }
 
 void HMTrackersObjectsAssociation::IdAssign(
     const std::vector<TrackPtr>& fusion_tracks,
@@ -365,7 +389,9 @@ void HMTrackersObjectsAssociation::IdAssign(
               unassigned_fusion_tracks->end(), 0);
     std::iota(unassigned_sensor_objects->begin(),
               unassigned_sensor_objects->end(), 0);
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::IdAssign";
+  return;
   }
   const std::string sensor_id = sensor_objects[0]->GetSensorId();
 
@@ -411,7 +437,9 @@ void HMTrackersObjectsAssociation::IdAssign(
       unassigned_sensor_objects->push_back(i);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMTrackersObjectsAssociation::IdAssign";
+ }
 
 void HMTrackersObjectsAssociation::GenerateUnassignedData(
     size_t track_num, size_t objects_num,
@@ -438,7 +466,9 @@ void HMTrackersObjectsAssociation::GenerateUnassignedData(
       unassigned_objects->push_back(i);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HMTrackersObjectsAssociation::GenerateUnassignedData";
+ }
 
 }  // namespace fusion
 }  // namespace perception

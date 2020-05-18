@@ -38,7 +38,9 @@ bool DarkSCNNLaneDetector::Init(const LaneDetectorInitOptions &options) {
   std::string proto_path = GetAbsolutePath(options.root_dir, options.conf_file);
   if (!GetProtoFromFile(proto_path, &darkscnn_param_)) {
     AINFO << "load proto param failed, root dir: " << options.root_dir;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
+  return false;
   }
   std::string param_str;
   google::protobuf::TextFormat::PrintToString(darkscnn_param_, &param_str);
@@ -139,7 +141,9 @@ bool DarkSCNNLaneDetector::Init(const LaneDetectorInitOptions &options) {
         << input_reshape[net_inputs_[0]][3];
   if (!cnnadapter_lane_->Init(input_reshape)) {
     AINFO << "net init fail.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
+  return false;
   }
 
   for (auto &input_blob_name : net_inputs_) {
@@ -165,6 +169,8 @@ bool DarkSCNNLaneDetector::Init(const LaneDetectorInitOptions &options) {
   std::vector<int> lane_shape = {1, 1, lane_output_height_, lane_output_width_};
   lane_blob_.reset(new base::Blob<float>(lane_shape));
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
   return true;
 }
 
@@ -174,7 +180,11 @@ bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
 
   if (frame == nullptr) {
     AINFO << "camera frame is empty.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
+  return false;
   }
 
   auto start = std::chrono::high_resolution_clock::now();
@@ -182,17 +192,29 @@ bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
   if (input_width_ != data_provider->src_width()) {
     AERROR << "Input size is not correct: " << input_width_ << " vs "
            << data_provider->src_width();
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
+  return false;
   }
   if (input_height_ != data_provider->src_height()) {
     AERROR << "Input size is not correct: " << input_height_ << " vs "
            << data_provider->src_height();
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
+  return false;
   }
 
   // use data provider to crop input image
   if (!data_provider->GetImage(data_provider_image_option_, &image_src_)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
+  return false;
   }
 
   //  bottom 0 is data
@@ -205,11 +227,19 @@ bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
 
   if (blob_height != resize_height_) {
     AERROR << "height is not equal" << blob_height << " vs " << resize_height_;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
+  return false;
   }
   if (blob_width != resize_width_) {
     AERROR << "width is not equal" << blob_width << " vs " << resize_width_;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
+  return false;
   }
   ADEBUG << "image_blob: " << image_src_.blob()->shape_string();
   ADEBUG << "input_blob: " << input_blob->shape_string();
@@ -299,17 +329,31 @@ bool DarkSCNNLaneDetector::Detect(const LaneDetectorOptions &options,
   ADEBUG << "Avg detection infer time: " << time_1 / time_num
          << " Avg detection merge output time: " << time_2 / time_num;
   ADEBUG << "Lane detection done!";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Detect";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DarkSCNNLaneDetector::Detect";
+ }
 
 std::string DarkSCNNLaneDetector::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: DarkSCNNLaneDetector::Name";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Name";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLaneDetector::Init";
   return "DarkSCNNLaneDetector";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: DarkSCNNLaneDetector::Name";
+ }
 
 REGISTER_LANE_DETECTOR(DarkSCNNLaneDetector);
 
-}  // namespace camera
+
+   AINFO<<"(DMCZP) LeaveMethod: DarkSCNNLaneDetector::Init";
+ }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

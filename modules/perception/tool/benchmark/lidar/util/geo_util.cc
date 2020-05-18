@@ -59,7 +59,9 @@ bool is_point_xy_in_polygon2d_xy(const Point& point, const PointCloud& polygon,
     }
     Type distance = std::abs(value) / temp;
     if (x1 <= point.x && point.x <= x2 && distance < distance_to_boundary) {
-      return true;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: is_point_xy_in_polygon2d_xy";
+  return true;
     }
     if ((x1 < point.x) == (point.x <= x2) && value < 0.f) {
       in_poly = !in_poly;
@@ -67,8 +69,12 @@ bool is_point_xy_in_polygon2d_xy(const Point& point, const PointCloud& polygon,
     xold = xnew;
     yold = ynew;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: is_point_xy_in_polygon2d_xy";
   return in_poly;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: is_point_xy_in_polygon2d_xy";
+ }
 
 bool VisPoint::operator<(const VisPoint& other) const {
   bool is_a_left = strictly_less(x(), 0.0);
@@ -186,9 +192,13 @@ Orientation compute_orientation(const VisPoint& o, const VisPoint& a,
     AINFO<<"(DMCZP) EnteringMethod: compute_orientation";
 
   float det = (a - o).cross(b - o);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: compute_orientation";
   return static_cast<Orientation>(static_cast<int>(strictly_less(0.0, det)) -
                                   static_cast<int>(strictly_less(det, 0.0)));
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: compute_orientation";
+ }
 
 bool intersects(const VisPoint& ray, const Segment& segment,
                 VisPoint* intersection) {
@@ -205,10 +215,16 @@ bool intersects(const VisPoint& ray, const Segment& segment,
   *intersection = a * t;
 
   if (std::isfinite(t) && t >= 0 && std::isfinite(u) && u >= 0 && u <= 1) {
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: intersects";
+  return true;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: intersects";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: intersects";
+ }
 
 }  // namespace benchmark
 }  // namespace perception

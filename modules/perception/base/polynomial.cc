@@ -22,7 +22,9 @@ namespace base {
 
 Polynomial::Polynomial() {
     AINFO<<"(DMCZP) EnteringMethod: Polynomial::Polynomial";
- coeff_[0] = 0.0; }
+ coeff_[0] = 0.0; 
+   AINFO<<"(DMCZP) LeaveMethod: Polynomial::Polynomial";
+ }
 Polynomial::~Polynomial() {}
 
 const std::map<uint32_t, double>& Polynomial::getCoeff() const {
@@ -70,8 +72,12 @@ double Polynomial::operator()(const double& x) {
     ++it_gap;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Polynomial::operator";
   return sum;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Polynomial::operator";
+ }
 
 std::ostream& operator<<(std::ostream& o, const Polynomial& p) {
   const std::map<uint32_t, double>& coeff = p.getCoeff();

@@ -60,7 +60,9 @@ void RTNet::ConstructMap(const LayerParameter &layer_param,
         top_name, layer->getOutput(i)));
     layer->getOutput(i)->setName(top_name.c_str());
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::ConstructMap";
+ }
 
 void RTNet::addConvLayer(const LayerParameter &layer_param,
                          nvinfer1::ITensor *const *inputs,
@@ -115,7 +117,9 @@ void RTNet::addConvLayer(const LayerParameter &layer_param,
   }
   AINFO << layer_param.name() << dim_string;
 #endif
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addConvLayer";
+ }
 
 void RTNet::addDeconvLayer(const LayerParameter &layer_param,
                            nvinfer1::ITensor *const *inputs,
@@ -156,7 +160,9 @@ void RTNet::addDeconvLayer(const LayerParameter &layer_param,
   absl::StrAppend(&dim_string, " | output: ");
   AINFO << layer_param.name() << dim_string;
 #endif
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addDeconvLayer";
+ }
 void RTNet::addActiveLayer(const LayerParameter &layer_param,
                            nvinfer1::ITensor *const *inputs, int nbInputs,
                            nvinfer1::INetworkDefinition *net,
@@ -186,7 +192,9 @@ void RTNet::addActiveLayer(const LayerParameter &layer_param,
 
     ConstructMap(layer_param, reluLayer, tensor_map, tensor_modify_map);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addActiveLayer";
+ }
 
 void RTNet::addConcatLayer(const LayerParameter &layer_param,
                            nvinfer1::ITensor *const *inputs, int nbInputs,
@@ -213,7 +221,9 @@ void RTNet::addConcatLayer(const LayerParameter &layer_param,
   }
 #endif
   ConstructMap(layer_param, concatLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addConcatLayer";
+ }
 
 void RTNet::addPoolingLayer(const LayerParameter &layer_param,
                             nvinfer1::ITensor *const *inputs,
@@ -237,7 +247,9 @@ void RTNet::addPoolingLayer(const LayerParameter &layer_param,
                                          static_cast<int>(pool.pad_w())});
   poolLayer->setName(layer_param.name().c_str());
   ConstructMap(layer_param, poolLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addPoolingLayer";
+ }
 
 void RTNet::addSliceLayer(const LayerParameter &layer_param,
                           nvinfer1::ITensor *const *inputs, int nbInputs,
@@ -255,7 +267,9 @@ void RTNet::addSliceLayer(const LayerParameter &layer_param,
   slice_plugins_.push_back(slice_plugin);
   sliceLayer->setName(layer_param.name().c_str());
   ConstructMap(layer_param, sliceLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addSliceLayer";
+ }
 
 void RTNet::addInnerproductLayer(const LayerParameter &layer_param,
                                  nvinfer1::ITensor *const *inputs,
@@ -275,7 +289,9 @@ void RTNet::addInnerproductLayer(const LayerParameter &layer_param,
       bias);
   fcLayer->setName(layer_param.name().c_str());
   ConstructMap(layer_param, fcLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addInnerproductLayer";
+ }
 
 void RTNet::addScaleLayer(const LayerParameter &layer_param,
                           nvinfer1::ITensor *const *inputs,
@@ -307,7 +323,9 @@ void RTNet::addScaleLayer(const LayerParameter &layer_param,
       *inputs[0], nvinfer1::ScaleMode::kCHANNEL, lw[1], lw[0], lw[2]);
   scaleLayer->setName(layer_param.name().c_str());
   ConstructMap(layer_param, scaleLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addScaleLayer";
+ }
 
 void RTNet::addBatchnormLayer(const LayerParameter &layer_param,
                               nvinfer1::ITensor *const *inputs,
@@ -327,7 +345,9 @@ void RTNet::addBatchnormLayer(const LayerParameter &layer_param,
   scaleLayer->setName(layer_param.name().c_str());
 
   ConstructMap(layer_param, scaleLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addBatchnormLayer";
+ }
 void RTNet::addSoftmaxLayer(const LayerParameter &layer_param,
                             nvinfer1::ITensor *const *inputs, int nbInputs,
                             nvinfer1::INetworkDefinition *net,
@@ -350,7 +370,9 @@ void RTNet::addSoftmaxLayer(const LayerParameter &layer_param,
     softmaxLayer->setName(layer_param.name().c_str());
     ConstructMap(layer_param, softmaxLayer, tensor_map, tensor_modify_map);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addSoftmaxLayer";
+ }
 
 void RTNet::addEltwiseLayer(const LayerParameter &layer_param,
                             nvinfer1::ITensor *const *inputs,
@@ -369,7 +391,9 @@ void RTNet::addEltwiseLayer(const LayerParameter &layer_param,
 
   eltwiseLayer->setName(layer_param.name().c_str());
   ConstructMap(layer_param, eltwiseLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addEltwiseLayer";
+ }
 
 void RTNet::addArgmaxLayer(const LayerParameter &layer_param,
                            nvinfer1::ITensor *const *inputs, int nbInputs,
@@ -387,7 +411,9 @@ void RTNet::addArgmaxLayer(const LayerParameter &layer_param,
 
   argmaxLayer->setName(layer_param.name().c_str());
   ConstructMap(layer_param, argmaxLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addArgmaxLayer";
+ }
 
 void RTNet::addPermuteLayer(const LayerParameter &layer_param,
                             nvinfer1::ITensor *const *inputs, int nbInputs,
@@ -407,7 +433,9 @@ void RTNet::addPermuteLayer(const LayerParameter &layer_param,
 
   permuteLayer->setName(layer_param.name().c_str());
   ConstructMap(layer_param, permuteLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addPermuteLayer";
+ }
 
 void RTNet::addReshapeLayer(const LayerParameter &layer_param,
                             nvinfer1::ITensor *const *inputs,
@@ -424,7 +452,9 @@ void RTNet::addReshapeLayer(const LayerParameter &layer_param,
   reshapeLayer->setReshapeDimensions(dims);
   reshapeLayer->setName(layer_param.name().c_str());
   ConstructMap(layer_param, reshapeLayer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addReshapeLayer";
+ }
 
 void RTNet::addPaddingLayer(const LayerParameter &layer_param,
                             nvinfer1::ITensor *const *inputs,
@@ -441,7 +471,9 @@ void RTNet::addPaddingLayer(const LayerParameter &layer_param,
       net->addPadding(*inputs[0], pre_dims, post_dims);
   padding_layer->setName(layer_param.name().c_str());
   ConstructMap(layer_param, padding_layer, tensor_map, tensor_modify_map);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addPaddingLayer";
+ }
 
 void RTNet::addLayer(const LayerParameter &layer_param,
                      nvinfer1::ITensor *const *inputs, int nbInputs,
@@ -500,14 +532,18 @@ void RTNet::addLayer(const LayerParameter &layer_param,
   } else {
     AWARN << "unknown layer type:" << layer_param.type();
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addLayer";
+ }
 bool RTNet::loadWeights(const std::string &model_file, WeightMap *weight_map) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::loadWeights";
 
   NetParameter net;
   if (!ReadProtoFromBinaryFile(model_file.c_str(), &net)) {
     AFATAL << "open file " << model_file << " failed";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::loadWeights";
+  return false;
   }
   for (int i = 0; i < net.layer_size(); i++) {
     std::vector<nvinfer1::Weights> lw;
@@ -526,8 +562,12 @@ bool RTNet::loadWeights(const std::string &model_file, WeightMap *weight_map) {
     }
     (*weight_map)[net.layer(i).name().c_str()] = lw;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::loadWeights";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::loadWeights";
+ }
 void RTNet::mergeBN(int index, LayerParameter *layer_param) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::mergeBN";
 
@@ -555,7 +595,9 @@ void RTNet::mergeBN(int index, LayerParameter *layer_param) {
                                    blob->data(k) * scale_factor + epsilon)));
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::mergeBN";
+ }
 nvinfer1::Weights RTNet::loadLayerWeights(const float *data, int size) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::loadLayerWeights";
 
@@ -568,8 +610,12 @@ nvinfer1::Weights RTNet::loadLayerWeights(const float *data, int size) {
   }
   wt.values = val.get();
   wt.count = size;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::loadLayerWeights";
   return wt;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::loadLayerWeights";
+ }
 nvinfer1::Weights RTNet::loadLayerWeights(float data, int size) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::loadLayerWeights";
 
@@ -582,8 +628,12 @@ nvinfer1::Weights RTNet::loadLayerWeights(float data, int size) {
   }
   wt.values = val.get();
   wt.count = size;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::loadLayerWeights";
   return wt;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::loadLayerWeights";
+ }
 
 RTNet::RTNet(const std::string &net_file, const std::string &model_file,
              const std::vector<std::string> &outputs,
@@ -598,7 +648,13 @@ RTNet::RTNet(const std::string &net_file, const std::string &model_file,
   loadWeights(model_file, &weight_map_);
   net_param_.reset(new NetParameter);
   loadNetParams(net_file, net_param_.get());
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::RTNet";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::RTNet";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::RTNet";
+ }
 RTNet::RTNet(const std::string &net_file, const std::string &model_file,
              const std::vector<std::string> &outputs,
              const std::vector<std::string> &inputs,
@@ -631,11 +687,15 @@ bool RTNet::shape(const std::string &name, std::vector<int> *res) {
   auto engine = &(context_->getEngine());
   if (tensor_modify_map_.find(name) == tensor_modify_map_.end()) {
     AINFO << "can't get the shape of " << name;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::shape";
+  return false;
   }
   int bindingIndex = engine->getBindingIndex(tensor_modify_map_[name].c_str());
   if (bindingIndex > static_cast<int>(buffers_.size())) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::shape";
+  return false;
   }
   nvinfer1::DimsCHW dims = static_cast<nvinfer1::DimsCHW &&>(
       engine->getBindingDimensions(bindingIndex));
@@ -644,8 +704,12 @@ bool RTNet::shape(const std::string &name, std::vector<int> *res) {
   (*res)[1] = dims.c();
   (*res)[2] = dims.h();
   (*res)[3] = dims.w();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::shape";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::shape";
+ }
 void RTNet::init_blob(std::vector<std::string> *names) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::init_blob";
 
@@ -667,14 +731,18 @@ void RTNet::init_blob(std::vector<std::string> *names) {
     blob->set_gpu_data(reinterpret_cast<float *>(buffers_[bindingIndex]));
     blobs_.insert(std::make_pair(name, blob));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::init_blob";
+ }
 
 bool RTNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::Init";
 
   if (gpu_id_ < 0) {
     AINFO << "must use gpu mode";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::Init";
+  return false;
   }
   BASE_CUDA_CHECK(cudaSetDevice(gpu_id_));
   // stream will only be destoried for gpu_id_ >= 0
@@ -703,26 +771,38 @@ bool RTNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
   buffers_.resize(input_names_.size() + output_names_.size());
   init_blob(&input_names_);
   init_blob(&output_names_);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::Init";
+ }
 bool RTNet::checkInt8(const std::string &gpu_name,
                       nvinfer1::IInt8Calibrator *calibrator) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::checkInt8";
 
   if (calibrator == nullptr) {
     AINFO << "Device Works on FP32 Mode.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::checkInt8";
+  return false;
   }
   for (auto ref : _gpu_checklist) {
     if (ref == gpu_name) {
       AINFO << "Device Works on Int8 Mode.";
-      return true;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::checkInt8";
+  return true;
     }
   }
   AWARN << "Device Not Supports Int8 Mode. Use FP32 Mode.";
   calibrator_ = nullptr;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::checkInt8";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::checkInt8";
+ }
 bool RTNet::addInput(const TensorDimsMap &tensor_dims_map,
                      const std::map<std::string, std::vector<int>> &shapes,
                      TensorMap *tensor_map) {
@@ -747,8 +827,12 @@ bool RTNet::addInput(const TensorDimsMap &tensor_dims_map,
     tensor_map->insert(std::make_pair(dims_pair.first, data));
     input_names_.push_back(dims_pair.first);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::addInput";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::addInput";
+ }
 
 void RTNet::parse_with_api(
     const std::map<std::string, std::vector<int>> &shapes) {
@@ -783,7 +867,9 @@ void RTNet::parse_with_api(
       iter = output_names_.erase(iter);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::parse_with_api";
+ }
 
 RTNet::~RTNet() {
   if (is_own_calibrator_ && calibrator_ != nullptr) {
@@ -832,7 +918,9 @@ void RTNet::Infer() {
       blob->mutable_gpu_data();
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: RTNet::Infer";
+ }
 std::shared_ptr<apollo::perception::base::Blob<float>> RTNet::get_blob(
     const std::string &name) {
   auto iter = blobs_.find(name);

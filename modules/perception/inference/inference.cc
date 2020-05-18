@@ -25,11 +25,15 @@ void Inference::set_max_batch_size(const int &batch_size) {
     AINFO<<"(DMCZP) EnteringMethod: Inference::set_max_batch_size";
 
   max_batch_size_ = batch_size;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Inference::set_max_batch_size";
+ }
 
 void Inference::set_gpu_id(const int &gpu_id) {
     AINFO<<"(DMCZP) EnteringMethod: Inference::set_gpu_id";
- gpu_id_ = gpu_id; }
+ gpu_id_ = gpu_id; 
+   AINFO<<"(DMCZP) LeaveMethod: Inference::set_gpu_id";
+ }
 
 }  // namespace inference
 }  // namespace perception

@@ -37,7 +37,9 @@ PlaneMotion::PlaneMotion(int s) {
     AERROR << "Unknow motion matrix size : " << mat_motion_sensor_.rows() << " "
            << mat_motion_sensor_.cols();
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneMotion::PlaneMotion";
+ }
 
 PlaneMotion::~PlaneMotion(void) {
   if (mot_buffer_ != nullptr) {
@@ -98,7 +100,9 @@ void PlaneMotion::generate_motion_matrix(base::VehicleStatus *vehicledata) {
     CHECK(vehicledata->motion.cols() == motion_3d.cols());
     vehicledata->motion = motion_3d;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneMotion::generate_motion_matrix";
+ }
 
 void PlaneMotion::accumulate_motion(const double start_time,
                                     const double end_time) {
@@ -117,7 +121,9 @@ void PlaneMotion::accumulate_motion(const double start_time,
   while (raw_motion_queue_.begin() != iter) {
     raw_motion_queue_.pop_front();
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneMotion::accumulate_motion";
+ }
 
 void PlaneMotion::update_motion_buffer(const base::VehicleStatus &vehicledata,
                                        const double pre_image_timestamp,
@@ -143,7 +149,9 @@ void PlaneMotion::update_motion_buffer(const base::VehicleStatus &vehicledata,
   mat_motion_sensor_ =
       base::MotionType::Identity();  // reset image accumulated motion
   time_difference_ = 0.0f;           // reset the accumulated time difference
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneMotion::update_motion_buffer";
+ }
 
 bool PlaneMotion::find_motion_with_timestamp(double timestamp,
                                              base::VehicleStatus *vs) {
@@ -156,18 +164,28 @@ bool PlaneMotion::find_motion_with_timestamp(double timestamp,
     if (std::abs(rit->time_ts - timestamp) <
         std::numeric_limits<double>::epsilon()) {
       *vs = *rit;
-      return true;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneMotion::find_motion_with_timestamp";
+  return true;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneMotion::find_motion_with_timestamp";
   return false;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneMotion::find_motion_with_timestamp";
+ }
 
 base::MotionBuffer PlaneMotion::get_buffer() {
     AINFO<<"(DMCZP) EnteringMethod: PlaneMotion::get_buffer";
 
   std::lock_guard<std::mutex> lock(mutex_);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneMotion::get_buffer";
   return *mot_buffer_;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneMotion::get_buffer";
+ }
 
 void PlaneMotion::add_new_motion(double pre_image_timestamp,
                                  double image_timestamp,
@@ -201,7 +219,9 @@ void PlaneMotion::add_new_motion(double pre_image_timestamp,
         break;
       default:
         AERROR << "motion operation flag:wrong type";
-        return;
+        
+  AINFO<<"(DMCZP) (return) LeaveMethod: PlaneMotion::add_new_motion";
+  return;
     }
   } else {
     mot_buffer_->clear();
@@ -212,7 +232,9 @@ void PlaneMotion::add_new_motion(double pre_image_timestamp,
     ADEBUG << "pop and rest raw_buffer, mot_buffer: "
            << raw_motion_queue_.size();
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PlaneMotion::add_new_motion";
+ }
 }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

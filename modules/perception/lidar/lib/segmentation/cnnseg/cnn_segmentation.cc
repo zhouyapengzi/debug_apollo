@@ -134,11 +134,17 @@ bool CNNSegmentation::Init(const SegmentationInitOptions& options) {
      secondary_segmentor.reset(new NCutSegmentation());
      if(!secondary_segmentor->Init(SegmentationInitOptions())) {
          AERROR<<"initialized secondary segmentor fails";
-         return false;
+         
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Init";
+  return false;
      }
   }*/
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::Init";
+ }
 
 bool CNNSegmentation::InitClusterAndBackgroundSegmentation() {
     AINFO<<"(DMCZP) EnteringMethod: CNNSegmentation::InitClusterAndBackgroundSegmentation";
@@ -228,11 +234,17 @@ bool CNNSegmentation::InitClusterAndBackgroundSegmentation() {
     ground_detector_time_ = timer.toc(true);
     AINFO << "Roi-filter time: " << roi_filter_time_
           << "\tGround-detector time: " << ground_detector_time_;
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::InitClusterAndBackgroundSegmentation";
+  return true;
   });
   worker_.Start();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::InitClusterAndBackgroundSegmentation";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::InitClusterAndBackgroundSegmentation";
+ }
 
 void CNNSegmentation::MapPointToGrid(
     const std::shared_ptr<AttributePointCloud<PointF>>& pc_ptr) {
@@ -259,7 +271,9 @@ void CNNSegmentation::MapPointToGrid(
     }
     point2grid_[i] = pos_y * width_ + pos_x;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::MapPointToGrid";
+ }
 
 bool CNNSegmentation::Segment(const SegmentationOptions& options,
                               LidarFrame* frame) {
@@ -268,23 +282,33 @@ bool CNNSegmentation::Segment(const SegmentationOptions& options,
   // check input
   if (frame == nullptr) {
     AERROR << "Input null frame ptr.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Segment";
+  return false;
   }
   if (frame->cloud == nullptr) {
     AERROR << "Input null frame cloud.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Segment";
+  return false;
   }
   if (frame->world_cloud == nullptr) {
     AERROR << "Input null frame world cloud.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Segment";
+  return false;
   }
   if (frame->cloud->size() == 0) {
     AERROR << "Input none points.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Segment";
+  return false;
   }
   if (frame->cloud->size() != frame->world_cloud->size()) {
     AERROR << "Cloud size and world cloud size not consistent.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Segment";
+  return false;
   }
   // record input cloud and lidar frame
   original_cloud_ = frame->cloud;
@@ -303,7 +327,9 @@ bool CNNSegmentation::Segment(const SegmentationOptions& options,
 
   if (cudaSetDevice(gpu_id_) != cudaSuccess) {
     AERROR << "Failed to set device to " << gpu_id_;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Segment";
+  return false;
   }
 
   // generate features
@@ -325,8 +351,12 @@ bool CNNSegmentation::Segment(const SegmentationOptions& options,
         << " fg-seg: " << fg_seg_time_ << "\t"
         << " join: " << join_time_ << "\t"
         << " collect: " << collect_time_;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Segment";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::Segment";
+ }
 
 void CNNSegmentation::GetObjectsFromSppEngine(
     std::vector<std::shared_ptr<Object>>* objects) {
@@ -467,7 +497,9 @@ void CNNSegmentation::GetObjectsFromSppEngine(
   }*/
 
   collect_time_ = timer.toc(true);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::GetObjectsFromSppEngine";
+ }
 
 bool CNNSegmentation::GetConfigs(std::string* param_file,
                                  std::string* proto_file,
@@ -503,8 +535,12 @@ bool CNNSegmentation::GetConfigs(std::string* param_file,
   }
   *engine_file = GetAbsolutePath(work_root, config.engine_file());
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::GetConfigs";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::GetConfigs";
+ }
 
 PERCEPTION_REGISTER_SEGMENTATION(CNNSegmentation);
 

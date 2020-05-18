@@ -33,7 +33,9 @@ TrackedObject::TrackedObject(base::ObjectPtr obj_ptr,
     AINFO<<"(DMCZP) EnteringMethod: TrackedObject::TrackedObject";
 
   AttachObject(obj_ptr, pose);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::TrackedObject";
+ }
 
 void TrackedObject::AttachObject(base::ObjectPtr obj_ptr,
                                  const Eigen::Affine3d& pose,
@@ -92,7 +94,9 @@ void TrackedObject::AttachObject(base::ObjectPtr obj_ptr,
 
     sensor_info = sensor;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::AttachObject";
+ }
 
 void TrackedObject::TransformObjectCloudToWorld() {
     AINFO<<"(DMCZP) EnteringMethod: TrackedObject::TransformObjectCloudToWorld";
@@ -111,7 +115,9 @@ void TrackedObject::TransformObjectCloudToWorld() {
   }
   memcpy(&cloud_world.points_height(0), &cloud.points_height(0),
          sizeof(float) * cloud.size());
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::TransformObjectCloudToWorld";
+ }
 
 void TrackedObject::Reset() {
     AINFO<<"(DMCZP) EnteringMethod: TrackedObject::Reset";
@@ -173,7 +179,9 @@ void TrackedObject::Reset() {
 
   // sensor info reset
   sensor_info.Reset();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::Reset";
+ }
 
 void TrackedObject::Reset(base::ObjectPtr obj_ptr, const Eigen::Affine3d& pose,
                           const Eigen::Vector3d& global_to_local_offset,
@@ -182,7 +190,9 @@ void TrackedObject::Reset(base::ObjectPtr obj_ptr, const Eigen::Affine3d& pose,
 
   Reset();
   AttachObject(obj_ptr, pose, global_to_local_offset, sensor);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::Reset";
+ }
 
 void TrackedObject::CopyFrom(TrackedObjectPtr rhs, bool is_deep) {
     AINFO<<"(DMCZP) EnteringMethod: TrackedObject::CopyFrom";
@@ -194,16 +204,24 @@ void TrackedObject::CopyFrom(TrackedObjectPtr rhs, bool is_deep) {
   } else {
     object_ptr = rhs->object_ptr;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::CopyFrom";
+ }
 
 float TrackedObject::GetVelThreshold(base::ObjectPtr obj) const {
     AINFO<<"(DMCZP) EnteringMethod: TrackedObject::GetVelThreshold";
 
   if (obj->type == base::ObjectType::VEHICLE) {
-    return 0.99f;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackedObject::GetVelThreshold";
+  return 0.99f;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackedObject::GetVelThreshold";
   return 0.0f;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::GetVelThreshold";
+ }
 
 void TrackedObject::ToObject(base::ObjectPtr obj) const {
     AINFO<<"(DMCZP) EnteringMethod: TrackedObject::ToObject";
@@ -243,21 +261,29 @@ void TrackedObject::ToObject(base::ObjectPtr obj) const {
   // obj lidar_supplement other elements not calculate in tracker, keep default
   // obj radar_supplement not calculate in tracker, keep default
   // obj camera_supplement not calculate in tracker, keep default
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::ToObject";
+ }
 
 std::string TrackedObject::ToString() const {
     AINFO<<"(DMCZP) EnteringMethod: TrackedObject::ToString";
 
   // std::string txt;
-  // return txt;
+  // 
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackedObject::ToString";
+  return txt;
   std::ostringstream oos;
   oos << "obj id: " << object_ptr->id << ", track_id: " << object_ptr->track_id
       << ", bary_center: (" << barycenter[0] << "," << barycenter[1] << ","
       << barycenter[2] << ")"
       << ", lane_direction: (" << lane_direction[0] << "," << lane_direction[1]
       << "," << lane_direction[2] << ")";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackedObject::ToString";
   return oos.str();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::ToString";
+ }
 
 void TrackedObject::ComputeShapeFeatures() {
     AINFO<<"(DMCZP) EnteringMethod: TrackedObject::ComputeShapeFeatures";
@@ -276,7 +302,9 @@ void TrackedObject::ComputeShapeFeatures() {
   for (size_t i = 0; i < feature_len; ++i) {
     shape_features[i] = shape_features_full[i + 7];
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::ComputeShapeFeatures";
+ }
 }  // namespace lidar
 }  // namespace perception
 }  // namespace apollo

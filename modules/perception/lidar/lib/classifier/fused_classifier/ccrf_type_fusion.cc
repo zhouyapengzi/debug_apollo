@@ -65,19 +65,27 @@ bool CCRFOneShotTypeFusion::Init(const TypeFusionInitOption& option) {
   AINFO << "Confidence: ";
   AINFO << std::endl << confidence_smooth_matrix_;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CCRFOneShotTypeFusion::Init";
+ }
 
 bool CCRFOneShotTypeFusion::TypeFusion(const TypeFusionOption& option,
                                        ObjectPtr object) {
     AINFO<<"(DMCZP) EnteringMethod: CCRFOneShotTypeFusion::TypeFusion";
 
   if (object == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::TypeFusion";
+  return false;
   }
   Vectord log_prob;
   if (!FuseOneShotTypeProbs(object, &log_prob)) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::TypeFusion";
+  return false;
   }
   util::ToExp(&log_prob);
   util::Normalize(&log_prob);
@@ -85,23 +93,33 @@ bool CCRFOneShotTypeFusion::TypeFusion(const TypeFusionOption& option,
   object->type = static_cast<ObjectType>(std::distance(
       object->type_probs.begin(),
       std::max_element(object->type_probs.begin(), object->type_probs.end())));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::TypeFusion";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CCRFOneShotTypeFusion::TypeFusion";
+ }
 
 bool CCRFOneShotTypeFusion::FuseOneShotTypeProbs(const ObjectPtr& object,
                                                  Vectord* log_prob) {
     AINFO<<"(DMCZP) EnteringMethod: CCRFOneShotTypeFusion::FuseOneShotTypeProbs";
 
   if (object == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::FuseOneShotTypeProbs";
+  return false;
   }
   if (log_prob == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::FuseOneShotTypeProbs";
+  return false;
   }
   const auto& vecs = object->lidar_supplement.raw_probs;
   const auto& names = object->lidar_supplement.raw_classification_methods;
   if (vecs.empty()) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::FuseOneShotTypeProbs";
+  return false;
   }
 
   log_prob->setZero();
@@ -126,8 +144,12 @@ bool CCRFOneShotTypeFusion::FuseOneShotTypeProbs(const ObjectPtr& object,
     *log_prob += single_prob;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::FuseOneShotTypeProbs";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CCRFOneShotTypeFusion::FuseOneShotTypeProbs";
+ }
 
 bool CCRFSequenceTypeFusion::Init(const TypeFusionInitOption& option) {
     AINFO<<"(DMCZP) EnteringMethod: CCRFSequenceTypeFusion::Init";
@@ -159,21 +181,33 @@ bool CCRFSequenceTypeFusion::Init(const TypeFusionInitOption& option) {
     }
   }
   AINFO << std::endl << transition_matrix_;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CCRFSequenceTypeFusion::Init";
+ }
 
 bool CCRFSequenceTypeFusion::TypeFusion(const TypeFusionOption& option,
                                         TrackedObjects* tracked_objects) {
     AINFO<<"(DMCZP) EnteringMethod: CCRFSequenceTypeFusion::TypeFusion";
 
   if (tracked_objects == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::TypeFusion";
+  return false;
   }
   if (tracked_objects->empty()) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::TypeFusion";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::TypeFusion";
   return FuseWithConditionalProbabilityInference(tracked_objects);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CCRFSequenceTypeFusion::TypeFusion";
+ }
 
 bool CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference(
     TrackedObjects* tracked_objects) {
@@ -188,7 +222,9 @@ bool CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference(
     if (!one_shot_fuser_.FuseOneShotTypeProbs(object,
                                               &fused_oneshot_probs_[i++])) {
       AERROR << "Failed to fuse one short probs in sequence.";
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference";
+  return false;
     }
   }
 
@@ -222,8 +258,12 @@ bool CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference(
   ObjectPtr object = tracked_objects->rbegin()->second;
   RecoverFromLogProbability(&fused_sequence_probs_.back(), &object->type_probs,
                             &object->type);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference";
+ }
 
 bool CCRFSequenceTypeFusion::RecoverFromLogProbability(Vectord* prob,
                                                        std::vector<float>* dst,
@@ -235,8 +275,12 @@ bool CCRFSequenceTypeFusion::RecoverFromLogProbability(Vectord* prob,
   util::FromEigenToVector(*prob, dst);
   *type = static_cast<ObjectType>(
       std::distance(dst->begin(), std::max_element(dst->begin(), dst->end())));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::RecoverFromLogProbability";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CCRFSequenceTypeFusion::RecoverFromLogProbability";
+ }
 
 PERCEPTION_REGISTER_ONESHOTTYPEFUSION(CCRFOneShotTypeFusion);
 PERCEPTION_REGISTER_SEQUENCETYPEFUSION(CCRFSequenceTypeFusion);

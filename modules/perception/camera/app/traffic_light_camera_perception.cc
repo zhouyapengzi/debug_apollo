@@ -42,7 +42,9 @@ bool TrafficLightCameraPerception::Init(
   AINFO << "proto_path " << proto_path;
   if (!cyber::common::GetProtoFromFile(proto_path, &tl_param_)) {
     AINFO << "load proto param failed, root dir: " << options.root_dir;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Init";
+  return false;
   }
 
   TrafficLightDetectorInitOptions init_options;
@@ -56,7 +58,9 @@ bool TrafficLightCameraPerception::Init(
   CHECK(detector_ != nullptr);
   if (!detector_->Init(init_options)) {
     AERROR << "tl detector init failed";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Init";
+  return false;
   }
 
   plugin_param = tl_param_.detector_param(1).plugin_param();
@@ -68,7 +72,9 @@ bool TrafficLightCameraPerception::Init(
   CHECK(recognizer_ != nullptr);
   if (!recognizer_->Init(init_options)) {
     AERROR << "tl recognizer init failed";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Init";
+  return false;
   }
 
   TrafficLightTrackerInitOptions tracker_init_options;
@@ -83,12 +89,18 @@ bool TrafficLightCameraPerception::Init(
         << tracker_init_options.conf_file;
   if (!tracker_->Init(tracker_init_options)) {
     AERROR << "tl tracker init failed";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Init";
+  return false;
   }
 
   AINFO << "tl pipeline init done";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightCameraPerception::Init";
+ }
 
 bool TrafficLightCameraPerception::Perception(
     const CameraPerceptionOptions &options, CameraFrame *frame) {
@@ -99,7 +111,9 @@ bool TrafficLightCameraPerception::Perception(
   TrafficLightDetectorOptions detector_options;
   if (!detector_->Detect(detector_options, frame)) {
     AERROR << "tl failed to detect.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Perception";
+  return false;
   }
   const auto traffic_light_detect_time =
       PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
@@ -108,7 +122,9 @@ bool TrafficLightCameraPerception::Perception(
   TrafficLightDetectorOptions recognizer_options;
   if (!recognizer_->Detect(recognizer_options, frame)) {
     AERROR << "tl failed to recognize.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Perception";
+  return false;
   }
   const auto traffic_light_recognize_time =
       PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
@@ -117,7 +133,9 @@ bool TrafficLightCameraPerception::Perception(
   TrafficLightTrackerOptions tracker_options;
   if (!tracker_->Track(tracker_options, frame)) {
     AERROR << "tl failed to track.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Perception";
+  return false;
   }
   const auto traffic_light_track_time =
       PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
@@ -128,8 +146,12 @@ bool TrafficLightCameraPerception::Perception(
         << " traffic_light_recognize_time: " << traffic_light_recognize_time
         << " ms."
         << " traffic_light_track_time: " << traffic_light_track_time << " ms.";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Perception";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightCameraPerception::Perception";
+ }
 
 }  // namespace camera
 }  // namespace perception

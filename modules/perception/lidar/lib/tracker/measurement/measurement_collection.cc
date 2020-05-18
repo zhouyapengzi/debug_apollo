@@ -34,7 +34,9 @@ void MeasureAnchorPointVelocity(TrackedObjectPtr new_object,
   measured_anchor_point_velocity /= time_diff;
   measured_anchor_point_velocity(2) = 0.0;
   new_object->measured_barycenter_velocity = measured_anchor_point_velocity;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MeasureAnchorPointVelocity";
+ }
 
 void MeasureBboxCenterVelocity(TrackedObjectPtr new_object,
                                const TrackedObjectConstPtr& old_object,
@@ -66,7 +68,9 @@ void MeasureBboxCenterVelocity(TrackedObjectPtr new_object,
     measured_bbox_center_velocity = Eigen::Vector3d::Zero();
   }
   new_object->measured_center_velocity = measured_bbox_center_velocity;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MeasureBboxCenterVelocity";
+ }
 
 void MeasureBboxCornerVelocity(TrackedObjectPtr new_object,
                                const TrackedObjectConstPtr& old_object,
@@ -163,7 +167,9 @@ void MeasureBboxCornerVelocity(TrackedObjectPtr new_object,
     new_object->measured_corners_velocity[i] =
         bbox_corner_velocity_on_project_dir;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MeasureBboxCornerVelocity";
+ }
 
 }  // namespace lidar
 }  // namespace perception

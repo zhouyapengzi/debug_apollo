@@ -28,7 +28,9 @@ bool CosineSimilar::Calc(CameraFrame *frame1, CameraFrame *frame2,
   auto n = frame1->detected_objects.size();
   auto m = frame2->detected_objects.size();
   if ((n && m) == 0) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: CosineSimilar::Calc";
+  return false;
   }
   sim->Reshape({static_cast<int>(n), static_cast<int>(m)});
   float *sim_data = sim->mutable_cpu_data();
@@ -45,8 +47,12 @@ bool CosineSimilar::Calc(CameraFrame *frame1, CameraFrame *frame2,
       ++sim_data;
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: CosineSimilar::Calc";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CosineSimilar::Calc";
+ }
 
 }  // namespace camera
 }  // namespace perception

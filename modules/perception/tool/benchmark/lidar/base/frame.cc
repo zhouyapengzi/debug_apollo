@@ -41,32 +41,42 @@ void Frame::set_black_list(const std::set<std::string>& black_list) {
     AINFO<<"(DMCZP) EnteringMethod: Frame::set_black_list";
 
   _s_black_list = black_list;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Frame::set_black_list";
+ }
 
 void Frame::set_is_for_visualization(bool for_visualization) {
     AINFO<<"(DMCZP) EnteringMethod: Frame::set_is_for_visualization";
 
   _s_is_for_visualization = for_visualization;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Frame::set_is_for_visualization";
+ }
 
 void Frame::set_visible_threshold(float threshold) {
     AINFO<<"(DMCZP) EnteringMethod: Frame::set_visible_threshold";
 
   _s_visible_threshold = threshold;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Frame::set_visible_threshold";
+ }
 
 void Frame::set_min_confidence(float confidence) {
     AINFO<<"(DMCZP) EnteringMethod: Frame::set_min_confidence";
 
   _s_min_confidence = confidence;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Frame::set_min_confidence";
+ }
 
 bool Frame::load(const std::vector<std::string>& filenames) {
     AINFO<<"(DMCZP) EnteringMethod: Frame::load";
 
   if (filenames.size() < 3 || filenames.size() > 4) {
     std::cerr << "file list is not complete" << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
+  return false;
   }
   name = filenames[0];
   // Step I: four elements should be loaded
@@ -82,13 +92,17 @@ bool Frame::load(const std::vector<std::string>& filenames) {
     pose_filename = filenames[3];
     if (!load_sensor2world_pose(pose_filename, &sensor2world_pose)) {
       std::cerr << "Fail to load pose: " << pose_filename << std::endl;
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
+  return false;
     }
   }
   _point_cloud.reset(new PointCloud);
   if (!load_pcl_pcds(pc_filename, _point_cloud)) {
     std::cerr << "Fail to load pcds: " << pc_filename << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
+  return false;
   }
   std::vector<PointCloud>* left_boundary = &_left_boundary;
   std::vector<PointCloud>* right_boundary = &_right_boundary;
@@ -102,11 +116,15 @@ bool Frame::load(const std::vector<std::string>& filenames) {
                           &objects, left_boundary, right_boundary, road_polygon,
                           left_lane_boundary, right_lane_boundary, cloud)) {
     std::cerr << "Fail to load result: " << result_filename << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
+  return false;
   }
   if (!load_frame_objects(gt_filename, _s_black_list, &gt_objects)) {
     std::cerr << "Fail to load groundtruth: " << gt_filename << std::endl;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
+  return false;
   }
   // confidence filter
   size_t valid = 0;
@@ -148,7 +166,9 @@ bool Frame::load(const std::vector<std::string>& filenames) {
   auto is_obj_in_roi = [&](const std::vector<Eigen::Vector3d>& vertices,
                            const std::vector<PointCloud>& rois) {
     if (vertices.size() < 4) {
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
+  return false;
     }
     Point pt;
     for (auto& roi : rois) {
@@ -156,11 +176,15 @@ bool Frame::load(const std::vector<std::string>& filenames) {
         pt.x = static_cast<float>(vertices[i](0));
         pt.y = static_cast<float>(vertices[i](1));
         if (is_point_xy_in_polygon2d_xy(pt, roi, _s_distance_to_roi_boundary)) {
-          return true;
+          
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
+  return true;
         }
       }
     }
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
+  return false;
   };
   // Step V: fill roi flag
   if (_road_polygon.size() > 0) {
@@ -202,8 +226,12 @@ bool Frame::load(const std::vector<std::string>& filenames) {
   visibility.fill_objects(&objects, _s_visible_threshold);
   visibility.fill_objects(&gt_objects, _s_visible_threshold);
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Frame::load";
+ }
 
 void Frame::build_indices() {
     AINFO<<"(DMCZP) EnteringMethod: Frame::build_indices";
@@ -217,7 +245,9 @@ void Frame::build_indices() {
     gt_objects_has_indices = gt_objects[0]->indices->indices.size() > 0;
   }
   if (objects_has_indices && gt_objects_has_indices) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::build_indices";
+  return;
   }
   pcl::KdTreeFLANN<Point> point_cloud_kdtree;
   point_cloud_kdtree.setInputCloud(_point_cloud);
@@ -229,7 +259,9 @@ void Frame::build_indices() {
   if (!gt_objects_has_indices) {
     build_objects_indices(point_cloud_kdtree, &gt_objects);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Frame::build_indices";
+ }
 
 void Frame::build_points() {
     AINFO<<"(DMCZP) EnteringMethod: Frame::build_points";
@@ -243,7 +275,9 @@ void Frame::build_points() {
     gt_objects_has_points = gt_objects[0]->cloud->size() > 0;
   }
   if (objects_has_points && gt_objects_has_points) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: Frame::build_points";
+  return;
   }
   // Step I: build result objects' points
   if (!objects_has_points) {
@@ -253,7 +287,9 @@ void Frame::build_points() {
   if (!gt_objects_has_points) {
     build_objects_points(&gt_objects);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Frame::build_points";
+ }
 
 void Frame::build_objects_indices(
     const pcl::KdTreeFLANN<Point>& point_cloud_kdtree,
@@ -279,7 +315,9 @@ void Frame::build_objects_indices(
       objects_out->at(i)->indices->indices[j] = query_indice;
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Frame::build_objects_indices";
+ }
 
 void Frame::build_objects_points(std::vector<ObjectPtr>* objects_out) {
     AINFO<<"(DMCZP) EnteringMethod: Frame::build_objects_points";
@@ -293,7 +331,9 @@ void Frame::build_objects_points(std::vector<ObjectPtr>* objects_out) {
       objects_out->at(i)->cloud->at(j) = _point_cloud->at(pid);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: Frame::build_objects_points";
+ }
 
 }  // namespace benchmark
 }  // namespace perception

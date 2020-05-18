@@ -42,7 +42,9 @@ CameraPerceptionVizMessage::CameraPerceptionVizMessage(
   for (const auto& obj : lane_objects) {
     lane_objects_.push_back(obj);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: CameraPerceptionVizMessage::CameraPerceptionVizMessage";
+ }
 
 }  // namespace onboard
 }  // namespace perception

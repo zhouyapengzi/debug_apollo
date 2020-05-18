@@ -75,8 +75,12 @@ bool HdmapROIFilter::Init(const ROIFilterInitOptions& options) {
         << " extend_dist: " << extend_dist_
         << " no_edge_table: " << no_edge_table_
         << " set_roi_service: " << set_roi_service_;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HdmapROIFilter::Init";
+ }
 
 bool HdmapROIFilter::Filter(const ROIFilterOptions& options,
                             LidarFrame* frame) {
@@ -84,7 +88,9 @@ bool HdmapROIFilter::Filter(const ROIFilterOptions& options,
 
   if (frame->hdmap_struct == nullptr || frame->cloud == nullptr) {
     AERROR << " Input frame data error !";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::Filter";
+  return false;
   }
 
   // get map polygon of roi
@@ -93,7 +99,9 @@ bool HdmapROIFilter::Filter(const ROIFilterOptions& options,
   size_t polygons_world_size = road_polygons.size() + junction_polygons.size();
   if (0 == polygons_world_size) {
     AINFO << " Polygon Empty.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::Filter";
+  return false;
   }
 
   polygons_world_.clear();
@@ -144,8 +152,12 @@ bool HdmapROIFilter::Filter(const ROIFilterOptions& options,
       AINFO << "Failed to find roi service and cannot update.";
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::Filter";
   return ret;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HdmapROIFilter::Filter";
+ }
 
 bool HdmapROIFilter::FilterWithPolygonMask(
     const base::PointFCloudPtr& cloud,
@@ -185,10 +197,14 @@ bool HdmapROIFilter::FilterWithPolygonMask(
   }
   bitmap_.SetUp(major_dir);
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::FilterWithPolygonMask";
   return DrawPolygonsMask<double>(raw_polygons, &bitmap_, extend_dist_,
                                   no_edge_table_) &&
          Bitmap2dFilter(cloud, bitmap_, roi_indices);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HdmapROIFilter::FilterWithPolygonMask";
+ }
 
 void HdmapROIFilter::TransformFrame(
     const base::PointFCloudPtr& cloud, const Eigen::Affine3d& vel_pose,
@@ -225,7 +241,9 @@ void HdmapROIFilter::TransformFrame(
     local_pt.x = static_cast<float>(x_axis.dot(e_pt));
     local_pt.y = static_cast<float>(y_axis.dot(e_pt));
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HdmapROIFilter::TransformFrame";
+ }
 
 bool HdmapROIFilter::Bitmap2dFilter(const base::PointFCloudPtr& in_cloud,
                                     const Bitmap2D& bitmap,
@@ -234,7 +252,9 @@ bool HdmapROIFilter::Bitmap2dFilter(const base::PointFCloudPtr& in_cloud,
 
   if (!bitmap.Check(Eigen::Vector2d(0.0, 0.0))) {
     AWARN << " Car is not in roi!!.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::Bitmap2dFilter";
+  return false;
   }
   roi_indices->indices.clear();
   roi_indices->indices.reserve(in_cloud->size());
@@ -248,8 +268,12 @@ bool HdmapROIFilter::Bitmap2dFilter(const base::PointFCloudPtr& in_cloud,
       roi_indices->indices.push_back(static_cast<int>(i));
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::Bitmap2dFilter";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: HdmapROIFilter::Bitmap2dFilter";
+ }
 
 PERCEPTION_REGISTER_ROIFILTER(HdmapROIFilter);
 

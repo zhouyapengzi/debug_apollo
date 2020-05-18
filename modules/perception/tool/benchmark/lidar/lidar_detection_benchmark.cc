@@ -54,7 +54,9 @@ int main(int argc, char** argv) {
       !boost_args.count("result") || !boost_args.count("groundtruth") ||
       !boost_args.count("is_folder")) {
     std::cout << boost_desc << std::endl;
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: main";
+  return 0;
   }
 
   const std::string cloud = boost_args["cloud"].as<std::string>();
@@ -77,5 +79,9 @@ int main(int argc, char** argv) {
 
   std::cerr << evaluator << std::endl;
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: main";
   return 0;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: main";
+ }

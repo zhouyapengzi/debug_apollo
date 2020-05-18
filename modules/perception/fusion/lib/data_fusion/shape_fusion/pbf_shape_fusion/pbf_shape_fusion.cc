@@ -25,7 +25,11 @@ float PbfShapeFusion::s_camera_radar_time_diff_th_ = 0.3f;
 
 bool PbfShapeFusion::Init() {
     AINFO<<"(DMCZP) EnteringMethod: PbfShapeFusion::Init";
- return true; }
+ 
+  AINFO<<"(D
+   AINFO<<"(DMCZP) LeaveMethod: PbfShapeFusion::Init";
+ MCZP) (return) LeaveMethod: PbfShapeFusion::Init";
+  return true; }
 
 void PbfShapeFusion::UpdateWithMeasurement(const SensorObjectPtr measurement,
                                            double target_timestamp) {
@@ -63,23 +67,33 @@ void PbfShapeFusion::UpdateWithMeasurement(const SensorObjectPtr measurement,
   } else {
     // nothing to do;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PbfShapeFusion::UpdateWithMeasurement";
+ }
 void PbfShapeFusion::UpdateWithoutMeasurement(const std::string& sensor_id,
                                               double measurement_timestamp,
                                               double target_timestamp) {
     AINFO<<"(DMCZP) EnteringMethod: PbfShapeFusion::UpdateWithoutMeasurement";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PbfShapeFusion::UpdateWithoutMeasurement";
+ }
 
 std::string PbfShapeFusion::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: PbfShapeFusion::Name";
- return "PbfShapeFusion"; }
+ 
+  AINFO<<"(DMCZP) (retur
+   AINFO<<"(DMCZP) LeaveMethod: PbfShapeFusion::Name";
+ n) LeaveMethod: PbfShapeFusion::Name";
+  return "PbfShapeFusion"; }
 
 void PbfShapeFusion::UpdateState(const SensorObjectConstPtr& measurement) {
     AINFO<<"(DMCZP) EnteringMethod: PbfShapeFusion::UpdateState";
 
   UpdateShape(measurement);
   UpdateCenter(measurement);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PbfShapeFusion::UpdateState";
+ }
 
 void PbfShapeFusion::UpdateShape(const SensorObjectConstPtr& measurement) {
     AINFO<<"(DMCZP) EnteringMethod: PbfShapeFusion::UpdateShape";
@@ -91,7 +105,9 @@ void PbfShapeFusion::UpdateShape(const SensorObjectConstPtr& measurement) {
   dst_obj->direction = src_obj->direction;
   dst_obj->theta = src_obj->theta;
   dst_obj->polygon = src_obj->polygon;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PbfShapeFusion::UpdateShape";
+ }
 
 void PbfShapeFusion::UpdateCenter(const SensorObjectConstPtr& measurement) {
     AINFO<<"(DMCZP) EnteringMethod: PbfShapeFusion::UpdateCenter";
@@ -101,7 +117,9 @@ void PbfShapeFusion::UpdateCenter(const SensorObjectConstPtr& measurement) {
 
   dst_obj->center = src_obj->center;
   dst_obj->anchor_point = src_obj->anchor_point;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PbfShapeFusion::UpdateCenter";
+ }
 
 // FUSION_REGISTER_SHAPEFUSION(PbfShapeFusion)
 

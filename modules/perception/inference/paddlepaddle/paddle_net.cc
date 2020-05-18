@@ -33,7 +33,11 @@ PaddleNet::PaddleNet(const std::string &model_file,
     AINFO<<"(DMCZP) EnteringMethod: PaddleNet::PaddleNet";
 
     AINFO<<"(DMCZP) EnteringMethod: PaddleNet::PaddleNet";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::PaddleNet";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::PaddleNet";
+ }
 
 bool PaddleNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
     AINFO<<"(DMCZP) EnteringMethod: PaddleNet::Init";
@@ -48,7 +52,9 @@ bool PaddleNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
   // init Net
   predictor_ = paddle::CreatePaddlePredictor(config);
   if (predictor_ == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PaddleNet::Init";
+  return false;
   }
   // TODO(KAWAI) : shapes should only include input blobs.
   //              & a way to process multiple inputs.
@@ -97,8 +103,12 @@ bool PaddleNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
     blob.reset(new apollo::perception::base::Blob<float>(paddle_blob->shape()));
     blobs_.insert(std::make_pair(name, blob));
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PaddleNet::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::Init";
+ }
 
 PaddleNet::PaddleNet(const std::string &model_file,
                      const std::string &param_file,
@@ -136,8 +146,12 @@ bool PaddleNet::reshape() {
     }
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PaddleNet::reshape";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::reshape";
+ }
 
 void PaddleNet::Infer() {
     AINFO<<"(DMCZP) EnteringMethod: PaddleNet::Infer";
@@ -178,7 +192,9 @@ void PaddleNet::Infer() {
                  count * sizeof(float), cudaMemcpyDeviceToDevice);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::Infer";
+ }
 
 bool PaddleNet::shape(const std::string &name, std::vector<int> *res) {
     AINFO<<"(DMCZP) EnteringMethod: PaddleNet::shape";
@@ -193,17 +209,25 @@ bool PaddleNet::shape(const std::string &name, std::vector<int> *res) {
     in_output = true;
   }
   if (~in_input && ~in_output) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PaddleNet::shape";
+  return false;
   }
 
   auto blob = in_input ? predictor_->GetInputTensor(name_map_[name])
                        : predictor_->GetOutputTensor(name_map_[name]);
   if (blob == nullptr) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: PaddleNet::shape";
+  return false;
   }
   *res = blob->shape();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: PaddleNet::shape";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::shape";
+ }
 
 }  // namespace inference
 }  // namespace perception

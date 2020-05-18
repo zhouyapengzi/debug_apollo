@@ -33,7 +33,9 @@ bool MultiCamerasProjection::Init(const MultiCamerasInitOption& options) {
 
   if (options.camera_names.empty()) {
     AERROR << "no cameras to be projected";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Init";
+  return false;
   }
   common::SensorManager* sensor_manager = common::SensorManager::Instance();
   if (!sensor_manager->Init()) {
@@ -46,14 +48,18 @@ bool MultiCamerasProjection::Init(const MultiCamerasInitOption& options) {
 
     if (!sensor_manager->IsSensorExist(cur_camera_name)) {
       AERROR << "sensor " << cur_camera_name << " do not exist";
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Init";
+  return false;
     }
     camera_models_[cur_camera_name] =
         std::dynamic_pointer_cast<base::BrownCameraDistortionModel>(
             sensor_manager->GetDistortCameraModel(cur_camera_name));
     if (!(camera_models_[cur_camera_name])) {
       AERROR << "get null camera_model, camera_name: " << cur_camera_name;
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Init";
+  return false;
     }
     camera_names_.push_back(cur_camera_name);
   }
@@ -68,17 +74,25 @@ bool MultiCamerasProjection::Init(const MultiCamerasInitOption& options) {
                   0.5 * (lhs_cam_intrinsics(0, 0) + lhs_cam_intrinsics(1, 1));
               auto rhs_focal_length =
                   0.5 * (rhs_cam_intrinsics(0, 0) + rhs_cam_intrinsics(1, 1));
-              return lhs_focal_length > rhs_focal_length;
+              
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Init";
+  return lhs_focal_length > rhs_focal_length;
             });
   AINFO << "camera_names sorted by descending focal lengths: "
         << std::accumulate(camera_names_.begin(), camera_names_.end(),
                            std::string(""),
                            [](std::string& sum, const std::string& s) {
-                             return sum + s + " ";
+                             
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Init";
+  return sum + s + " ";
                            });
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::Init";
+ }
 
 bool MultiCamerasProjection::Project(const CarPose& pose,
                                      const ProjectOption& option,
@@ -87,13 +101,17 @@ bool MultiCamerasProjection::Project(const CarPose& pose,
 
   if (!HasCamera(option.camera_name)) {
     AERROR << "no camera: " << option.camera_name;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Project";
+  return false;
   }
 
   Eigen::Matrix4d c2w_pose;
 
   if (pose.c2w_poses_.find(option.camera_name) == pose.c2w_poses_.end()) {
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Project";
+  return false;
   }
   c2w_pose = pose.c2w_poses_.at(option.camera_name);
 
@@ -105,19 +123,29 @@ bool MultiCamerasProjection::Project(const CarPose& pose,
   if (!ret) {
     AWARN << "Projection failed projection the traffic light. "
           << "camera_name: " << option.camera_name;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Project";
+  return false;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Project";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::Project";
+ }
 
 bool MultiCamerasProjection::HasCamera(const std::string& camera_name) const {
     AINFO<<"(DMCZP) EnteringMethod: MultiCamerasProjection::HasCamera";
 
   auto iter =
       std::find(camera_names_.begin(), camera_names_.end(), camera_name);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::HasCamera";
   return iter != camera_names_.end() &&
          camera_models_.find(camera_name) != camera_models_.end();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::HasCamera";
+ }
 
 int MultiCamerasProjection::getImageWidth(
     const std::string& camera_name) const {
@@ -125,10 +153,16 @@ int MultiCamerasProjection::getImageWidth(
 
   if (!HasCamera(camera_name)) {
     AERROR << "getImageWidth failed, camera_name: " << camera_name;
-    return -1;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::getImageWidth";
+  return -1;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::getImageWidth";
   return static_cast<int>(camera_models_.at(camera_name)->get_width());
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::getImageWidth";
+ }
 
 int MultiCamerasProjection::getImageHeight(
     const std::string& camera_name) const {
@@ -136,10 +170,16 @@ int MultiCamerasProjection::getImageHeight(
 
   if (!HasCamera(camera_name)) {
     AERROR << "getImageHeight failed, camera_name: " << camera_name;
-    return -1;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::getImageHeight";
+  return -1;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::getImageHeight";
   return static_cast<int>(camera_models_.at(camera_name)->get_height());
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::getImageHeight";
+ }
 
 bool MultiCamerasProjection::BoundaryBasedProject(
     const base::BrownCameraDistortionModelPtr camera_model,
@@ -150,14 +190,18 @@ bool MultiCamerasProjection::BoundaryBasedProject(
 
   if (camera_model.get() == nullptr) {
     AERROR << "camera_model is not available.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::BoundaryBasedProject";
+  return false;
   }
   int width = static_cast<int>(camera_model->get_width());
   int height = static_cast<int>(camera_model->get_height());
   int bound_size = static_cast<int>(points.size());
   if (bound_size < 4) {
     AERROR << "invalid bound_size " << bound_size;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::BoundaryBasedProject";
+  return false;
   }
   std::vector<Eigen::Vector2i> pts2d(bound_size);
   auto c2w_pose_inverse = c2w_pose.inverse();
@@ -170,7 +214,9 @@ bool MultiCamerasProjection::BoundaryBasedProject(
             .head(3);
     if (std::islessequal(pt3d_cam[2], 0.0)) {
       AWARN << "light bound point behind the car: " << pt3d_cam;
-      return false;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::BoundaryBasedProject";
+  return false;
     }
     pts2d[i] = camera_model->Project(pt3d_cam.cast<float>()).cast<int>();
   }
@@ -189,11 +235,17 @@ bool MultiCamerasProjection::BoundaryBasedProject(
   base::BBox2DI roi(min_x, min_y, max_x, max_y);
   if (OutOfValidRegion(roi, width, height) || roi.Area() == 0) {
     AWARN << "Projection get ROI outside the image. ";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::BoundaryBasedProject";
+  return false;
   }
   light->region.projection_roi = base::RectI(roi);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::BoundaryBasedProject";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::BoundaryBasedProject";
+ }
 
 }  // namespace camera
 }  // namespace perception

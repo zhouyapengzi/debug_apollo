@@ -38,7 +38,9 @@ bool OMTObstacleTracker::Init(const ObstacleTrackerInitOptions &options) {
   std::string omt_config = GetAbsolutePath(options.root_dir, options.conf_file);
   if (!cyber::common::GetProtoFromFile(omt_config, &omt_param_)) {
     AERROR << "Read config failed: " << omt_config;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::Init";
+  return false;
   }
 
   AINFO << "load omt parameters from " << omt_config
@@ -75,12 +77,20 @@ bool OMTObstacleTracker::Init(const ObstacleTrackerInitOptions &options) {
 
   // Init object template
   object_template_manager_ = ObjectTemplateManager::Instance();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::Init";
+ }
 
 std::string OMTObstacleTracker::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: OMTObstacleTracker::Name";
- return "OMTObstacleTracker"; }
+ 
+  AINFO<<"(DMCZP) (return) L
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::Name";
+ eaveMethod: OMTObstacleTracker::Name";
+  return "OMTObstacleTracker"; }
 
 // @description combine targets using iou after association
 bool OMTObstacleTracker::CombineDuplicateTargets() {
@@ -158,7 +168,9 @@ bool OMTObstacleTracker::CombineDuplicateTargets() {
     std::sort(
         target_save.tracked_objects.begin(), target_save.tracked_objects.end(),
         [](const TrackObjectPtr object1, const TrackObjectPtr object2) -> bool {
-          return object1->indicator.frame_id < object2->indicator.frame_id;
+          
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::CombineDuplicateTargets";
+  return object1->indicator.frame_id < object2->indicator.frame_id;
         });
     target_save.latest_object = target_save.get_object(-1);
     base::ObjectPtr object = target_del.latest_object->object;
@@ -168,8 +180,12 @@ bool OMTObstacleTracker::CombineDuplicateTargets() {
     used_target[pair.object] = true;
     used_target[pair.target] = true;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::CombineDuplicateTargets";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::CombineDuplicateTargets";
+ }
 
 void OMTObstacleTracker::GenerateHypothesis(const TrackObjectPtrs &objects) {
     AINFO<<"(DMCZP) EnteringMethod: OMTObstacleTracker::GenerateHypothesis";
@@ -226,7 +242,9 @@ void OMTObstacleTracker::GenerateHypothesis(const TrackObjectPtrs &objects) {
           << " (" << pair.object << ")"
           << "at " << pair.score << " size: " << target.Size();
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::GenerateHypothesis";
+ }
 
 float OMTObstacleTracker::ScoreMotion(const Target &target,
                                       TrackObjectPtr track_obj) {
@@ -239,8 +257,12 @@ float OMTObstacleTracker::ScoreMotion(const Target &target,
   base::RectF rect(track_obj->projected_box);
   float s = gaussian(center.x, target_centerx, rect.width) *
             gaussian(center.y, target_centery, rect.height);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::ScoreMotion";
   return s;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::ScoreMotion";
+ }
 
 float OMTObstacleTracker::ScoreShape(const Target &target,
                                      TrackObjectPtr track_obj) {
@@ -250,8 +272,12 @@ float OMTObstacleTracker::ScoreShape(const Target &target,
   base::RectF rect(track_obj->projected_box);
   float s = static_cast<float>((shape[1] - rect.height) *
                                (shape[0] - rect.width) / (shape[1] * shape[0]));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::ScoreShape";
   return -std::abs(s);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::ScoreShape";
+ }
 
 float OMTObstacleTracker::ScoreAppearance(const Target &target,
                                           TrackObjectPtr track_obj) {
@@ -271,8 +297,12 @@ float OMTObstacleTracker::ScoreAppearance(const Target &target,
     count += 1;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::ScoreAppearance";
   return energy / (0.1f + static_cast<float>(count) * 0.9f);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::ScoreAppearance";
+ }
 
 // [new]
 float OMTObstacleTracker::ScoreOverlap(const Target &target,
@@ -290,8 +320,12 @@ float OMTObstacleTracker::ScoreOverlap(const Target &target,
   auto box_obj = track_obj->projected_box;
 
   float iou = common::CalculateIOUBBox(box_target, box_obj);
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::ScoreOverlap";
   return iou;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::ScoreOverlap";
+ }
 
 void ProjectBox(const base::BBox2DF &box_origin,
                 const Eigen::Matrix3d &transform,
@@ -309,7 +343,9 @@ void ProjectBox(const base::BBox2DF &box_origin,
   point = transform * point;
   box_projected->xmax = static_cast<float>(point[0] / point[2]);
   box_projected->ymax = static_cast<float>(point[1] / point[2]);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ProjectBox";
+ }
 
 bool OMTObstacleTracker::Predict(const ObstacleTrackerOptions &options,
                                  CameraFrame *frame) {
@@ -320,8 +356,12 @@ bool OMTObstacleTracker::Predict(const ObstacleTrackerOptions &options,
     auto obj = target.latest_object;
     frame->proposed_objects.push_back(obj->object);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::Predict";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::Predict";
+ }
 
 int OMTObstacleTracker::CreateNewTarget(const TrackObjectPtrs &objects) {
     AINFO<<"(DMCZP) EnteringMethod: OMTObstacleTracker::CreateNewTarget";
@@ -368,8 +408,12 @@ int OMTObstacleTracker::CreateNewTarget(const TrackObjectPtrs &objects) {
       }
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::CreateNewTarget";
   return created_count;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::CreateNewTarget";
+ }
 bool OMTObstacleTracker::Associate2D(const ObstacleTrackerOptions &options,
                                      CameraFrame *frame) {
     AINFO<<"(DMCZP) EnteringMethod: OMTObstacleTracker::Associate2D";
@@ -423,7 +467,9 @@ bool OMTObstacleTracker::Associate2D(const ObstacleTrackerOptions &options,
   CombineDuplicateTargets();
   ClearTargets();
 
-  // return filter reulst to original box
+  // 
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::Associate2D";
+  return filter reulst to original box
   Eigen::Matrix3d inverse_project = frame->project_matrix.inverse();
   for (auto &target : targets_) {
     if (!target.isLost()) {
@@ -433,8 +479,12 @@ bool OMTObstacleTracker::Associate2D(const ObstacleTrackerOptions &options,
                 &(target[-1]->object->camera_supplement.box));
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::Associate2D";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::Associate2D";
+ }
 
 void OMTObstacleTracker::ClearTargets() {
     AINFO<<"(DMCZP) EnteringMethod: OMTObstacleTracker::ClearTargets";
@@ -455,7 +505,9 @@ void OMTObstacleTracker::ClearTargets() {
     ++left;
   }
   targets_.erase(targets_.begin() + left, targets_.end());
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::ClearTargets";
+ }
 
 bool OMTObstacleTracker::Associate3D(const ObstacleTrackerOptions &options,
                                      CameraFrame *frame) {
@@ -503,15 +555,23 @@ bool OMTObstacleTracker::Associate3D(const ObstacleTrackerOptions &options,
              << " % " << target[-1]->object->velocity.transpose();
     }
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::Associate3D";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::Associate3D";
+ }
 
 bool OMTObstacleTracker::Track(const ObstacleTrackerOptions &options,
                                CameraFrame *frame) {
     AINFO<<"(DMCZP) EnteringMethod: OMTObstacleTracker::Track";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OMTObstacleTracker::Track";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OMTObstacleTracker::Track";
+ }
 
 REGISTER_OBSTACLE_TRACKER(OMTObstacleTracker);
 }  // namespace camera

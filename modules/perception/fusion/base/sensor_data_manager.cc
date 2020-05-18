@@ -26,18 +26,26 @@ namespace fusion {
 
 SensorDataManager::SensorDataManager() {
     AINFO<<"(DMCZP) EnteringMethod: SensorDataManager::SensorDataManager";
- CHECK_EQ(this->Init(), true); }
+ CHECK_EQ(this->Init(), true); 
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::SensorDataManager";
+ }
 
 bool SensorDataManager::Init() {
     AINFO<<"(DMCZP) EnteringMethod: SensorDataManager::Init";
 
   if (inited_) {
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::Init";
+  return true;
   }
   sensor_manager_ = common::SensorManager::Instance();
   inited_ = true;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::Init";
+ }
 
 void SensorDataManager::Reset() {
     AINFO<<"(DMCZP) EnteringMethod: SensorDataManager::Reset";
@@ -45,7 +53,9 @@ void SensorDataManager::Reset() {
   inited_ = false;
   sensor_manager_ = nullptr;
   sensors_.clear();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::Reset";
+ }
 
 void SensorDataManager::AddSensorMeasurements(
     const base::FrameConstPtr& frame_ptr) {
@@ -58,7 +68,9 @@ void SensorDataManager::AddSensorMeasurements(
   if (it == sensors_.end()) {
     if (!sensor_manager_->IsSensorExist(sensor_id)) {
       AERROR << "Failed to find sensor " << sensor_id << " in sensor manager.";
-      return;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::AddSensorMeasurements";
+  return;
     }
     sensor_ptr = std::make_shared<Sensor>(Sensor(sensor_info));
     sensors_.emplace(sensor_id, sensor_ptr);
@@ -67,28 +79,42 @@ void SensorDataManager::AddSensorMeasurements(
   }
 
   sensor_ptr->AddFrame(frame_ptr);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::AddSensorMeasurements";
+ }
 
 bool SensorDataManager::IsLidar(const base::FrameConstPtr& frame_ptr) {
     AINFO<<"(DMCZP) EnteringMethod: SensorDataManager::IsLidar";
 
   base::SensorType type = frame_ptr->sensor_info.type;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::IsLidar";
   return sensor_manager_->IsLidar(type);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::IsLidar";
+ }
 
 bool SensorDataManager::IsRadar(const base::FrameConstPtr& frame_ptr) {
     AINFO<<"(DMCZP) EnteringMethod: SensorDataManager::IsRadar";
 
   base::SensorType type = frame_ptr->sensor_info.type;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::IsRadar";
   return sensor_manager_->IsRadar(type);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::IsRadar";
+ }
 
 bool SensorDataManager::IsCamera(const base::FrameConstPtr& frame_ptr) {
     AINFO<<"(DMCZP) EnteringMethod: SensorDataManager::IsCamera";
 
   base::SensorType type = frame_ptr->sensor_info.type;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::IsCamera";
   return sensor_manager_->IsCamera(type);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::IsCamera";
+ }
 
 void SensorDataManager::GetLatestSensorFrames(
     double timestamp, const std::string& sensor_id,
@@ -97,14 +123,22 @@ void SensorDataManager::GetLatestSensorFrames(
 
   if (frames == nullptr) {
     AERROR << "Nullptr error.";
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetLatestSensorFrames";
+  return;
   }
   const auto it = sensors_.find(sensor_id);
   if (it == sensors_.end()) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetLatestSensorFrames";
+  return;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetLatestSensorFrames";
   return it->second->QueryLatestFrames(timestamp, frames);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::GetLatestSensorFrames";
+ }
 
 void SensorDataManager::GetLatestFrames(
     double timestamp, std::vector<SensorFramePtr>* frames) const {
@@ -112,7 +146,9 @@ void SensorDataManager::GetLatestFrames(
 
   if (frames == nullptr) {
     AERROR << "Nullptr error.";
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetLatestFrames";
+  return;
   }
 
   frames->clear();
@@ -124,14 +160,20 @@ void SensorDataManager::GetLatestFrames(
   }
 
   if (frames->empty()) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetLatestFrames";
+  return;
   }
 
   std::sort(frames->begin(), frames->end(),
             [](const SensorFramePtr& p1, const SensorFramePtr& p2) {
-              return p1->GetTimestamp() < p2->GetTimestamp();
+              
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetLatestFrames";
+  return p1->GetTimestamp() < p2->GetTimestamp();
             });
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::GetLatestFrames";
+ }
 
 bool SensorDataManager::GetPose(const std::string& sensor_id, double timestamp,
                                 Eigen::Affine3d* pose) const {
@@ -139,24 +181,36 @@ bool SensorDataManager::GetPose(const std::string& sensor_id, double timestamp,
 
   if (pose == nullptr) {
     AERROR << "Nullptr error.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetPose";
+  return false;
   }
 
   const auto it = sensors_.find(sensor_id);
   if (it == sensors_.end()) {
     AERROR << "Failed to find sensor " << sensor_id << " for get pose.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetPose";
+  return false;
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetPose";
   return it->second->GetPose(timestamp, pose);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::GetPose";
+ }
 
 base::BaseCameraModelPtr SensorDataManager::GetCameraIntrinsic(
     const std::string& sensor_id) const {
     AINFO<<"(DMCZP) EnteringMethod: SensorDataManager::GetCameraIntrinsic";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: SensorDataManager::GetCameraIntrinsic";
   return sensor_manager_->GetUndistortCameraModel(sensor_id);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: SensorDataManager::GetCameraIntrinsic";
+ }
 
 }  // namespace fusion
 }  // namespace perception

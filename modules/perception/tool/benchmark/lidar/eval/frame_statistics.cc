@@ -31,44 +31,64 @@ double cal_point_based_jaccard_index(unsigned int n1, unsigned int n2,
     AINFO<<"(DMCZP) EnteringMethod: cal_point_based_jaccard_index";
 
   if (n1 + n2 <= overlap) {
-    return 0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: cal_point_based_jaccard_index";
+  return 0;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: cal_point_based_jaccard_index";
   return static_cast<double>(overlap) / static_cast<double>(n1 + n2 - overlap);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: cal_point_based_jaccard_index";
+ }
 
 void FrameStatistics::set_jaccard_index_threshold(double threshold) {
     AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::set_jaccard_index_threshold";
 
   _s_jaccard_index_threshold = threshold;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FrameStatistics::set_jaccard_index_threshold";
+ }
 
 void FrameStatistics::set_jaccard_index_percentile(double percentile) {
     AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::set_jaccard_index_percentile";
 
   _s_jaccard_index_percentile = percentile;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FrameStatistics::set_jaccard_index_percentile";
+ }
 
 void FrameStatistics::set_roi_is_main_lanes(bool value) {
     AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::set_roi_is_main_lanes";
 
   _s_roi_is_main_lanes = value;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FrameStatistics::set_roi_is_main_lanes";
+ }
 
 double FrameStatistics::jaccard_index_percentile() const {
     AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::jaccard_index_percentile";
 
   if (_jaccard_indices.empty()) {
-    return 0.0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: FrameStatistics::jaccard_index_percentile";
+  return 0.0;
   }
   std::size_t id = static_cast<std::size_t>(
       static_cast<double>((_jaccard_indices.size() - 1)) *
       _s_jaccard_index_percentile);
   if (id < _jaccard_indices.size()) {
-    return _jaccard_indices[id];
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: FrameStatistics::jaccard_index_percentile";
+  return _jaccard_indices[id];
   } else {
-    return 0.0;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: FrameStatistics::jaccard_index_percentile";
+  return 0.0;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: FrameStatistics::jaccard_index_percentile";
+ }
 
 bool FrameStatistics::find_association() {
     AINFO<<"(DMCZP) EnteringMethod: FrameStatistics::find_association";
@@ -225,6 +245,8 @@ bool FrameStatistics::find_association() {
     }
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: FrameStatistics::find_association";
   return true;
 }
 bool FrameStatistics::cal_meta_statistics() {
@@ -365,9 +387,17 @@ bool FrameStatistics::cal_meta_statistics() {
         MetaStatistics::get_type_index(gt_objects[i]->type);
     ++_meta_stat._underseg_gt_num[gt_type_id];
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: FrameStatistics::cal_meta_statistics";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: FrameStatistics::find_association";
   return true;
-}
 
-}  // namespace benchmark
+   AINFO<<"(DMCZP) LeaveMethod: FrameStatistics::cal_meta_statistics";
+ }
+
+
+   AINFO<<"(DMCZP) LeaveMethod: FrameStatistics::find_association";
+ }  // namespace benchmark
 }  // namespace perception
 }  // namespace apollo

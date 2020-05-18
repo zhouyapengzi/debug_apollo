@@ -71,8 +71,12 @@ bool MlfEngine::Init(const MultiTargetTrackerInitOptions& options) {
   tracker_.reset(new MlfTracker);
   MlfTrackerInitOptions tracker_init_options;
   CHECK(tracker_->Init(tracker_init_options));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MlfEngine::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfEngine::Init";
+ }
 
 bool MlfEngine::Track(const MultiTargetTrackerOptions& options,
                       LidarFrame* frame) {
@@ -117,8 +121,12 @@ bool MlfEngine::Track(const MultiTargetTrackerOptions& options,
   AINFO << "MlfEngine publish objects: " << frame->tracked_objects.size()
         << " sensor_name: " << frame->sensor_info.name
         << " at timestamp: " << frame->timestamp;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: MlfEngine::Track";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfEngine::Track";
+ }
 
 void MlfEngine::SplitAndTransformToTrackedObjects(
     const std::vector<base::ObjectPtr>& objects,
@@ -146,7 +154,9 @@ void MlfEngine::SplitAndTransformToTrackedObjects(
   AINFO << "MlfEngine: " << sensor_info.name
         << " foreground: " << foreground_objects_.size()
         << " background: " << background_objects_.size();
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfEngine::SplitAndTransformToTrackedObjects";
+ }
 
 void MlfEngine::TrackObjectMatchAndAssign(
     const MlfTrackObjectMatcherOptions& match_options,
@@ -175,7 +185,9 @@ void MlfEngine::TrackObjectMatchAndAssign(
     tracks->push_back(track_data);
   }
   // 3. for unassigned_tracks, do nothing
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfEngine::TrackObjectMatchAndAssign";
+ }
 
 void MlfEngine::TrackStateFilter(const std::vector<MlfTrackDataPtr>& tracks,
                                  double frame_timestamp) {
@@ -191,7 +203,9 @@ void MlfEngine::TrackStateFilter(const std::vector<MlfTrackDataPtr>& tracks,
       tracker_->UpdateTrackDataWithoutObject(frame_timestamp, track_data);
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfEngine::TrackStateFilter";
+ }
 
 void MlfEngine::CollectTrackedResult(LidarFrame* frame) {
     AINFO<<"(DMCZP) EnteringMethod: MlfEngine::CollectTrackedResult";
@@ -224,11 +238,15 @@ void MlfEngine::CollectTrackedResult(LidarFrame* frame) {
           << " num_objects: " << num_objects;
     if (num_predict > num_objects) {
       AERROR << "num_predict > num_objects";
-      return;
+      
+  AINFO<<"(DMCZP) (return) LeaveMethod: MlfEngine::CollectTrackedResult";
+  return;
     }
     tracked_objects.resize(num_objects - num_predict);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfEngine::CollectTrackedResult";
+ }
 
 void MlfEngine::RemoveStaleTrackData(const std::string& name, double timestamp,
                                      std::vector<MlfTrackDataPtr>* tracks) {
@@ -247,7 +265,9 @@ void MlfEngine::RemoveStaleTrackData(const std::string& name, double timestamp,
   AINFO << "MlfEngine: " << name << " remove stale tracks, from "
         << tracks->size() << " to " << pos;
   tracks->resize(pos);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfEngine::RemoveStaleTrackData";
+ }
 
 PERCEPTION_REGISTER_MULTITARGET_TRACKER(MlfEngine);
 

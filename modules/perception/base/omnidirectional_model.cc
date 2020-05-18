@@ -46,7 +46,9 @@ Eigen::Vector2f OmnidirectionalCameraDistortionModel::Project(
   if (norm < std::numeric_limits<double>::epsilon()) {
     projection(0) = center_[1];
     projection(1) = center_[0];
-    return projection;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::Project";
+  return projection;
   }
 
   const double theta = atan(x[2] / norm);
@@ -56,8 +58,12 @@ Eigen::Vector2f OmnidirectionalCameraDistortionModel::Project(
   const float v = static_cast<float>(x[1] / norm * rho);
   projection(1) = affine_[0] * u + affine_[1] * v + center_[0];
   projection(0) = affine_[2] * u + v + center_[1];
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::Project";
   return projection;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OmnidirectionalCameraDistortionModel::Project";
+ }
 
 std::shared_ptr<BaseCameraModel>
 OmnidirectionalCameraDistortionModel::get_camera_model() {
@@ -68,8 +74,12 @@ OmnidirectionalCameraDistortionModel::get_camera_model() {
   camera_model->set_height(height_);
   camera_model->set_intrinsic_params(intrinsic_params_);
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::get_camera_model";
   return std::dynamic_pointer_cast<BaseCameraModel>(camera_model);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OmnidirectionalCameraDistortionModel::get_camera_model";
+ }
 
 bool OmnidirectionalCameraDistortionModel::set_params(
     size_t width, size_t height, const Eigen::VectorXf& params) {
@@ -77,7 +87,9 @@ bool OmnidirectionalCameraDistortionModel::set_params(
 
   if (params.size() < 9) {
     AINFO << "Missing cam2world and world2cam model.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::set_params";
+  return false;
   }
 
   uint32_t cam2world_order = uint32_t(params(8));
@@ -86,7 +98,9 @@ bool OmnidirectionalCameraDistortionModel::set_params(
 
   if (params.size() < 9 + cam2world_order + 1) {
     AINFO << "Incomplete cam2world model or missing world2cam model.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::set_params";
+  return false;
   }
 
   uint32_t world2cam_order = uint32_t(params(9 + cam2world_order));
@@ -95,7 +109,9 @@ bool OmnidirectionalCameraDistortionModel::set_params(
 
   if (params.size() < 9 + cam2world_order + 1 + world2cam_order) {
     AINFO << "Incomplete world2cam model.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::set_params";
+  return false;
   }
 
   width_ = width;
@@ -123,8 +139,12 @@ bool OmnidirectionalCameraDistortionModel::set_params(
         static_cast<double>(params(10 + cam2world_order + i));
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::set_params";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: OmnidirectionalCameraDistortionModel::set_params";
+ }
 
 }  // namespace base
 }  // namespace perception

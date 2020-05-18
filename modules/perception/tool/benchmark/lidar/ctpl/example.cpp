@@ -9,13 +9,17 @@ void first(int id) {
     AINFO<<"(DMCZP) EnteringMethod: first";
 
     std::cout << "hello from " << id << ", function\n";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: first";
+ }
 
 void aga(int id, int par) {
     AINFO<<"(DMCZP) EnteringMethod: aga";
 
     std::cout << "hello from " << id << ", function with parameter " << par <<'\n';
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: aga";
+ }
 
 struct Third {
     Third(int v) { this->v = v; std::cout << "Third ctor " << this->v << '\n'; }
@@ -29,14 +33,18 @@ void mmm(int id, const std::string & s) {
     AINFO<<"(DMCZP) EnteringMethod: mmm";
 
     std::cout << "mmm function " << id << ' ' << s << '\n';
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: mmm";
+ }
 
 void ugu(int id, Third & t) {
     AINFO<<"(DMCZP) EnteringMethod: ugu";
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << "hello from " << id << ", function with parameter Third " << t.v <<'\n';
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ugu";
+ }
 
 int main(int argc, char **argv) {
     AINFO<<"(DMCZP) EnteringMethod: main";
@@ -103,7 +111,9 @@ int main(int argc, char **argv) {
 
     std::string s2 = "result";
     auto f1 = p.push([s2](int){
-        return s2;
+        
+  AINFO<<"(DMCZP) (return) LeaveMethod: main";
+  return s2;
     });
     // other code here
     //...
@@ -124,5 +134,9 @@ int main(int argc, char **argv) {
     // get thread 0
     auto & th = p.get_thread(0);
 
-    return 0;
-}
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: main";
+  return 0;
+
+   AINFO<<"(DMCZP) LeaveMethod: main";
+ }

@@ -40,7 +40,9 @@ bool TrafficLightDetection::Init(
   AINFO << "proto_path " << proto_path;
   if (!cyber::common::GetProtoFromFile(proto_path, &detection_param_)) {
     AINFO << "load proto param failed, root dir: " << options.root_dir;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Init";
+  return false;
   }
 
   std::string param_str;
@@ -79,13 +81,17 @@ bool TrafficLightDetection::Init(
         << std::accumulate(net_inputs_.begin(), net_inputs_.end(),
                            std::string(""),
                            [](std::string &sum, const std::string &s) {
-                             return sum + "\n" + s;
+                             
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Init";
+  return sum + "\n" + s;
                            });
   AINFO << "net output blobs: "
         << std::accumulate(net_outputs_.begin(), net_outputs_.end(),
                            std::string(""),
                            [](std::string &sum, const std::string &s) {
-                             return sum + "\n" + s;
+                             
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Init";
+  return sum + "\n" + s;
                            });
 
   const auto &model_type = detection_param_.model_type();
@@ -121,7 +127,9 @@ bool TrafficLightDetection::Init(
 
   if (!rt_net_->Init(input_reshape)) {
     AINFO << "net init fail.";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Init";
+  return false;
   }
   AINFO << "net init success.";
 
@@ -153,8 +161,12 @@ bool TrafficLightDetection::Init(
   select_.Init(resize_width, resize_height);
   image_.reset(
       new base::Image8U(resize_height, resize_width, base::Color::BGR));
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::Init";
+ }
 
 bool TrafficLightDetection::Inference(
     std::vector<base::TrafficLightPtr> *lights, DataProvider *data_provider) {
@@ -162,7 +174,9 @@ bool TrafficLightDetection::Inference(
 
   if (cudaSetDevice(gpu_id_) != cudaSuccess) {
     AERROR << "Failed to set device to " << gpu_id_;
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Inference";
+  return false;
   }
   crop_box_list_.clear();
   resize_scale_list_.clear();
@@ -234,8 +248,12 @@ bool TrafficLightDetection::Inference(
 
   ApplyNMS(&detected_bboxes_);
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Inference";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::Inference";
+ }
 
 bool TrafficLightDetection::Detect(const TrafficLightDetectorOptions &options,
                                    CameraFrame *frame) {
@@ -243,7 +261,9 @@ bool TrafficLightDetection::Detect(const TrafficLightDetectorOptions &options,
 
   if (frame->traffic_lights.empty()) {
     AINFO << "no lights to detect";
-    return true;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Detect";
+  return true;
   }
 
   const auto &data_provider = frame->data_provider;
@@ -293,8 +313,12 @@ bool TrafficLightDetection::Detect(const TrafficLightDetectorOptions &options,
   AINFO << "select success";
 
   AINFO << "detection success";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Detect";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::Detect";
+ }
 
 bool TrafficLightDetection::SelectOutputBoxes(
     const std::vector<base::RectI> &crop_box_list,
@@ -378,8 +402,12 @@ bool TrafficLightDetection::SelectOutputBoxes(
     }
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::SelectOutputBoxes";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::SelectOutputBoxes";
+ }
 
 void TrafficLightDetection::ApplyNMS(std::vector<base::TrafficLightPtr> *lights,
                                      double iou_thresh) {
@@ -387,7 +415,9 @@ void TrafficLightDetection::ApplyNMS(std::vector<base::TrafficLightPtr> *lights,
 
   if (lights == nullptr) {
     AERROR << "lights are not available";
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::ApplyNMS";
+  return;
   }
 
   // (score, index) pairs sorted by detect score
@@ -399,7 +429,9 @@ void TrafficLightDetection::ApplyNMS(std::vector<base::TrafficLightPtr> *lights,
   std::stable_sort(
       score_index_vec.begin(), score_index_vec.end(),
       [](const std::pair<float, int> &pr1, const std::pair<float, int> &pr2) {
-        return pr1.first < pr2.first;
+        
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::ApplyNMS";
+  return pr1.first < pr2.first;
       });
 
   std::vector<int> kept_indices;
@@ -428,17 +460,25 @@ void TrafficLightDetection::ApplyNMS(std::vector<base::TrafficLightPtr> *lights,
   int idx = 0;
   auto parted_itr = std::stable_partition(
       lights->begin(), lights->end(), [&](const base::TrafficLightPtr &light) {
-        return std::find(kept_indices.begin(), kept_indices.end(), idx++) !=
+        
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::ApplyNMS";
+  return std::find(kept_indices.begin(), kept_indices.end(), idx++) !=
                kept_indices.end();
       });
   lights->erase(parted_itr, lights->end());
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::ApplyNMS";
+ }
 
 std::string TrafficLightDetection::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: TrafficLightDetection::Name";
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Name";
   return "TrafficLightDetection";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::Name";
+ }
 
 REGISTER_TRAFFIC_LIGHT_DETECTOR(TrafficLightDetection);
 

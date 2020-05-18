@@ -39,7 +39,9 @@ void MlfMotionMeasurement::ComputeMotionMeasurment(
   }
   if (latest_object.get() == nullptr) {
     AERROR << "latest_object is not available";
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: MlfMotionMeasurement::ComputeMotionMeasurment";
+  return;
   }
   // should we estimate the measurement if the time diff is too small?
   double latest_time = latest_object->object_ptr->latest_tracked_time;
@@ -53,7 +55,9 @@ void MlfMotionMeasurement::ComputeMotionMeasurment(
   MeasureBboxCornerVelocity(new_object, latest_object, time_diff);
   MeasurementSelection(track_data, latest_object, new_object);
   MeasurementQualityEstimation(latest_object, new_object);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfMotionMeasurement::ComputeMotionMeasurment";
+ }
 
 void MlfMotionMeasurement::MeasurementSelection(
     const MlfTrackDataConstPtr& track_data,
@@ -100,7 +104,9 @@ void MlfMotionMeasurement::MeasurementSelection(
     new_object->selected_measured_velocity =
         new_object->measured_center_velocity;
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfMotionMeasurement::MeasurementSelection";
+ }
 
 void MlfMotionMeasurement::MeasurementQualityEstimation(
     const TrackedObjectConstPtr& latest_object, TrackedObjectPtr new_object) {
@@ -120,7 +126,9 @@ void MlfMotionMeasurement::MeasurementQualityEstimation(
       pow(1.0 - new_object->association_score, 2.0);
   new_object->update_quality = std::min(quality_based_on_association_score,
                                         quality_based_on_point_diff_ratio);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: MlfMotionMeasurement::MeasurementQualityEstimation";
+ }
 
 }  // namespace lidar
 }  // namespace perception

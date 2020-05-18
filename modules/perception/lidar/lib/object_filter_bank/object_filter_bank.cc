@@ -58,8 +58,12 @@ bool ObjectFilterBank::Init(const ObjectFilterInitOptions& options) {
     filter_bank_.push_back(filter);
     AINFO << "Filter bank add filter: " << name;
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjectFilterBank::Init";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjectFilterBank::Init";
+ }
 
 bool ObjectFilterBank::Filter(const ObjectFilterOptions& options,
                               LidarFrame* frame) {
@@ -73,8 +77,12 @@ bool ObjectFilterBank::Filter(const ObjectFilterOptions& options,
   }
   AINFO << "Object filter bank, filtered objects size: from " << object_number
         << " to " << frame->segmented_objects.size();
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjectFilterBank::Filter";
   return true;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjectFilterBank::Filter";
+ }
 
 }  // namespace lidar
 }  // namespace perception

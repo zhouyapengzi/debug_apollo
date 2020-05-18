@@ -66,7 +66,13 @@ void show_detect_point_set(
     }
   }
   cv::imwrite(save_path, draw_mat);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: show_detect_point_set";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: show_detect_point_set";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: show_detect_point_set";
+ }
 
 void show_all_infer_point_set(const cv::Mat& image,
                               const std::vector<LanePointInfo>& infer_point_set,
@@ -83,7 +89,9 @@ void show_all_infer_point_set(const cv::Mat& image,
     cv::circle(draw_mat, cv::Point(point_x, point_y), draw_size, color, 4);
   }
   cv::imwrite(save_path, draw_mat);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: show_all_infer_point_set";
+ }
 
 void show_lane_lines(const cv::Mat& image,
                      const std::vector<base::LaneLine>& lane_marks,
@@ -161,7 +169,9 @@ void show_lane_lines(const cv::Mat& image,
   cv::Rect roi(0, 0, ipm_width, ipm_height);
   draw_ipm.copyTo(draw_mat(roi));
   cv::imwrite(save_path, draw_mat);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: show_lane_lines";
+ }
 
 void show_lane_ccs(const std::vector<unsigned char>& lane_map,
                    const int lane_map_width, const int lane_map_height,
@@ -212,7 +222,9 @@ void show_lane_ccs(const std::vector<unsigned char>& lane_map,
   }
   cv::imwrite(save_path, lane_draw);
   AINFO << msg;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: show_lane_ccs";
+ }
 
 void output_laneline_to_json(const std::vector<base::LaneLine>& lane_objects,
                              const std::string& save_path) {
@@ -221,8 +233,40 @@ void output_laneline_to_json(const std::vector<base::LaneLine>& lane_objects,
   FILE* file_save = fopen(save_path.c_str(), "wt");
   if (!file_save) {
     AERROR << "Failed to open file: " << save_path;
-    return;
-  }
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: output_laneline_to_json";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  return;
+  
+   AINFO<<"(DMCZP) LeaveMethod: output_laneline_to_json";
+ }
 
   int lane_line_size = static_cast<int>(lane_objects.size());
   AINFO << "lane line num: " << lane_line_size;
@@ -299,7 +343,37 @@ void output_laneline_to_txt(const std::vector<base::LaneLine>& lane_objects,
   FILE* file_save = fopen(save_path.c_str(), "wt");
   if (!file_save) {
     AERROR << "Failed to open file: " << save_path;
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: output_laneline_to_txt";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
+  return;
   }
   int lane_line_size = static_cast<int>(lane_objects.size());
   AINFO << "lane line num: " << lane_line_size;
@@ -336,7 +410,9 @@ void output_laneline_to_txt(const std::vector<base::LaneLine>& lane_objects,
     fprintf(file_save, "\n");
   }
   fclose(file_save);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: output_laneline_to_txt";
+ }
 
 void show_detect_point_set(
     const cv::Mat& image,
@@ -388,7 +464,9 @@ void show_neighbor_point_set(
                 CV_FONT_HERSHEY_COMPLEX_SMALL, 1.0, cv::Scalar(255, 255, 255));
   }
   cv::imwrite(save_path, draw_mat);
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: show_neighbor_point_set";
+ }
 
 void show_detect_point_set(
     const cv::Mat& image,
@@ -413,5 +491,33 @@ void show_detect_point_set(
 }
 
 }  // namespace camera
-}  // namespace perception
+
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_bool";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_bool";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_bool";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_bool";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_bool";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_bool";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
+ 
+   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
+ }  // namespace perception
 }  // namespace apollo

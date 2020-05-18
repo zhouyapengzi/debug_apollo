@@ -43,7 +43,9 @@ void ObjMapperParams::set_default() {
   iou_suc = 0.5f;
   iou_high = 0.7f;
   angle_resolution_degree = 10.0f;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjMapperParams::set_default";
+ }
 
 bool ObjMapper::SolveCenterFromNearestVerticalEdge(const float *bbox,
                                                    const float *hwl, float ry,
@@ -56,7 +58,9 @@ bool ObjMapper::SolveCenterFromNearestVerticalEdge(const float *bbox,
   float width_bbox = bbox[2] - bbox[0];
   if (width_bbox <= 0.0f || height_bbox <= 0.0f) {
     AERROR << "width or height of bbox is 0";
-    return false;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjMapper::SolveCenterFromNearestVerticalEdge";
+  return false;
   }
 
   if (common::IRound(bbox[3]) >= height_ - 1) {
@@ -87,8 +91,12 @@ bool ObjMapper::SolveCenterFromNearestVerticalEdge(const float *bbox,
     UpdateCenterViaBackProjectZ(bbox, hwl, center_2d, center);
   }
 
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjMapper::SolveCenterFromNearestVerticalEdge";
   return center[2] > params_.depth_min;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjMapper::SolveCenterFromNearestVerticalEdge";
+ }
 
 bool ObjMapper::Solve3dBboxGivenOneFullBboxDimensionOrientation(
     const float *bbox, const float *hwl, float *ry, float *center) {
@@ -122,9 +130,13 @@ bool ObjMapper::Solve3dBboxGivenOneFullBboxDimensionOrientation(
   } else {
     FillRyScoreSingleBin(*ry);
   }
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjMapper::Solve3dBboxGivenOneFullBboxDimensionOrientation";
   return success &&
          GetProjectionScore(*ry, bbox, hwl, center, true) > params_.iou_suc;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjMapper::Solve3dBboxGivenOneFullBboxDimensionOrientation";
+ }
 
 bool ObjMapper::Solve3dBbox(const ObjMapperOptions &options, float center[3],
                             float hwl[3], float *ry) {
@@ -224,8 +236,12 @@ bool ObjMapper::Solve3dBbox(const ObjMapperOptions &options, float center[3],
   position_uncertainty_(0, 0) = var_x;
   position_uncertainty_(2, 2) = var_z;
   position_uncertainty_(0, 2) = position_uncertainty_(2, 0) = var_xz;
+  
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjMapper::Solve3dBbox";
   return success;
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjMapper::Solve3dBbox";
+ }
 
 void ObjMapper::PostRefineOrientation(const float *bbox, const float *hwl,
                                       const float *center, float *ry) {
@@ -265,7 +281,9 @@ void ObjMapper::PostRefineOrientation(const float *bbox, const float *hwl,
   float score_final =
       GetProjectionScore(*ry, bbox, hwl, center, true, bbox_res);
   if (score_final > params_.iou_high) {
-    return;
+    
+  AINFO<<"(DMCZP) (return) LeaveMethod: ObjMapper::PostRefineOrientation";
+  return;
   } else if (bbox[2] - bbox[0] <
              (bbox_res[2] - bbox_res[0]) * params_.factor_small) {
     *ry = *ry > 0 ? PI_HALF : -PI_HALF;
@@ -275,7 +293,9 @@ void ObjMapper::PostRefineOrientation(const float *bbox, const float *hwl,
     *ry = 0.0f;
     FillRyScoreSingleBin(*ry);
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjMapper::PostRefineOrientation";
+ }
 
 void ObjMapper::GetCenter(const float *bbox, const float &z_ref,
                           const float &ry, const float *hwl, float *center,
@@ -350,7 +370,9 @@ void ObjMapper::GetCenter(const float *bbox, const float &z_ref,
              cost_pre < kMinCost;
     }
   }
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: ObjMapper::GetCenter";
+ }
 
 }  // namespace camera
 }  // namespace perception

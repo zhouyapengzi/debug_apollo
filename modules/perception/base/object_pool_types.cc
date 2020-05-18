@@ -34,7 +34,9 @@ __attribute__((constructor)) void PoolInitialize() {
 #else
   AINFO << "Initialize base object pool (malloc).";
 #endif
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: __attribute__";
+ }
 
 }  // namespace base
 }  // namespace perception

@@ -29,7 +29,9 @@ __attribute__((constructor)) void SppPoolInitialize() {
   SppClusterPool::Instance("velodyne64");
   SppClusterPool::Instance("velodyne128");
   AINFO << "Initialize spp cluster pool.";
-}
+
+   AINFO<<"(DMCZP) LeaveMethod: __attribute__";
+ }
 
 }  // namespace lidar
 }  // namespace perception
