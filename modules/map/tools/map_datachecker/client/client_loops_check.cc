@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -27,6 +28,8 @@ namespace hdmap {
 
 LoopsChecker::LoopsChecker(const std::string& time_flag_file)
     : time_flag_file_(time_flag_file) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsChecker::LoopsChecker";
+
   YAML::Node node = YAML::LoadFile(FLAGS_client_conf_yaml);
   std::string server_addr =
       node["grpc_host_port"]["grpc_host"].as<std::string>() + ":" +
@@ -37,6 +40,8 @@ LoopsChecker::LoopsChecker(const std::string& time_flag_file)
 }
 
 int LoopsChecker::SyncStart(bool* reached) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsChecker::SyncStart";
+
   std::vector<std::pair<double, double>> time_ranges = GetTimeRanges();
   size_t pair_count = time_ranges.size();
   if (pair_count == 0) {
@@ -53,6 +58,8 @@ int LoopsChecker::SyncStart(bool* reached) {
 }
 
 int LoopsChecker::PeriodicCheck(bool* reached) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsChecker::PeriodicCheck";
+
   int ret = 0;
   while (true) {
     double progress = 0.0;
@@ -119,6 +126,8 @@ std::vector<std::pair<double, double>> LoopsChecker::GetTimeRanges() {
 
 int LoopsChecker::GrpcStub(LoopsVerifyRequest* request,
                            LoopsVerifyResponse* response) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsChecker::GrpcStub";
+
   grpc::ClientContext context;
   grpc::Status status;
   status = service_stub_->ServiceLoopsVerify(&context, *request, response);
@@ -136,6 +145,8 @@ int LoopsChecker::GrpcStub(LoopsVerifyRequest* request,
 
 int LoopsChecker::Start(
     const std::vector<std::pair<double, double>>& time_ranges) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsChecker::Start";
+
   LoopsVerifyRequest request;
   request.set_cmd(CmdType::START);
   for (size_t i = 0; i < time_ranges.size(); i++) {
@@ -149,6 +160,8 @@ int LoopsChecker::Start(
   return GrpcStub(&request, &response);
 }
 int LoopsChecker::Check(double* progress, bool* reached) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsChecker::Check";
+
   LoopsVerifyRequest request;
   request.set_cmd(CmdType::CHECK);
   AINFO << "loops check request: "
@@ -163,6 +176,8 @@ int LoopsChecker::Check(double* progress, bool* reached) {
 }
 
 int LoopsChecker::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsChecker::Stop";
+
   LoopsVerifyRequest request;
   request.set_cmd(CmdType::STOP);
   AINFO << "loops check request: "

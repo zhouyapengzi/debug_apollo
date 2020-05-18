@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /* Copyright 2017 The Apollo Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,6 +34,8 @@ using apollo::common::math::AABoxKDTreeParams;
 using apollo::common::math::Vec2d;
 
 Id CreateHDMapId(const std::string& string_id) {
+    AINFO<<"(DMCZP) EnteringMethod: CreateHDMapId";
+
   Id id;
   id.set_id(string_id);
   return id;
@@ -46,6 +49,8 @@ constexpr int kBackwardDistance = 4;
 }  // namespace
 
 int HDMapImpl::LoadMapFromFile(const std::string& map_filename) {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::LoadMapFromFile";
+
   Clear();
   // TODO(All) seems map_ can be changed to a local variable of this
   // function, but test will fail if I do so. if so.
@@ -61,6 +66,8 @@ int HDMapImpl::LoadMapFromFile(const std::string& map_filename) {
 }
 
 int HDMapImpl::LoadMapFromProto(const Map& map_proto) {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::LoadMapFromProto";
+
   if (&map_proto != &map_) {  // avoid an unnecessary copy
     Clear();
     map_ = map_proto;
@@ -145,72 +152,100 @@ int HDMapImpl::LoadMapFromProto(const Map& map_proto) {
 }
 
 LaneInfoConstPtr HDMapImpl::GetLaneById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetLaneById";
+
   LaneTable::const_iterator it = lane_table_.find(id.id());
   return it != lane_table_.end() ? it->second : nullptr;
 }
 
 JunctionInfoConstPtr HDMapImpl::GetJunctionById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetJunctionById";
+
   JunctionTable::const_iterator it = junction_table_.find(id.id());
   return it != junction_table_.end() ? it->second : nullptr;
 }
 
 SignalInfoConstPtr HDMapImpl::GetSignalById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetSignalById";
+
   SignalTable::const_iterator it = signal_table_.find(id.id());
   return it != signal_table_.end() ? it->second : nullptr;
 }
 
 CrosswalkInfoConstPtr HDMapImpl::GetCrosswalkById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetCrosswalkById";
+
   CrosswalkTable::const_iterator it = crosswalk_table_.find(id.id());
   return it != crosswalk_table_.end() ? it->second : nullptr;
 }
 
 StopSignInfoConstPtr HDMapImpl::GetStopSignById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetStopSignById";
+
   StopSignTable::const_iterator it = stop_sign_table_.find(id.id());
   return it != stop_sign_table_.end() ? it->second : nullptr;
 }
 
 YieldSignInfoConstPtr HDMapImpl::GetYieldSignById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetYieldSignById";
+
   YieldSignTable::const_iterator it = yield_sign_table_.find(id.id());
   return it != yield_sign_table_.end() ? it->second : nullptr;
 }
 
 ClearAreaInfoConstPtr HDMapImpl::GetClearAreaById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetClearAreaById";
+
   ClearAreaTable::const_iterator it = clear_area_table_.find(id.id());
   return it != clear_area_table_.end() ? it->second : nullptr;
 }
 
 SpeedBumpInfoConstPtr HDMapImpl::GetSpeedBumpById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetSpeedBumpById";
+
   SpeedBumpTable::const_iterator it = speed_bump_table_.find(id.id());
   return it != speed_bump_table_.end() ? it->second : nullptr;
 }
 
 OverlapInfoConstPtr HDMapImpl::GetOverlapById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetOverlapById";
+
   OverlapTable::const_iterator it = overlap_table_.find(id.id());
   return it != overlap_table_.end() ? it->second : nullptr;
 }
 
 RoadInfoConstPtr HDMapImpl::GetRoadById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetRoadById";
+
   RoadTable::const_iterator it = road_table_.find(id.id());
   return it != road_table_.end() ? it->second : nullptr;
 }
 
 ParkingSpaceInfoConstPtr HDMapImpl::GetParkingSpaceById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetParkingSpaceById";
+
   ParkingSpaceTable::const_iterator it = parking_space_table_.find(id.id());
   return it != parking_space_table_.end() ? it->second : nullptr;
 }
 
 PNCJunctionInfoConstPtr HDMapImpl::GetPNCJunctionById(const Id& id) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetPNCJunctionById";
+
   PNCJunctionTable::const_iterator it = pnc_junction_table_.find(id.id());
   return it != pnc_junction_table_.end() ? it->second : nullptr;
 }
 
 int HDMapImpl::GetLanes(const PointENU& point, double distance,
                         std::vector<LaneInfoConstPtr>* lanes) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetLanes";
+
   return GetLanes({point.x(), point.y()}, distance, lanes);
 }
 
 int HDMapImpl::GetLanes(const Vec2d& point, double distance,
                         std::vector<LaneInfoConstPtr>* lanes) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetLanes";
+
   if (lanes == nullptr || lane_segment_kdtree_ == nullptr) {
     return -1;
   }
@@ -229,11 +264,15 @@ int HDMapImpl::GetLanes(const Vec2d& point, double distance,
 
 int HDMapImpl::GetRoads(const PointENU& point, double distance,
                         std::vector<RoadInfoConstPtr>* roads) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetRoads";
+
   return GetRoads({point.x(), point.y()}, distance, roads);
 }
 
 int HDMapImpl::GetRoads(const Vec2d& point, double distance,
                         std::vector<RoadInfoConstPtr>* roads) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetRoads";
+
   std::vector<LaneInfoConstPtr> lanes;
   if (GetLanes(point, distance, &lanes) != 0) {
     return -1;
@@ -257,6 +296,10 @@ int HDMapImpl::GetRoads(const Vec2d& point, double distance,
 int HDMapImpl::GetJunctions(
     const PointENU& point, double distance,
     std::vector<JunctionInfoConstPtr>* junctions) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetJunctions";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetJunctions";
+
   return GetJunctions({point.x(), point.y()}, distance, junctions);
 }
 
@@ -281,11 +324,15 @@ int HDMapImpl::GetJunctions(
 
 int HDMapImpl::GetSignals(const PointENU& point, double distance,
                           std::vector<SignalInfoConstPtr>* signals) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetSignals";
+
   return GetSignals({point.x(), point.y()}, distance, signals);
 }
 
 int HDMapImpl::GetSignals(const Vec2d& point, double distance,
                           std::vector<SignalInfoConstPtr>* signals) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetSignals";
+
   if (signals == nullptr || signal_segment_kdtree_ == nullptr) {
     return -1;
   }
@@ -305,6 +352,10 @@ int HDMapImpl::GetSignals(const Vec2d& point, double distance,
 int HDMapImpl::GetCrosswalks(
     const PointENU& point, double distance,
     std::vector<CrosswalkInfoConstPtr>* crosswalks) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetCrosswalks";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetCrosswalks";
+
   return GetCrosswalks({point.x(), point.y()}, distance, crosswalks);
 }
 
@@ -330,6 +381,10 @@ int HDMapImpl::GetCrosswalks(
 int HDMapImpl::GetStopSigns(
     const PointENU& point, double distance,
     std::vector<StopSignInfoConstPtr>* stop_signs) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetStopSigns";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetStopSigns";
+
   return GetStopSigns({point.x(), point.y()}, distance, stop_signs);
 }
 
@@ -355,6 +410,10 @@ int HDMapImpl::GetStopSigns(
 int HDMapImpl::GetYieldSigns(
     const PointENU& point, double distance,
     std::vector<YieldSignInfoConstPtr>* yield_signs) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetYieldSigns";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetYieldSigns";
+
   return GetYieldSigns({point.x(), point.y()}, distance, yield_signs);
 }
 
@@ -381,6 +440,10 @@ int HDMapImpl::GetYieldSigns(
 int HDMapImpl::GetClearAreas(
     const PointENU& point, double distance,
     std::vector<ClearAreaInfoConstPtr>* clear_areas) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetClearAreas";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetClearAreas";
+
   return GetClearAreas({point.x(), point.y()}, distance, clear_areas);
 }
 
@@ -407,6 +470,10 @@ int HDMapImpl::GetClearAreas(
 int HDMapImpl::GetSpeedBumps(
     const PointENU& point, double distance,
     std::vector<SpeedBumpInfoConstPtr>* speed_bumps) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetSpeedBumps";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetSpeedBumps";
+
   return GetSpeedBumps({point.x(), point.y()}, distance, speed_bumps);
 }
 
@@ -433,6 +500,10 @@ int HDMapImpl::GetSpeedBumps(
 int HDMapImpl::GetParkingSpaces(
     const PointENU& point, double distance,
     std::vector<ParkingSpaceInfoConstPtr>* parking_spaces) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetParkingSpaces";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetParkingSpaces";
+
   return GetParkingSpaces({point.x(), point.y()}, distance, parking_spaces);
 }
 
@@ -459,6 +530,10 @@ int HDMapImpl::GetParkingSpaces(
 int HDMapImpl::GetPNCJunctions(
     const apollo::common::PointENU& point, double distance,
     std::vector<PNCJunctionInfoConstPtr>* pnc_junctions) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetPNCJunctions";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetPNCJunctions";
+
   return GetPNCJunctions({point.x(), point.y()}, distance, pnc_junctions);
 }
 
@@ -487,6 +562,8 @@ int HDMapImpl::GetPNCJunctions(
 int HDMapImpl::GetNearestLane(const PointENU& point,
                               LaneInfoConstPtr* nearest_lane, double* nearest_s,
                               double* nearest_l) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetNearestLane";
+
   return GetNearestLane({point.x(), point.y()}, nearest_lane, nearest_s,
                         nearest_l);
 }
@@ -494,6 +571,8 @@ int HDMapImpl::GetNearestLane(const PointENU& point,
 int HDMapImpl::GetNearestLane(const Vec2d& point,
                               LaneInfoConstPtr* nearest_lane, double* nearest_s,
                               double* nearest_l) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetNearestLane";
+
   CHECK_NOTNULL(nearest_lane);
   CHECK_NOTNULL(nearest_s);
   CHECK_NOTNULL(nearest_l);
@@ -519,6 +598,10 @@ int HDMapImpl::GetNearestLaneWithHeading(
     const PointENU& point, const double distance, const double central_heading,
     const double max_heading_difference, LaneInfoConstPtr* nearest_lane,
     double* nearest_s, double* nearest_l) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetNearestLaneWithHeading";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetNearestLaneWithHeading";
+
   return GetNearestLaneWithHeading({point.x(), point.y()}, distance,
                                    central_heading, max_heading_difference,
                                    nearest_lane, nearest_s, nearest_l);
@@ -573,6 +656,8 @@ int HDMapImpl::GetLanesWithHeading(const PointENU& point, const double distance,
                                    const double central_heading,
                                    const double max_heading_difference,
                                    std::vector<LaneInfoConstPtr>* lanes) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetLanesWithHeading";
+
   return GetLanesWithHeading({point.x(), point.y()}, distance, central_heading,
                              max_heading_difference, lanes);
 }
@@ -581,6 +666,8 @@ int HDMapImpl::GetLanesWithHeading(const Vec2d& point, const double distance,
                                    const double central_heading,
                                    const double max_heading_difference,
                                    std::vector<LaneInfoConstPtr>* lanes) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetLanesWithHeading";
+
   CHECK_NOTNULL(lanes);
   std::vector<LaneInfoConstPtr> all_lanes;
   const int status = GetLanes(point, distance, &all_lanes);
@@ -611,6 +698,10 @@ int HDMapImpl::GetRoadBoundaries(
     const PointENU& point, double radius,
     std::vector<RoadROIBoundaryPtr>* road_boundaries,
     std::vector<JunctionBoundaryPtr>* junctions) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetRoadBoundaries";
+
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetRoadBoundaries";
+
   CHECK_NOTNULL(road_boundaries);
   CHECK_NOTNULL(junctions);
 
@@ -740,6 +831,8 @@ int HDMapImpl::GetRoadBoundaries(
 int HDMapImpl::GetRoi(const apollo::common::PointENU& point, double radius,
                       std::vector<RoadRoiPtr>* roads_roi,
                       std::vector<PolygonRoiPtr>* polygons_roi) {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetRoi";
+
   if (roads_roi == nullptr || polygons_roi == nullptr) {
     AERROR << "the pointer in parameter is null";
     return -1;
@@ -850,6 +943,8 @@ int HDMapImpl::GetRoi(const apollo::common::PointENU& point, double radius,
 int HDMapImpl::GetForwardNearestSignalsOnLane(
     const apollo::common::PointENU& point, const double distance,
     std::vector<SignalInfoConstPtr>* signals) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetForwardNearestSignalsOnLane";
+
   CHECK_NOTNULL(signals);
 
   signals->clear();
@@ -957,6 +1052,8 @@ int HDMapImpl::GetForwardNearestSignalsOnLane(
 
 int HDMapImpl::GetStopSignAssociatedStopSigns(
     const Id& id, std::vector<StopSignInfoConstPtr>* stop_signs) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetStopSignAssociatedStopSigns";
+
   CHECK_NOTNULL(stop_signs);
 
   const auto& stop_sign = GetStopSignById(id);
@@ -994,6 +1091,8 @@ int HDMapImpl::GetStopSignAssociatedStopSigns(
 
 int HDMapImpl::GetStopSignAssociatedLanes(
     const Id& id, std::vector<LaneInfoConstPtr>* lanes) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetStopSignAssociatedLanes";
+
   CHECK_NOTNULL(lanes);
 
   const auto& stop_sign = GetStopSignById(id);
@@ -1042,6 +1141,8 @@ int HDMapImpl::GetStopSignAssociatedLanes(
 int HDMapImpl::GetLocalMap(const apollo::common::PointENU& point,
                            const std::pair<double, double>& range,
                            Map* local_map) const {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::GetLocalMap";
+
   CHECK_NOTNULL(local_map);
 
   double distance = std::max(range.first, range.second);
@@ -1184,6 +1285,8 @@ void HDMapImpl::BuildSegmentKDTree(const Table& table,
                                    const AABoxKDTreeParams& params,
                                    BoxTable* const box_table,
                                    std::unique_ptr<KDTree>* const kdtree) {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildSegmentKDTree";
+
   box_table->clear();
   for (const auto& info_with_id : table) {
     const auto* info = info_with_id.second.get();
@@ -1202,6 +1305,8 @@ void HDMapImpl::BuildPolygonKDTree(const Table& table,
                                    const AABoxKDTreeParams& params,
                                    BoxTable* const box_table,
                                    std::unique_ptr<KDTree>* const kdtree) {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildPolygonKDTree";
+
   box_table->clear();
   for (const auto& info_with_id : table) {
     const auto* info = info_with_id.second.get();
@@ -1212,6 +1317,8 @@ void HDMapImpl::BuildPolygonKDTree(const Table& table,
 }
 
 void HDMapImpl::BuildLaneSegmentKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildLaneSegmentKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 16;
@@ -1220,6 +1327,8 @@ void HDMapImpl::BuildLaneSegmentKDTree() {
 }
 
 void HDMapImpl::BuildJunctionPolygonKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildJunctionPolygonKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 1;
@@ -1228,6 +1337,8 @@ void HDMapImpl::BuildJunctionPolygonKDTree() {
 }
 
 void HDMapImpl::BuildCrosswalkPolygonKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildCrosswalkPolygonKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 1;
@@ -1236,6 +1347,8 @@ void HDMapImpl::BuildCrosswalkPolygonKDTree() {
 }
 
 void HDMapImpl::BuildSignalSegmentKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildSignalSegmentKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 4;
@@ -1244,6 +1357,8 @@ void HDMapImpl::BuildSignalSegmentKDTree() {
 }
 
 void HDMapImpl::BuildStopSignSegmentKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildStopSignSegmentKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 4;
@@ -1252,6 +1367,8 @@ void HDMapImpl::BuildStopSignSegmentKDTree() {
 }
 
 void HDMapImpl::BuildYieldSignSegmentKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildYieldSignSegmentKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 4;
@@ -1260,6 +1377,8 @@ void HDMapImpl::BuildYieldSignSegmentKDTree() {
 }
 
 void HDMapImpl::BuildClearAreaPolygonKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildClearAreaPolygonKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 4;
@@ -1268,6 +1387,8 @@ void HDMapImpl::BuildClearAreaPolygonKDTree() {
 }
 
 void HDMapImpl::BuildSpeedBumpSegmentKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildSpeedBumpSegmentKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 4;
@@ -1276,6 +1397,8 @@ void HDMapImpl::BuildSpeedBumpSegmentKDTree() {
 }
 
 void HDMapImpl::BuildParkingSpacePolygonKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildParkingSpacePolygonKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 4;
@@ -1285,6 +1408,8 @@ void HDMapImpl::BuildParkingSpacePolygonKDTree() {
 }
 
 void HDMapImpl::BuildPNCJunctionPolygonKDTree() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::BuildPNCJunctionPolygonKDTree";
+
   AABoxKDTreeParams params;
   params.max_leaf_dimension = 5.0;  // meters.
   params.max_leaf_size = 1;
@@ -1296,6 +1421,8 @@ template <class KDTree>
 int HDMapImpl::SearchObjects(const Vec2d& center, const double radius,
                              const KDTree& kdtree,
                              std::vector<std::string>* const results) {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::SearchObjects";
+
   if (results == nullptr) {
     return -1;
   }
@@ -1312,6 +1439,8 @@ int HDMapImpl::SearchObjects(const Vec2d& center, const double radius,
 }
 
 void HDMapImpl::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: HDMapImpl::Clear";
+
   map_.Clear();
   lane_table_.clear();
   junction_table_.clear();

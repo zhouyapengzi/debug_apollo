@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -21,7 +22,9 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-NdtMap::NdtMap(NdtMapConfig* config) : BaseMap(config) {}
+NdtMap::NdtMap(NdtMapConfig* config) : BaseMap(config) {
+    AINFO<<"(DMCZP) EnteringMethod: NdtMap::NdtMap";
+}
 
 NdtMap::~NdtMap() {}
 

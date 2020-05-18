@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -25,11 +26,15 @@ namespace ge3 {
 
 using ::apollo::drivers::canbus::Byte;
 
-Scuvcu2313::Scuvcu2313() {}
+Scuvcu2313::Scuvcu2313() {
+    AINFO<<"(DMCZP) EnteringMethod: Scuvcu2313::Scuvcu2313";
+}
 const int32_t Scuvcu2313::ID = 0x313;
 
 void Scuvcu2313::Parse(const std::uint8_t* bytes, int32_t length,
                        ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scuvcu2313::Parse";
+
   chassis->mutable_ge3()->mutable_scu_vcu_2_313()->set_vcu_torqposmax(
       vcu_torqposmax(bytes, length));
   chassis->mutable_ge3()->mutable_scu_vcu_2_313()->set_vcu_torqnegmax(
@@ -46,6 +51,8 @@ void Scuvcu2313::Parse(const std::uint8_t* bytes, int32_t length,
 // 'motorola', 'physical_unit': 'Nm'}
 double Scuvcu2313::vcu_torqposmax(const std::uint8_t* bytes,
                                   int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scuvcu2313::vcu_torqposmax";
+
   Byte t0(bytes + 6);
   int32_t x = t0.get_byte(0, 8);
 
@@ -64,6 +71,8 @@ double Scuvcu2313::vcu_torqposmax(const std::uint8_t* bytes,
 // 'motorola', 'physical_unit': 'Nm'}
 double Scuvcu2313::vcu_torqnegmax(const std::uint8_t* bytes,
                                   int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scuvcu2313::vcu_torqnegmax";
+
   Byte t0(bytes + 4);
   int32_t x = t0.get_byte(0, 8);
 
@@ -82,6 +91,8 @@ double Scuvcu2313::vcu_torqnegmax(const std::uint8_t* bytes,
 // 'motorola', 'physical_unit': 'Nm'}
 double Scuvcu2313::vcu_torqact(const std::uint8_t* bytes,
                                int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scuvcu2313::vcu_torqact";
+
   Byte t0(bytes + 2);
   int32_t x = t0.get_byte(0, 8);
 
@@ -99,6 +110,8 @@ double Scuvcu2313::vcu_torqact(const std::uint8_t* bytes,
 // 'physical_range': '[0|65535]', 'bit': 7, 'type': 'int', 'order': 'motorola',
 // 'physical_unit': 'rpm'}
 int Scuvcu2313::vcu_engspd(const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scuvcu2313::vcu_engspd";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 8);
 

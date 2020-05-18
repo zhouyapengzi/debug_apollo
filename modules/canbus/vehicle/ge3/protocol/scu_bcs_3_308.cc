@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -25,11 +26,15 @@ namespace ge3 {
 
 using ::apollo::drivers::canbus::Byte;
 
-Scubcs3308::Scubcs3308() {}
+Scubcs3308::Scubcs3308() {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::Scubcs3308";
+}
 const int32_t Scubcs3308::ID = 0x308;
 
 void Scubcs3308::Parse(const std::uint8_t* bytes, int32_t length,
                        ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::Parse";
+
   chassis->mutable_ge3()->mutable_scu_bcs_3_308()->set_bcs_rrwheelspdvd(
       bcs_rrwheelspdvd(bytes, length));
   chassis->mutable_ge3()->mutable_scu_bcs_3_308()->set_bcs_rrwheeldirectionvd(
@@ -71,6 +76,8 @@ void Scubcs3308::Parse(const std::uint8_t* bytes, int32_t length,
 // 'order': 'motorola', 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_rrwheelspdvdType Scubcs3308::bcs_rrwheelspdvd(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_rrwheelspdvd";
+
   Byte t0(bytes + 7);
   int32_t x = t0.get_byte(1, 1);
 
@@ -87,6 +94,8 @@ Scu_bcs_3_308::Bcs_rrwheelspdvdType Scubcs3308::bcs_rrwheelspdvd(
 // 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_rrwheeldirectionvdType Scubcs3308::bcs_rrwheeldirectionvd(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_rrwheeldirectionvd";
+
   Byte t0(bytes + 7);
   int32_t x = t0.get_byte(2, 1);
 
@@ -102,6 +111,8 @@ Scu_bcs_3_308::Bcs_rrwheeldirectionvdType Scubcs3308::bcs_rrwheeldirectionvd(
 // 'order': 'motorola', 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_rlwheelspdvdType Scubcs3308::bcs_rlwheelspdvd(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_rlwheelspdvd";
+
   Byte t0(bytes + 5);
   int32_t x = t0.get_byte(1, 1);
 
@@ -118,6 +129,8 @@ Scu_bcs_3_308::Bcs_rlwheelspdvdType Scubcs3308::bcs_rlwheelspdvd(
 // 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_rlwheeldirectionvdType Scubcs3308::bcs_rlwheeldirectionvd(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_rlwheeldirectionvd";
+
   Byte t0(bytes + 5);
   int32_t x = t0.get_byte(2, 1);
 
@@ -133,6 +146,8 @@ Scu_bcs_3_308::Bcs_rlwheeldirectionvdType Scubcs3308::bcs_rlwheeldirectionvd(
 // 'order': 'motorola', 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_frwheelspdvdType Scubcs3308::bcs_frwheelspdvd(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_frwheelspdvd";
+
   Byte t0(bytes + 3);
   int32_t x = t0.get_byte(1, 1);
 
@@ -149,6 +164,8 @@ Scu_bcs_3_308::Bcs_frwheelspdvdType Scubcs3308::bcs_frwheelspdvd(
 // 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_frwheeldirectionvdType Scubcs3308::bcs_frwheeldirectionvd(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_frwheeldirectionvd";
+
   Byte t0(bytes + 3);
   int32_t x = t0.get_byte(2, 1);
 
@@ -164,6 +181,8 @@ Scu_bcs_3_308::Bcs_frwheeldirectionvdType Scubcs3308::bcs_frwheeldirectionvd(
 // 'order': 'motorola', 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_flwheelspdvdType Scubcs3308::bcs_flwheelspdvd(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_flwheelspdvd";
+
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(1, 1);
 
@@ -180,6 +199,8 @@ Scu_bcs_3_308::Bcs_flwheelspdvdType Scubcs3308::bcs_flwheelspdvd(
 // 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_flwheeldirectionvdType Scubcs3308::bcs_flwheeldirectionvd(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_flwheeldirectionvd";
+
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(2, 1);
 
@@ -194,6 +215,8 @@ Scu_bcs_3_308::Bcs_flwheeldirectionvdType Scubcs3308::bcs_flwheeldirectionvd(
 // 'motorola', 'physical_unit': 'km/h'}
 double Scubcs3308::bcs_rrwheelspd(const std::uint8_t* bytes,
                                   int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_rrwheelspd";
+
   Byte t0(bytes + 6);
   int32_t x = t0.get_byte(0, 8);
 
@@ -213,6 +236,8 @@ double Scubcs3308::bcs_rrwheelspd(const std::uint8_t* bytes,
 // 'order': 'motorola', 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_rrwheeldirectionType Scubcs3308::bcs_rrwheeldirection(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_rrwheeldirection";
+
   Byte t0(bytes + 7);
   int32_t x = t0.get_byte(0, 1);
 
@@ -227,6 +252,8 @@ Scu_bcs_3_308::Bcs_rrwheeldirectionType Scubcs3308::bcs_rrwheeldirection(
 // 'motorola', 'physical_unit': 'km/h'}
 double Scubcs3308::bcs_rlwheelspd(const std::uint8_t* bytes,
                                   int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_rlwheelspd";
+
   Byte t0(bytes + 4);
   int32_t x = t0.get_byte(0, 8);
 
@@ -246,6 +273,8 @@ double Scubcs3308::bcs_rlwheelspd(const std::uint8_t* bytes,
 // 'order': 'motorola', 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_rlwheeldirectionType Scubcs3308::bcs_rlwheeldirection(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_rlwheeldirection";
+
   Byte t0(bytes + 5);
   int32_t x = t0.get_byte(0, 1);
 
@@ -260,6 +289,8 @@ Scu_bcs_3_308::Bcs_rlwheeldirectionType Scubcs3308::bcs_rlwheeldirection(
 // 'motorola', 'physical_unit': 'km/h'}
 double Scubcs3308::bcs_frwheelspd(const std::uint8_t* bytes,
                                   int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_frwheelspd";
+
   Byte t0(bytes + 2);
   int32_t x = t0.get_byte(0, 8);
 
@@ -279,6 +310,8 @@ double Scubcs3308::bcs_frwheelspd(const std::uint8_t* bytes,
 // 'order': 'motorola', 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_frwheeldirectionType Scubcs3308::bcs_frwheeldirection(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_frwheeldirection";
+
   Byte t0(bytes + 3);
   int32_t x = t0.get_byte(0, 1);
 
@@ -293,6 +326,8 @@ Scu_bcs_3_308::Bcs_frwheeldirectionType Scubcs3308::bcs_frwheeldirection(
 // 'motorola', 'physical_unit': 'km/h'}
 double Scubcs3308::bcs_flwheelspd(const std::uint8_t* bytes,
                                   int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_flwheelspd";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 8);
 
@@ -312,6 +347,8 @@ double Scubcs3308::bcs_flwheelspd(const std::uint8_t* bytes,
 // 'order': 'motorola', 'physical_unit': '-'}
 Scu_bcs_3_308::Bcs_flwheeldirectionType Scubcs3308::bcs_flwheeldirection(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Scubcs3308::bcs_flwheeldirection";
+
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 1);
 

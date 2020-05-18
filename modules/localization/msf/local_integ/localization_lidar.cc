@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -37,6 +38,8 @@ LocalizationLidar::LocalizationLidar()
       pre_vehicle_ground_height_(0.0),
       is_pre_ground_height_valid_(false),
       velodyne_extrinsic_(Eigen::Affine3d::Identity()) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::LocalizationLidar";
+
   map_left_top_corner_ = Eigen::Vector2d::Zero();
 }
 
@@ -55,6 +58,8 @@ bool LocalizationLidar::Init(const std::string& map_path,
                              const unsigned int search_range_y,
                              const int zone_id,
                              const unsigned int resolution_id) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::Init";
+
   // init map
   resolution_id_ = resolution_id;
   zone_id_ = zone_id;
@@ -82,6 +87,8 @@ bool LocalizationLidar::Init(const std::string& map_path,
 }
 
 void LocalizationLidar::SetVelodyneExtrinsic(const Eigen::Affine3d& pose) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::SetVelodyneExtrinsic";
+
   velodyne_extrinsic_ = pose;
   Eigen::Vector3d trans = pose.translation();
   Eigen::Quaterniond quat = Eigen::Quaterniond(pose.linear());
@@ -91,27 +98,39 @@ void LocalizationLidar::SetVelodyneExtrinsic(const Eigen::Affine3d& pose) {
 }
 
 void LocalizationLidar::SetVehicleHeight(double height) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::SetVehicleHeight";
+
   vehicle_lidar_height_ = height;
   AINFO << "Set height: " << vehicle_lidar_height_;
 }
 
 void LocalizationLidar::SetValidThreshold(float valid_threashold) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::SetValidThreshold";
+
   lidar_locator_->SetValidThreshold(valid_threashold);
 }
 
 void LocalizationLidar::SetImageAlignMode(int mode) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::SetImageAlignMode";
+
   lidar_locator_->SetImageAlignMode(mode);
 }
 
 void LocalizationLidar::SetLocalizationMode(int mode) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::SetLocalizationMode";
+
   lidar_locator_->SetLocalizationMode(mode);
 }
 
 void LocalizationLidar::SetDeltaYawLimit(double limit) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::SetDeltaYawLimit";
+
   lidar_locator_->SetDeltaYawLimit(limit);
 }
 
 void LocalizationLidar::SetDeltaPitchRollLimit(double limit) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::SetDeltaPitchRollLimit";
+
   lidar_locator_->SetDeltaPitchRollLimit(limit);
 }
 
@@ -119,6 +138,8 @@ int LocalizationLidar::Update(const unsigned int frame_idx,
                               const Eigen::Affine3d& pose,
                               const Eigen::Vector3d velocity,
                               const LidarFrame& lidar_frame, bool use_avx) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::Update";
+
   // check whether loaded map
   if (!is_map_loaded_) {
     map_.LoadMapArea(pose.translation(), resolution_id_, zone_id_,
@@ -169,6 +190,8 @@ int LocalizationLidar::Update(const unsigned int frame_idx,
 void LocalizationLidar::GetResult(Eigen::Affine3d* location,
                                   Eigen::Matrix3d* covariance,
                                   double* location_score) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::GetResult";
+
   if (!location || !covariance) {
     return;
   }
@@ -205,6 +228,8 @@ void LocalizationLidar::GetResult(Eigen::Affine3d* location,
 
 void LocalizationLidar::GetLocalizationDistribution(
     Eigen::MatrixXd* distribution) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::GetLocalizationDistribution";
+
   CHECK_NOTNULL(distribution);
 
   int width = 0;
@@ -223,6 +248,8 @@ void LocalizationLidar::GetLocalizationDistribution(
 }
 
 void LocalizationLidar::RefineAltitudeFromMap(Eigen::Affine3d* pose) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::RefineAltitudeFromMap";
+
   CHECK_NOTNULL(pose);
 
   Eigen::Affine3d lidar_pose = *pose * velodyne_extrinsic_;
@@ -271,6 +298,8 @@ void LocalizationLidar::RefineAltitudeFromMap(Eigen::Affine3d* pose) {
 }
 
 void LocalizationLidar::ComposeMapNode(const Eigen::Vector3d& trans) {
+    AINFO<<"(DMCZP) EnteringMethod: LocalizationLidar::ComposeMapNode";
+
   Eigen::Vector2d center(trans(0), trans(1));
   Eigen::Vector2d left_top_corner(center(0) - node_size_x_ * resolution_ / 2.0,
                                   center(1) - node_size_y_ * resolution_ / 2.0);

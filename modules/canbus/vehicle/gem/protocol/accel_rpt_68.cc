@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,11 +28,15 @@ namespace gem {
 
 using ::apollo::drivers::canbus::Byte;
 
-Accelrpt68::Accelrpt68() {}
+Accelrpt68::Accelrpt68() {
+    AINFO<<"(DMCZP) EnteringMethod: Accelrpt68::Accelrpt68";
+}
 const int32_t Accelrpt68::ID = 0x68;
 
 void Accelrpt68::Parse(const std::uint8_t* bytes, int32_t length,
                        ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Accelrpt68::Parse";
+
   chassis->mutable_gem()->mutable_accel_rpt_68()->set_manual_input(
       manual_input(bytes, length));
   chassis->mutable_gem()->mutable_accel_rpt_68()->set_commanded_value(
@@ -45,6 +50,8 @@ void Accelrpt68::Parse(const std::uint8_t* bytes, int32_t length,
 // 'type': 'double', 'order': 'motorola', 'physical_unit': '%'}
 double Accelrpt68::manual_input(const std::uint8_t* bytes,
                                 int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Accelrpt68::manual_input";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 8);
 
@@ -62,6 +69,8 @@ double Accelrpt68::manual_input(const std::uint8_t* bytes,
 // 'type': 'double', 'order': 'motorola', 'physical_unit': '%'}
 double Accelrpt68::commanded_value(const std::uint8_t* bytes,
                                    int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Accelrpt68::commanded_value";
+
   Byte t0(bytes + 2);
   int32_t x = t0.get_byte(0, 8);
 
@@ -79,6 +88,8 @@ double Accelrpt68::commanded_value(const std::uint8_t* bytes,
 // 'type': 'double', 'order': 'motorola', 'physical_unit': '%'}
 double Accelrpt68::output_value(const std::uint8_t* bytes,
                                 int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Accelrpt68::output_value";
+
   Byte t0(bytes + 4);
   int32_t x = t0.get_byte(0, 8);
 

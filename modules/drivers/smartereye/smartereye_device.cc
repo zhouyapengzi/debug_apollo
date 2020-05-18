@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
@@ -27,11 +28,15 @@ namespace apollo {
 namespace drivers {
 namespace smartereye {
 
-SmartereyeDevice::SmartereyeDevice() {}
+SmartereyeDevice::SmartereyeDevice() {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeDevice::SmartereyeDevice";
+}
 
 SmartereyeDevice::~SmartereyeDevice() { uninit(); }
 
 bool SmartereyeDevice::init(const std::shared_ptr<Config>& camera_config) {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeDevice::init";
+
   pcamera_ = StereoCamera::connect("192.168.1.251");
   pcameraHandler_ = new SmartereyeHandler("camera A");
   pcamera_->enableTasks(TaskId::ObstacleTask | TaskId::DisplayTask);
@@ -41,12 +46,16 @@ bool SmartereyeDevice::init(const std::shared_ptr<Config>& camera_config) {
 }
 
 bool SmartereyeDevice::SetCallback(CallbackFunc ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeDevice::SetCallback";
+
   pcameraHandler_->SetCallback(ptr);
 
   return true;
 }
 
 int SmartereyeDevice::poll() {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeDevice::poll";
+
   pcamera_->requestFrame(pcameraHandler_, FrameId::Compound);
   is_capturing_ = true;
 
@@ -54,6 +63,8 @@ int SmartereyeDevice::poll() {
 }
 
 int SmartereyeDevice::uninit() {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeDevice::uninit";
+
   if (!inited_) {
     return 1;
   }
@@ -65,9 +76,13 @@ int SmartereyeDevice::uninit() {
   return 1;
 }
 
-bool SmartereyeDevice::is_capturing() { return is_capturing_; }
+bool SmartereyeDevice::is_capturing() {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeDevice::is_capturing";
+ return is_capturing_; }
 
 bool SmartereyeDevice::wait_for_device() {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeDevice::wait_for_device";
+
   if (is_capturing_) {
     ADEBUG << "is capturing";
     return true;

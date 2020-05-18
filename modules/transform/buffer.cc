@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -25,9 +26,13 @@ namespace transform {
 
 static constexpr float kSecondToNanoFactor = 1e9f;
 
-Buffer::Buffer() : BufferCore() { Init(); }
+Buffer::Buffer() : BufferCore() {
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::Buffer";
+ Init(); }
 
 int Buffer::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::Init";
+
   const std::string node_name =
       absl::StrCat("transform_listener_", cyber::Time::Now().ToNanosecond());
   node_ = cyber::CreateNode(node_name);
@@ -52,16 +57,22 @@ int Buffer::Init() {
 
 void Buffer::SubscriptionCallback(
     const std::shared_ptr<const TransformStampeds>& msg_evt) {
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::SubscriptionCallback";
+
   SubscriptionCallbackImpl(msg_evt, false);
 }
 
 void Buffer::StaticSubscriptionCallback(
     const std::shared_ptr<const TransformStampeds>& msg_evt) {
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::StaticSubscriptionCallback";
+
   SubscriptionCallbackImpl(msg_evt, true);
 }
 
 void Buffer::SubscriptionCallbackImpl(
     const std::shared_ptr<const TransformStampeds>& msg_evt, bool is_static) {
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::SubscriptionCallbackImpl";
+
   cyber::Time now = cyber::Time::Now();
   std::string authority =
       "cyber_tf";  // msg_evt.getPublisherName(); // lookup the authority
@@ -115,6 +126,8 @@ void Buffer::SubscriptionCallbackImpl(
 bool Buffer::GetLatestStaticTF(const std::string& frame_id,
                                const std::string& child_frame_id,
                                TransformStamped* tf) {
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::GetLatestStaticTF";
+
   for (auto reverse_iter = static_msgs_.rbegin();
        reverse_iter != static_msgs_.rend(); ++reverse_iter) {
     if ((*reverse_iter).header.frame_id == frame_id &&
@@ -129,6 +142,8 @@ bool Buffer::GetLatestStaticTF(const std::string& frame_id,
 void Buffer::TF2MsgToCyber(
     const geometry_msgs::TransformStamped& tf2_trans_stamped,
     TransformStamped& trans_stamped) const {
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::TF2MsgToCyber";
+
   // header
   trans_stamped.mutable_header()->set_timestamp_sec(
       static_cast<double>(tf2_trans_stamped.header.stamp) / 1e9);
@@ -161,6 +176,10 @@ TransformStamped Buffer::lookupTransform(const std::string& target_frame,
                                          const std::string& source_frame,
                                          const cyber::Time& time,
                                          const float timeout_second) const {
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::lookupTransform";
+
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::lookupTransform";
+
   tf2::Time tf2_time(time.ToNanosecond());
   geometry_msgs::TransformStamped tf2_trans_stamped =
       lookupTransform(target_frame, source_frame, tf2_time);
@@ -187,6 +206,10 @@ bool Buffer::canTransform(const std::string& target_frame,
                           const std::string& source_frame,
                           const cyber::Time& time, const float timeout_second,
                           std::string* errstr) const {
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::canTransform";
+
+    AINFO<<"(DMCZP) EnteringMethod: Buffer::canTransform";
+
   uint64_t timeout_ns =
       static_cast<uint64_t>(timeout_second * kSecondToNanoFactor);
   uint64_t start_time = cyber::Time::Now().ToNanosecond();

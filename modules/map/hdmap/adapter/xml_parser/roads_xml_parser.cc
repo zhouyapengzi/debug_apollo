@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /* Copyright 2017 The Apollo Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +23,8 @@ limitations under the License.
 
 namespace {
 bool IsRoadBelongToJunction(const std::string& road_id) {
+    AINFO<<"(DMCZP) EnteringMethod: IsRoadBelongToJunction";
+
   CHECK(!road_id.empty());
   return road_id != "-1";
 }
@@ -33,6 +36,8 @@ namespace adapter {
 
 Status RoadsXmlParser::Parse(const tinyxml2::XMLElement& xml_node,
                              std::vector<RoadInternal>* roads) {
+    AINFO<<"(DMCZP) EnteringMethod: RoadsXmlParser::Parse";
+
   CHECK_NOTNULL(roads);
 
   auto road_node = xml_node.FirstChildElement("road");
@@ -83,6 +88,8 @@ Status RoadsXmlParser::Parse(const tinyxml2::XMLElement& xml_node,
 
 void RoadsXmlParser::Parse_road_objects(const tinyxml2::XMLElement& xml_node,
                                         RoadInternal* road_info) {
+    AINFO<<"(DMCZP) EnteringMethod: RoadsXmlParser::Parse_road_objects";
+
   CHECK_NOTNULL(road_info);
 
   // objects
@@ -105,6 +112,8 @@ void RoadsXmlParser::Parse_road_objects(const tinyxml2::XMLElement& xml_node,
 
 void RoadsXmlParser::Parse_road_signals(const tinyxml2::XMLElement& xml_node,
                                         RoadInternal* road_info) {
+    AINFO<<"(DMCZP) EnteringMethod: RoadsXmlParser::Parse_road_signals";
+
   CHECK_NOTNULL(road_info);
 
   // signals
@@ -121,6 +130,8 @@ void RoadsXmlParser::Parse_road_signals(const tinyxml2::XMLElement& xml_node,
 
 Status RoadsXmlParser::to_pb_road_type(const std::string& type,
                                        PbRoadType* pb_road_type) {
+    AINFO<<"(DMCZP) EnteringMethod: RoadsXmlParser::to_pb_road_type";
+
   CHECK_NOTNULL(pb_road_type);
 
   std::string upper_type = UtilXmlParser::ToUpper(type);

@@ -27,6 +27,8 @@ DEFINE_string(kv_db_path, "/apollo/data/kv_db.sqlite",
               "Path to Key-value DB file.");
 
 namespace apollo {
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
 namespace common {
 namespace {
 
@@ -90,6 +92,8 @@ class SqliteWraper {
 }  // namespace
 
 bool KVDB::Put(std::string_view key, std::string_view value) {
+    AINFO<<"(DMCZP) EnteringMethod: KVDB::Put";
+
   SqliteWraper sqlite;
   return sqlite.SQL(
       absl::StrCat("INSERT OR REPLACE INTO key_value (key, value) VALUES ('",
@@ -97,6 +101,8 @@ bool KVDB::Put(std::string_view key, std::string_view value) {
 }
 
 bool KVDB::Delete(std::string_view key) {
+    AINFO<<"(DMCZP) EnteringMethod: KVDB::Delete";
+
   SqliteWraper sqlite;
   return sqlite.SQL(
       absl::StrCat("DELETE FROM key_value WHERE key='", key, "';"));

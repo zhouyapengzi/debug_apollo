@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -26,6 +27,8 @@ void VehicleModel::RearCenteredKinematicBicycleModel(
     const VehicleModelConfig& vehicle_model_config,
     const double predicted_time_horizon, const VehicleState& cur_vehicle_state,
     VehicleState* predicted_vehicle_state) {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleModel::RearCenteredKinematicBicycleModel";
+
   // Kinematic bicycle model centered at rear axis center by Euler forward
   // discretization
   // Assume constant control command and constant z axis position
@@ -82,6 +85,8 @@ void VehicleModel::RearCenteredKinematicBicycleModel(
 
 VehicleState VehicleModel::Predict(const double predicted_time_horizon,
                                    const VehicleState& cur_vehicle_state) {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleModel::Predict";
+
   VehicleModelConfig vehicle_model_config;
 
   CHECK(cyber::common::GetProtoFromFile(FLAGS_vehicle_model_config_filename,

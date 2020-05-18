@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -38,16 +39,24 @@ HMI::HMI(WebSocketHandler* websocket, MapService* map_service,
       websocket_(websocket),
       map_service_(map_service),
       data_collection_monitor_(data_collection_monitor) {
+    AINFO<<"(DMCZP) EnteringMethod: HMI::HMI";
+
   if (websocket_) {
     RegisterMessageHandlers();
   }
 }
 
-void HMI::Start() { hmi_worker_->Start(); }
+void HMI::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: HMI::Start";
+ hmi_worker_->Start(); }
 
-void HMI::Stop() { hmi_worker_->Stop(); }
+void HMI::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: HMI::Stop";
+ hmi_worker_->Stop(); }
 
 void HMI::RegisterMessageHandlers() {
+    AINFO<<"(DMCZP) EnteringMethod: HMI::RegisterMessageHandlers";
+
   // Broadcast HMIStatus to clients when status changed.
   hmi_worker_->RegisterStatusUpdateHandler(
       [this](const bool status_changed, HMIStatus* status) {
@@ -146,6 +155,8 @@ void HMI::RegisterMessageHandlers() {
 }
 
 void HMI::SendVehicleParam(WebSocketHandler::Connection* conn) {
+    AINFO<<"(DMCZP) EnteringMethod: HMI::SendVehicleParam";
+
   if (websocket_ == nullptr) {
     return;
   }
@@ -162,6 +173,8 @@ void HMI::SendVehicleParam(WebSocketHandler::Connection* conn) {
 }
 
 void HMI::SendStatus(WebSocketHandler::Connection* conn) {
+    AINFO<<"(DMCZP) EnteringMethod: HMI::SendStatus";
+
   const auto status_json =
       JsonUtil::ProtoToTypedJson("HMIStatus", hmi_worker_->GetStatus());
   websocket_->SendData(conn, status_json.dump());

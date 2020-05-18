@@ -50,6 +50,10 @@ DEFINE_double(channel_monitor_interval, 5,
               "Channel monitor checking interval in seconds.");
 
 namespace apollo {
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
 namespace monitor {
 namespace {
 
@@ -58,6 +62,8 @@ namespace {
 std::pair<std::shared_ptr<cyber::ReaderBase>,
           std::shared_ptr<google::protobuf::Message>>
 GetReaderAndLatestMessage(const std::string& channel) {
+    AINFO<<"(DMCZP) EnteringMethod: GetReaderAndLatestMessage";
+
   auto manager = MonitorManager::Instance();
   if (channel == FLAGS_control_command_topic) {
     const auto reader = manager->CreateReader<control::ControlCommand>(channel);
@@ -131,6 +137,8 @@ GetReaderAndLatestMessage(const std::string& channel) {
 bool ValidateFields(const google::protobuf::Message& message,
                     const std::vector<std::string>& fields,
                     const size_t field_step) {
+    AINFO<<"(DMCZP) EnteringMethod: ValidateFields";
+
   if (field_step >= fields.size()) {
     return true;
   }
@@ -163,9 +171,13 @@ ChannelMonitor::ChannelMonitor(
     const std::shared_ptr<LatencyMonitor>& latency_monitor)
     : RecurrentRunner(FLAGS_channel_monitor_name,
                       FLAGS_channel_monitor_interval),
-      latency_monitor_(latency_monitor) {}
+      latency_monitor_(latency_monitor) {
+    AINFO<<"(DMCZP) EnteringMethod: ChannelMonitor::ChannelMonitor";
+}
 
 void ChannelMonitor::RunOnce(const double current_time) {
+    AINFO<<"(DMCZP) EnteringMethod: ChannelMonitor::RunOnce";
+
   auto manager = MonitorManager::Instance();
   const auto& mode = manager->GetHMIMode();
   auto* components = manager->GetStatus()->mutable_components();
@@ -186,6 +198,8 @@ void ChannelMonitor::RunOnce(const double current_time) {
 void ChannelMonitor::UpdateStatus(
     const apollo::dreamview::ChannelMonitorConfig& config,
     ComponentStatus* status, const bool update_freq, const double freq) {
+    AINFO<<"(DMCZP) EnteringMethod: ChannelMonitor::UpdateStatus";
+
   status->clear_status();
 
   const auto reader_message_pair = GetReaderAndLatestMessage(config.name());

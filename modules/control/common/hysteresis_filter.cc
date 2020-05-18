@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -23,6 +24,8 @@ void HysteresisFilter::filter(const double input_value, const double threshold,
                               const double hysteresis_upper,
                               const double hysteresis_lower, int *state,
                               double *output_value) {
+    AINFO<<"(DMCZP) EnteringMethod: HysteresisFilter::filter";
+
   // Use integer to represent mode as of now, for instance,
   // 1 is throttle, 0 is brake, then threshold is speed error
   if (input_value > threshold + hysteresis_upper) {

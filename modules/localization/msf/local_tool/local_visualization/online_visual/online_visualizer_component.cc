@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -28,13 +29,17 @@ namespace apollo {
 namespace localization {
 namespace msf {
 
-OnlineVisualizerComponent::OnlineVisualizerComponent() {}
+OnlineVisualizerComponent::OnlineVisualizerComponent() {
+    AINFO<<"(DMCZP) EnteringMethod: OnlineVisualizerComponent::OnlineVisualizerComponent";
+}
 
 OnlineVisualizerComponent::~OnlineVisualizerComponent() {
   VisualizationManager::GetInstance().StopVisualization();
 }
 
 bool OnlineVisualizerComponent::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: OnlineVisualizerComponent::Init";
+
   if (!InitConfig()) {
     AERROR << "InitParams failed.";
     return false;
@@ -51,6 +56,8 @@ bool OnlineVisualizerComponent::Init() {
 }
 
 bool OnlineVisualizerComponent::InitConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: OnlineVisualizerComponent::InitConfig";
+
   map_folder_ = FLAGS_map_dir + "/" + FLAGS_local_map_name;
   map_visual_folder_ = FLAGS_map_visual_dir;
   lidar_extrinsic_file_ = FLAGS_lidar_extrinsics_file;
@@ -94,6 +101,8 @@ bool OnlineVisualizerComponent::InitConfig() {
 }
 
 bool OnlineVisualizerComponent::InitIO() {
+    AINFO<<"(DMCZP) EnteringMethod: OnlineVisualizerComponent::InitIO";
+
   // Lidar localization
   std::function<void(const std::shared_ptr<LocalizationEstimate> &)>
       lidar_local_call =
@@ -131,6 +140,8 @@ bool OnlineVisualizerComponent::InitIO() {
 
 bool OnlineVisualizerComponent::Proc(
     const std::shared_ptr<drivers::PointCloud> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: OnlineVisualizerComponent::Proc";
+
   LidarVisFrame lidar_vis_frame;
   lidar_vis_frame.timestamp = cyber::Time(msg->measurement_time()).ToSecond();
 
@@ -147,6 +158,8 @@ bool OnlineVisualizerComponent::Proc(
 
 void OnlineVisualizerComponent::OnLidarLocalization(
     const std::shared_ptr<LocalizationEstimate> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: OnlineVisualizerComponent::OnLidarLocalization";
+
   LocalizationMsg lidar_loc_msg;
 
   lidar_loc_msg.timestamp = msg->measurement_time();
@@ -174,6 +187,8 @@ void OnlineVisualizerComponent::OnLidarLocalization(
 
 void OnlineVisualizerComponent::OnGNSSLocalization(
     const std::shared_ptr<LocalizationEstimate> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: OnlineVisualizerComponent::OnGNSSLocalization";
+
   LocalizationMsg gnss_loc_msg;
 
   gnss_loc_msg.timestamp = msg->measurement_time();
@@ -201,6 +216,8 @@ void OnlineVisualizerComponent::OnGNSSLocalization(
 
 void OnlineVisualizerComponent::OnFusionLocalization(
     const std::shared_ptr<LocalizationEstimate> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: OnlineVisualizerComponent::OnFusionLocalization";
+
   LocalizationMsg fusion_loc_msg;
 
   fusion_loc_msg.timestamp = msg->measurement_time();
@@ -230,6 +247,8 @@ void OnlineVisualizerComponent::ParsePointCloudMessage(
     const std::shared_ptr<drivers::PointCloud> &msg,
     std::vector<Eigen::Vector3d> *pt3ds,
     std::vector<unsigned char> *intensities) {
+    AINFO<<"(DMCZP) EnteringMethod: OnlineVisualizerComponent::ParsePointCloudMessage";
+
   CHECK_NOTNULL(pt3ds);
   CHECK_NOTNULL(intensities);
 

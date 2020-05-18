@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -18,9 +19,13 @@
 
 Grid::Grid(int cellCountBySide)
     : RenderableObject((cellCountBySide << 2) + 4, 2),
-      grid_color_(128, 128, 128) {}
+      grid_color_(128, 128, 128) {
+    AINFO<<"(DMCZP) EnteringMethod: Grid::Grid";
+}
 
 bool Grid::FillVertexBuffer(GLfloat* pBuffer) {
+    AINFO<<"(DMCZP) EnteringMethod: Grid::FillVertexBuffer";
+
   float x = static_cast<float>(CellCount()) / 2.0f;
   float z;
 

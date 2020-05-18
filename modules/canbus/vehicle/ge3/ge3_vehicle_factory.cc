@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -24,11 +25,15 @@ namespace canbus {
 
 std::unique_ptr<VehicleController>
 Ge3VehicleFactory::CreateVehicleController() {
+    AINFO<<"(DMCZP) EnteringMethod: Ge3VehicleFactory::CreateVehicleController";
+
   return std::unique_ptr<VehicleController>(new ge3::Ge3Controller());
 }
 
 std::unique_ptr<MessageManager<::apollo::canbus::ChassisDetail>>
 Ge3VehicleFactory::CreateMessageManager() {
+    AINFO<<"(DMCZP) EnteringMethod: Ge3VehicleFactory::CreateMessageManager";
+
   return std::unique_ptr<MessageManager<::apollo::canbus::ChassisDetail>>(
       new ge3::Ge3MessageManager());
 }

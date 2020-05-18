@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -22,11 +23,15 @@ namespace pyramid_map {
 
 PyramidMapNodePool::PyramidMapNodePool(unsigned int pool_size,
                                        unsigned int thread_size)
-    : BaseMapNodePool(pool_size, thread_size) {}
+    : BaseMapNodePool(pool_size, thread_size) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapNodePool::PyramidMapNodePool";
+}
 
 PyramidMapNodePool::~PyramidMapNodePool() {}
 
 BaseMapNode* PyramidMapNodePool::AllocNewMapNode() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapNodePool::AllocNewMapNode";
+
   return new PyramidMapNode();
 }
 

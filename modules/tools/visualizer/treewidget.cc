@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -18,9 +19,13 @@
 
 #include <QtGui/QResizeEvent>
 
-TreeWidget::TreeWidget(QWidget *parent) : QTreeWidget(parent) {}
+TreeWidget::TreeWidget(QWidget *parent) : QTreeWidget(parent) {
+    AINFO<<"(DMCZP) EnteringMethod: TreeWidget::TreeWidget";
+}
 
 void TreeWidget::resizeEvent(QResizeEvent *event) {
+    AINFO<<"(DMCZP) EnteringMethod: TreeWidget::resizeEvent";
+
   QTreeWidget::resizeEvent(event);
   int cw = width() / columnCount();
   for (int i = 0; i < columnCount(); ++i) {
@@ -29,6 +34,8 @@ void TreeWidget::resizeEvent(QResizeEvent *event) {
 }
 
 bool TreeWidget::event(QEvent *e) {
+    AINFO<<"(DMCZP) EnteringMethod: TreeWidget::event";
+
   bool b = QTreeWidget::event(e);
   if (e->type() == QEvent::Hide) {
     emit visibilityChanged(false);

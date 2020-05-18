@@ -51,6 +51,8 @@ ErrorCode LincolnController::Init(
     const VehicleParameter &params,
     CanSender<::apollo::canbus::ChassisDetail> *const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail> *const message_manager) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Init";
+
   if (is_initialized_) {
     AINFO << "LincolnController has already been initiated.";
     return ErrorCode::CANBUS_ERROR;
@@ -124,6 +126,8 @@ ErrorCode LincolnController::Init(
 }
 
 bool LincolnController::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Start";
+
   if (!is_initialized_) {
     AERROR << "LincolnController has NOT been initiated.";
     return false;
@@ -135,6 +139,8 @@ bool LincolnController::Start() {
 }
 
 void LincolnController::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Stop";
+
   if (!is_initialized_) {
     AERROR << "LincolnController stops or starts improperly!";
     return;
@@ -148,6 +154,8 @@ void LincolnController::Stop() {
 }
 
 Chassis LincolnController::chassis() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::chassis";
+
   chassis_.Clear();
 
   ChassisDetail chassis_detail;
@@ -381,6 +389,8 @@ Chassis LincolnController::chassis() {
 }
 
 void LincolnController::Emergency() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Emergency";
+
   set_driving_mode(Chassis::EMERGENCY_MODE);
   ResetProtocol();
   if (chassis_error_code() == Chassis::NO_ERROR) {
@@ -389,6 +399,8 @@ void LincolnController::Emergency() {
 }
 
 ErrorCode LincolnController::EnableAutoMode() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::EnableAutoMode";
+
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE) {
     AINFO << "Already in COMPLETE_AUTO_DRIVE mode";
     return ErrorCode::OK;
@@ -412,6 +424,8 @@ ErrorCode LincolnController::EnableAutoMode() {
 }
 
 ErrorCode LincolnController::DisableAutoMode() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::DisableAutoMode";
+
   ResetProtocol();
   can_sender_->Update();
   set_driving_mode(Chassis::COMPLETE_MANUAL);
@@ -421,6 +435,8 @@ ErrorCode LincolnController::DisableAutoMode() {
 }
 
 ErrorCode LincolnController::EnableSteeringOnlyMode() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::EnableSteeringOnlyMode";
+
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode() == Chassis::AUTO_STEER_ONLY) {
     set_driving_mode(Chassis::AUTO_STEER_ONLY);
@@ -444,6 +460,8 @@ ErrorCode LincolnController::EnableSteeringOnlyMode() {
 }
 
 ErrorCode LincolnController::EnableSpeedOnlyMode() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::EnableSpeedOnlyMode";
+
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode() == Chassis::AUTO_SPEED_ONLY) {
     set_driving_mode(Chassis::AUTO_SPEED_ONLY);
@@ -468,6 +486,8 @@ ErrorCode LincolnController::EnableSpeedOnlyMode() {
 
 // NEUTRAL, REVERSE, DRIVE
 void LincolnController::Gear(Chassis::GearPosition ref_gear_position) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Gear";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "This drive mode no need to set gear.";
@@ -535,6 +555,8 @@ void LincolnController::Gear(Chassis::GearPosition ref_gear_position) {
 // acceleration_spd:60 ~ 100, suggest: 90
 // -> pedal
 void LincolnController::Brake(double pedal) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Brake";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set acceleration.";
@@ -546,6 +568,8 @@ void LincolnController::Brake(double pedal) {
 // drive with old acceleration
 // gas:0.00~99.99 unit:%
 void LincolnController::Throttle(double pedal) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Throttle";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set acceleration.";
@@ -557,6 +581,8 @@ void LincolnController::Throttle(double pedal) {
 // drive with acceleration/deceleration
 // acc:-7.0 ~ 5.0, unit:m/s^2
 void LincolnController::Acceleration(double acc) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Acceleration";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set acceleration.";
@@ -570,6 +596,8 @@ void LincolnController::Acceleration(double acc) {
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:%, left:-, right:+
 void LincolnController::Steer(double angle) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Steer";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
@@ -585,6 +613,8 @@ void LincolnController::Steer(double angle) {
 // angle:-99.99~0.00~99.99, unit:%, left:-, right:+
 // angle_spd:0.00~99.99, unit:deg/s
 void LincolnController::Steer(double angle, double angle_spd) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::Steer";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
@@ -603,6 +633,8 @@ void LincolnController::Steer(double angle, double angle_spd) {
 }
 
 void LincolnController::SetEpbBreak(const ControlCommand &command) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::SetEpbBreak";
+
   if (command.parking_brake()) {
     // None
   } else {
@@ -611,6 +643,8 @@ void LincolnController::SetEpbBreak(const ControlCommand &command) {
 }
 
 void LincolnController::SetBeam(const ControlCommand &command) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::SetBeam";
+
   if (command.signal().high_beam()) {
     // None
   } else if (command.signal().low_beam()) {
@@ -621,6 +655,8 @@ void LincolnController::SetBeam(const ControlCommand &command) {
 }
 
 void LincolnController::SetHorn(const ControlCommand &command) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::SetHorn";
+
   if (command.signal().horn()) {
     // None
   } else {
@@ -629,6 +665,8 @@ void LincolnController::SetHorn(const ControlCommand &command) {
 }
 
 void LincolnController::SetTurningSignal(const ControlCommand &command) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::SetTurningSignal";
+
   // Set Turn Signal
   auto signal = command.signal().turn_signal();
   if (signal == common::VehicleSignal::TURN_LEFT) {
@@ -641,10 +679,14 @@ void LincolnController::SetTurningSignal(const ControlCommand &command) {
 }
 
 void LincolnController::ResetProtocol() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::ResetProtocol";
+
   message_manager_->ResetSendMessages();
 }
 
 bool LincolnController::CheckChassisError() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::CheckChassisError";
+
   ChassisDetail chassis_detail;
   message_manager_->GetSensorData(&chassis_detail);
 
@@ -767,6 +809,8 @@ bool LincolnController::CheckChassisError() {
 }
 
 void LincolnController::SecurityDogThreadFunc() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::SecurityDogThreadFunc";
+
   if (can_sender_ == nullptr) {
     AERROR << "Failed to run SecurityDogThreadFunc() because can_sender_ is "
               "nullptr.";
@@ -833,6 +877,8 @@ void LincolnController::SecurityDogThreadFunc() {
 }
 
 bool LincolnController::CheckResponse(const int32_t flags, bool need_wait) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::CheckResponse";
+
   // for Lincoln, CheckResponse commonly takes 300ms. We leave a 100ms buffer
   // for it.
   int32_t retry_num = 20;
@@ -881,28 +927,38 @@ bool LincolnController::CheckResponse(const int32_t flags, bool need_wait) {
 }
 
 void LincolnController::set_chassis_error_mask(const int32_t mask) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::set_chassis_error_mask";
+
   std::lock_guard<std::mutex> lock(chassis_mask_mutex_);
   chassis_error_mask_ = mask;
 }
 
 int32_t LincolnController::chassis_error_mask() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::chassis_error_mask";
+
   std::lock_guard<std::mutex> lock(chassis_mask_mutex_);
   return chassis_error_mask_;
 }
 
 Chassis::ErrorCode LincolnController::chassis_error_code() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::chassis_error_code";
+
   std::lock_guard<std::mutex> lock(chassis_error_code_mutex_);
   return chassis_error_code_;
 }
 
 void LincolnController::set_chassis_error_code(
     const Chassis::ErrorCode &error_code) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::set_chassis_error_code";
+
   std::lock_guard<std::mutex> lock(chassis_error_code_mutex_);
   chassis_error_code_ = error_code;
 }
 
 bool LincolnController::CheckSafetyError(
     const ::apollo::canbus::ChassisDetail &chassis_detail) {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnController::CheckSafetyError";
+
   bool safety_error =
       chassis_detail.safety().is_passenger_door_open() ||
       chassis_detail.safety().is_rearleft_door_open() ||

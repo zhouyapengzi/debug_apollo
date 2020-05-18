@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -25,9 +26,13 @@ namespace msf {
  * @param <thread_size> The thread pool size.
  */
 NdtMapNodePool::NdtMapNodePool(unsigned int pool_size, unsigned int thread_size)
-    : BaseMapNodePool(pool_size, thread_size) {}
+    : BaseMapNodePool(pool_size, thread_size) {
+    AINFO<<"(DMCZP) EnteringMethod: NdtMapNodePool::NdtMapNodePool";
+}
 
-BaseMapNode* NdtMapNodePool::AllocNewMapNode() { return new NdtMapNode(); }
+BaseMapNode* NdtMapNodePool::AllocNewMapNode() {
+    AINFO<<"(DMCZP) EnteringMethod: NdtMapNodePool::AllocNewMapNode";
+ return new NdtMapNode(); }
 
 }  // namespace msf
 }  // namespace localization

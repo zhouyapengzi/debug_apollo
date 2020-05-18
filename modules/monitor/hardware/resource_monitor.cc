@@ -40,11 +40,17 @@ DEFINE_double(resource_monitor_interval, 5,
               "Topic status checking interval (s).");
 
 namespace apollo {
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
 namespace monitor {
 
 namespace {
 
 bool GetPIDByCmdLine(const std::string& process_dag_path, int* pid) {
+    AINFO<<"(DMCZP) EnteringMethod: GetPIDByCmdLine";
+
   const std::string system_proc_path = "/proc";
   const std::string proc_cmdline_path = "/cmdline";
   const auto dirs = cyber::common::ListSubPaths(system_proc_path);
@@ -80,6 +86,8 @@ std::vector<std::string> GetStatsLines(const std::string& stat_file,
 }
 
 float GetMemoryUsage(const int pid, const std::string& process_name) {
+    AINFO<<"(DMCZP) EnteringMethod: GetMemoryUsage";
+
   const std::string memory_stat_file = absl::StrCat("/proc/", pid, "/statm");
   const uint32_t page_size_kb = (sysconf(_SC_PAGE_SIZE) >> 10);
   const int resident_idx = 1, gb_2_kb = (1 << 20);
@@ -102,6 +110,8 @@ float GetMemoryUsage(const int pid, const std::string& process_name) {
 
 float GetCPUUsage(const int pid, const std::string& process_name,
                   std::unordered_map<std::string, uint64_t>* prev_jiffies_map) {
+    AINFO<<"(DMCZP) EnteringMethod: GetCPUUsage";
+
   const std::string cpu_stat_file = absl::StrCat("/proc/", pid, "/stat");
   const int hertz = sysconf(_SC_CLK_TCK);
   const int utime = 13, stime = 14, cutime = 15, cstime = 16;
@@ -131,6 +141,8 @@ float GetCPUUsage(const int pid, const std::string& process_name,
 }
 
 uint64_t GetSystemMemoryValueFromLine(std::string stat_line) {
+    AINFO<<"(DMCZP) EnteringMethod: GetSystemMemoryValueFromLine";
+
   constexpr static int kMemoryValueIdx = 1;
   const std::vector<std::string> stats =
       absl::StrSplit(stat_line, ' ', absl::SkipWhitespace());
@@ -142,6 +154,8 @@ uint64_t GetSystemMemoryValueFromLine(std::string stat_line) {
 }
 
 float GetSystemMemoryUsage() {
+    AINFO<<"(DMCZP) EnteringMethod: GetSystemMemoryUsage";
+
   const std::string system_mem_stat_file = "/proc/meminfo";
   const int mem_total = 0, mem_free = 1, buffers = 3, cached = 4,
             swap_total = 14, swap_free = 15, slab = 21;
@@ -164,6 +178,8 @@ float GetSystemMemoryUsage() {
 }
 
 float GetSystemCPUUsage() {
+    AINFO<<"(DMCZP) EnteringMethod: GetSystemCPUUsage";
+
   const std::string system_cpu_stat_file = "/proc/stat";
   const int users = 1, system = 3, total = 7;
   constexpr static int kSystemCpuInfo = 0;
@@ -200,6 +216,8 @@ float GetSystemCPUUsage() {
 }
 
 float GetSystemDiskload(const std::string& device_name) {
+    AINFO<<"(DMCZP) EnteringMethod: GetSystemDiskload";
+
   const std::string disks_stat_file = "/proc/diskstats";
   const int device = 2, in_out_ms = 12;
   const int seconds_to_ms = 1000;
@@ -230,9 +248,13 @@ float GetSystemDiskload(const std::string& device_name) {
 
 ResourceMonitor::ResourceMonitor()
     : RecurrentRunner(FLAGS_resource_monitor_name,
-                      FLAGS_resource_monitor_interval) {}
+                      FLAGS_resource_monitor_interval) {
+    AINFO<<"(DMCZP) EnteringMethod: ResourceMonitor::ResourceMonitor";
+}
 
 void ResourceMonitor::RunOnce(const double current_time) {
+    AINFO<<"(DMCZP) EnteringMethod: ResourceMonitor::RunOnce";
+
   auto manager = MonitorManager::Instance();
   const auto& mode = manager->GetHMIMode();
   auto* components = manager->GetStatus()->mutable_components();
@@ -250,6 +272,8 @@ void ResourceMonitor::RunOnce(const double current_time) {
 void ResourceMonitor::UpdateStatus(
     const apollo::dreamview::ResourceMonitorConfig& config,
     ComponentStatus* status) {
+    AINFO<<"(DMCZP) EnteringMethod: ResourceMonitor::UpdateStatus";
+
   status->clear_status();
   CheckDiskSpace(config, status);
   CheckCPUUsage(config, status);
@@ -261,6 +285,8 @@ void ResourceMonitor::UpdateStatus(
 void ResourceMonitor::CheckDiskSpace(
     const apollo::dreamview::ResourceMonitorConfig& config,
     ComponentStatus* status) {
+    AINFO<<"(DMCZP) EnteringMethod: ResourceMonitor::CheckDiskSpace";
+
   // Monitor available disk space.
   for (const auto& disk_space : config.disk_spaces()) {
     for (const auto& path : cyber::common::Glob(disk_space.path())) {
@@ -284,6 +310,8 @@ void ResourceMonitor::CheckDiskSpace(
 void ResourceMonitor::CheckCPUUsage(
     const apollo::dreamview::ResourceMonitorConfig& config,
     ComponentStatus* status) {
+    AINFO<<"(DMCZP) EnteringMethod: ResourceMonitor::CheckCPUUsage";
+
   for (const auto& cpu_usage : config.cpu_usages()) {
     const auto process_dag_path = cpu_usage.process_dag_path();
     float cpu_usage_value = 0.f;
@@ -318,6 +346,8 @@ void ResourceMonitor::CheckCPUUsage(
 void ResourceMonitor::CheckMemoryUsage(
     const apollo::dreamview::ResourceMonitorConfig& config,
     ComponentStatus* status) {
+    AINFO<<"(DMCZP) EnteringMethod: ResourceMonitor::CheckMemoryUsage";
+
   for (const auto& memory_usage : config.memory_usages()) {
     const auto process_dag_path = memory_usage.process_dag_path();
     float memory_usage_value = 0.f;
@@ -348,6 +378,8 @@ void ResourceMonitor::CheckMemoryUsage(
 void ResourceMonitor::CheckDiskLoads(
     const apollo::dreamview::ResourceMonitorConfig& config,
     ComponentStatus* status) {
+    AINFO<<"(DMCZP) EnteringMethod: ResourceMonitor::CheckDiskLoads";
+
   for (const auto& disk_load : config.disk_load_usages()) {
     const auto disk_load_value = GetSystemDiskload(disk_load.device_name());
     const auto high_disk_load_warning = disk_load.high_disk_load_warning();

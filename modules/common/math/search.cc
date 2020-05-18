@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -25,6 +26,8 @@ namespace math {
 double GoldenSectionSearch(const std::function<double(double)> &func,
                            const double lower_bound, const double upper_bound,
                            const double tol) {
+    AINFO<<"(DMCZP) EnteringMethod: GoldenSectionSearch";
+
   static constexpr double gr = 1.618033989;  // (sqrt(5) + 1) / 2
 
   double a = lower_bound;

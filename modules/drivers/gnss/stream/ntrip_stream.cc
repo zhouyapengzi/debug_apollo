@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -29,6 +30,8 @@ namespace {
 
 template <typename T>
 constexpr bool is_zero(T value) {
+    AINFO<<"(DMCZP) EnteringMethod: is_zero";
+
   return value == static_cast<T>(0);
 }
 }  // namespace
@@ -77,11 +80,15 @@ NtripStream::NtripStream(const std::string& address, uint16_t port,
                   "Authorization: Basic " +
                   common::util::EncodeBase64(user + ":" + passwd) + "\r\n\r\n"),
       timeout_s_(timeout_s),
-      tcp_stream_(new TcpStream(address.c_str(), port, 0, false)) {}
+      tcp_stream_(new TcpStream(address.c_str(), port, 0, false)) {
+    AINFO<<"(DMCZP) EnteringMethod: NtripStream::NtripStream";
+}
 
 NtripStream::~NtripStream() { this->Disconnect(); }
 
 bool NtripStream::Connect() {
+    AINFO<<"(DMCZP) EnteringMethod: NtripStream::Connect";
+
   if (is_login_) {
     return true;
   }
@@ -150,6 +157,8 @@ bool NtripStream::Connect() {
 }
 
 bool NtripStream::Disconnect() {
+    AINFO<<"(DMCZP) EnteringMethod: NtripStream::Disconnect";
+
   if (is_login_) {
     bool ret = tcp_stream_->Disconnect();
     if (!ret) {
@@ -163,6 +172,8 @@ bool NtripStream::Disconnect() {
 }
 
 void NtripStream::Reconnect() {
+    AINFO<<"(DMCZP) EnteringMethod: NtripStream::Reconnect";
+
   AINFO << "Reconnect ntrip caster.";
   std::unique_lock<std::mutex> lock(internal_mutex_);
   Disconnect();
@@ -177,6 +188,8 @@ void NtripStream::Reconnect() {
 }
 
 size_t NtripStream::read(uint8_t* buffer, size_t max_length) {
+    AINFO<<"(DMCZP) EnteringMethod: NtripStream::read";
+
   if (!tcp_stream_) {
     return 0;
   }
@@ -209,6 +222,8 @@ size_t NtripStream::read(uint8_t* buffer, size_t max_length) {
 }
 
 size_t NtripStream::write(const uint8_t* buffer, size_t length) {
+    AINFO<<"(DMCZP) EnteringMethod: NtripStream::write";
+
   if (!tcp_stream_) {
     return 0;
   }
@@ -239,6 +254,8 @@ Stream* Stream::create_ntrip(const std::string& address, uint16_t port,
                              const std::string& mountpoint,
                              const std::string& user, const std::string& passwd,
                              uint32_t timeout_s) {
+    AINFO<<"(DMCZP) EnteringMethod: Stream::create_ntrip";
+
   return new NtripStream(address, port, mountpoint, user, passwd, timeout_s);
 }
 

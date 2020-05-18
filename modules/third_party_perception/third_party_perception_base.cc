@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
@@ -28,6 +29,8 @@ using apollo::perception::PerceptionObstacles;
 
 ThirdPartyPerception::ThirdPartyPerception(
     apollo::cyber::Node* const node) : node_(node) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerception::ThirdPartyPerception";
+
 
   localization_reader_ =
       node_->CreateReader<apollo::localization::LocalizationEstimate>(
@@ -46,30 +49,44 @@ ThirdPartyPerception::ThirdPartyPerception(
 }
 
 std::string ThirdPartyPerception::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerception::Name";
+
   return FLAGS_third_party_perception_node_name;
 }
 
 Status ThirdPartyPerception::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerception::Init";
+
   return Status::OK();
 }
 
-Status ThirdPartyPerception::Start() { return Status::OK(); }
+Status ThirdPartyPerception::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerception::Start";
+ return Status::OK(); }
 
-void ThirdPartyPerception::Stop() {}
+void ThirdPartyPerception::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerception::Stop";
+}
 
 void ThirdPartyPerception::OnChassis(const Chassis& message) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerception::OnChassis";
+
   ADEBUG << "Received chassis data: run chassis callback.";
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   chassis_.CopyFrom(message);
 }
 
 void ThirdPartyPerception::OnLocalization(const LocalizationEstimate& message) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerception::OnLocalization";
+
   ADEBUG << "Received localization data: run localization callback.";
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   localization_.CopyFrom(message);
 }
 
 bool ThirdPartyPerception::Process(PerceptionObstacles* const response) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerception::Process";
+
   return true;
 }
 

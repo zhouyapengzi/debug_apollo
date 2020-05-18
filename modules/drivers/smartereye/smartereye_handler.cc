@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
@@ -31,6 +32,8 @@ namespace smartereye {
 
 SmartereyeHandler::SmartereyeHandler(std::string name)
     : mName(name) {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeHandler::SmartereyeHandler";
+
   pCallbackFunc = nullptr;
 }
 
@@ -39,12 +42,16 @@ SmartereyeHandler::~SmartereyeHandler() {
 }
 
 bool SmartereyeHandler::SetCallback(CallbackFunc ptr) {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeHandler::SetCallback";
+
   pCallbackFunc = ptr;
 
   return true;
 }
 
 void SmartereyeHandler::handleRawFrame(const RawImageFrame *rawFrame) {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeHandler::handleRawFrame";
+
   pCallbackFunc(const_cast<RawImageFrame *>(rawFrame));
 }
 

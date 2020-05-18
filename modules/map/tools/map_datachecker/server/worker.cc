@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -28,11 +29,15 @@ namespace apollo {
 namespace hdmap {
 
 bool Mapdatachecker::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: Mapdatachecker::Init";
+
   grpc_address_ = FLAGS_map_datachecker_host + ":" + FLAGS_map_datachecker_port;
   return true;
 }
 
 bool Mapdatachecker::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: Mapdatachecker::Start";
+
   AINFO << "Mapdatachecker::Start";
   Init();
 
@@ -62,9 +67,13 @@ bool Mapdatachecker::Start() {
   return true;
 }
 
-bool Mapdatachecker::Stop() { return true; }
+bool Mapdatachecker::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: Mapdatachecker::Stop";
+ return true; }
 
-void Mapdatachecker::Report() {}
+void Mapdatachecker::Report() {
+    AINFO<<"(DMCZP) EnteringMethod: Mapdatachecker::Report";
+}
 
 }  // namespace hdmap
 }  // namespace apollo

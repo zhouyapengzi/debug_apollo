@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -22,9 +23,13 @@
 DECLARE_string(flagfile);
 
 namespace apollo {
+    AINFO<<"(DMCZP) EnteringMethod: DECLARE_string";
+
 namespace third_party_perception {
 
 bool ThirdPartyPerceptionComponent::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionComponent::Init";
+
   apollo::third_party_perception::ThirdPartyPerceptionDevice
           third_party_perception_param;
   if (!GetProtoConfig(&third_party_perception_param)) {
@@ -55,6 +60,8 @@ bool ThirdPartyPerceptionComponent::Init() {
 }
 
 bool ThirdPartyPerceptionComponent::Proc() {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionComponent::Proc";
+
   auto response = std::make_shared<apollo::perception::PerceptionObstacles>();
   if (!perception_->Process(response.get())) {
     return false;

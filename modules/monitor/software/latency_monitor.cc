@@ -42,6 +42,14 @@ DEFINE_int32(latency_reader_capacity, 30,
              "The max message numbers in latency reader queue.");
 
 namespace apollo {
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_int32";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
 namespace monitor {
 
 namespace {
@@ -52,6 +60,8 @@ using apollo::common::LatencyStat;
 using apollo::common::LatencyTrack;
 
 LatencyStat GenerateStat(const std::vector<uint64_t>& numbers) {
+    AINFO<<"(DMCZP) EnteringMethod: GenerateStat";
+
   LatencyStat stat;
   uint64_t min_number = (1UL << 63), max_number = 0, sum = 0;
   for (const auto number : numbers) {
@@ -69,6 +79,8 @@ LatencyStat GenerateStat(const std::vector<uint64_t>& numbers) {
 }
 
 void SetStat(const LatencyStat& src, LatencyStat* dst) {
+    AINFO<<"(DMCZP) EnteringMethod: SetStat";
+
   dst->set_min_duration(src.min_duration());
   dst->set_max_duration(src.max_duration());
   dst->set_aver_duration(src.aver_duration());
@@ -78,6 +90,8 @@ void SetStat(const LatencyStat& src, LatencyStat* dst) {
 void SetLatency(const std::string& latency_name,
                 const std::vector<uint64_t>& latency_values,
                 LatencyTrack* track) {
+    AINFO<<"(DMCZP) EnteringMethod: SetLatency";
+
   auto* latency_track = track->add_latency_track();
   latency_track->set_latency_name(latency_name);
   SetStat(GenerateStat(latency_values), latency_track->mutable_latency_stat());
@@ -87,9 +101,13 @@ void SetLatency(const std::string& latency_name,
 
 LatencyMonitor::LatencyMonitor()
     : RecurrentRunner(FLAGS_latency_monitor_name,
-                      FLAGS_latency_monitor_interval) {}
+                      FLAGS_latency_monitor_interval) {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyMonitor::LatencyMonitor";
+}
 
 void LatencyMonitor::RunOnce(const double current_time) {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyMonitor::RunOnce";
+
   static auto reader =
       MonitorManager::Instance()->CreateReader<LatencyRecordMap>(
           FLAGS_latency_recording_topic);
@@ -121,6 +139,8 @@ void LatencyMonitor::RunOnce(const double current_time) {
 
 void LatencyMonitor::UpdateStat(
     const std::shared_ptr<LatencyRecordMap>& records) {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyMonitor::UpdateStat";
+
   const auto module_name = records->module_name();
   for (const auto& record : records->latency_records()) {
     track_map_[record.message_id()].emplace(record.begin_time(),
@@ -139,6 +159,8 @@ void LatencyMonitor::UpdateStat(
 }
 
 void LatencyMonitor::PublishLatencyReport() {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyMonitor::PublishLatencyReport";
+
   static auto writer = MonitorManager::Instance()->CreateWriter<LatencyReport>(
       FLAGS_latency_reporting_topic);
   apollo::common::util::FillHeader("LatencyReport", &latency_report_);
@@ -151,6 +173,8 @@ void LatencyMonitor::PublishLatencyReport() {
 }
 
 void LatencyMonitor::AggregateLatency() {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyMonitor::AggregateLatency";
+
   static const std::string kE2EStartPoint = FLAGS_pointcloud_topic;
   std::unordered_map<std::string, std::vector<uint64_t>> modules_track;
   std::unordered_map<std::string, std::vector<uint64_t>> e2es_track;
@@ -214,6 +238,8 @@ void LatencyMonitor::AggregateLatency() {
 
 bool LatencyMonitor::GetFrequency(const std::string& channel_name,
                                   double* freq) {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyMonitor::GetFrequency";
+
   if (freq_map_.find(channel_name) == freq_map_.end()) {
     return false;
   }

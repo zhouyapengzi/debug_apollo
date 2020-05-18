@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -40,15 +41,21 @@ using apollo::localization::LocalizationEstimate;
 using apollo::planning::ADCTrajectory;
 
 PreprocessorSubmodule::PreprocessorSubmodule()
-    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::CONTROL) {}
+    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::CONTROL) {
+    AINFO<<"(DMCZP) EnteringMethod: PreprocessorSubmodule::PreprocessorSubmodule";
+}
 
 PreprocessorSubmodule::~PreprocessorSubmodule() {}
 
 std::string PreprocessorSubmodule::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: PreprocessorSubmodule::Name";
+
   return FLAGS_preprocessor_submodule_name;
 }
 
 bool PreprocessorSubmodule::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: PreprocessorSubmodule::Init";
+
   CHECK(cyber::common::GetProtoFromFile(FLAGS_control_common_conf_file,
                                         &control_common_conf_))
       << "Unable to load control common conf file: "
@@ -63,6 +70,8 @@ bool PreprocessorSubmodule::Init() {
 }
 
 bool PreprocessorSubmodule::Proc(const std::shared_ptr<LocalView> &local_view) {
+    AINFO<<"(DMCZP) EnteringMethod: PreprocessorSubmodule::Proc";
+
   ADEBUG << "Preprocessor started ....";
   const auto start_time = Clock::Now();
 
@@ -119,6 +128,8 @@ bool PreprocessorSubmodule::Proc(const std::shared_ptr<LocalView> &local_view) {
 
 Status PreprocessorSubmodule::ProducePreprocessorStatus(
     Preprocessor *control_preprocessor) {
+    AINFO<<"(DMCZP) EnteringMethod: PreprocessorSubmodule::ProducePreprocessorStatus";
+
   // TODO(SJiang): rename this function since local view got changed in this
   // function.
   Status status = CheckInput(control_preprocessor->mutable_local_view());
@@ -207,6 +218,8 @@ Status PreprocessorSubmodule::ProducePreprocessorStatus(
 }
 
 Status PreprocessorSubmodule::CheckInput(LocalView *local_view) {
+    AINFO<<"(DMCZP) EnteringMethod: PreprocessorSubmodule::CheckInput";
+
   ADEBUG << "Received localization:"
          << local_view->localization().ShortDebugString();
   ADEBUG << "Received chassis:" << local_view->chassis().ShortDebugString();
@@ -238,6 +251,8 @@ Status PreprocessorSubmodule::CheckInput(LocalView *local_view) {
 }
 
 Status PreprocessorSubmodule::CheckTimestamp(const LocalView &local_view) {
+    AINFO<<"(DMCZP) EnteringMethod: PreprocessorSubmodule::CheckTimestamp";
+
   if (!control_common_conf_.enable_input_timestamp_check() ||
       control_common_conf_.is_control_test_mode()) {
     ADEBUG << "Skip input timestamp check by gflags.";

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -22,7 +23,9 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-PyramidMapNodeConfig::PyramidMapNodeConfig() {}
+PyramidMapNodeConfig::PyramidMapNodeConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapNodeConfig::PyramidMapNodeConfig";
+}
 
 PyramidMapNodeConfig::~PyramidMapNodeConfig() {}
 

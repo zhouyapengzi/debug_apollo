@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -44,6 +45,8 @@ bool GetProtobufFloatByFieldName(const google::protobuf::Message& message,
                                  const google::protobuf::Descriptor* descriptor,
                                  const google::protobuf::Reflection* reflection,
                                  const std::string& field_name, float* value) {
+    AINFO<<"(DMCZP) EnteringMethod: GetProtobufFloatByFieldName";
+
   if (!descriptor) {
     AERROR << "Protobuf descriptor not found";
     return false;
@@ -71,6 +74,8 @@ bool GetProtobufFloatByFieldName(const google::protobuf::Message& message,
 bool IsCompliedWithCriterion(float actual_value,
                              const ComparisonOperator& comparison_operator,
                              float target_value) {
+    AINFO<<"(DMCZP) EnteringMethod: IsCompliedWithCriterion";
+
   switch (comparison_operator) {
     case ComparisonOperator::EQUAL:
       return std::fabs(actual_value - target_value) <
@@ -95,6 +100,8 @@ bool IsCompliedWithCriterion(float actual_value,
 
 DataCollectionMonitor::DataCollectionMonitor()
     : node_(cyber::CreateNode("data_collection_monitor")) {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::DataCollectionMonitor";
+
   InitReaders();
   LoadConfiguration();
 }
@@ -102,6 +109,8 @@ DataCollectionMonitor::DataCollectionMonitor()
 DataCollectionMonitor::~DataCollectionMonitor() { Stop(); }
 
 void DataCollectionMonitor::InitReaders() {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::InitReaders";
+
   node_->CreateReader<Chassis>(FLAGS_chassis_topic,
                                [this](const std::shared_ptr<Chassis>& chassis) {
                                  this->OnChassis(chassis);
@@ -109,6 +118,8 @@ void DataCollectionMonitor::InitReaders() {
 }
 
 void DataCollectionMonitor::LoadConfiguration() {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::LoadConfiguration";
+
   const std::string& vehicle_dir =
       VehicleManager::Instance()->GetVehicleDataPath();
   std::string data_collection_config_path =
@@ -130,6 +141,8 @@ void DataCollectionMonitor::LoadConfiguration() {
 }
 
 void DataCollectionMonitor::ConstructCategories() {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::ConstructCategories";
+
   scenario_to_categories_.clear();
 
   for (const auto& scenario_iter : data_collection_table_.scenario()) {
@@ -144,6 +157,8 @@ void DataCollectionMonitor::ConstructCategories() {
 void DataCollectionMonitor::ConstructCategoriesHelper(
     const std::string& scenario_name, const Scenario& scenario, int feature_idx,
     std::string current_category_name, const Category& current_category) {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::ConstructCategoriesHelper";
+
   if (feature_idx == scenario.feature_size()) {
     scenario_to_categories_[scenario_name].insert(
         {current_category_name, current_category});
@@ -176,6 +191,8 @@ void DataCollectionMonitor::ConstructCategoriesHelper(
 }
 
 void DataCollectionMonitor::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::Start";
+
   if (!enabled_) {
     category_consecutive_frame_count_.clear();
     category_frame_count_.clear();
@@ -185,14 +202,20 @@ void DataCollectionMonitor::Start() {
   enabled_ = true;
 }
 
-void DataCollectionMonitor::Stop() { enabled_ = false; }
+void DataCollectionMonitor::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::Stop";
+ enabled_ = false; }
 
 void DataCollectionMonitor::Restart() {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::Restart";
+
   Stop();
   Start();
 }
 
 void DataCollectionMonitor::OnChassis(const std::shared_ptr<Chassis>& chassis) {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::OnChassis";
+
   if (!enabled_) {
     return;
   }
@@ -244,6 +267,8 @@ void DataCollectionMonitor::OnChassis(const std::shared_ptr<Chassis>& chassis) {
 
 bool DataCollectionMonitor::IsCompliedWithCriteria(
     const std::shared_ptr<Chassis>& chassis, const Category& category) {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::IsCompliedWithCriteria";
+
   const auto& vehicle_param = VehicleConfigHelper::GetConfig().vehicle_param();
   const auto* vehicle_param_descriptor = vehicle_param.GetDescriptor();
   const auto* vehicle_param_reflection = vehicle_param.GetReflection();
@@ -281,6 +306,8 @@ bool DataCollectionMonitor::IsCompliedWithCriteria(
 }
 
 nlohmann::json DataCollectionMonitor::GetProgressAsJson() {
+    AINFO<<"(DMCZP) EnteringMethod: DataCollectionMonitor::GetProgressAsJson";
+
   boost::unique_lock<boost::shared_mutex> reader_lock(mutex_);
   return current_progress_json_;
 }

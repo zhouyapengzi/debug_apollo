@@ -68,6 +68,8 @@ const std::string planning_pad_channel = "/apollo/planning/pad";
 
 TeleopService::TeleopService(WebSocketHandler *websocket)
     : node_(cyber::CreateNode("teleop")), websocket_(websocket) {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::TeleopService";
+
   RegisterMessageHandlers();
 
   teleop_status_["audio"] = false;
@@ -85,6 +87,8 @@ TeleopService::TeleopService(WebSocketHandler *websocket)
 }
 
 void TeleopService::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::Start";
+
   // TODO get topic names from proto
   // TODO update proto to get all modems' info combined with rank
 
@@ -130,6 +134,8 @@ void TeleopService::Start() {
 }
 
 void TeleopService::RegisterMessageHandlers() {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::RegisterMessageHandlers";
+
   // Send current teleop status to the new client.
   websocket_->RegisterConnectionReadyHandler(
       [this](WebSocketHandler::Connection *conn) { SendStatus(conn); });
@@ -260,6 +266,8 @@ void TeleopService::RegisterMessageHandlers() {
 }
 
 void TeleopService::SendStatus(WebSocketHandler::Connection *conn) {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::SendStatus";
+
   std::string to_send;
   {
     boost::shared_lock<boost::shared_mutex> reader_lock(mutex_);
@@ -270,6 +278,8 @@ void TeleopService::SendStatus(WebSocketHandler::Connection *conn) {
 
 void TeleopService::UpdateModem(const std::string &modem_id,
                                 const std::shared_ptr<ModemInfo> &modem_info) {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::UpdateModem";
+
   // TODO simplify data and only send necessary info for display
   // update modem_info_
   if (modem_info->has_technology()) {
@@ -296,6 +306,8 @@ void TeleopService::UpdateModem(const std::string &modem_id,
 // callback for messages that originate from the remote computer
 void TeleopService::UpdateCarDaemonRpt(
     const std::shared_ptr<DaemonServiceRpt> &daemon_rpt) {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::UpdateCarDaemonRpt";
+
   {
     bool videoIsRunning = false;
     bool voipIsRunning = false;
@@ -378,6 +390,8 @@ void TeleopService::UpdateCarDaemonRpt(
 // callback for messages that originate from this computer
 void TeleopService::UpdateOperatorDaemonRpt(
     const std::shared_ptr<DaemonServiceRpt> &daemon_rpt) {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::UpdateOperatorDaemonRpt";
+
   {
     bool voipIsRunning = false;
     for (int i = 0; i < daemon_rpt->services_size(); i++) {
@@ -420,6 +434,8 @@ void TeleopService::UpdateOperatorDaemonRpt(
 }
 
 void TeleopService::SendVideoStreamCmd(bool start_stop) {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::SendVideoStreamCmd";
+
   DaemonServiceCmd msg;
   if (start_stop) {
     msg.set_cmd(start_cmd);
@@ -442,6 +458,8 @@ void TeleopService::SendVideoStreamCmd(bool start_stop) {
 }
 
 void TeleopService::SendAudioStreamCmd(bool start_stop) {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::SendAudioStreamCmd";
+
   DaemonServiceCmd msg;
   if (start_stop) {
     msg.set_cmd(start_cmd);
@@ -457,6 +475,8 @@ void TeleopService::SendAudioStreamCmd(bool start_stop) {
 }
 
 void TeleopService::SendMicStreamCmd(bool start_stop) {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::SendMicStreamCmd";
+
   // by switching on or off the voip_encoder in the local console
   // we are controlling the mic
   DaemonServiceCmd msg;
@@ -472,6 +492,8 @@ void TeleopService::SendMicStreamCmd(bool start_stop) {
 }
 
 void TeleopService::SendResumeCruiseCmd() {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::SendResumeCruiseCmd";
+
   AINFO << "Resume cruise";
   PadMessage pad_msg;
   pad_msg.set_action(DrivingAction::RESUME_CRUISE);
@@ -479,6 +501,8 @@ void TeleopService::SendResumeCruiseCmd() {
 }
 
 void TeleopService::SendEstopCmd() {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::SendEstopCmd";
+
   AINFO << "Pull over";
   PadMessage pad_msg;
   pad_msg.set_action(DrivingAction::PULL_OVER);
@@ -486,6 +510,8 @@ void TeleopService::SendEstopCmd() {
 }
 
 void TeleopService::SendPullOverCmd() {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::SendPullOverCmd";
+
   AINFO << "EStop";
   PadMessage pad_msg;
   pad_msg.set_action(DrivingAction::STOP);
@@ -493,6 +519,8 @@ void TeleopService::SendPullOverCmd() {
 }
 
 void TeleopService::UpdatePlanning(const std::shared_ptr<ADCTrajectory> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: TeleopService::UpdatePlanning";
+
   static int count = 0;
   ++count;
 

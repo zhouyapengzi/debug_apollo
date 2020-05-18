@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -23,13 +24,17 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-PyramidMap::PyramidMap(PyramidMapConfig* config) : BaseMap(config) {}
+PyramidMap::PyramidMap(PyramidMapConfig* config) : BaseMap(config) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMap::PyramidMap";
+}
 
 PyramidMap::~PyramidMap() {}
 
 float PyramidMap::GetIntensitySafe(const Eigen::Vector3d& coordinate,
                                    int zone_id, unsigned int resolution_id,
                                    unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMap::GetIntensitySafe";
+
   MapNodeIndex index = MapNodeIndex::GetMapNodeIndex(GetMapConfig(), coordinate,
                                                      resolution_id, zone_id);
   PyramidMapNode* node = dynamic_cast<PyramidMapNode*>(GetMapNodeSafe(index));
@@ -39,6 +44,8 @@ float PyramidMap::GetIntensitySafe(const Eigen::Vector3d& coordinate,
 float PyramidMap::GetIntensityVarSafe(const Eigen::Vector3d& coordinate,
                                       int zone_id, unsigned int resolution_id,
                                       unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMap::GetIntensityVarSafe";
+
   MapNodeIndex index = MapNodeIndex::GetMapNodeIndex(GetMapConfig(), coordinate,
                                                      resolution_id, zone_id);
   PyramidMapNode* node = dynamic_cast<PyramidMapNode*>(GetMapNodeSafe(index));
@@ -48,6 +55,8 @@ float PyramidMap::GetIntensityVarSafe(const Eigen::Vector3d& coordinate,
 float PyramidMap::GetAltitudeSafe(const Eigen::Vector3d& coordinate,
                                   int zone_id, unsigned int resolution_id,
                                   unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMap::GetAltitudeSafe";
+
   MapNodeIndex index = MapNodeIndex::GetMapNodeIndex(GetMapConfig(), coordinate,
                                                      resolution_id, zone_id);
   PyramidMapNode* node = dynamic_cast<PyramidMapNode*>(GetMapNodeSafe(index));
@@ -57,6 +66,8 @@ float PyramidMap::GetAltitudeSafe(const Eigen::Vector3d& coordinate,
 float PyramidMap::GetAltitudeVarSafe(const Eigen::Vector3d& coordinate,
                                      int zone_id, unsigned int resolution_id,
                                      unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMap::GetAltitudeVarSafe";
+
   MapNodeIndex index = MapNodeIndex::GetMapNodeIndex(GetMapConfig(), coordinate,
                                                      resolution_id, zone_id);
   PyramidMapNode* node = dynamic_cast<PyramidMapNode*>(GetMapNodeSafe(index));
@@ -66,6 +77,8 @@ float PyramidMap::GetAltitudeVarSafe(const Eigen::Vector3d& coordinate,
 float PyramidMap::GetGroundAltitudeSafe(const Eigen::Vector3d& coordinate,
                                         int zone_id, unsigned int resolution_id,
                                         unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMap::GetGroundAltitudeSafe";
+
   MapNodeIndex index = MapNodeIndex::GetMapNodeIndex(GetMapConfig(), coordinate,
                                                      resolution_id, zone_id);
   PyramidMapNode* node = dynamic_cast<PyramidMapNode*>(GetMapNodeSafe(index));
@@ -75,6 +88,8 @@ float PyramidMap::GetGroundAltitudeSafe(const Eigen::Vector3d& coordinate,
 unsigned int PyramidMap::GetCountSafe(const Eigen::Vector3d& coordinate,
                                       int zone_id, unsigned int resolution_id,
                                       unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMap::GetCountSafe";
+
   MapNodeIndex index = MapNodeIndex::GetMapNodeIndex(GetMapConfig(), coordinate,
                                                      resolution_id, zone_id);
   PyramidMapNode* node = dynamic_cast<PyramidMapNode*>(GetMapNodeSafe(index));
@@ -85,6 +100,8 @@ unsigned int PyramidMap::GetGroundCountSafe(const Eigen::Vector3d& coordinate,
                                             int zone_id,
                                             unsigned int resolution_id,
                                             unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMap::GetGroundCountSafe";
+
   MapNodeIndex index = MapNodeIndex::GetMapNodeIndex(GetMapConfig(), coordinate,
                                                      resolution_id, zone_id);
   PyramidMapNode* node = dynamic_cast<PyramidMapNode*>(GetMapNodeSafe(index));

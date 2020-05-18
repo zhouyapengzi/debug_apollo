@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,11 +28,15 @@ namespace lexus {
 
 using ::apollo::drivers::canbus::Byte;
 
-Wheelspeedrpt407::Wheelspeedrpt407() {}
+Wheelspeedrpt407::Wheelspeedrpt407() {
+    AINFO<<"(DMCZP) EnteringMethod: Wheelspeedrpt407::Wheelspeedrpt407";
+}
 const int32_t Wheelspeedrpt407::ID = 0x407;
 
 void Wheelspeedrpt407::Parse(const std::uint8_t* bytes, int32_t length,
                              ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Wheelspeedrpt407::Parse";
+
   chassis->mutable_lexus()
       ->mutable_wheel_speed_rpt_407()
       ->set_wheel_spd_rear_right(wheel_spd_rear_right(bytes, length));
@@ -51,6 +56,8 @@ void Wheelspeedrpt407::Parse(const std::uint8_t* bytes, int32_t length,
 // 'bit': 55, 'type': 'double', 'order': 'motorola', 'physical_unit': 'rad/s'}
 double Wheelspeedrpt407::wheel_spd_rear_right(const std::uint8_t* bytes,
                                               int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Wheelspeedrpt407::wheel_spd_rear_right";
+
   Byte t0(bytes + 6);
   int32_t x = t0.get_byte(0, 8);
 
@@ -71,6 +78,8 @@ double Wheelspeedrpt407::wheel_spd_rear_right(const std::uint8_t* bytes,
 // 'bit': 39, 'type': 'double', 'order': 'motorola', 'physical_unit': 'rad/s'}
 double Wheelspeedrpt407::wheel_spd_rear_left(const std::uint8_t* bytes,
                                              int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Wheelspeedrpt407::wheel_spd_rear_left";
+
   Byte t0(bytes + 4);
   int32_t x = t0.get_byte(0, 8);
 
@@ -91,6 +100,8 @@ double Wheelspeedrpt407::wheel_spd_rear_left(const std::uint8_t* bytes,
 // 'bit': 23, 'type': 'double', 'order': 'motorola', 'physical_unit': 'rad/s'}
 double Wheelspeedrpt407::wheel_spd_front_right(const std::uint8_t* bytes,
                                                int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Wheelspeedrpt407::wheel_spd_front_right";
+
   Byte t0(bytes + 2);
   int32_t x = t0.get_byte(0, 8);
 
@@ -112,6 +123,8 @@ double Wheelspeedrpt407::wheel_spd_front_right(const std::uint8_t* bytes,
 // 'physical_unit': 'rad/s'}
 double Wheelspeedrpt407::wheel_spd_front_left(const std::uint8_t* bytes,
                                               int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Wheelspeedrpt407::wheel_spd_front_left";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 8);
 

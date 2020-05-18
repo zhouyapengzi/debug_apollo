@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -22,12 +23,16 @@ namespace hdmap {
 
 StaticAlign::StaticAlign(std::shared_ptr<JSonConf> sp_conf)
     : Alignment(sp_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::StaticAlign";
+
   sp_conf_ = sp_conf;
   static_align_detect_method_ = StaticAlignDetectMethod::DYNAMIC_CENTROID;
   Reset();
 }
 
 void StaticAlign::Reset() {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::Reset";
+
   progress_ = 0.0;
   last_progress_ = 0.0;
   start_time_ = -1.0;
@@ -40,6 +45,8 @@ void StaticAlign::Reset() {
 }
 
 bool StaticAlign::IsStaticPose(const FramePose& pose) {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::IsStaticPose";
+
   if (dynamic_centroid_.count == 0) {
     return true;
   }
@@ -58,6 +65,8 @@ bool StaticAlign::IsStaticPose(const FramePose& pose) {
 }
 
 void StaticAlign::UpdateDynamicCentroid(const FramePose& pose) {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::UpdateDynamicCentroid";
+
   int count = dynamic_centroid_.count;
   if (count == 0) {
     dynamic_centroid_.start_time = pose.time_stamp;
@@ -79,6 +88,8 @@ void StaticAlign::UpdateDynamicCentroid(const FramePose& pose) {
 }
 
 double StaticAlign::GetCentroidTimeDuring() {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::GetCentroidTimeDuring";
+
   if (dynamic_centroid_.start_time > 0 && dynamic_centroid_.end_time > 0) {
     return dynamic_centroid_.end_time - dynamic_centroid_.start_time;
   }
@@ -86,11 +97,15 @@ double StaticAlign::GetCentroidTimeDuring() {
 }
 
 void StaticAlign::UpdateGoodPoseInfo(const FramePose& pose) {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::UpdateGoodPoseInfo";
+
   UpdateDynamicCentroid(pose);
 }
 
 double StaticAlign::StaticAlignDynamicCentroid(
     const std::vector<FramePose>& poses) {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::StaticAlignDynamicCentroid";
+
   int start_index = TimeToIndex(poses, start_time_);
   AINFO << "start_index:" << start_index << ",pose size:" << poses.size();
   dynamic_centroid_ = Centroid3D();
@@ -117,12 +132,16 @@ double StaticAlign::StaticAlignDynamicCentroid(
 }
 
 double StaticAlign::StaticAlignRansac(const std::vector<FramePose>& poses) {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::StaticAlignRansac";
+
   // TODO(yuanyijun): implementation of selecting an center by RANSAC
   return 0.0;
 }
 
 double StaticAlign::GetStaticAlignProgress(
     const std::vector<FramePose>& poses) {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::GetStaticAlignProgress";
+
   double progress = 0.0;
   switch (static_align_detect_method_) {
     case StaticAlignDetectMethod::DYNAMIC_CENTROID:
@@ -139,6 +158,8 @@ double StaticAlign::GetStaticAlignProgress(
 }
 
 ErrorCode StaticAlign::Process(const std::vector<FramePose>& poses) {
+    AINFO<<"(DMCZP) EnteringMethod: StaticAlign::Process";
+
   AINFO << "[StaticAlign::process] begin";
   size_t size = poses.size();
   if (size <= 1) {

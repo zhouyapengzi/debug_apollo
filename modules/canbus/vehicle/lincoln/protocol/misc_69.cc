@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -28,6 +29,8 @@ const int32_t Misc69::ID = 0x69;
 
 void Misc69::Parse(const std::uint8_t *bytes, int32_t length,
                    ChassisDetail *chassis_detail) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::Parse";
+
   int32_t turn_light_type = turn_signal_status(bytes, length);
   switch (turn_light_type) {
     case 0:
@@ -224,6 +227,8 @@ void Misc69::Parse(const std::uint8_t *bytes, int32_t length,
 
 int32_t Misc69::turn_signal_status(const std::uint8_t *bytes,
                                    int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::turn_signal_status";
+
   Byte frame(bytes + 0);
   int32_t x = frame.get_byte(0, 2);
   return x;
@@ -231,12 +236,16 @@ int32_t Misc69::turn_signal_status(const std::uint8_t *bytes,
 
 int32_t Misc69::high_beam_status(const std::uint8_t *bytes,
                                  int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::high_beam_status";
+
   Byte frame(bytes + 0);
   int32_t x = frame.get_byte(2, 2);
   return x;
 }
 
 int32_t Misc69::wiper_status(const std::uint8_t *bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::wiper_status";
+
   Byte frame(bytes + 0);
   int32_t x = frame.get_byte(4, 4);
   return x;
@@ -244,6 +253,8 @@ int32_t Misc69::wiper_status(const std::uint8_t *bytes, int32_t length) const {
 
 int32_t Misc69::ambient_light_status(const std::uint8_t *bytes,
                                      int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::ambient_light_status";
+
   Byte frame(bytes + 1);
   int32_t x = frame.get_byte(0, 3);
   return x;
@@ -251,129 +262,173 @@ int32_t Misc69::ambient_light_status(const std::uint8_t *bytes,
 
 bool Misc69::is_acc_on_pressed(const std::uint8_t *bytes,
                                int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_on_pressed";
+
   Byte frame(bytes + 1);
   return frame.is_bit_1(3);
 }
 
 bool Misc69::is_acc_off_pressed(const std::uint8_t *bytes,
                                 int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_off_pressed";
+
   Byte frame(bytes + 1);
   return frame.is_bit_1(4);
 }
 
 bool Misc69::is_acc_resume_pressed(const std::uint8_t *bytes,
                                    int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_resume_pressed";
+
   Byte frame(bytes + 1);
   return frame.is_bit_1(5);
 }
 
 bool Misc69::is_acc_cancel_pressed(const std::uint8_t *bytes,
                                    int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_cancel_pressed";
+
   Byte frame(bytes + 1);
   return frame.is_bit_1(6);
 }
 
 bool Misc69::is_acc_on_or_off_pressed(const std::uint8_t *bytes,
                                       int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_on_or_off_pressed";
+
   Byte frame(bytes + 2);
   return frame.is_bit_1(0);
 }
 
 bool Misc69::is_acc_resume_or_cancel_pressed(const std::uint8_t *bytes,
                                              int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_resume_or_cancel_pressed";
+
   Byte frame(bytes + 2);
   return frame.is_bit_1(1);
 }
 
 bool Misc69::is_acc_increment_set_speed_pressed(const std::uint8_t *bytes,
                                                 int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_increment_set_speed_pressed";
+
   Byte frame(bytes + 2);
   return frame.is_bit_1(2);
 }
 
 bool Misc69::is_acc_decrement_set_speed_pressed(const std::uint8_t *bytes,
                                                 int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_decrement_set_speed_pressed";
+
   Byte frame(bytes + 2);
   return frame.is_bit_1(3);
 }
 
 bool Misc69::is_acc_increment_following_gap_pressed(const std::uint8_t *bytes,
                                                     int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_increment_following_gap_pressed";
+
   Byte frame(bytes + 2);
   return frame.is_bit_1(4);
 }
 
 bool Misc69::is_acc_decrement_following_gap_pressed(const std::uint8_t *bytes,
                                                     int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_acc_decrement_following_gap_pressed";
+
   Byte frame(bytes + 2);
   return frame.is_bit_1(5);
 }
 
 bool Misc69::is_lka_on_or_off_pressed(const std::uint8_t *bytes,
                                       int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_lka_on_or_off_pressed";
+
   Byte frame(bytes + 2);
   return frame.is_bit_1(6);
 }
 
 bool Misc69::is_canbus_fault(const std::uint8_t *bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_canbus_fault";
+
   Byte frame(bytes + 2);
   return frame.is_bit_1(7);
 }
 
 bool Misc69::is_driver_door_open(const std::uint8_t *bytes,
                                  int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_driver_door_open";
+
   Byte frame(bytes + 3);
   return frame.is_bit_1(0);
 }
 
 bool Misc69::is_passenger_door_open(const std::uint8_t *bytes,
                                     int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_passenger_door_open";
+
   Byte frame(bytes + 3);
   return frame.is_bit_1(1);
 }
 
 bool Misc69::is_rear_left_door_open(const std::uint8_t *bytes,
                                     int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_rear_left_door_open";
+
   Byte frame(bytes + 3);
   return frame.is_bit_1(2);
 }
 
 bool Misc69::is_rear_right_door_open(const std::uint8_t *bytes,
                                      int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_rear_right_door_open";
+
   Byte frame(bytes + 3);
   return frame.is_bit_1(3);
 }
 
 bool Misc69::is_hood_open(const std::uint8_t *bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_hood_open";
+
   Byte frame(bytes + 3);
   return frame.is_bit_1(4);
 }
 
 bool Misc69::is_trunk_open(const std::uint8_t *bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_trunk_open";
+
   Byte frame(bytes + 3);
   return frame.is_bit_1(5);
 }
 
 bool Misc69::is_passenger_detected(const std::uint8_t *bytes,
                                    int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_passenger_detected";
+
   Byte frame(bytes + 3);
   return frame.is_bit_1(6);
 }
 
 bool Misc69::is_passenger_airbag_enabled(const std::uint8_t *bytes,
                                          int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_passenger_airbag_enabled";
+
   Byte frame(bytes + 3);
   return frame.is_bit_1(7);
 }
 
 bool Misc69::is_driver_belt_buckled(const std::uint8_t *bytes,
                                     int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_driver_belt_buckled";
+
   Byte frame(bytes + 4);
   return frame.is_bit_1(0);
 }
 
 bool Misc69::is_passenger_belt_buckled(const std::uint8_t *bytes,
                                        int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Misc69::is_passenger_belt_buckled";
+
   Byte frame(bytes + 4);
   return frame.is_bit_1(1);
 }

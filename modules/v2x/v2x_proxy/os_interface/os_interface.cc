@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -29,6 +30,8 @@ using apollo::perception::PerceptionObstacles;
 
 OsInterFace::OsInterFace()
     : node_(cyber::CreateNode("v2x_os_interface")), init_flag_(false) {
+    AINFO<<"(DMCZP) EnteringMethod: OsInterFace::OsInterFace";
+
   CHECK(node_) << "ERROR: Create v2x os interface node failed.";
   CHECK(InitReaders()) << "ERROR: Initial readers failed.";
   CHECK(InitWriters()) << "ERROR: Initial writers failed.";
@@ -41,6 +44,8 @@ OsInterFace::OsInterFace()
 OsInterFace::~OsInterFace() {}
 
 bool OsInterFace::InitReaders() {
+    AINFO<<"(DMCZP) EnteringMethod: OsInterFace::InitReaders";
+
   localization_reader_ =
       node_->CreateReader<LocalizationEstimate>(FLAGS_localization_topic);
   if (localization_reader_ == nullptr) {
@@ -57,6 +62,8 @@ bool OsInterFace::InitReaders() {
 }
 
 bool OsInterFace::InitWriters() {
+    AINFO<<"(DMCZP) EnteringMethod: OsInterFace::InitWriters";
+
   v2x_obstacle_writer_ =
       node_->CreateWriter<PerceptionObstacles>(FLAGS_v2x_obstacle_topic);
   if (v2x_obstacle_writer_ == nullptr) {
@@ -74,6 +81,8 @@ bool OsInterFace::InitWriters() {
 
 void OsInterFace::GetLocalizationFromOs(
     const std::shared_ptr<LocalizationEstimate> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: OsInterFace::GetLocalizationFromOs";
+
   ADEBUG << "get localization result from os";
   GetMsgFromOs(localization_reader_.get(), msg);
   if (FLAGS_debug_flag) {
@@ -83,6 +92,8 @@ void OsInterFace::GetLocalizationFromOs(
 
 void OsInterFace::GetObstaclesFromOs(
     const std::shared_ptr<PerceptionObstacles> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: OsInterFace::GetObstaclesFromOs";
+
   ADEBUG << "get obstacles results from os";
   GetMsgFromOs(perception_obstacle_reader_.get(), msg);
   if (FLAGS_debug_flag) {
@@ -92,6 +103,8 @@ void OsInterFace::GetObstaclesFromOs(
 
 void OsInterFace::SendV2xObstaclesToOs(
     const std::shared_ptr<PerceptionObstacles> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: OsInterFace::SendV2xObstaclesToOs";
+
   ADEBUG << "send v2x obstacles to os";
   SendMsgToOs(v2x_obstacle_writer_.get(), msg);
   if (FLAGS_debug_flag) {
@@ -101,6 +114,8 @@ void OsInterFace::SendV2xObstaclesToOs(
 
 void OsInterFace::SendV2xTrafficLightToOs(
     const std::shared_ptr<IntersectionTrafficLightData> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: OsInterFace::SendV2xTrafficLightToOs";
+
   ADEBUG << "send v2x trafficlight to os";
   SendMsgToOs(v2x_trafficlight_writer_.get(), msg);
   if (FLAGS_debug_flag) {

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
@@ -32,6 +33,8 @@ SmartereyeComponent::~SmartereyeComponent() {
 }
 
 bool SmartereyeComponent::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeComponent::Init";
+
   camera_config_ = std::make_shared<Config>();
   if (!apollo::cyber::common::GetProtoFromFile(config_file_path_,
                                                camera_config_.get())) {
@@ -61,6 +64,8 @@ bool SmartereyeComponent::Init() {
 }
 
 void SmartereyeComponent::run() {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeComponent::run";
+
   running_.exchange(true);
   while (!cyber::IsShutdown()) {
     camera_device_->poll();
@@ -69,6 +74,8 @@ void SmartereyeComponent::run() {
 }
 
 bool SmartereyeComponent::SetCallback() {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeComponent::SetCallback";
+
   CallbackFunc fun =
       std::bind(&SmartereyeComponent::Callback, this, std::placeholders::_1);
   camera_device_->SetCallback(fun);
@@ -77,6 +84,8 @@ bool SmartereyeComponent::SetCallback() {
 }
 
 bool SmartereyeComponent::Callback(RawImageFrame *rawFrame) {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeComponent::Callback";
+
   if (rawFrame->frameId == FrameId::Compound ||
       rawFrame->frameId == FrameId::LaneExt) {
     processFrame(rawFrame->frameId,
@@ -96,6 +105,8 @@ bool SmartereyeComponent::Callback(RawImageFrame *rawFrame) {
 
 void SmartereyeComponent::processFrame(int frameId, char *image, char *extended,
                                        int64_t time, int width, int height) {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeComponent::processFrame";
+
   switch (frameId) {
     case FrameId::Compound: {
       FrameDataExtHead *header = reinterpret_cast<FrameDataExtHead *>(extended);
@@ -259,6 +270,8 @@ void SmartereyeComponent::processFrame(int frameId, char *image, char *extended,
 void SmartereyeComponent::processFrame(int frameId, char *image,
                                        uint32_t dataSize, int width, int height,
                                        int frameFormat) {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeComponent::processFrame";
+
   switch (frameId) {
     case FrameId::Lane: {
       AINFO << "case FrameId::Lane:";

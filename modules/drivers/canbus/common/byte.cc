@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -35,11 +36,17 @@ const uint8_t RANG_MASK_0_L[] = {0xFE, 0XFC, 0xF8, 0xF0,
 
 }  // namespace
 
-Byte::Byte(const uint8_t *value) : value_(const_cast<uint8_t *>(value)) {}
+Byte::Byte(const uint8_t *value) : value_(const_cast<uint8_t *>(value)) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::Byte";
+}
 
-Byte::Byte(const Byte &value) : value_(value.value_) {}
+Byte::Byte(const Byte &value) : value_(value.value_) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::Byte";
+}
 
 std::string Byte::byte_to_hex(const uint8_t value) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::byte_to_hex";
+
   static const char HEX[] = "0123456789ABCDEF";
   uint8_t high = static_cast<uint8_t>(value >> 4);
   uint8_t low = static_cast<uint8_t>(value & 0x0F);
@@ -47,6 +54,8 @@ std::string Byte::byte_to_hex(const uint8_t value) {
 }
 
 std::string Byte::byte_to_hex(const uint32_t value) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::byte_to_hex";
+
   uint8_t high;
   uint8_t low;
   std::string result = "";
@@ -64,10 +73,14 @@ std::string Byte::byte_to_hex(const uint32_t value) {
 }
 
 std::string Byte::byte_to_binary(const uint8_t value) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::byte_to_binary";
+
   return std::bitset<8 * sizeof(uint8_t)>(value).to_string();
 }
 
 void Byte::set_bit_1(const int32_t pos) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::set_bit_1";
+
   static const uint8_t BIT_MASK_1[] = {0x01, 0x02, 0x04, 0x08,
                                        0x10, 0x20, 0x40, 0x80};
   if (pos >= 0 && pos < BYTE_LENGTH) {
@@ -76,6 +89,8 @@ void Byte::set_bit_1(const int32_t pos) {
 }
 
 void Byte::set_bit_0(const int32_t pos) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::set_bit_0";
+
   static const uint8_t BIT_MASK_0[] = {0xFE, 0xFD, 0xFB, 0xF7,
                                        0xEF, 0xDF, 0xBF, 0x7F};
   if (pos >= 0 && pos < BYTE_LENGTH) {
@@ -84,23 +99,33 @@ void Byte::set_bit_0(const int32_t pos) {
 }
 
 bool Byte::is_bit_1(const int32_t pos) const {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::is_bit_1";
+
   return pos >= 0 && pos < BYTE_LENGTH && ((*value_ >> pos) % 2 == 1);
 }
 
 void Byte::set_value(const uint8_t value) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::set_value";
+
   if (value_ != nullptr) {
     *value_ = value;
   }
 }
 
 void Byte::set_value_high_4_bits(const uint8_t value) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::set_value_high_4_bits";
+
   set_value(value, 4, 4);
 }
 
-void Byte::set_value_low_4_bits(const uint8_t value) { set_value(value, 0, 4); }
+void Byte::set_value_low_4_bits(const uint8_t value) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::set_value_low_4_bits";
+ set_value(value, 0, 4); }
 
 void Byte::set_value(const uint8_t value, const int32_t start_pos,
                      const int32_t length) {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::set_value";
+
   if (start_pos > BYTE_LENGTH - 1 || start_pos < 0 || length < 1) {
     return;
   }
@@ -117,13 +142,21 @@ void Byte::set_value(const uint8_t value, const int32_t start_pos,
                                  current_value_low);
 }
 
-uint8_t Byte::get_byte() const { return *value_; }
+uint8_t Byte::get_byte() const {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::get_byte";
+ return *value_; }
 
-uint8_t Byte::get_byte_high_4_bits() const { return get_byte(4, 4); }
+uint8_t Byte::get_byte_high_4_bits() const {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::get_byte_high_4_bits";
+ return get_byte(4, 4); }
 
-uint8_t Byte::get_byte_low_4_bits() const { return get_byte(0, 4); }
+uint8_t Byte::get_byte_low_4_bits() const {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::get_byte_low_4_bits";
+ return get_byte(0, 4); }
 
 uint8_t Byte::get_byte(const int32_t start_pos, const int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::get_byte";
+
   if (start_pos > BYTE_LENGTH - 1 || start_pos < 0 || length < 1) {
     return 0x00;
   }
@@ -134,9 +167,13 @@ uint8_t Byte::get_byte(const int32_t start_pos, const int32_t length) const {
   return result;
 }
 
-std::string Byte::to_hex_string() const { return byte_to_hex(*value_); }
+std::string Byte::to_hex_string() const {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::to_hex_string";
+ return byte_to_hex(*value_); }
 
-std::string Byte::to_binary_string() const { return byte_to_binary(*value_); }
+std::string Byte::to_binary_string() const {
+    AINFO<<"(DMCZP) EnteringMethod: Byte::to_binary_string";
+ return byte_to_binary(*value_); }
 
 }  // namespace canbus
 }  // namespace drivers

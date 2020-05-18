@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,6 +28,8 @@ using apollo::localization::msf::LocationExporter;
 using apollo::localization::msf::PCDExporter;
 
 int main(int argc, char **argv) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
   boost::program_options::options_description boost_desc("Allowed options");
   boost_desc.add_options()("help", "produce help message")(
       "bag_file", boost::program_options::value<std::string>(),

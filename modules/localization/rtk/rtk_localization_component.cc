@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -23,9 +24,13 @@ namespace localization {
 using apollo::common::time::Clock;
 
 RTKLocalizationComponent::RTKLocalizationComponent()
-    : localization_(new RTKLocalization()) {}
+    : localization_(new RTKLocalization()) {
+    AINFO<<"(DMCZP) EnteringMethod: RTKLocalizationComponent::RTKLocalizationComponent";
+}
 
 bool RTKLocalizationComponent::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: RTKLocalizationComponent::Init";
+
   tf2_broadcaster_.reset(new apollo::transform::TransformBroadcaster(node_));
   if (!InitConfig()) {
     AERROR << "Init Config falseed.";
@@ -41,6 +46,8 @@ bool RTKLocalizationComponent::Init() {
 }
 
 bool RTKLocalizationComponent::InitConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: RTKLocalizationComponent::InitConfig";
+
   rtk_config::Config rtk_config;
   if (!apollo::cyber::common::GetProtoFromFile(config_file_path_,
                                                &rtk_config)) {
@@ -62,6 +69,8 @@ bool RTKLocalizationComponent::InitConfig() {
 }
 
 bool RTKLocalizationComponent::InitIO() {
+    AINFO<<"(DMCZP) EnteringMethod: RTKLocalizationComponent::InitIO";
+
   corrected_imu_listener_ = node_->CreateReader<localization::CorrectedImu>(
       imu_topic_, std::bind(&RTKLocalization::ImuCallback, localization_.get(),
                             std::placeholders::_1));
@@ -84,6 +93,8 @@ bool RTKLocalizationComponent::InitIO() {
 
 bool RTKLocalizationComponent::Proc(
     const std::shared_ptr<localization::Gps>& gps_msg) {
+    AINFO<<"(DMCZP) EnteringMethod: RTKLocalizationComponent::Proc";
+
   localization_->GpsCallback(gps_msg);
 
   if (localization_->IsServiceStarted()) {
@@ -104,6 +115,8 @@ bool RTKLocalizationComponent::Proc(
 
 void RTKLocalizationComponent::PublishPoseBroadcastTF(
     const LocalizationEstimate& localization) {
+    AINFO<<"(DMCZP) EnteringMethod: RTKLocalizationComponent::PublishPoseBroadcastTF";
+
   // broadcast tf message
   apollo::transform::TransformStamped tf2_msg;
 
@@ -128,11 +141,15 @@ void RTKLocalizationComponent::PublishPoseBroadcastTF(
 
 void RTKLocalizationComponent::PublishPoseBroadcastTopic(
     const LocalizationEstimate& localization) {
+    AINFO<<"(DMCZP) EnteringMethod: RTKLocalizationComponent::PublishPoseBroadcastTopic";
+
   localization_talker_->Write(localization);
 }
 
 void RTKLocalizationComponent::PublishLocalizationStatus(
     const LocalizationStatus& localization_status) {
+    AINFO<<"(DMCZP) EnteringMethod: RTKLocalizationComponent::PublishLocalizationStatus";
+
   localization_status_talker_->Write(localization_status);
 }
 

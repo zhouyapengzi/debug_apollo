@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -23,11 +24,15 @@ namespace msf {
 namespace pyramid_map {
 
 PyramidMapConfig::PyramidMapConfig(const std::string& map_version)
-    : BaseMapConfig(map_version) {}
+    : BaseMapConfig(map_version) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapConfig::PyramidMapConfig";
+}
 
 PyramidMapConfig::~PyramidMapConfig() {}
 
 bool PyramidMapConfig::CreateXml(boost::property_tree::ptree* config) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapConfig::CreateXml";
+
   bool success = BaseMapConfig::CreateXml(config);
   if (success) {
     config->put("map.map_config.has_intensity", has_intensity_);
@@ -50,6 +55,8 @@ bool PyramidMapConfig::CreateXml(boost::property_tree::ptree* config) const {
 }
 
 bool PyramidMapConfig::LoadXml(const boost::property_tree::ptree& config) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapConfig::LoadXml";
+
   bool success = BaseMapConfig::LoadXml(config);
   if (success) {
     auto has_intensity =

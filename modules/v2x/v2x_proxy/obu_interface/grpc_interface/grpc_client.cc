@@ -33,6 +33,8 @@ using grpc::Status;
 
 GrpcClientImpl::GrpcClientImpl(std::shared_ptr<Channel> channel)
     : stub_(CarToObu::NewStub(channel)) {
+    AINFO<<"(DMCZP) EnteringMethod: GrpcClientImpl::GrpcClientImpl";
+
   AINFO << "GrpcClientImpl initial success";
   carstatus_tv_nsec_ =
       (1000000000 / static_cast<int>(FLAGS_v2x_carstatus_timer_frequency) / 2);
@@ -40,6 +42,8 @@ GrpcClientImpl::GrpcClientImpl(std::shared_ptr<Channel> channel)
 }
 
 void GrpcClientImpl::SendMsgToGrpc(const std::shared_ptr<CarStatus> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: GrpcClientImpl::SendMsgToGrpc";
+
   // verify CarStatus msg valid
   if (!msg->has_localization() /*  || !msg->has_chassis_detail() */) {
     AERROR << "SendCarStatusToObu msg is not valid";
@@ -72,6 +76,8 @@ void GrpcClientImpl::SendMsgToGrpc(const std::shared_ptr<CarStatus> &msg) {
 
 void GrpcClientImpl::SendMsgToGrpc(
     const std::shared_ptr<PerceptionObstacles> &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: GrpcClientImpl::SendMsgToGrpc";
+
   // verify perception obstacles msg valid
   if (msg->perception_obstacle().empty()) {
     AERROR << "SendObstaclesToObu msg is not valid";

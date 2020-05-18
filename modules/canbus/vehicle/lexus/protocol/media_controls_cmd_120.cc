@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,11 +28,15 @@ namespace lexus {
 
 using ::apollo::drivers::canbus::Byte;
 
-Mediacontrolscmd120::Mediacontrolscmd120() {}
+Mediacontrolscmd120::Mediacontrolscmd120() {
+    AINFO<<"(DMCZP) EnteringMethod: Mediacontrolscmd120::Mediacontrolscmd120";
+}
 const int32_t Mediacontrolscmd120::ID = 0x120;
 
 void Mediacontrolscmd120::Parse(const std::uint8_t* bytes, int32_t length,
                                 ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Mediacontrolscmd120::Parse";
+
   chassis->mutable_lexus()
       ->mutable_media_controls_cmd_120()
       ->set_media_controls_cmd(media_controls_cmd(bytes, length));
@@ -60,6 +65,8 @@ void Mediacontrolscmd120::Parse(const std::uint8_t* bytes, int32_t length,
 Media_controls_cmd_120::Media_controls_cmdType
 Mediacontrolscmd120::media_controls_cmd(const std::uint8_t* bytes,
                                         int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Mediacontrolscmd120::media_controls_cmd";
+
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 8);
 
@@ -73,6 +80,8 @@ Mediacontrolscmd120::media_controls_cmd(const std::uint8_t* bytes,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Mediacontrolscmd120::ignore_overrides(const std::uint8_t* bytes,
                                            int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Mediacontrolscmd120::ignore_overrides";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(1, 1);
 
@@ -85,6 +94,8 @@ bool Mediacontrolscmd120::ignore_overrides(const std::uint8_t* bytes,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Mediacontrolscmd120::clear_override(const std::uint8_t* bytes,
                                          int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Mediacontrolscmd120::clear_override";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(2, 1);
 
@@ -97,6 +108,8 @@ bool Mediacontrolscmd120::clear_override(const std::uint8_t* bytes,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Mediacontrolscmd120::clear_faults(const std::uint8_t* bytes,
                                        int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Mediacontrolscmd120::clear_faults";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(3, 1);
 
@@ -109,6 +122,8 @@ bool Mediacontrolscmd120::clear_faults(const std::uint8_t* bytes,
 // 'order': 'motorola', 'physical_unit': ''}
 bool Mediacontrolscmd120::enable(const std::uint8_t* bytes,
                                  int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Mediacontrolscmd120::enable";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 1);
 

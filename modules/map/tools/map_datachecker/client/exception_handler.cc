@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -23,6 +24,8 @@ namespace apollo {
 namespace hdmap {
 
 int ExceptionHandler::ExceptionHandlerFun(ErrorCode error_code) {
+    AINFO<<"(DMCZP) EnteringMethod: ExceptionHandler::ExceptionHandlerFun";
+
   int ret = 0;
   switch (error_code) {
     case ErrorCode::SUCCESS:

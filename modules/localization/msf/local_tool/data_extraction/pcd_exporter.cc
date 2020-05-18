@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -26,6 +27,8 @@ namespace localization {
 namespace msf {
 
 PCDExporter::PCDExporter(const std::string &pcd_folder) {
+    AINFO<<"(DMCZP) EnteringMethod: PCDExporter::PCDExporter";
+
   pcd_folder_ = pcd_folder;
   std::string stamp_file = pcd_folder_ + "/pcd_timestamp.txt";
 
@@ -41,6 +44,8 @@ PCDExporter::~PCDExporter() {
 }
 
 void PCDExporter::CompensatedPcdCallback(const std::string &msg_string) {
+    AINFO<<"(DMCZP) EnteringMethod: PCDExporter::CompensatedPcdCallback";
+
   AINFO << "Compensated pcd callback.";
   drivers::PointCloud msg;
   msg.ParseFromString(msg_string);
@@ -60,6 +65,8 @@ void PCDExporter::CompensatedPcdCallback(const std::string &msg_string) {
 
 void PCDExporter::WritePcdFile(const std::string &filename,
                                const drivers::PointCloud &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: PCDExporter::WritePcdFile";
+
   pcl::PointCloud<velodyne::PointXYZIT> cloud;
   cloud.width = msg.width();
   cloud.height = msg.height();

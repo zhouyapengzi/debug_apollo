@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -34,9 +35,13 @@ using apollo::localization::LocalizationEstimate;
 using apollo::perception::PerceptionObstacles;
 
 RelativeMap::RelativeMap()
-    : monitor_logger_buffer_(MonitorMessageItem::RELATIVE_MAP) {}
+    : monitor_logger_buffer_(MonitorMessageItem::RELATIVE_MAP) {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::RelativeMap";
+}
 
 Status RelativeMap::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::Init";
+
   if (!FLAGS_use_navigation_mode) {
     AERROR << "FLAGS_use_navigation_mode is false, system is not configured "
               "for relative map mode";
@@ -60,17 +65,23 @@ Status RelativeMap::Init() {
 }
 
 void LogErrorStatus(MapMsg* map_msg, const std::string& error_msg) {
+    AINFO<<"(DMCZP) EnteringMethod: LogErrorStatus";
+
   auto* status = map_msg->mutable_header()->mutable_status();
   status->set_msg(error_msg);
   status->set_error_code(ErrorCode::RELATIVE_MAP_ERROR);
 }
 
 apollo::common::Status RelativeMap::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::Start";
+
   monitor_logger_buffer_.INFO("RelativeMap started");
   return Status::OK();
 }
 
 bool RelativeMap::Process(MapMsg* const map_msg) {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::Process";
+
   {
     std::lock_guard<std::mutex> lock(navigation_lane_mutex_);
     CreateMapFromNavigationLane(map_msg);
@@ -79,6 +90,8 @@ bool RelativeMap::Process(MapMsg* const map_msg) {
 }
 
 void RelativeMap::OnNavigationInfo(const NavigationInfo& navigation_info) {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::OnNavigationInfo";
+
   {
     std::lock_guard<std::mutex> lock(navigation_lane_mutex_);
     navigation_lane_.UpdateNavigationInfo(navigation_info);
@@ -87,6 +100,8 @@ void RelativeMap::OnNavigationInfo(const NavigationInfo& navigation_info) {
 
 void RelativeMap::OnPerception(
     const PerceptionObstacles& perception_obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::OnPerception";
+
   {
     std::lock_guard<std::mutex> lock(navigation_lane_mutex_);
     perception_obstacles_.CopyFrom(perception_obstacles);
@@ -94,6 +109,8 @@ void RelativeMap::OnPerception(
 }
 
 void RelativeMap::OnChassis(const Chassis& chassis) {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::OnChassis";
+
   {
     std::lock_guard<std::mutex> lock(navigation_lane_mutex_);
     chassis_.CopyFrom(chassis);
@@ -101,6 +118,8 @@ void RelativeMap::OnChassis(const Chassis& chassis) {
 }
 
 void RelativeMap::OnLocalization(const LocalizationEstimate& localization) {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::OnLocalization";
+
   {
     std::lock_guard<std::mutex> lock(navigation_lane_mutex_);
     localization_.CopyFrom(localization);
@@ -108,6 +127,8 @@ void RelativeMap::OnLocalization(const LocalizationEstimate& localization) {
 }
 
 bool RelativeMap::CreateMapFromNavigationLane(MapMsg* map_msg) {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::CreateMapFromNavigationLane";
+
   CHECK_NOTNULL(map_msg);
 
   // update vehicle state from localization and chassis
@@ -146,7 +167,9 @@ bool RelativeMap::CreateMapFromNavigationLane(MapMsg* map_msg) {
   return true;
 }
 
-void RelativeMap::Stop() { monitor_logger_buffer_.INFO("RelativeMap stopped"); }
+void RelativeMap::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMap::Stop";
+ monitor_logger_buffer_.INFO("RelativeMap stopped"); }
 
 }  // namespace relative_map
 }  // namespace apollo

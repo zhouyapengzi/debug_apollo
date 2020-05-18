@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -22,6 +23,8 @@ namespace velodyne {
 
 bool Input::exract_nmea_time_from_packet(NMEATimePtr nmea_time,
                                          const uint8_t* bytes) {
+    AINFO<<"(DMCZP) EnteringMethod: Input::exract_nmea_time_from_packet";
+
   unsigned int gprmc_index = 206;
 
   int field_count = 0;

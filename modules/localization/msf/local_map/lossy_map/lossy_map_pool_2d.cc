@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -22,9 +23,13 @@ namespace msf {
 
 LossyMapNodePool2D::LossyMapNodePool2D(unsigned int pool_size,
                                        unsigned int thread_size)
-    : BaseMapNodePool(pool_size, thread_size) {}
+    : BaseMapNodePool(pool_size, thread_size) {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapNodePool2D::LossyMapNodePool2D";
+}
 
 BaseMapNode* LossyMapNodePool2D::AllocNewMapNode() {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapNodePool2D::AllocNewMapNode";
+
   return new LossyMapNode2D();
 }
 

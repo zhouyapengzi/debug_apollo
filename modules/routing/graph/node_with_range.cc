@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -20,10 +21,14 @@ namespace apollo {
 namespace routing {
 
 NodeWithRange::NodeWithRange(const TopoNode* node, const NodeSRange& range)
-    : NodeSRange(range), topo_node_(node) {}
+    : NodeSRange(range), topo_node_(node) {
+    AINFO<<"(DMCZP) EnteringMethod: NodeWithRange::NodeWithRange";
+}
 
 NodeWithRange::NodeWithRange(const TopoNode* node, double start_s, double end_s)
-    : NodeSRange(start_s, end_s), topo_node_(node) {}
+    : NodeSRange(start_s, end_s), topo_node_(node) {
+    AINFO<<"(DMCZP) EnteringMethod: NodeWithRange::NodeWithRange";
+}
 
 NodeWithRange::~NodeWithRange() {}
 
@@ -31,19 +36,29 @@ bool NodeWithRange::operator<(const NodeWithRange& other) const {
   return StartS() > other.StartS();
 }
 
-const TopoNode* NodeWithRange::GetTopoNode() const { return topo_node_; }
+const TopoNode* NodeWithRange::GetTopoNode() const {
+    AINFO<<"(DMCZP) EnteringMethod: NodeWithRange::GetTopoNode";
+ return topo_node_; }
 
-bool NodeWithRange::IsVirtual() const { return topo_node_->IsVirtual(); }
+bool NodeWithRange::IsVirtual() const {
+    AINFO<<"(DMCZP) EnteringMethod: NodeWithRange::IsVirtual";
+ return topo_node_->IsVirtual(); }
 
 const std::string& NodeWithRange::RoadId() const {
+    AINFO<<"(DMCZP) EnteringMethod: NodeWithRange::RoadId";
+
   return topo_node_->RoadId();
 }
 
 const std::string& NodeWithRange::LaneId() const {
+    AINFO<<"(DMCZP) EnteringMethod: NodeWithRange::LaneId";
+
   return topo_node_->LaneId();
 }
 
-double NodeWithRange::FullLength() const { return topo_node_->Length(); }
+double NodeWithRange::FullLength() const {
+    AINFO<<"(DMCZP) EnteringMethod: NodeWithRange::FullLength";
+ return topo_node_->Length(); }
 
 }  // namespace routing
 }  // namespace apollo

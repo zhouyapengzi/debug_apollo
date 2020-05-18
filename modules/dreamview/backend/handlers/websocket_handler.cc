@@ -27,6 +27,8 @@ namespace dreamview {
 using apollo::common::util::ContainsKey;
 
 void WebSocketHandler::handleReadyState(CivetServer *server, Connection *conn) {
+    AINFO<<"(DMCZP) EnteringMethod: WebSocketHandler::handleReadyState";
+
   {
     std::unique_lock<std::mutex> lock(mutex_);
     connections_.emplace(conn, std::make_shared<std::mutex>());
@@ -42,6 +44,8 @@ void WebSocketHandler::handleReadyState(CivetServer *server, Connection *conn) {
 
 void WebSocketHandler::handleClose(CivetServer *server,
                                    const Connection *conn) {
+    AINFO<<"(DMCZP) EnteringMethod: WebSocketHandler::handleClose";
+
   // Remove from the store of currently open connections. Copy the mutex out
   // so that it won't be reclaimed during map.erase().
   Connection *connection = const_cast<Connection *>(conn);
@@ -64,6 +68,8 @@ void WebSocketHandler::handleClose(CivetServer *server,
 }
 
 bool WebSocketHandler::BroadcastData(const std::string &data, bool skippable) {
+    AINFO<<"(DMCZP) EnteringMethod: WebSocketHandler::BroadcastData";
+
   std::vector<Connection *> connections_to_send;
   {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -88,11 +94,15 @@ bool WebSocketHandler::BroadcastData(const std::string &data, bool skippable) {
 
 bool WebSocketHandler::SendBinaryData(Connection *conn, const std::string &data,
                                       bool skippable) {
+    AINFO<<"(DMCZP) EnteringMethod: WebSocketHandler::SendBinaryData";
+
   return SendData(conn, data, skippable, MG_WEBSOCKET_OPCODE_BINARY);
 }
 
 bool WebSocketHandler::SendData(Connection *conn, const std::string &data,
                                 bool skippable, int op_code) {
+    AINFO<<"(DMCZP) EnteringMethod: WebSocketHandler::SendData";
+
   std::shared_ptr<std::mutex> connection_lock;
   {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -163,6 +173,8 @@ thread_local std::stringstream WebSocketHandler::data_;
 
 bool WebSocketHandler::handleData(CivetServer *server, Connection *conn,
                                   int bits, char *data, size_t data_len) {
+    AINFO<<"(DMCZP) EnteringMethod: WebSocketHandler::handleData";
+
   // Ignore connection close request.
   if ((bits & 0x0F) == MG_WEBSOCKET_OPCODE_CONNECTION_CLOSE) {
     return false;
@@ -203,6 +215,8 @@ bool WebSocketHandler::handleData(CivetServer *server, Connection *conn,
 
 bool WebSocketHandler::handleJsonData(Connection *conn,
                                       const std::string &data) {
+    AINFO<<"(DMCZP) EnteringMethod: WebSocketHandler::handleJsonData";
+
   Json json;
   try {
     json = Json::parse(data.begin(), data.end());
@@ -228,6 +242,8 @@ bool WebSocketHandler::handleJsonData(Connection *conn,
 
 bool WebSocketHandler::handleBinaryData(Connection *conn,
                                         const std::string &data) {
+    AINFO<<"(DMCZP) EnteringMethod: WebSocketHandler::handleBinaryData";
+
   auto type = "Binary";
   message_handlers_[type](data, conn);
   return true;

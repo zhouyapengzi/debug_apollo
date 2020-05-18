@@ -46,6 +46,8 @@ ErrorCode TransitController::Init(
     const VehicleParameter& params,
     CanSender<::apollo::canbus::ChassisDetail>* const can_sender,
     MessageManager<::apollo::canbus::ChassisDetail>* const message_manager) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Init";
+
   if (is_initialized_) {
     AINFO << "TransitController has already been initialized.";
     return ErrorCode::CANBUS_ERROR;
@@ -135,6 +137,8 @@ ErrorCode TransitController::Init(
 TransitController::~TransitController() {}
 
 bool TransitController::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Start";
+
   if (!is_initialized_) {
     AERROR << "TransitController has NOT been initiated.";
     return false;
@@ -146,6 +150,8 @@ bool TransitController::Start() {
 }
 
 void TransitController::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Stop";
+
   if (!is_initialized_) {
     AERROR << "TransitController stops or starts improperly!";
     return;
@@ -159,6 +165,8 @@ void TransitController::Stop() {
 }
 
 Chassis TransitController::chassis() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::chassis";
+
   chassis_.Clear();
 
   ChassisDetail chassis_detail;
@@ -246,11 +254,15 @@ Chassis TransitController::chassis() {
 }
 
 void TransitController::Emergency() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Emergency";
+
   set_driving_mode(Chassis::EMERGENCY_MODE);
   ResetProtocol();
 }
 
 ErrorCode TransitController::EnableAutoMode() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::EnableAutoMode";
+
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE) {
     AINFO << "Already in COMPLETE_AUTO_DRIVE mode";
     return ErrorCode::OK;
@@ -283,6 +295,8 @@ ErrorCode TransitController::EnableAutoMode() {
 }
 
 ErrorCode TransitController::DisableAutoMode() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::DisableAutoMode";
+
   ResetProtocol();
   can_sender_->Update();
   set_driving_mode(Chassis::COMPLETE_MANUAL);
@@ -292,6 +306,8 @@ ErrorCode TransitController::DisableAutoMode() {
 }
 
 ErrorCode TransitController::EnableSteeringOnlyMode() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::EnableSteeringOnlyMode";
+
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode() == Chassis::AUTO_STEER_ONLY) {
     set_driving_mode(Chassis::AUTO_STEER_ONLY);
@@ -313,6 +329,8 @@ ErrorCode TransitController::EnableSteeringOnlyMode() {
 }
 
 ErrorCode TransitController::EnableSpeedOnlyMode() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::EnableSpeedOnlyMode";
+
   if (driving_mode() == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode() == Chassis::AUTO_SPEED_ONLY) {
     set_driving_mode(Chassis::AUTO_SPEED_ONLY);
@@ -348,6 +366,8 @@ ErrorCode TransitController::EnableSpeedOnlyMode() {
 
 // NEUTRAL, REVERSE, DRIVE
 void TransitController::Gear(Chassis::GearPosition gear_position) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Gear";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "This drive mode no need to set gear.";
@@ -404,6 +424,8 @@ void TransitController::Gear(Chassis::GearPosition gear_position) {
 // acceleration_spd:60 ~ 100, suggest: 90
 // -> pedal
 void TransitController::Brake(double pedal) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Brake";
+
   // double real_value = params_.max_acc() * acceleration / 100;
   // TODO(QiL):  Update brake value based on mode
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
@@ -421,6 +443,8 @@ void TransitController::Brake(double pedal) {
 // drive with old acceleration
 // gas:0.00~99.99 unit:
 void TransitController::Throttle(double pedal) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Throttle";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set acceleration.";
@@ -436,6 +460,8 @@ void TransitController::Throttle(double pedal) {
 // drive with acceleration/deceleration
 // acc:-7.0 ~ 5.0, unit:m/s^2
 void TransitController::Acceleration(double acc) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Acceleration";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_SPEED_ONLY) {
     AINFO << "The current drive mode does not need to set acceleration.";
@@ -449,6 +475,8 @@ void TransitController::Acceleration(double acc) {
 // steering with old angle speed
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
 void TransitController::Steer(double angle) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Steer";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
@@ -466,6 +494,8 @@ void TransitController::Steer(double angle) {
 // angle:-99.99~0.00~99.99, unit:, left:-, right:+
 // angle_spd:0.00~99.99, unit:deg/s
 void TransitController::Steer(double angle, double angle_spd) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::Steer";
+
   if (driving_mode() != Chassis::COMPLETE_AUTO_DRIVE &&
       driving_mode() != Chassis::AUTO_STEER_ONLY) {
     AINFO << "The current driving mode does not need to set steer.";
@@ -483,6 +513,8 @@ void TransitController::Steer(double angle, double angle_spd) {
 }
 
 void TransitController::SetEpbBreak(const ControlCommand& command) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::SetEpbBreak";
+
   if (command.parking_brake()) {
     adc_motioncontrol1_10_->set_adc_cmd_parkingbrake(true);
   } else {
@@ -491,6 +523,8 @@ void TransitController::SetEpbBreak(const ControlCommand& command) {
 }
 
 void TransitController::SetBeam(const ControlCommand& command) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::SetBeam";
+
   if (command.signal().high_beam()) {
     adc_auxiliarycontrol_110_->set_adc_cmd_highbeam(true);
   } else if (command.signal().low_beam()) {
@@ -502,6 +536,8 @@ void TransitController::SetBeam(const ControlCommand& command) {
 }
 
 void TransitController::SetHorn(const ControlCommand& command) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::SetHorn";
+
   if (command.signal().horn()) {
     adc_auxiliarycontrol_110_->set_adc_cmd_horn(true);
   } else {
@@ -510,6 +546,8 @@ void TransitController::SetHorn(const ControlCommand& command) {
 }
 
 void TransitController::SetTurningSignal(const ControlCommand& command) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::SetTurningSignal";
+
   // Set Turn Signal
   auto signal = command.signal().turn_signal();
   if (signal == common::VehicleSignal::TURN_LEFT) {
@@ -525,15 +563,21 @@ void TransitController::SetTurningSignal(const ControlCommand& command) {
 }
 
 void TransitController::ResetProtocol() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::ResetProtocol";
+
   message_manager_->ResetSendMessages();
 }
 
 bool TransitController::CheckChassisError() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::CheckChassisError";
+
   // TODO(QiL): re-design later
   return true;
 }
 
 void TransitController::SecurityDogThreadFunc() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::SecurityDogThreadFunc";
+
   int32_t vertical_ctrl_fail = 0;
   int32_t horizontal_ctrl_fail = 0;
 
@@ -597,6 +641,8 @@ void TransitController::SecurityDogThreadFunc() {
 }
 
 bool TransitController::CheckResponse() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::CheckResponse";
+
   // TODO(Udelv): Add separate indicators
   ChassisDetail chassis_detail;
   if (message_manager_->GetSensorData(&chassis_detail) != ErrorCode::OK) {
@@ -617,32 +663,44 @@ bool TransitController::CheckResponse() {
 }
 
 void TransitController::set_chassis_error_mask(const int32_t mask) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::set_chassis_error_mask";
+
   std::lock_guard<std::mutex> lock(chassis_mask_mutex_);
   chassis_error_mask_ = mask;
 }
 
 int32_t TransitController::chassis_error_mask() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::chassis_error_mask";
+
   std::lock_guard<std::mutex> lock(chassis_mask_mutex_);
   return chassis_error_mask_;
 }
 
 Chassis::ErrorCode TransitController::chassis_error_code() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::chassis_error_code";
+
   std::lock_guard<std::mutex> lock(chassis_error_code_mutex_);
   return chassis_error_code_;
 }
 
 void TransitController::set_chassis_error_code(
     const Chassis::ErrorCode& error_code) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::set_chassis_error_code";
+
   std::lock_guard<std::mutex> lock(chassis_error_code_mutex_);
   chassis_error_code_ = error_code;
 }
 
 bool TransitController::CheckSafetyError(
     const ::apollo::canbus::ChassisDetail& chassis_detail) {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::CheckSafetyError";
+
   return true;
 }
 
 void TransitController::SetLimits() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitController::SetLimits";
+
   adc_motioncontrollimits1_12_->set_adc_cmd_throttlecommandlimit(100);
   adc_motioncontrollimits1_12_->set_adc_cmd_steerwheelanglelimit(1275);
   adc_motioncontrollimits1_12_->set_adc_cmd_steeringrate(500);

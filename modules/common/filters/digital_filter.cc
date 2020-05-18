@@ -31,31 +31,43 @@ namespace common {
 
 DigitalFilter::DigitalFilter(const std::vector<double> &denominators,
                              const std::vector<double> &numerators) {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::DigitalFilter";
+
   set_coefficients(denominators, numerators);
 }
 
 void DigitalFilter::set_denominators(const std::vector<double> &denominators) {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::set_denominators";
+
   denominators_ = denominators;
   y_values_.resize(denominators_.size(), 0.0);
 }
 
 void DigitalFilter::set_numerators(const std::vector<double> &numerators) {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::set_numerators";
+
   numerators_ = numerators;
   x_values_.resize(numerators_.size(), 0.0);
 }
 
 void DigitalFilter::set_coefficients(const std::vector<double> &denominators,
                                      const std::vector<double> &numerators) {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::set_coefficients";
+
   set_denominators(denominators);
   set_numerators(numerators);
 }
 
 void DigitalFilter::set_dead_zone(const double deadzone) {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::set_dead_zone";
+
   dead_zone_ = std::fabs(deadzone);
   AINFO << "Setting digital filter dead zone = " << dead_zone_;
 }
 
 double DigitalFilter::Filter(const double x_insert) {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::Filter";
+
   if (denominators_.empty() || numerators_.empty()) {
     AERROR << "Empty denominators or numerators";
     return 0.0;
@@ -80,11 +92,15 @@ double DigitalFilter::Filter(const double x_insert) {
 }
 
 void DigitalFilter::reset_values() {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::reset_values";
+
   std::fill(x_values_.begin(), x_values_.end(), 0.0);
   std::fill(y_values_.begin(), y_values_.end(), 0.0);
 }
 
 double DigitalFilter::UpdateLast(const double input) {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::UpdateLast";
+
   const double diff = std::fabs(input - last_);
   if (diff < dead_zone_) {
     return last_;
@@ -97,6 +113,8 @@ double DigitalFilter::Compute(const std::deque<double> &values,
                               const std::vector<double> &coefficients,
                               const std::size_t coeff_start,
                               const std::size_t coeff_end) {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::Compute";
+
   CHECK(coeff_start <= coeff_end && coeff_end < coefficients.size());
   CHECK((coeff_end - coeff_start + 1) == values.size());
 
@@ -117,7 +135,9 @@ const std::vector<double> &DigitalFilter::numerators() const {
   return numerators_;
 }
 
-double DigitalFilter::dead_zone() const { return dead_zone_; }
+double DigitalFilter::dead_zone() const {
+    AINFO<<"(DMCZP) EnteringMethod: DigitalFilter::dead_zone";
+ return dead_zone_; }
 
 const std::deque<double> &DigitalFilter::inputs_queue() const {
   return x_values_;

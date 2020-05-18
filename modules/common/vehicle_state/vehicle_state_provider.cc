@@ -31,11 +31,15 @@
 namespace apollo {
 namespace common {
 
-VehicleStateProvider::VehicleStateProvider() {}
+VehicleStateProvider::VehicleStateProvider() {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::VehicleStateProvider";
+}
 
 Status VehicleStateProvider::Update(
     const localization::LocalizationEstimate &localization,
     const canbus::Chassis &chassis) {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::Update";
+
   original_localization_ = localization;
   if (!ConstructExceptLinearVelocity(localization)) {
     std::string msg = absl::StrCat(
@@ -86,6 +90,8 @@ Status VehicleStateProvider::Update(
 
 bool VehicleStateProvider::ConstructExceptLinearVelocity(
     const localization::LocalizationEstimate &localization) {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::ConstructExceptLinearVelocity";
+
   if (!localization.has_pose()) {
     AERROR << "Invalid localization input.";
     return false;
@@ -161,63 +167,101 @@ bool VehicleStateProvider::ConstructExceptLinearVelocity(
   return true;
 }
 
-double VehicleStateProvider::x() const { return vehicle_state_.x(); }
+double VehicleStateProvider::x() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::x";
+ return vehicle_state_.x(); }
 
-double VehicleStateProvider::y() const { return vehicle_state_.y(); }
+double VehicleStateProvider::y() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::y";
+ return vehicle_state_.y(); }
 
-double VehicleStateProvider::z() const { return vehicle_state_.z(); }
+double VehicleStateProvider::z() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::z";
+ return vehicle_state_.z(); }
 
-double VehicleStateProvider::roll() const { return vehicle_state_.roll(); }
+double VehicleStateProvider::roll() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::roll";
+ return vehicle_state_.roll(); }
 
-double VehicleStateProvider::pitch() const { return vehicle_state_.pitch(); }
+double VehicleStateProvider::pitch() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::pitch";
+ return vehicle_state_.pitch(); }
 
-double VehicleStateProvider::yaw() const { return vehicle_state_.yaw(); }
+double VehicleStateProvider::yaw() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::yaw";
+ return vehicle_state_.yaw(); }
 
 double VehicleStateProvider::heading() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::heading";
+
   return vehicle_state_.heading();
 }
 
-double VehicleStateProvider::kappa() const { return vehicle_state_.kappa(); }
+double VehicleStateProvider::kappa() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::kappa";
+ return vehicle_state_.kappa(); }
 
 double VehicleStateProvider::linear_velocity() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::linear_velocity";
+
   return vehicle_state_.linear_velocity();
 }
 
 double VehicleStateProvider::angular_velocity() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::angular_velocity";
+
   return vehicle_state_.angular_velocity();
 }
 
 double VehicleStateProvider::linear_acceleration() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::linear_acceleration";
+
   return vehicle_state_.linear_acceleration();
 }
 
-double VehicleStateProvider::gear() const { return vehicle_state_.gear(); }
+double VehicleStateProvider::gear() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::gear";
+ return vehicle_state_.gear(); }
 
 double VehicleStateProvider::steering_percentage() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::steering_percentage";
+
   return vehicle_state_.steering_percentage();
 }
 
 double VehicleStateProvider::timestamp() const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::timestamp";
+
   return vehicle_state_.timestamp();
 }
 
 const localization::Pose &VehicleStateProvider::pose() const {
+    AINFO<<"(DMCZP) EnteringMethod: &VehicleStateProvider::pose";
+
   return vehicle_state_.pose();
 }
 
 const localization::Pose &VehicleStateProvider::original_pose() const {
+    AINFO<<"(DMCZP) EnteringMethod: &VehicleStateProvider::original_pose";
+
   return original_localization_.pose();
 }
 
 void VehicleStateProvider::set_linear_velocity(const double linear_velocity) {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::set_linear_velocity";
+
   vehicle_state_.set_linear_velocity(linear_velocity);
 }
 
 const VehicleState &VehicleStateProvider::vehicle_state() const {
+    AINFO<<"(DMCZP) EnteringMethod: &VehicleStateProvider::vehicle_state";
+
   return vehicle_state_;
 }
 
 math::Vec2d VehicleStateProvider::EstimateFuturePosition(const double t) const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::EstimateFuturePosition";
+
   Eigen::Vector3d vec_distance(0.0, 0.0, 0.0);
   double v = vehicle_state_.linear_velocity();
   // Predict distance travel vector
@@ -251,6 +295,8 @@ math::Vec2d VehicleStateProvider::EstimateFuturePosition(const double t) const {
 
 math::Vec2d VehicleStateProvider::ComputeCOMPosition(
     const double rear_to_com_distance) const {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleStateProvider::ComputeCOMPosition";
+
   // set length as distance between rear wheel and center of mass.
   Eigen::Vector3d v;
   if ((FLAGS_state_transform_to_com_reverse &&

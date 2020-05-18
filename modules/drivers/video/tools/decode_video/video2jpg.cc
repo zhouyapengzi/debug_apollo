@@ -27,6 +27,16 @@ DEFINE_string(input_video, "", "The input video file");
 DEFINE_string(output_dir, "", "The directory to output decoded pictures.");
 
 int main(int argc, char** argv) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DECLARE_string";
+
+    AINFO<<"(DMCZP) EnteringMethod: DECLARE_string";
+
   google::ParseCommandLineFlags(&argc, &argv, true);
   AINFO << "input video: " << FLAGS_input_video
         << ". output dir: " << FLAGS_output_dir;

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -20,20 +21,30 @@ namespace apollo {
 namespace localization {
 namespace msf {
 
-BaseMapMatrix::BaseMapMatrix() {}
+BaseMapMatrix::BaseMapMatrix() {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapMatrix::BaseMapMatrix";
+}
 
 BaseMapMatrix::~BaseMapMatrix() {}
 
-BaseMapMatrix::BaseMapMatrix(const BaseMapMatrix& cells) {}
+BaseMapMatrix::BaseMapMatrix(const BaseMapMatrix& cells) {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapMatrix::BaseMapMatrix";
+}
 
-unsigned int BaseMapMatrix::LoadBinary(unsigned char* buf) { return 0; }
+unsigned int BaseMapMatrix::LoadBinary(unsigned char* buf) {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapMatrix::LoadBinary";
+ return 0; }
 
 unsigned int BaseMapMatrix::CreateBinary(unsigned char* buf,
                                          unsigned int buf_size) const {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapMatrix::CreateBinary";
+
   return 0;
 }
 
-unsigned int BaseMapMatrix::GetBinarySize() const { return 0; }
+unsigned int BaseMapMatrix::GetBinarySize() const {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapMatrix::GetBinarySize";
+ return 0; }
 
 }  // namespace msf
 }  // namespace localization

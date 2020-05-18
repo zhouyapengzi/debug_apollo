@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,11 +28,15 @@ namespace lexus {
 
 using ::apollo::drivers::canbus::Byte;
 
-Turnrpt230::Turnrpt230() {}
+Turnrpt230::Turnrpt230() {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::Turnrpt230";
+}
 const int32_t Turnrpt230::ID = 0x230;
 
 void Turnrpt230::Parse(const std::uint8_t* bytes, int32_t length,
                        ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::Parse";
+
   chassis->mutable_lexus()->mutable_turn_rpt_230()->set_vehicle_fault(
       vehicle_fault(bytes, length));
   chassis->mutable_lexus()->mutable_turn_rpt_230()->set_pacmod_fault(
@@ -59,6 +64,8 @@ void Turnrpt230::Parse(const std::uint8_t* bytes, int32_t length,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Turnrpt230::vehicle_fault(const std::uint8_t* bytes,
                                int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::vehicle_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(6, 1);
 
@@ -70,6 +77,8 @@ bool Turnrpt230::vehicle_fault(const std::uint8_t* bytes,
 // 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 5,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Turnrpt230::pacmod_fault(const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::pacmod_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(5, 1);
 
@@ -82,6 +91,8 @@ bool Turnrpt230::pacmod_fault(const std::uint8_t* bytes, int32_t length) const {
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Turnrpt230::override_active(const std::uint8_t* bytes,
                                  int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::override_active";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(1, 1);
 
@@ -94,6 +105,8 @@ bool Turnrpt230::override_active(const std::uint8_t* bytes,
 // '[0|1]', 'bit': 4, 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Turnrpt230::output_reported_fault(const std::uint8_t* bytes,
                                        int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::output_reported_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(4, 1);
 
@@ -106,6 +119,8 @@ bool Turnrpt230::output_reported_fault(const std::uint8_t* bytes,
 // '[0|1]', 'bit': 3, 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Turnrpt230::input_output_fault(const std::uint8_t* bytes,
                                     int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::input_output_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(3, 1);
 
@@ -117,6 +132,8 @@ bool Turnrpt230::input_output_fault(const std::uint8_t* bytes,
 // 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 0, 'type': 'bool',
 // 'order': 'motorola', 'physical_unit': ''}
 bool Turnrpt230::enabled(const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::enabled";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 1);
 
@@ -129,6 +146,8 @@ bool Turnrpt230::enabled(const std::uint8_t* bytes, int32_t length) const {
 // '[0|1]', 'bit': 2, 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Turnrpt230::command_output_fault(const std::uint8_t* bytes,
                                       int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::command_output_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(2, 1);
 
@@ -143,6 +162,8 @@ bool Turnrpt230::command_output_fault(const std::uint8_t* bytes,
 // 'physical_unit': ''}
 Turn_rpt_230::Manual_inputType Turnrpt230::manual_input(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::manual_input";
+
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 8);
 
@@ -158,6 +179,8 @@ Turn_rpt_230::Manual_inputType Turnrpt230::manual_input(
 // 'bit': 23, 'type': 'enum', 'order': 'motorola', 'physical_unit': ''}
 Turn_rpt_230::Commanded_valueType Turnrpt230::commanded_value(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::commanded_value";
+
   Byte t0(bytes + 2);
   int32_t x = t0.get_byte(0, 8);
 
@@ -173,6 +196,8 @@ Turn_rpt_230::Commanded_valueType Turnrpt230::commanded_value(
 // 'physical_unit': ''}
 Turn_rpt_230::Output_valueType Turnrpt230::output_value(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnrpt230::output_value";
+
   Byte t0(bytes + 3);
   int32_t x = t0.get_byte(0, 8);
 

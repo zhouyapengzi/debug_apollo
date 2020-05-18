@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -35,15 +36,21 @@ using apollo::localization::LocalizationEstimate;
 using apollo::planning::ADCTrajectory;
 
 MPCControllerSubmodule::MPCControllerSubmodule()
-    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::CONTROL) {}
+    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::CONTROL) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCControllerSubmodule::MPCControllerSubmodule";
+}
 
 MPCControllerSubmodule::~MPCControllerSubmodule() {}
 
 std::string MPCControllerSubmodule::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: MPCControllerSubmodule::Name";
+
   return FLAGS_mpc_controller_submodule_name;
 }
 
 bool MPCControllerSubmodule::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: MPCControllerSubmodule::Init";
+
   // TODO(SHU): separate common_control conf from controller conf
   CHECK(cyber::common::GetProtoFromFile(FLAGS_mpc_controller_conf_file,
                                         &mpc_controller_conf_))
@@ -63,6 +70,8 @@ bool MPCControllerSubmodule::Init() {
 
 bool MPCControllerSubmodule::Proc(
     const std::shared_ptr<Preprocessor>& preprocessor_status) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCControllerSubmodule::Proc";
+
   const auto start_time = Clock::Now();
 
   ControlCommand control_core_command;
@@ -114,6 +123,8 @@ bool MPCControllerSubmodule::Proc(
 
 Status MPCControllerSubmodule::ProduceControlCoreCommand(
     const LocalView& local_view, ControlCommand* control_core_command) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCControllerSubmodule::ProduceControlCoreCommand";
+
   if (local_view.chassis().driving_mode() == Chassis::COMPLETE_MANUAL) {
     mpc_controller_.Reset();
     AINFO_EVERY(100) << "Reset Controllers in Manual Mode";

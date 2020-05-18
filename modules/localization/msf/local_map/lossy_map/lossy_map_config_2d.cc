@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -22,6 +23,8 @@ namespace msf {
 
 LossyMapConfig2D::LossyMapConfig2D(std::string map_version)
     : BaseMapConfig(map_version) {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapConfig2D::LossyMapConfig2D";
+
   map_layer_alt_thres_ = 10000.0;  // in meters
   map_cache_size_ = 50;            // 80
   max_intensity_value_ = 255.0;
@@ -31,6 +34,8 @@ LossyMapConfig2D::LossyMapConfig2D(std::string map_version)
 }
 
 void LossyMapConfig2D::CreateXml(boost::property_tree::ptree* config) const {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapConfig2D::CreateXml";
+
   BaseMapConfig::CreateXml(config);
   config->put("map.map_runtime.layer_alt_thres", map_layer_alt_thres_);
   config->put("map.map_runtime.cache_size", map_cache_size_);
@@ -40,6 +45,8 @@ void LossyMapConfig2D::CreateXml(boost::property_tree::ptree* config) const {
 }
 
 void LossyMapConfig2D::LoadXml(const boost::property_tree::ptree& config) {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapConfig2D::LoadXml";
+
   BaseMapConfig::LoadXml(config);
   map_layer_alt_thres_ = config.get<float>("map.map_runtime.layer_alt_thres");
   map_cache_size_ = config.get<unsigned int>("map.map_runtime.cache_size");

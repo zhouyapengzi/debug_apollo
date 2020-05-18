@@ -24,6 +24,8 @@ namespace apollo {
 namespace control {
 
 double PIDController::Control(const double error, const double dt) {
+    AINFO<<"(DMCZP) EnteringMethod: PIDController::Control";
+
   if (dt <= 0) {
     AWARN << "dt <= 0, will use the last output, dt: " << dt;
     return previous_output_;
@@ -59,6 +61,8 @@ double PIDController::Control(const double error, const double dt) {
 }
 
 void PIDController::Reset() {
+    AINFO<<"(DMCZP) EnteringMethod: PIDController::Reset";
+
   previous_error_ = 0.0;
   previous_output_ = 0.0;
   integral_ = 0.0;
@@ -68,6 +72,8 @@ void PIDController::Reset() {
 }
 
 void PIDController::Init(const PidConf &pid_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: PIDController::Init";
+
   previous_error_ = 0.0;
   previous_output_ = 0.0;
   integral_ = 0.0;
@@ -86,6 +92,8 @@ void PIDController::Init(const PidConf &pid_conf) {
 }
 
 void PIDController::SetPID(const PidConf &pid_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: PIDController::SetPID";
+
   kp_ = pid_conf.kp();
   ki_ = pid_conf.ki();
   kd_ = pid_conf.kd();
@@ -93,12 +101,18 @@ void PIDController::SetPID(const PidConf &pid_conf) {
 }
 
 int PIDController::IntegratorSaturationStatus() const {
+    AINFO<<"(DMCZP) EnteringMethod: PIDController::IntegratorSaturationStatus";
+
   return integrator_saturation_status_;
 }
 
-bool PIDController::IntegratorHold() const { return integrator_hold_; }
+bool PIDController::IntegratorHold() const {
+    AINFO<<"(DMCZP) EnteringMethod: PIDController::IntegratorHold";
+ return integrator_hold_; }
 
-void PIDController::SetIntegratorHold(bool hold) { integrator_hold_ = hold; }
+void PIDController::SetIntegratorHold(bool hold) {
+    AINFO<<"(DMCZP) EnteringMethod: PIDController::SetIntegratorHold";
+ integrator_hold_ = hold; }
 
 }  // namespace control
 }  // namespace apollo

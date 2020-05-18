@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,12 +28,16 @@ namespace transit {
 
 using ::apollo::drivers::canbus::Byte;
 
-Llcmotioncommandfeedback122::Llcmotioncommandfeedback122() {}
+Llcmotioncommandfeedback122::Llcmotioncommandfeedback122() {
+    AINFO<<"(DMCZP) EnteringMethod: Llcmotioncommandfeedback122::Llcmotioncommandfeedback122";
+}
 const int32_t Llcmotioncommandfeedback122::ID = 0x22;
 
 void Llcmotioncommandfeedback122::Parse(const std::uint8_t* bytes,
                                         int32_t length,
                                         ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Llcmotioncommandfeedback122::Parse";
+
   chassis->mutable_transit()
       ->mutable_llc_motioncommandfeedback1_22()
       ->set_llc_fbk_steeringanglesetpoint(
@@ -61,6 +66,8 @@ void Llcmotioncommandfeedback122::Parse(const std::uint8_t* bytes,
 // 'physical_unit': 'deg'}
 double Llcmotioncommandfeedback122::llc_fbk_steeringanglesetpoint(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Llcmotioncommandfeedback122::llc_fbk_steeringanglesetpoint";
+
   Byte t0(bytes + 4);
   int32_t x = t0.get_byte(0, 5);
 
@@ -88,6 +95,8 @@ double Llcmotioncommandfeedback122::llc_fbk_steeringanglesetpoint(
 // '%'}
 double Llcmotioncommandfeedback122::llc_fbk_throttlesetpoint(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Llcmotioncommandfeedback122::llc_fbk_throttlesetpoint";
+
   Byte t0(bytes + 2);
   int32_t x = t0.get_byte(0, 5);
 
@@ -107,6 +116,8 @@ double Llcmotioncommandfeedback122::llc_fbk_throttlesetpoint(
 // 'physical_unit': '%'}
 double Llcmotioncommandfeedback122::llc_fbk_brakepercentsetpoint(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Llcmotioncommandfeedback122::llc_fbk_brakepercentsetpoint";
+
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 3);
 
@@ -125,6 +136,8 @@ double Llcmotioncommandfeedback122::llc_fbk_brakepercentsetpoint(
 // '[0|3]', 'bit': 54, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
 int Llcmotioncommandfeedback122::llc_motioncommandfeedback1_count(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Llcmotioncommandfeedback122::llc_motioncommandfeedback1_count";
+
   Byte t0(bytes + 6);
   int32_t x = t0.get_byte(6, 2);
 
@@ -138,6 +151,8 @@ int Llcmotioncommandfeedback122::llc_motioncommandfeedback1_count(
 // '[0|255]', 'bit': 56, 'type': 'int', 'order': 'intel', 'physical_unit': ''}
 int Llcmotioncommandfeedback122::llc_motioncommandfeedback1_check(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Llcmotioncommandfeedback122::llc_motioncommandfeedback1_check";
+
   Byte t0(bytes + 7);
   int32_t x = t0.get_byte(0, 8);
 

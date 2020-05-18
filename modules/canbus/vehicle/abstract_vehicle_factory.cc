@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -21,6 +22,8 @@ namespace canbus {
 
 void AbstractVehicleFactory::SetVehicleParameter(
     const VehicleParameter &vehicle_parameter) {
+    AINFO<<"(DMCZP) EnteringMethod: AbstractVehicleFactory::SetVehicleParameter";
+
   vehicle_parameter_ = vehicle_parameter;
 }
 

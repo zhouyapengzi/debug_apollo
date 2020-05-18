@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -54,6 +55,8 @@ static const boost::array<double, 36> POSE_COVAR = {
     0, 0, 0, 0.01, 0, 0, 0, 0, 0, 0, 0.01, 0, 0, 0, 0, 0, 0, 0.01};
 
 Parser *CreateParser(config::Config config, bool is_base_station = false) {
+    AINFO<<"(DMCZP) EnteringMethod: *CreateParser";
+
   switch (config.data().format()) {
     case config::Stream::NOVATEL_BINARY:
       return Parser::CreateNovatel(config);
@@ -71,6 +74,8 @@ Parser *CreateParser(config::Config config, bool is_base_station = false) {
 DataParser::DataParser(const config::Config &config,
                        const std::shared_ptr<apollo::cyber::Node> &node)
     : config_(config), tf_broadcaster_(node), node_(node) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::DataParser";
+
   std::string utm_target_param;
 
   wgs84pj_source_ = pj_init_plus(WGS84_TEXT);
@@ -83,6 +88,8 @@ DataParser::DataParser(const config::Config &config,
 }
 
 bool DataParser::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::Init";
+
   ins_status_.mutable_header()->set_timestamp_sec(
       cyber::Time::Now().ToSecond());
   gnss_status_.mutable_header()->set_timestamp_sec(
@@ -119,6 +126,8 @@ bool DataParser::Init() {
 }
 
 void DataParser::ParseRawData(const std::string &msg) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::ParseRawData";
+
   if (!init_flag_) {
     AERROR << "Data parser not init.";
     return;
@@ -138,6 +147,8 @@ void DataParser::ParseRawData(const std::string &msg) {
 }
 
 void DataParser::CheckInsStatus(::apollo::drivers::gnss::Ins *ins) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::CheckInsStatus";
+
   static double last_notify = cyber::Time().Now().ToSecond();
   double now = cyber::Time().Now().ToSecond();
   if (ins_status_record_ != static_cast<uint32_t>(ins->type()) ||
@@ -165,6 +176,8 @@ void DataParser::CheckInsStatus(::apollo::drivers::gnss::Ins *ins) {
 }
 
 void DataParser::CheckGnssStatus(::apollo::drivers::gnss::Gnss *gnss) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::CheckGnssStatus";
+
   gnss_status_.set_solution_status(
       static_cast<uint32_t>(gnss->solution_status()));
   gnss_status_.set_num_sats(static_cast<uint32_t>(gnss->num_sats()));
@@ -180,6 +193,8 @@ void DataParser::CheckGnssStatus(::apollo::drivers::gnss::Gnss *gnss) {
 }
 
 void DataParser::DispatchMessage(Parser::MessageType type, MessagePtr message) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::DispatchMessage";
+
   switch (type) {
     case Parser::MessageType::GNSS:
       CheckGnssStatus(As<::apollo::drivers::gnss::Gnss>(message));
@@ -223,18 +238,24 @@ void DataParser::DispatchMessage(Parser::MessageType type, MessagePtr message) {
 }
 
 void DataParser::PublishInsStat(const MessagePtr message) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::PublishInsStat";
+
   auto ins_stat = std::make_shared<InsStat>(*As<InsStat>(message));
   common::util::FillHeader("gnss", ins_stat.get());
   insstat_writer_->Write(ins_stat);
 }
 
 void DataParser::PublishBestpos(const MessagePtr message) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::PublishBestpos";
+
   auto bestpos = std::make_shared<GnssBestPose>(*As<GnssBestPose>(message));
   common::util::FillHeader("gnss", bestpos.get());
   gnssbestpose_writer_->Write(bestpos);
 }
 
 void DataParser::PublishImu(const MessagePtr message) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::PublishImu";
+
   auto raw_imu = std::make_shared<Imu>(*As<Imu>(message));
   Imu *imu = As<Imu>(message);
 
@@ -252,6 +273,8 @@ void DataParser::PublishImu(const MessagePtr message) {
 }
 
 void DataParser::PublishOdometry(const MessagePtr message) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::PublishOdometry";
+
   Ins *ins = As<Ins>(message);
   auto gps = std::make_shared<Gps>();
 
@@ -296,6 +319,8 @@ void DataParser::PublishOdometry(const MessagePtr message) {
 }
 
 void DataParser::PublishCorrimu(const MessagePtr message) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::PublishCorrimu";
+
   Ins *ins = As<Ins>(message);
   auto imu = std::make_shared<CorrectedImu>();
   double unix_sec = apollo::drivers::util::gps2unix(ins->measurement_time());
@@ -320,23 +345,31 @@ void DataParser::PublishCorrimu(const MessagePtr message) {
 }
 
 void DataParser::PublishEphemeris(const MessagePtr message) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::PublishEphemeris";
+
   auto eph = std::make_shared<GnssEphemeris>(*As<GnssEphemeris>(message));
   gnssephemeris_writer_->Write(eph);
 }
 
 void DataParser::PublishObservation(const MessagePtr message) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::PublishObservation";
+
   auto observation =
       std::make_shared<EpochObservation>(*As<EpochObservation>(message));
   epochobservation_writer_->Write(observation);
 }
 
 void DataParser::PublishHeading(const MessagePtr message) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::PublishHeading";
+
   auto heading = std::make_shared<Heading>(*As<Heading>(message));
   heading_writer_->Write(heading);
 }
 
 void DataParser::GpsToTransformStamped(const std::shared_ptr<Gps> &gps,
                                        TransformStamped *transform) {
+    AINFO<<"(DMCZP) EnteringMethod: DataParser::GpsToTransformStamped";
+
   transform->mutable_header()->set_timestamp_sec(gps->header().timestamp_sec());
   transform->mutable_header()->set_frame_id(config_.tf().frame_id());
   transform->set_child_frame_id(config_.tf().child_frame_id());

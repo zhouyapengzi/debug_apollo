@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -26,6 +27,8 @@ namespace msf {
 namespace pyramid_map {
 
 MapNodeIndex::MapNodeIndex() {
+    AINFO<<"(DMCZP) EnteringMethod: MapNodeIndex::MapNodeIndex";
+
   resolution_id_ = 0;
   zone_id_ = 50;
   m_ = 0;
@@ -49,6 +52,8 @@ bool MapNodeIndex::operator!=(const MapNodeIndex& index) const {
 }
 
 std::string MapNodeIndex::ToString() const {
+    AINFO<<"(DMCZP) EnteringMethod: MapNodeIndex::ToString";
+
   std::ostringstream ss;
   ss << "Map node (Resolution ID: " << resolution_id_
      << " Zone ID: " << zone_id_ << " Easting: " << n_ << " Northing: " << m_
@@ -60,6 +65,10 @@ MapNodeIndex MapNodeIndex::GetMapNodeIndex(const BaseMapConfig& option,
                                            const Eigen::Vector3d& coordinate,
                                            unsigned int resolution_id,
                                            int zone_id) {
+    AINFO<<"(DMCZP) EnteringMethod: MapNodeIndex::GetMapNodeIndex";
+
+    AINFO<<"(DMCZP) EnteringMethod: MapNodeIndex::GetMapNodeIndex";
+
   Vector2d coord2d(coordinate[0], coordinate[1]);
   return GetMapNodeIndex(option, coord2d, resolution_id, zone_id);
 }
@@ -94,6 +103,8 @@ MapNodeIndex MapNodeIndex::GetMapNodeIndex(const BaseMapConfig& option,
 
 unsigned int MapNodeIndex::GetMapIndexRangeEast(const BaseMapConfig& option,
                                                 unsigned int resolution_id) {
+    AINFO<<"(DMCZP) EnteringMethod: MapNodeIndex::GetMapIndexRangeEast";
+
   return static_cast<unsigned int>(
       (option.map_range_.GetMaxX() - option.map_range_.GetMinX()) /
       (static_cast<float>(option.map_node_size_x_) *
@@ -102,6 +113,8 @@ unsigned int MapNodeIndex::GetMapIndexRangeEast(const BaseMapConfig& option,
 
 unsigned int MapNodeIndex::GetMapIndexRangeNorth(const BaseMapConfig& option,
                                                  unsigned int resolution_id) {
+    AINFO<<"(DMCZP) EnteringMethod: MapNodeIndex::GetMapIndexRangeNorth";
+
   return static_cast<unsigned int>(
       (option.map_range_.GetMaxY() - option.map_range_.GetMinY()) /
       (static_cast<float>(option.map_node_size_y_) *

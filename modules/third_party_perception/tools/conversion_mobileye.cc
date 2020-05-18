@@ -49,6 +49,8 @@ using Point = apollo::common::Point3D;
 PerceptionObstacles MobileyeToPerceptionObstacles(
     const Mobileye& mobileye, const LocalizationEstimate& localization,
     const Chassis& chassis) {
+    AINFO<<"(DMCZP) EnteringMethod: MobileyeToPerceptionObstacles";
+
   PerceptionObstacles obstacles;
   // retrieve position and velocity of the main vehicle from the localization
   // position

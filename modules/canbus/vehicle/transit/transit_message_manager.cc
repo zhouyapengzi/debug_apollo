@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /* Copyright 2018 The Apollo Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +35,8 @@ namespace canbus {
 namespace transit {
 
 TransitMessageManager::TransitMessageManager() {
+    AINFO<<"(DMCZP) EnteringMethod: TransitMessageManager::TransitMessageManager";
+
   // Control Messages
   AddSendProtocolData<Adcauxiliarycontrol110, true>();
   AddSendProtocolData<Adcmotioncontrol110, true>();

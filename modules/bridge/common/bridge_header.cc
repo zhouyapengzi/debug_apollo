@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -22,6 +23,8 @@ namespace apollo {
 namespace bridge {
 
 bool BridgeHeader::Serialize(char *buf, size_t size) {
+    AINFO<<"(DMCZP) EnteringMethod: BridgeHeader::Serialize";
+
   if (!buf || size == 0) {
     return false;
   }
@@ -41,6 +44,8 @@ bool BridgeHeader::Serialize(char *buf, size_t size) {
 }
 
 bool BridgeHeader::Diserialize(const char *buf, size_t buf_size) {
+    AINFO<<"(DMCZP) EnteringMethod: BridgeHeader::Diserialize";
+
   const char *cursor = buf;
 
   int i = static_cast<int>(buf_size);
@@ -66,6 +71,8 @@ bool BridgeHeader::Diserialize(const char *buf, size_t buf_size) {
 }
 
 bool BridgeHeader::IsAvailable(const char *buf) {
+    AINFO<<"(DMCZP) EnteringMethod: BridgeHeader::IsAvailable";
+
   if (!buf) {
     return false;
   }
@@ -76,6 +83,8 @@ bool BridgeHeader::IsAvailable(const char *buf) {
 }
 
 char *BridgeHeader::SerializeHeaderFlag(char *buf, size_t size) {
+    AINFO<<"(DMCZP) EnteringMethod: *BridgeHeader::SerializeHeaderFlag";
+
   if (!buf || size == 0) {
     return nullptr;
   }
@@ -84,6 +93,8 @@ char *BridgeHeader::SerializeHeaderFlag(char *buf, size_t size) {
 }
 
 char *BridgeHeader::SerializeHeaderSize(char *buf, size_t size) {
+    AINFO<<"(DMCZP) EnteringMethod: *BridgeHeader::SerializeHeaderSize";
+
   hsize header_size = GetHeaderSize();
   return SerializeBasicType<hsize, sizeof(hsize)>(&header_size, buf, size);
 }

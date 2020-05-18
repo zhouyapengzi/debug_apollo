@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -22,19 +23,27 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 // =================PyramidMapMatrixHandlerSelector=================
-NdtMapMatrixHandlerSelector::NdtMapMatrixHandlerSelector() {}
+NdtMapMatrixHandlerSelector::NdtMapMatrixHandlerSelector() {
+    AINFO<<"(DMCZP) EnteringMethod: NdtMapMatrixHandlerSelector::NdtMapMatrixHandlerSelector";
+}
 
 NdtMapMatrixHandlerSelector::~NdtMapMatrixHandlerSelector() {}
 
 BaseMapMatrixHandler* NdtMapMatrixHandlerSelector::AllocNdtMapMatrixHandler() {
+    AINFO<<"(DMCZP) EnteringMethod: NdtMapMatrixHandlerSelector::AllocNdtMapMatrixHandler";
+
   return new NdtMapMatrixHandler();
 }
 
-NdtMapMatrixHandler::NdtMapMatrixHandler() {}
+NdtMapMatrixHandler::NdtMapMatrixHandler() {
+    AINFO<<"(DMCZP) EnteringMethod: NdtMapMatrixHandler::NdtMapMatrixHandler";
+}
 NdtMapMatrixHandler::~NdtMapMatrixHandler() {}
 
 size_t NdtMapMatrixHandler::LoadBinary(const unsigned char* buf,
                                        std::shared_ptr<BaseMapMatrix> matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: NdtMapMatrixHandler::LoadBinary";
+
   if (!matrix) {
     return 0;
   }
@@ -50,6 +59,8 @@ size_t NdtMapMatrixHandler::LoadBinary(const unsigned char* buf,
 size_t NdtMapMatrixHandler::CreateBinary(
     const std::shared_ptr<BaseMapMatrix> matrix, unsigned char* buf,
     size_t buf_size) {
+    AINFO<<"(DMCZP) EnteringMethod: NdtMapMatrixHandler::CreateBinary";
+
   if (!matrix) {
     return 0;
   }
@@ -60,6 +71,8 @@ size_t NdtMapMatrixHandler::CreateBinary(
 /**@brief Get the binary size of the object. */
 size_t NdtMapMatrixHandler::GetBinarySize(
     const std::shared_ptr<BaseMapMatrix> matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: NdtMapMatrixHandler::GetBinarySize";
+
   const std::shared_ptr<NdtMapMatrix> ndt_matrix =
       std::dynamic_pointer_cast<NdtMapMatrix>(matrix);
   return ndt_matrix->GetBinarySize();

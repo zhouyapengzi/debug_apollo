@@ -24,11 +24,15 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-PyramidMapMatrix::PyramidMapMatrix() { Clear(); }
+PyramidMapMatrix::PyramidMapMatrix() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::PyramidMapMatrix";
+ Clear(); }
 
 PyramidMapMatrix::~PyramidMapMatrix() { Clear(); }
 
 PyramidMapMatrix::PyramidMapMatrix(const PyramidMapMatrix& map_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::PyramidMapMatrix";
+
   Clear();
   resolution_num_ = map_matrix.resolution_num_;
   ratio_ = map_matrix.ratio_;
@@ -54,6 +58,8 @@ PyramidMapMatrix::PyramidMapMatrix(const PyramidMapMatrix& map_matrix) {
 }
 
 void PyramidMapMatrix::Init(const BaseMapConfig& config) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::Init";
+
   const PyramidMapConfig* pconfig =
       dynamic_cast<const PyramidMapConfig*>(&config);
   Init(pconfig->map_node_size_y_, pconfig->map_node_size_x_,
@@ -65,6 +71,8 @@ void PyramidMapMatrix::Init(const BaseMapConfig& config) {
 }
 
 void PyramidMapMatrix::Reset() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::Reset";
+
   for (unsigned int i = 0; i < resolution_num_; i++) {
     Reset(i);
   }
@@ -76,6 +84,8 @@ void PyramidMapMatrix::Init(unsigned int rows, unsigned int cols,
                             bool has_ground_altitude, bool has_count,
                             bool has_ground_count, unsigned int resolution_num,
                             unsigned int ratio) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::Init";
+
   Clear();
 
   // resolution_num should greater than 0
@@ -182,6 +192,8 @@ void PyramidMapMatrix::Init(unsigned int rows, unsigned int cols,
 }
 
 void PyramidMapMatrix::Reset(unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::Reset";
+
   if (level >= resolution_num_) {
     AERROR << "PyramidMapMatrix: [reset] The level id is illegal.";
     return;
@@ -212,6 +224,8 @@ void PyramidMapMatrix::Reset(unsigned int level) {
 
 void PyramidMapMatrix::ResetCells(unsigned int start_id, unsigned int end_id,
                                   unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::ResetCells";
+
   if (level >= resolution_num_) {
     AERROR << "PyramidMapMatrix: [ResetCells] The level id is illegal.";
     return;
@@ -248,10 +262,14 @@ void PyramidMapMatrix::ResetCells(unsigned int start_id, unsigned int end_id,
 }
 
 void PyramidMapMatrix::ResetCell(unsigned int id, unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::ResetCell";
+
   ResetCells(id, id, level);
 }
 
 void PyramidMapMatrix::Clear() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::Clear";
+
   resolution_num_ = 1;
   ratio_ = 2;
 
@@ -276,11 +294,15 @@ void PyramidMapMatrix::Clear() {
 }
 
 bool PyramidMapMatrix::GetIntensityImg(cv::Mat* intensity_img) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetIntensityImg";
+
   return GetIntensityImg(0, intensity_img);
 }
 
 bool PyramidMapMatrix::GetIntensityImg(unsigned int level,
                                        cv::Mat* intensity_img) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetIntensityImg";
+
   if (!has_intensity_ || resolution_num_ < 1) {
     AERROR << "PyramidMapMatrix: [GetIntensityImg] No intensity data.";
     return false;
@@ -310,11 +332,15 @@ bool PyramidMapMatrix::GetIntensityImg(unsigned int level,
 }
 
 bool PyramidMapMatrix::GetAltitudeImg(cv::Mat* altitude_img) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetAltitudeImg";
+
   return GetAltitudeImg(0, altitude_img);
 }
 
 bool PyramidMapMatrix::GetAltitudeImg(unsigned int level,
                                       cv::Mat* altitude_img) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetAltitudeImg";
+
   if (!has_altitude_ || resolution_num_ < 1) {
     AERROR << "PyramidMapMatrix: [GetAltitudeImg] No altitude data.";
     return false;
@@ -364,6 +390,8 @@ bool PyramidMapMatrix::GetAltitudeImg(unsigned int level,
 }
 
 void PyramidMapMatrix::BottomUpSafe() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::BottomUpSafe";
+
   if (!has_count_) {
     AERROR << "PyramidMapMatrix: [bottom_up] Has no count.";
     return;
@@ -402,6 +430,8 @@ void PyramidMapMatrix::BottomUpSafe() {
 }
 
 void PyramidMapMatrix::BottomUpBase() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::BottomUpBase";
+
   for (unsigned int i = 1; i < resolution_num_; ++i) {
     const unsigned int& row = rows_mr_[i];
     const unsigned int& col = rows_mr_[i];
@@ -459,6 +489,8 @@ PyramidMapMatrix& PyramidMapMatrix::operator=(
 const float* PyramidMapMatrix::GetIntensitySafe(unsigned int row,
                                                 unsigned int col,
                                                 unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetIntensitySafe";
+
   if (!has_intensity_) {
     AERROR << "PyramidMapMatrix: [GetIntensitySafe] Has no intensity.";
     return nullptr;
@@ -475,6 +507,8 @@ const float* PyramidMapMatrix::GetIntensitySafe(unsigned int row,
 const float* PyramidMapMatrix::GetIntensityVarSafe(unsigned int row,
                                                    unsigned int col,
                                                    unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetIntensityVarSafe";
+
   if (!has_intensity_var_) {
     AERROR << "PyramidMapMatrix: [GetIntensityVarSafe] Has no intensity_var.";
     return nullptr;
@@ -491,6 +525,8 @@ const float* PyramidMapMatrix::GetIntensityVarSafe(unsigned int row,
 const float* PyramidMapMatrix::GetAltitudeSafe(unsigned int row,
                                                unsigned int col,
                                                unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetAltitudeSafe";
+
   if (!has_altitude_) {
     AERROR << "PyramidMapMatrix: [GetAltitudeSafe] Has no altitude.";
     return nullptr;
@@ -507,6 +543,8 @@ const float* PyramidMapMatrix::GetAltitudeSafe(unsigned int row,
 const float* PyramidMapMatrix::GetAltitudeVarSafe(unsigned int row,
                                                   unsigned int col,
                                                   unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetAltitudeVarSafe";
+
   if (!has_altitude_var_) {
     AERROR << "PyramidMapMatrix: [GetAltitudeVarSafe] Has no altitude_var.";
     return nullptr;
@@ -523,6 +561,8 @@ const float* PyramidMapMatrix::GetAltitudeVarSafe(unsigned int row,
 const float* PyramidMapMatrix::GetGroundAltitudeSafe(unsigned int row,
                                                      unsigned int col,
                                                      unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetGroundAltitudeSafe";
+
   if (!has_ground_altitude_) {
     AERROR
         << "PyramidMapMatrix: [GetGroundAltitudeSafe] Has no ground_altitude.";
@@ -540,6 +580,8 @@ const float* PyramidMapMatrix::GetGroundAltitudeSafe(unsigned int row,
 const unsigned int* PyramidMapMatrix::GetCountSafe(unsigned int row,
                                                    unsigned int col,
                                                    unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetCountSafe";
+
   if (!has_count_) {
     AERROR << "PyramidMapMatrix: [GetCountSafe] Has no count.";
     return nullptr;
@@ -555,6 +597,8 @@ const unsigned int* PyramidMapMatrix::GetCountSafe(unsigned int row,
 
 const unsigned int* PyramidMapMatrix::GetGroundCountSafe(
     unsigned int row, unsigned int col, unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetGroundCountSafe";
+
   if (!has_ground_count_) {
     AERROR << "PyramidMapMatrix: [GetGroundCountSafe] Has no ground_count.";
     return nullptr;
@@ -575,6 +619,8 @@ void PyramidMapMatrix::GetMapCellSafe(float** intensity, float** intensity_var,
                                       unsigned int** ground_count,
                                       unsigned int row, unsigned int col,
                                       unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetMapCellSafe";
+
   if (!CheckLegalityForGetData(row, col, level)) {
     AERROR << "PyramidMapMatrix: [GetMapCellSafe] Params is illegal.";
     return;
@@ -610,6 +656,8 @@ void PyramidMapMatrix::GetMapCellSafe(float** intensity, float** intensity_var,
 }
 
 FloatMatrix* PyramidMapMatrix::GetIntensityMatrixSafe(unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetIntensityMatrixSafe";
+
   if (!has_intensity_) {
     AERROR << "PyramidMapMatrix: [GetIntensityMatrixSafe] Has no intensity.";
     return nullptr;
@@ -625,6 +673,8 @@ FloatMatrix* PyramidMapMatrix::GetIntensityMatrixSafe(unsigned int level) {
 }
 
 FloatMatrix* PyramidMapMatrix::GetIntensityVarMatrixSafe(unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetIntensityVarMatrixSafe";
+
   if (!has_intensity_var_) {
     AERROR << "PyramidMapMatrix: [GetIntensityVarMatrixSafe] Has no "
               "intensity_var.";
@@ -641,6 +691,8 @@ FloatMatrix* PyramidMapMatrix::GetIntensityVarMatrixSafe(unsigned int level) {
 }
 
 FloatMatrix* PyramidMapMatrix::GetAltitudeMatrixSafe(unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetAltitudeMatrixSafe";
+
   if (!has_altitude_) {
     AERROR << "PyramidMapMatrix: [GetAltitudeMatrixSafe] Has no altitude.";
     return nullptr;
@@ -656,6 +708,8 @@ FloatMatrix* PyramidMapMatrix::GetAltitudeMatrixSafe(unsigned int level) {
 }
 
 FloatMatrix* PyramidMapMatrix::GetAltitudeVarMatrixSafe(unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetAltitudeVarMatrixSafe";
+
   if (!has_altitude_var_) {
     AERROR
         << "PyramidMapMatrix: [GetAltitudeVarMatrixSafe] Has no altitude_var.";
@@ -672,6 +726,8 @@ FloatMatrix* PyramidMapMatrix::GetAltitudeVarMatrixSafe(unsigned int level) {
 }
 
 FloatMatrix* PyramidMapMatrix::GetGroundAltitudeMatrixSafe(unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetGroundAltitudeMatrixSafe";
+
   if (!has_ground_altitude_) {
     AERROR << "PyramidMapMatrix: [GetGroundAltitudeMatrixSafe] Has no "
               "ground_altitude.";
@@ -688,6 +744,8 @@ FloatMatrix* PyramidMapMatrix::GetGroundAltitudeMatrixSafe(unsigned int level) {
 }
 
 UIntMatrix* PyramidMapMatrix::GetCountMatrixSafe(unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetCountMatrixSafe";
+
   if (!has_count_) {
     AERROR << "PyramidMapMatrix: [GetCountMatrixSafe] Has no count.";
     return nullptr;
@@ -702,6 +760,8 @@ UIntMatrix* PyramidMapMatrix::GetCountMatrixSafe(unsigned int level) {
 }
 
 UIntMatrix* PyramidMapMatrix::GetGroundCountMatrixSafe(unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetGroundCountMatrixSafe";
+
   if (!has_ground_count_) {
     AERROR
         << "PyramidMapMatrix: [GetGroundCountMatrixSafe] Has no ground_count.";
@@ -719,6 +779,8 @@ UIntMatrix* PyramidMapMatrix::GetGroundCountMatrixSafe(unsigned int level) {
 
 const FloatMatrix* PyramidMapMatrix::GetIntensityMatrixSafe(
     unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetIntensityMatrixSafe";
+
   if (!has_intensity_) {
     AERROR << "PyramidMapMatrix: [GetIntensityMatrixSafe] Has no intensity.";
     return nullptr;
@@ -735,6 +797,8 @@ const FloatMatrix* PyramidMapMatrix::GetIntensityMatrixSafe(
 
 const FloatMatrix* PyramidMapMatrix::GetIntensityVarMatrixSafe(
     unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetIntensityVarMatrixSafe";
+
   if (!has_intensity_var_) {
     AERROR << "PyramidMapMatrix: [GetIntensityVarMatrixSafe] Has no "
               "intensity_var.";
@@ -752,6 +816,8 @@ const FloatMatrix* PyramidMapMatrix::GetIntensityVarMatrixSafe(
 
 const FloatMatrix* PyramidMapMatrix::GetAltitudeMatrixSafe(
     unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetAltitudeMatrixSafe";
+
   if (!has_altitude_) {
     AERROR << "PyramidMapMatrix: [GetAltitudeMatrixSafe] Has no altitude.";
     return nullptr;
@@ -768,6 +834,8 @@ const FloatMatrix* PyramidMapMatrix::GetAltitudeMatrixSafe(
 
 const FloatMatrix* PyramidMapMatrix::GetAltitudeVarMatrixSafe(
     unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetAltitudeVarMatrixSafe";
+
   if (!has_altitude_var_) {
     AERROR
         << "PyramidMapMatrix: [GetAltitudeVarMatrixSafe] Has no altitude_var.";
@@ -785,6 +853,8 @@ const FloatMatrix* PyramidMapMatrix::GetAltitudeVarMatrixSafe(
 
 const FloatMatrix* PyramidMapMatrix::GetGroundAltitudeMatrixSafe(
     unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetGroundAltitudeMatrixSafe";
+
   if (!has_ground_altitude_) {
     AERROR << "PyramidMapMatrix: [GetGroundAltitudeMatrixSafe] Has no "
               "ground_altitude.";
@@ -802,6 +872,8 @@ const FloatMatrix* PyramidMapMatrix::GetGroundAltitudeMatrixSafe(
 
 const UIntMatrix* PyramidMapMatrix::GetCountMatrixSafe(
     unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetCountMatrixSafe";
+
   if (!has_count_) {
     AERROR << "PyramidMapMatrix: [GetCountMatrixSafe] Has no count.";
     return nullptr;
@@ -817,6 +889,8 @@ const UIntMatrix* PyramidMapMatrix::GetCountMatrixSafe(
 
 const UIntMatrix* PyramidMapMatrix::GetGroundCountMatrixSafe(
     unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::GetGroundCountMatrixSafe";
+
   if (!has_ground_count_) {
     AERROR
         << "PyramidMapMatrix: [GetGroundCountMatrixSafe] Has no ground_count.";
@@ -835,6 +909,8 @@ const UIntMatrix* PyramidMapMatrix::GetGroundCountMatrixSafe(
 void PyramidMapMatrix::SetIntensityMatrix(const float* input, unsigned int size,
                                           unsigned int start_index,
                                           unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetIntensityMatrix";
+
   if (!has_intensity_) {
     AERROR << "PyramidMapMatrix: [SetIntensityMatrix] Has no intensity.";
     return;
@@ -852,6 +928,8 @@ void PyramidMapMatrix::SetIntensityVarMatrix(const float* input,
                                              unsigned int size,
                                              unsigned int start_index,
                                              unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetIntensityVarMatrix";
+
   if (!has_intensity_var_) {
     AERROR
         << "PyramidMapMatrix: [set_intensity_var_matrix] Has no intensity_var.";
@@ -869,6 +947,8 @@ void PyramidMapMatrix::SetIntensityVarMatrix(const float* input,
 void PyramidMapMatrix::SetAltitudeMatrix(const float* input, unsigned int size,
                                          unsigned int start_index,
                                          unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetAltitudeMatrix";
+
   if (!has_altitude_) {
     AERROR << "PyramidMapMatrix: [SetAltitudeMatrix] Has no altitude.";
     return;
@@ -886,6 +966,8 @@ void PyramidMapMatrix::SetAltitudeVarMatrix(const float* input,
                                             unsigned int size,
                                             unsigned int start_index,
                                             unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetAltitudeVarMatrix";
+
   if (!has_altitude_var_) {
     AERROR << "PyramidMapMatrix: [SetAltitudeVarMatrix] Has no altitude_var.";
     return;
@@ -903,6 +985,8 @@ void PyramidMapMatrix::SetGroundAltitudeMatrix(const float* input,
                                                unsigned int size,
                                                unsigned int start_index,
                                                unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetGroundAltitudeMatrix";
+
   if (!has_ground_altitude_) {
     AERROR << "PyramidMapMatrix: [SetGroundAltitudeMatrix] Has no "
               "ground_altitude.";
@@ -921,6 +1005,8 @@ void PyramidMapMatrix::SetCountMatrix(const unsigned int* input,
                                       unsigned int size,
                                       unsigned int start_index,
                                       unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetCountMatrix";
+
   if (!has_count_) {
     AERROR << "PyramidMapMatrix: [SetCountMatrix] Has no count.";
     return;
@@ -938,6 +1024,8 @@ void PyramidMapMatrix::SetGroundCountMatrix(const unsigned int* input,
                                             unsigned int size,
                                             unsigned int start_index,
                                             unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetGroundCountMatrix";
+
   if (!has_ground_count_) {
     AERROR << "PyramidMapMatrix: [SetGroundCountMatrix] Has no ground count.";
     return;
@@ -956,6 +1044,8 @@ void PyramidMapMatrix::SetFloatMatrixRoi(const FloatMatrix* source_matrix,
                                          const Rect2D<unsigned int>& target_roi,
                                          unsigned int type,
                                          unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetFloatMatrixRoi";
+
   if (source_matrix == nullptr) {
     AERROR << "PyramidMapMatrix: [SetFloatMatrixRoi] Source matrix is nullptr.";
     return;
@@ -1046,6 +1136,8 @@ void PyramidMapMatrix::SetUintMatrixRoi(const UIntMatrix* source_matrix,
                                         const Rect2D<unsigned int>& source_roi,
                                         const Rect2D<unsigned int>& target_roi,
                                         unsigned int type, unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetUintMatrixRoi";
+
   if (source_matrix == nullptr) {
     AERROR << "PyramidMapMatrix: [SetUintMatrixRoi] Source matrix is nullptr.";
     return;
@@ -1105,6 +1197,8 @@ void PyramidMapMatrix::SetUintMatrixRoi(const UIntMatrix* source_matrix,
 
 void PyramidMapMatrix::SetIntensitySafe(float intensity, unsigned int row,
                                         unsigned int col, unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetIntensitySafe";
+
   if (!has_intensity_) {
     AERROR << "PyramidMapMatrix: [SetIntensitySafe] Has no intensity.";
     return;
@@ -1121,6 +1215,8 @@ void PyramidMapMatrix::SetIntensitySafe(float intensity, unsigned int row,
 void PyramidMapMatrix::SetIntensityVarSafe(float intensity_var,
                                            unsigned int row, unsigned int col,
                                            unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetIntensityVarSafe";
+
   if (!has_intensity_var_) {
     AERROR << "PyramidMapMatrix: [SetIntensityVarSafe] Has no intensity_var.";
     return;
@@ -1136,6 +1232,8 @@ void PyramidMapMatrix::SetIntensityVarSafe(float intensity_var,
 
 void PyramidMapMatrix::SetAltitudeSafe(float altitude, unsigned int row,
                                        unsigned int col, unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetAltitudeSafe";
+
   if (!has_altitude_) {
     AERROR << "PyramidMapMatrix: [SetAltitudeSafe] Has no altitude.";
     return;
@@ -1152,6 +1250,8 @@ void PyramidMapMatrix::SetAltitudeSafe(float altitude, unsigned int row,
 void PyramidMapMatrix::SetAltitudeVarSafe(float altitude_var, unsigned int row,
                                           unsigned int col,
                                           unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetAltitudeVarSafe";
+
   if (!has_altitude_var_) {
     AERROR << "PyramidMapMatrix: [SetAltitudeVarSafe] Has no altitude var.";
     return;
@@ -1168,6 +1268,8 @@ void PyramidMapMatrix::SetAltitudeVarSafe(float altitude_var, unsigned int row,
 void PyramidMapMatrix::SetGroundAltitudeSafe(float ground_altitude,
                                              unsigned int row, unsigned int col,
                                              unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetGroundAltitudeSafe";
+
   if (!has_ground_altitude_) {
     AERROR
         << "PyramidMapMatrix: [SetGroundAltitudeSafe] Has no ground altitude.";
@@ -1184,6 +1286,8 @@ void PyramidMapMatrix::SetGroundAltitudeSafe(float ground_altitude,
 
 void PyramidMapMatrix::SetCountSafe(unsigned int count, unsigned int row,
                                     unsigned int col, unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetCountSafe";
+
   if (!has_count_) {
     AERROR << "PyramidMapMatrix: [SetCountSafe] Has no count.";
     return;
@@ -1200,6 +1304,8 @@ void PyramidMapMatrix::SetCountSafe(unsigned int count, unsigned int row,
 void PyramidMapMatrix::SetGroundCountSafe(unsigned int ground_count,
                                           unsigned int row, unsigned int col,
                                           unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetGroundCountSafe";
+
   if (!has_ground_count_) {
     AERROR << "PyramidMapMatrix: [SetGroundCountSafe] Has no ground count.";
     return;
@@ -1216,6 +1322,8 @@ void PyramidMapMatrix::SetGroundCountSafe(unsigned int ground_count,
 void PyramidMapMatrix::SetValueSafe(unsigned char intensity, float altitude,
                                     unsigned int row, unsigned int col,
                                     unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::SetValueSafe";
+
   if (!has_intensity_) {
     AERROR << "PyramidMapMatrix: [SetValueSafe] Has no intensity.";
     return;
@@ -1240,6 +1348,8 @@ void PyramidMapMatrix::MergeCellSafe(
     const float* altitude_var, const float* ground_altitude,
     const unsigned int* count, const unsigned int* ground_count,
     unsigned int row, unsigned int col, unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::MergeCellSafe";
+
   if (!CheckLegalityForGetData(row, col, level)) {
     AERROR << "PyramidMapMatrix: [MergeCellSafe] Params is illegal.";
     return;
@@ -1306,6 +1416,8 @@ void PyramidMapMatrix::MergeCellSafe(
 bool PyramidMapMatrix::CheckLegalityForGetData(unsigned int row,
                                                unsigned int col,
                                                unsigned int level) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::CheckLegalityForGetData";
+
   if (level >= resolution_num_) {
     AERROR << "PyramidMapMatrix: [CheckLegalityForGetData] The level id is "
               "illegal.";
@@ -1328,6 +1440,8 @@ bool PyramidMapMatrix::CheckLegalityForGetData(unsigned int row,
 bool PyramidMapMatrix::CheckLegalityForSetData(unsigned int level,
                                                unsigned int start_id,
                                                unsigned int size) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::CheckLegalityForSetData";
+
   if (level >= resolution_num_) {
     AERROR << "PyramidMapMatrix: [CheckLegalityForSetData] The level id is "
               "illegal.";
@@ -1347,6 +1461,8 @@ bool PyramidMapMatrix::CheckLegalityForSetDataRoi(
     unsigned int level, unsigned int source_matrix_rows,
     unsigned int source_matrix_cols, const Rect2D<unsigned int>& source_roi,
     const Rect2D<unsigned int>& target_roi) const {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::CheckLegalityForSetDataRoi";
+
   if (level >= resolution_num_) {
     AERROR << "PyramidMapMatrix: [CheckLegalityForSetDataRoi] The level id "
               "is illegal.";
@@ -1386,6 +1502,8 @@ bool PyramidMapMatrix::CheckLegalityForSetDataRoi(
 void PyramidMapMatrix::AddSampleSafe(float intensity, float altitude,
                                      unsigned int row, unsigned int col,
                                      unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::AddSampleSafe";
+
   if (!CheckLegalityForGetData(row, col, level)) {
     AERROR << "PyramidMapMatrix: [AddSampleSafe] Params is illegal.";
     return;
@@ -1431,6 +1549,8 @@ void PyramidMapMatrix::AddSampleSafe(float intensity, float altitude,
 
 void PyramidMapMatrix::AddGroundSample(float ground_altitude, unsigned int row,
                                        unsigned int col, unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::AddGroundSample";
+
   if (!CheckLegalityForGetData(row, col, level)) {
     AERROR << "PyramidMapMatrix: [AddGroundSample] Params is illegal.";
     return;
@@ -1450,6 +1570,8 @@ void PyramidMapMatrix::AddGroundSample(float ground_altitude, unsigned int row,
 }
 
 double PyramidMapMatrix::ComputeMeanIntensity(unsigned int level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::ComputeMeanIntensity";
+
   if (!has_count_) {
     AERROR << "PyramidMapMatrix: [ComputeMeanIntensity] Has no count.";
     return 0.0;
@@ -1484,6 +1606,8 @@ double PyramidMapMatrix::ComputeMeanIntensity(unsigned int level) {
 void PyramidMapMatrix::Reduce(std::shared_ptr<PyramidMapMatrix> cells,
                               const PyramidMapMatrix& new_cells,
                               unsigned int level, unsigned int new_level) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrix::Reduce";
+
   if (level >= cells->resolution_num_) {
     AERROR << "PyramidMapMatrix: [Reduce] The level id is illegal.";
     return;

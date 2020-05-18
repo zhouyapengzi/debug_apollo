@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -32,15 +33,21 @@ using apollo::common::StatusPb;
 using apollo::common::time::Clock;
 
 LatLonControllerSubmodule::LatLonControllerSubmodule()
-    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::CONTROL) {}
+    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::CONTROL) {
+    AINFO<<"(DMCZP) EnteringMethod: LatLonControllerSubmodule::LatLonControllerSubmodule";
+}
 
 LatLonControllerSubmodule::~LatLonControllerSubmodule() {}
 
 std::string LatLonControllerSubmodule::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: LatLonControllerSubmodule::Name";
+
   return FLAGS_lat_lon_controller_submodule_name;
 }
 
 bool LatLonControllerSubmodule::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: LatLonControllerSubmodule::Init";
+
   // lateral controller initialization
   CHECK(cyber::common::GetProtoFromFile(FLAGS_lateral_controller_conf_file,
                                         &lateral_controller_conf_))
@@ -74,6 +81,8 @@ bool LatLonControllerSubmodule::Init() {
 
 bool LatLonControllerSubmodule::Proc(
     const std::shared_ptr<Preprocessor>& preprocessor_status) {
+    AINFO<<"(DMCZP) EnteringMethod: LatLonControllerSubmodule::Proc";
+
   const auto start_time = Clock::Now();
   ControlCommand control_core_command;
 
@@ -124,6 +133,8 @@ bool LatLonControllerSubmodule::Proc(
 
 Status LatLonControllerSubmodule::ProduceControlCoreCommand(
     const LocalView& local_view, ControlCommand* control_core_command) {
+    AINFO<<"(DMCZP) EnteringMethod: LatLonControllerSubmodule::ProduceControlCoreCommand";
+
   std::lock_guard<std::mutex> lock(mutex_);
   if (local_view.chassis().driving_mode() == Chassis::COMPLETE_MANUAL) {
     lateral_controller_.Reset();

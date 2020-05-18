@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -37,6 +38,8 @@ using apollo::perception::PerceptionObstacle;
 using Point = apollo::common::Point3D;
 
 double GetAngleFromQuaternion(const Quaternion quaternion) {
+    AINFO<<"(DMCZP) EnteringMethod: GetAngleFromQuaternion";
+
   double theta = std::atan2(2.0 * (quaternion.qw() * quaternion.qz() +
                                    quaternion.qx() * quaternion.qy()),
                             1.0 - 2.0 * (quaternion.qy() * quaternion.qy() +
@@ -50,6 +53,8 @@ void FillPerceptionPolygon(PerceptionObstacle* const perception_obstacle,
                            const double mid_z, const double length,
                            const double width, const double height,
                            const double heading) {
+    AINFO<<"(DMCZP) EnteringMethod: FillPerceptionPolygon";
+
   // Generate a 2D cube whose vertices are given in counter-clock order when
   // viewed from top
   const int sign_l[4] = {1, 1, -1, -1};
@@ -67,6 +72,8 @@ void FillPerceptionPolygon(PerceptionObstacle* const perception_obstacle,
 }
 
 double GetDefaultObjectLength(const int object_type) {
+    AINFO<<"(DMCZP) EnteringMethod: GetDefaultObjectLength";
+
   double default_object_length = 0.0;
   switch (object_type) {
     case 0: {
@@ -94,6 +101,8 @@ double GetDefaultObjectLength(const int object_type) {
 }
 
 double GetDefaultObjectWidth(const int object_type) {
+    AINFO<<"(DMCZP) EnteringMethod: GetDefaultObjectWidth";
+
   double default_object_width = 0.0;
   switch (object_type) {
     case 0: {
@@ -121,10 +130,14 @@ double GetDefaultObjectWidth(const int object_type) {
 }
 
 Point SLtoXY(const Point& point, const double theta) {
+    AINFO<<"(DMCZP) EnteringMethod: SLtoXY";
+
   return SLtoXY(point.x(), point.y(), theta);
 }
 
 Point SLtoXY(const double x, const double y, const double theta) {
+    AINFO<<"(DMCZP) EnteringMethod: SLtoXY";
+
   Point converted_point;
   converted_point.set_x(x * std::cos(theta) + y * std::sin(theta));
   converted_point.set_y(x * std::sin(theta) - y * std::cos(theta));
@@ -132,6 +145,8 @@ Point SLtoXY(const double x, const double y, const double theta) {
 }
 
 double Distance(const Point& point1, const Point& point2) {
+    AINFO<<"(DMCZP) EnteringMethod: Distance";
+
   double distance =
       std::sqrt((point1.x() - point2.x()) * (point1.x() - point2.x()) +
                 (point1.y() - point2.y()) * (point1.y() - point2.y()));
@@ -139,6 +154,8 @@ double Distance(const Point& point1, const Point& point2) {
 }
 
 double GetNearestLaneHeading(const PointENU& point_enu) {
+    AINFO<<"(DMCZP) EnteringMethod: GetNearestLaneHeading";
+
   auto* hdmap = HDMapUtil::BaseMapPtr();
   if (hdmap == nullptr) {
     AERROR << "Failed to get nearest lane for point "
@@ -164,6 +181,8 @@ double GetNearestLaneHeading(const PointENU& point_enu) {
 }
 
 double GetNearestLaneHeading(const Point& point) {
+    AINFO<<"(DMCZP) EnteringMethod: GetNearestLaneHeading";
+
   auto* hdmap = HDMapUtil::BaseMapPtr();
   if (hdmap == nullptr) {
     AERROR << "Failed to get nearest lane for point " << point.DebugString();
@@ -179,6 +198,8 @@ double GetNearestLaneHeading(const Point& point) {
 }
 
 double GetNearestLaneHeading(const double x, const double y, const double z) {
+    AINFO<<"(DMCZP) EnteringMethod: GetNearestLaneHeading";
+
   auto* hdmap = HDMapUtil::BaseMapPtr();
   if (hdmap == nullptr) {
     AERROR << "Failed to get nearest lane for point (" << x << ", " << y << ", "
@@ -195,6 +216,8 @@ double GetNearestLaneHeading(const double x, const double y, const double z) {
 }
 
 double GetLateralDistanceToNearestLane(const Point& point) {
+    AINFO<<"(DMCZP) EnteringMethod: GetLateralDistanceToNearestLane";
+
   auto* hdmap = HDMapUtil::BaseMapPtr();
   if (hdmap == nullptr) {
     AERROR << "Failed to get nearest lane for point " << point.DebugString();
@@ -222,14 +245,20 @@ double GetLateralDistanceToNearestLane(const Point& point) {
 }
 
 double Speed(const Point& point) {
+    AINFO<<"(DMCZP) EnteringMethod: Speed";
+
   return std::sqrt(point.x() * point.x() + point.y() + point.y());
 }
 
 double Speed(const double vx, const double vy) {
+    AINFO<<"(DMCZP) EnteringMethod: Speed";
+
   return std::sqrt(vx * vx + vy * vy);
 }
 
 double HeadingDifference(const double theta1, const double theta2) {
+    AINFO<<"(DMCZP) EnteringMethod: HeadingDifference";
+
   double theta_diff = std::abs(theta1 - theta2);
   return theta_diff > M_PI ? (2 * M_PI - theta_diff) : theta_diff;
 }

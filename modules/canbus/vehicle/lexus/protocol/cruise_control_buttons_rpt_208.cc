@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,12 +28,16 @@ namespace lexus {
 
 using ::apollo::drivers::canbus::Byte;
 
-Cruisecontrolbuttonsrpt208::Cruisecontrolbuttonsrpt208() {}
+Cruisecontrolbuttonsrpt208::Cruisecontrolbuttonsrpt208() {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::Cruisecontrolbuttonsrpt208";
+}
 const int32_t Cruisecontrolbuttonsrpt208::ID = 0x208;
 
 void Cruisecontrolbuttonsrpt208::Parse(const std::uint8_t* bytes,
                                        int32_t length,
                                        ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::Parse";
+
   chassis->mutable_lexus()
       ->mutable_cruise_control_buttons_rpt_208()
       ->set_output_value(output_value(bytes, length));
@@ -77,6 +82,8 @@ void Cruisecontrolbuttonsrpt208::Parse(const std::uint8_t* bytes,
 Cruise_control_buttons_rpt_208::Output_valueType
 Cruisecontrolbuttonsrpt208::output_value(const std::uint8_t* bytes,
                                          int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::output_value";
+
   Byte t0(bytes + 3);
   int32_t x = t0.get_byte(0, 8);
 
@@ -97,6 +104,8 @@ Cruisecontrolbuttonsrpt208::output_value(const std::uint8_t* bytes,
 Cruise_control_buttons_rpt_208::Manual_inputType
 Cruisecontrolbuttonsrpt208::manual_input(const std::uint8_t* bytes,
                                          int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::manual_input";
+
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 8);
 
@@ -118,6 +127,8 @@ Cruisecontrolbuttonsrpt208::manual_input(const std::uint8_t* bytes,
 Cruise_control_buttons_rpt_208::Commanded_valueType
 Cruisecontrolbuttonsrpt208::commanded_value(const std::uint8_t* bytes,
                                             int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::commanded_value";
+
   Byte t0(bytes + 2);
   int32_t x = t0.get_byte(0, 8);
 
@@ -131,6 +142,8 @@ Cruisecontrolbuttonsrpt208::commanded_value(const std::uint8_t* bytes,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Cruisecontrolbuttonsrpt208::vehicle_fault(const std::uint8_t* bytes,
                                                int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::vehicle_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(6, 1);
 
@@ -143,6 +156,8 @@ bool Cruisecontrolbuttonsrpt208::vehicle_fault(const std::uint8_t* bytes,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Cruisecontrolbuttonsrpt208::pacmod_fault(const std::uint8_t* bytes,
                                               int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::pacmod_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(5, 1);
 
@@ -155,6 +170,8 @@ bool Cruisecontrolbuttonsrpt208::pacmod_fault(const std::uint8_t* bytes,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Cruisecontrolbuttonsrpt208::override_active(const std::uint8_t* bytes,
                                                  int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::override_active";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(1, 1);
 
@@ -167,6 +184,8 @@ bool Cruisecontrolbuttonsrpt208::override_active(const std::uint8_t* bytes,
 // '[0|1]', 'bit': 4, 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Cruisecontrolbuttonsrpt208::output_reported_fault(
     const std::uint8_t* bytes, int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::output_reported_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(4, 1);
 
@@ -179,6 +198,8 @@ bool Cruisecontrolbuttonsrpt208::output_reported_fault(
 // '[0|1]', 'bit': 3, 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Cruisecontrolbuttonsrpt208::input_output_fault(const std::uint8_t* bytes,
                                                     int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::input_output_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(3, 1);
 
@@ -191,6 +212,8 @@ bool Cruisecontrolbuttonsrpt208::input_output_fault(const std::uint8_t* bytes,
 // 'order': 'motorola', 'physical_unit': ''}
 bool Cruisecontrolbuttonsrpt208::enabled(const std::uint8_t* bytes,
                                          int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::enabled";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 1);
 
@@ -203,6 +226,8 @@ bool Cruisecontrolbuttonsrpt208::enabled(const std::uint8_t* bytes,
 // '[0|1]', 'bit': 2, 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Cruisecontrolbuttonsrpt208::command_output_fault(const std::uint8_t* bytes,
                                                       int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Cruisecontrolbuttonsrpt208::command_output_fault";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(2, 1);
 

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /* Copyright 2018 The Apollo Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,6 +79,8 @@ namespace canbus {
 namespace lexus {
 
 LexusMessageManager::LexusMessageManager() {
+    AINFO<<"(DMCZP) EnteringMethod: LexusMessageManager::LexusMessageManager";
+
   // Control Messages
   AddSendProtocolData<Accelcmd100, true>();
   AddSendProtocolData<Brakecmd104, true>();

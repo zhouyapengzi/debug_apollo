@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,24 +28,34 @@ using ::apollo::drivers::canbus::Byte;
 const int32_t Brakecmd6b::ID = 0x6B;
 
 // public
-Brakecmd6b::Brakecmd6b() { Reset(); }
+Brakecmd6b::Brakecmd6b() {
+    AINFO<<"(DMCZP) EnteringMethod: Brakecmd6b::Brakecmd6b";
+ Reset(); }
 
 uint32_t Brakecmd6b::GetPeriod() const {
+    AINFO<<"(DMCZP) EnteringMethod: Brakecmd6b::GetPeriod";
+
   // TODO(QiL) :modify every protocol's period manually
   static const uint32_t PERIOD = 20 * 1000;
   return PERIOD;
 }
 
 void Brakecmd6b::UpdateData(uint8_t* data) {
+    AINFO<<"(DMCZP) EnteringMethod: Brakecmd6b::UpdateData";
+
   set_p_brake_cmd(data, brake_cmd_);
 }
 
 void Brakecmd6b::Reset() {
+    AINFO<<"(DMCZP) EnteringMethod: Brakecmd6b::Reset";
+
   // TODO(QiL) :you should check this manually
   brake_cmd_ = 0.0;
 }
 
 Brakecmd6b* Brakecmd6b::set_brake_cmd(double brake_cmd) {
+    AINFO<<"(DMCZP) EnteringMethod: Brakecmd6b::set_brake_cmd";
+
   brake_cmd_ = brake_cmd;
   return this;
 }
@@ -53,6 +64,8 @@ Brakecmd6b* Brakecmd6b::set_brake_cmd(double brake_cmd) {
 // 'len': 16, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 7,
 // 'type': 'double', 'order': 'motorola', 'physical_unit': '%'}
 void Brakecmd6b::set_p_brake_cmd(uint8_t* data, double brake_cmd) {
+    AINFO<<"(DMCZP) EnteringMethod: Brakecmd6b::set_p_brake_cmd";
+
   brake_cmd = ProtocolData::BoundedValue(0.0, 1.0, brake_cmd);
   int x = static_cast<int>(brake_cmd / 0.001000);
   uint8_t t = 0;

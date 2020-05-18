@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,15 +28,21 @@ using ::apollo::drivers::canbus::Byte;
 const int32_t Horncmd11c::ID = 0x11C;
 
 // public
-Horncmd11c::Horncmd11c() { Reset(); }
+Horncmd11c::Horncmd11c() {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::Horncmd11c";
+ Reset(); }
 
 uint32_t Horncmd11c::GetPeriod() const {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::GetPeriod";
+
   // TODO(QiL) : modify every protocol's period manually
   static const uint32_t PERIOD = 20 * 1000;
   return PERIOD;
 }
 
 void Horncmd11c::UpdateData(uint8_t* data) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::UpdateData";
+
   set_p_ignore_overrides(data, ignore_overrides_);
   set_p_enable(data, enable_);
   set_p_clear_override(data, clear_override_);
@@ -44,6 +51,8 @@ void Horncmd11c::UpdateData(uint8_t* data) {
 }
 
 void Horncmd11c::Reset() {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::Reset";
+
   // TODO(QiL) : you should check this manually
   ignore_overrides_ = false;
   enable_ = false;
@@ -53,6 +62,8 @@ void Horncmd11c::Reset() {
 }
 
 Horncmd11c* Horncmd11c::set_ignore_overrides(bool ignore_overrides) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_ignore_overrides";
+
   ignore_overrides_ = ignore_overrides;
   return this;
 }
@@ -61,6 +72,8 @@ Horncmd11c* Horncmd11c::set_ignore_overrides(bool ignore_overrides) {
 // 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 1,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 void Horncmd11c::set_p_ignore_overrides(uint8_t* data, bool ignore_overrides) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_p_ignore_overrides";
+
   uint8_t x = ignore_overrides;
 
   Byte to_set(data + 0);
@@ -68,6 +81,8 @@ void Horncmd11c::set_p_ignore_overrides(uint8_t* data, bool ignore_overrides) {
 }
 
 Horncmd11c* Horncmd11c::set_enable(bool enable) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_enable";
+
   enable_ = enable;
   return this;
 }
@@ -76,6 +91,8 @@ Horncmd11c* Horncmd11c::set_enable(bool enable) {
 // 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 0, 'type': 'bool',
 // 'order': 'motorola', 'physical_unit': ''}
 void Horncmd11c::set_p_enable(uint8_t* data, bool enable) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_p_enable";
+
   uint8_t x = enable;
 
   Byte to_set(data + 0);
@@ -83,6 +100,8 @@ void Horncmd11c::set_p_enable(uint8_t* data, bool enable) {
 }
 
 Horncmd11c* Horncmd11c::set_clear_override(bool clear_override) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_clear_override";
+
   clear_override_ = clear_override;
   return this;
 }
@@ -91,6 +110,8 @@ Horncmd11c* Horncmd11c::set_clear_override(bool clear_override) {
 // 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 2,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 void Horncmd11c::set_p_clear_override(uint8_t* data, bool clear_override) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_p_clear_override";
+
   uint8_t x = clear_override;
 
   Byte to_set(data + 0);
@@ -98,6 +119,8 @@ void Horncmd11c::set_p_clear_override(uint8_t* data, bool clear_override) {
 }
 
 Horncmd11c* Horncmd11c::set_clear_faults(bool clear_faults) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_clear_faults";
+
   clear_faults_ = clear_faults;
   return this;
 }
@@ -106,6 +129,8 @@ Horncmd11c* Horncmd11c::set_clear_faults(bool clear_faults) {
 // 'len': 1, 'is_signed_var': False, 'physical_range': '[0|1]', 'bit': 3,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 void Horncmd11c::set_p_clear_faults(uint8_t* data, bool clear_faults) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_p_clear_faults";
+
   uint8_t x = clear_faults;
 
   Byte to_set(data + 0);
@@ -113,6 +138,8 @@ void Horncmd11c::set_p_clear_faults(uint8_t* data, bool clear_faults) {
 }
 
 Horncmd11c* Horncmd11c::set_horn_cmd(Horn_cmd_11c::Horn_cmdType horn_cmd) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_horn_cmd";
+
   horn_cmd_ = horn_cmd;
   return this;
 }
@@ -123,6 +150,8 @@ Horncmd11c* Horncmd11c::set_horn_cmd(Horn_cmd_11c::Horn_cmdType horn_cmd) {
 // 'motorola', 'physical_unit': ''}
 void Horncmd11c::set_p_horn_cmd(uint8_t* data,
                                 Horn_cmd_11c::Horn_cmdType horn_cmd) {
+    AINFO<<"(DMCZP) EnteringMethod: Horncmd11c::set_p_horn_cmd";
+
   uint8_t x = horn_cmd;
 
   Byte to_set(data + 1);

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -24,12 +25,16 @@ namespace transform {
 TransformBroadcaster::TransformBroadcaster(
     const std::shared_ptr<cyber::Node>& node)
     : node_(node) {
+    AINFO<<"(DMCZP) EnteringMethod: TransformBroadcaster::TransformBroadcaster";
+
   cyber::proto::RoleAttributes attr;
   attr.set_channel_name(FLAGS_tf_topic);
   writer_ = node_->CreateWriter<TransformStampeds>(attr);
 }
 
 void TransformBroadcaster::SendTransform(const TransformStamped& transform) {
+    AINFO<<"(DMCZP) EnteringMethod: TransformBroadcaster::SendTransform";
+
   std::vector<TransformStamped> transforms;
   transforms.emplace_back(transform);
   SendTransform(transforms);
@@ -37,6 +42,8 @@ void TransformBroadcaster::SendTransform(const TransformStamped& transform) {
 
 void TransformBroadcaster::SendTransform(
     const std::vector<TransformStamped>& transforms) {
+    AINFO<<"(DMCZP) EnteringMethod: TransformBroadcaster::SendTransform";
+
   auto message = std::make_shared<TransformStampeds>();
   *message->mutable_transforms() = {transforms.begin(), transforms.end()};
   writer_->Write(message);

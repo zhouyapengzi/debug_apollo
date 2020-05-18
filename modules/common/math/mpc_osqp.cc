@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -43,6 +44,8 @@ MpcOsqp::MpcOsqp(const Eigen::MatrixXd &matrix_a,
       max_iteration_(max_iter),
       horizon_(horizon),
       eps_abs_(eps_abs) {
+    AINFO<<"(DMCZP) EnteringMethod: MpcOsqp::MpcOsqp";
+
   state_dim_ = matrix_b.rows();
   control_dim_ = matrix_b.cols();
   ADEBUG << "state_dim" << state_dim_;
@@ -53,6 +56,8 @@ MpcOsqp::MpcOsqp(const Eigen::MatrixXd &matrix_a,
 void MpcOsqp::CalculateKernel(std::vector<c_float> *P_data,
                               std::vector<c_int> *P_indices,
                               std::vector<c_int> *P_indptr) {
+    AINFO<<"(DMCZP) EnteringMethod: MpcOsqp::CalculateKernel";
+
   // col1:(row,val),...; col2:(row,val),....; ...
   std::vector<std::vector<std::pair<c_int, c_float>>> columns;
   columns.resize(num_param_);
@@ -93,6 +98,8 @@ void MpcOsqp::CalculateKernel(std::vector<c_float> *P_data,
 
 // reference is always zero
 void MpcOsqp::CalculateGradient() {
+    AINFO<<"(DMCZP) EnteringMethod: MpcOsqp::CalculateGradient";
+
   // populate the gradient vector
   gradient_ = Eigen::VectorXd::Zero(
       state_dim_ * (horizon_ + 1) + control_dim_ * horizon_, 1);
@@ -108,6 +115,8 @@ void MpcOsqp::CalculateGradient() {
 void MpcOsqp::CalculateEqualityConstraint(std::vector<c_float> *A_data,
                                           std::vector<c_int> *A_indices,
                                           std::vector<c_int> *A_indptr) {
+    AINFO<<"(DMCZP) EnteringMethod: MpcOsqp::CalculateEqualityConstraint";
+
   static constexpr double kEpsilon = 1e-6;
   // block matrix
   Eigen::MatrixXd matrix_constraint = Eigen::MatrixXd::Zero(
@@ -178,6 +187,8 @@ void MpcOsqp::CalculateEqualityConstraint(std::vector<c_float> *A_data,
 }
 
 void MpcOsqp::CalculateConstraintVectors() {
+    AINFO<<"(DMCZP) EnteringMethod: MpcOsqp::CalculateConstraintVectors";
+
   // evaluate the lower and the upper inequality vectors
   Eigen::VectorXd lowerInequality = Eigen::MatrixXd::Zero(
       state_dim_ * (horizon_ + 1) + control_dim_ * horizon_, 1);
@@ -217,6 +228,8 @@ void MpcOsqp::CalculateConstraintVectors() {
 }
 
 OSQPSettings *MpcOsqp::Settings() {
+    AINFO<<"(DMCZP) EnteringMethod: *MpcOsqp::Settings";
+
   // default setting
   OSQPSettings *settings =
       reinterpret_cast<OSQPSettings *>(c_malloc(sizeof(OSQPSettings)));
@@ -230,6 +243,8 @@ OSQPSettings *MpcOsqp::Settings() {
 }
 
 OSQPData *MpcOsqp::Data() {
+    AINFO<<"(DMCZP) EnteringMethod: *MpcOsqp::Data";
+
   OSQPData *data = reinterpret_cast<OSQPData *>(c_malloc(sizeof(OSQPData)));
   size_t kernel_dim = state_dim_ * (horizon_ + 1) + control_dim_ * horizon_;
   size_t num_affine_constraint =
@@ -264,12 +279,16 @@ OSQPData *MpcOsqp::Data() {
 }
 
 void MpcOsqp::FreeData(OSQPData *data) {
+    AINFO<<"(DMCZP) EnteringMethod: MpcOsqp::FreeData";
+
   c_free(data->A);
   c_free(data->P);
   c_free(data);
 }
 
 bool MpcOsqp::Solve(std::vector<double> *control_cmd) {
+    AINFO<<"(DMCZP) EnteringMethod: MpcOsqp::Solve";
+
   ADEBUG << "Before Calc Gradient";
   CalculateGradient();
   ADEBUG << "After Calc Gradient";

@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -45,6 +46,8 @@ namespace canbus {
 namespace lincoln {
 
 LincolnMessageManager::LincolnMessageManager() {
+    AINFO<<"(DMCZP) EnteringMethod: LincolnMessageManager::LincolnMessageManager";
+
   // TODO(Authors): verify which one is recv/sent
   AddSendProtocolData<Brake60, true>();
   AddSendProtocolData<Throttle62, true>();

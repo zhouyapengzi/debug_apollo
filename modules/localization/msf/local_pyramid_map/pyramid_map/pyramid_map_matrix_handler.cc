@@ -24,13 +24,17 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 // =================PyramidMapMatrixHandlerSelector=================
-PyramidMapMatrixHandlerSelector::PyramidMapMatrixHandlerSelector() {}
+PyramidMapMatrixHandlerSelector::PyramidMapMatrixHandlerSelector() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrixHandlerSelector::PyramidMapMatrixHandlerSelector";
+}
 
 PyramidMapMatrixHandlerSelector::~PyramidMapMatrixHandlerSelector() {}
 
 BaseMapMatrixHandler*
 PyramidMapMatrixHandlerSelector::AllocPyramidMapMatrixHandler(
     MapVersion version) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidMapMatrixHandlerSelector::AllocPyramidMapMatrixHandler";
+
   switch (version) {
     case MapVersion::LOSSY_FULL_ALT_MAP:
       return new LossyMapFullAltMatrixHandler();
@@ -48,11 +52,15 @@ PyramidMapMatrixHandlerSelector::AllocPyramidMapMatrixHandler(
 }
 
 // =================LossyMapMatrixHandler=================
-LossyMapMatrixHandler::LossyMapMatrixHandler() {}
+LossyMapMatrixHandler::LossyMapMatrixHandler() {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapMatrixHandler::LossyMapMatrixHandler";
+}
 
 LossyMapMatrixHandler::~LossyMapMatrixHandler() {}
 
 unsigned char LossyMapMatrixHandler::EncodeIntensity(float intensity) const {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapMatrixHandler::EncodeIntensity";
+
   unsigned char encoded_intensity = 0;
   if (intensity > 255) {
     encoded_intensity = 255;
@@ -66,10 +74,14 @@ unsigned char LossyMapMatrixHandler::EncodeIntensity(float intensity) const {
 
 void LossyMapMatrixHandler::DecodeIntensity(unsigned char data,
                                             float* intensity) const {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapMatrixHandler::DecodeIntensity";
+
   *intensity = static_cast<float>(data);
 }
 
 uint16_t LossyMapMatrixHandler::EncodeIntensityVar(float var) const {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapMatrixHandler::EncodeIntensityVar";
+
   var = std::sqrt(var);
   unsigned int encoded_var =
       static_cast<unsigned int>(static_cast<float>(var_range_) /
@@ -85,6 +97,8 @@ uint16_t LossyMapMatrixHandler::EncodeIntensityVar(float var) const {
 
 void LossyMapMatrixHandler::DecodeIntensityVar(uint16_t data,
                                                float* var) const {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapMatrixHandler::DecodeIntensityVar";
+
   *var = static_cast<float>(data);
   *var = (static_cast<float>(var_range_) / (*var) - 1.0f) /
          static_cast<float>(var_ratio_);
@@ -94,6 +108,8 @@ void LossyMapMatrixHandler::DecodeIntensityVar(uint16_t data,
 uint16_t LossyMapMatrixHandler::EncodeAltitude(float altitude,
                                                float min_altitude,
                                                float altitude_interval) const {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapMatrixHandler::EncodeAltitude";
+
   float delta_alt = altitude - min_altitude;
   delta_alt /= altitude_interval;
   int encoded_altitude = static_cast<int>(delta_alt + 0.5f);
@@ -109,11 +125,15 @@ uint16_t LossyMapMatrixHandler::EncodeAltitude(float altitude,
 void LossyMapMatrixHandler::DecodeAltitude(uint16_t data, float min_altitude,
                                            float altitude_interval,
                                            float* altitude) const {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapMatrixHandler::DecodeAltitude";
+
   *altitude = min_altitude + data * altitude_interval;
 }
 
 unsigned char LossyMapMatrixHandler::EncodeCount(
     unsigned int count, unsigned int count_range) const {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapMatrixHandler::EncodeCount";
+
   unsigned int encoded_count = 0;
   while (count > 0) {
     ++encoded_count;
@@ -127,6 +147,8 @@ unsigned char LossyMapMatrixHandler::EncodeCount(
 
 void LossyMapMatrixHandler::DecodeCount(unsigned char data,
                                         unsigned int* count) const {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapMatrixHandler::DecodeCount";
+
   if (data == 0) {
     *count = data;
   } else {
@@ -135,12 +157,16 @@ void LossyMapMatrixHandler::DecodeCount(unsigned char data,
 }
 
 // =================LossyMapFullAltMatrixHandler=================
-LossyMapFullAltMatrixHandler::LossyMapFullAltMatrixHandler() {}
+LossyMapFullAltMatrixHandler::LossyMapFullAltMatrixHandler() {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapFullAltMatrixHandler::LossyMapFullAltMatrixHandler";
+}
 
 LossyMapFullAltMatrixHandler::~LossyMapFullAltMatrixHandler() {}
 
 size_t LossyMapFullAltMatrixHandler::LoadBinary(
     const unsigned char* buf, std::shared_ptr<BaseMapMatrix> base_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapFullAltMatrixHandler::LoadBinary";
+
   std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 
@@ -256,6 +282,8 @@ size_t LossyMapFullAltMatrixHandler::LoadBinary(
 size_t LossyMapFullAltMatrixHandler::CreateBinary(
     const std::shared_ptr<BaseMapMatrix> base_matrix, unsigned char* buf,
     size_t buf_size) {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapFullAltMatrixHandler::CreateBinary";
+
   const std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 
@@ -413,6 +441,8 @@ size_t LossyMapFullAltMatrixHandler::CreateBinary(
 
 size_t LossyMapFullAltMatrixHandler::GetBinarySize(
     const std::shared_ptr<BaseMapMatrix> base_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: LossyMapFullAltMatrixHandler::GetBinarySize";
+
   const std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
   // assert(matrix->get_resolution_num() > 0);
@@ -432,12 +462,16 @@ size_t LossyMapFullAltMatrixHandler::GetBinarySize(
 }
 
 // =================LosslessMapMatrixHandler====================
-LosslessMapMatrixHandler::LosslessMapMatrixHandler() {}
+LosslessMapMatrixHandler::LosslessMapMatrixHandler() {
+    AINFO<<"(DMCZP) EnteringMethod: LosslessMapMatrixHandler::LosslessMapMatrixHandler";
+}
 
 LosslessMapMatrixHandler::~LosslessMapMatrixHandler() {}
 
 size_t LosslessMapMatrixHandler::LoadBinary(
     const unsigned char* buf, std::shared_ptr<BaseMapMatrix> base_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: LosslessMapMatrixHandler::LoadBinary";
+
   std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 
@@ -513,6 +547,8 @@ size_t LosslessMapMatrixHandler::LoadBinary(
 size_t LosslessMapMatrixHandler::CreateBinary(
     const std::shared_ptr<BaseMapMatrix> base_matrix, unsigned char* buf,
     size_t buf_size) {
+    AINFO<<"(DMCZP) EnteringMethod: LosslessMapMatrixHandler::CreateBinary";
+
   const std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 
@@ -599,6 +635,8 @@ size_t LosslessMapMatrixHandler::CreateBinary(
 
 size_t LosslessMapMatrixHandler::GetBinarySize(
     const std::shared_ptr<BaseMapMatrix> base_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: LosslessMapMatrixHandler::GetBinarySize";
+
   const std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
   // assert(matrix->get_resolution_num() > 0);
@@ -625,12 +663,16 @@ size_t LosslessMapMatrixHandler::GetBinarySize(
 }
 
 // =================PyramidLossyMapMatrixHandler====================
-PyramidLossyMapMatrixHandler::PyramidLossyMapMatrixHandler() {}
+PyramidLossyMapMatrixHandler::PyramidLossyMapMatrixHandler() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidLossyMapMatrixHandler::PyramidLossyMapMatrixHandler";
+}
 
 PyramidLossyMapMatrixHandler::~PyramidLossyMapMatrixHandler() {}
 
 size_t PyramidLossyMapMatrixHandler::LoadBinary(
     const unsigned char* buf, std::shared_ptr<BaseMapMatrix> base_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidLossyMapMatrixHandler::LoadBinary";
+
   std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 
@@ -789,6 +831,8 @@ size_t PyramidLossyMapMatrixHandler::LoadBinary(
 size_t PyramidLossyMapMatrixHandler::CreateBinary(
     const std::shared_ptr<BaseMapMatrix> base_matrix, unsigned char* buf,
     size_t buf_size) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidLossyMapMatrixHandler::CreateBinary";
+
   const std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 
@@ -994,6 +1038,8 @@ size_t PyramidLossyMapMatrixHandler::CreateBinary(
 
 size_t PyramidLossyMapMatrixHandler::GetBinarySize(
     const std::shared_ptr<BaseMapMatrix> base_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidLossyMapMatrixHandler::GetBinarySize";
+
   const std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 
@@ -1039,12 +1085,16 @@ size_t PyramidLossyMapMatrixHandler::GetBinarySize(
 }
 
 // =================PyramidLosslessMapMatrixHandler====================
-PyramidLosslessMapMatrixHandler::PyramidLosslessMapMatrixHandler() {}
+PyramidLosslessMapMatrixHandler::PyramidLosslessMapMatrixHandler() {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidLosslessMapMatrixHandler::PyramidLosslessMapMatrixHandler";
+}
 
 PyramidLosslessMapMatrixHandler::~PyramidLosslessMapMatrixHandler() {}
 
 size_t PyramidLosslessMapMatrixHandler::LoadBinary(
     const unsigned char* buf, std::shared_ptr<BaseMapMatrix> base_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidLosslessMapMatrixHandler::LoadBinary";
+
   std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 
@@ -1147,6 +1197,8 @@ size_t PyramidLosslessMapMatrixHandler::LoadBinary(
 size_t PyramidLosslessMapMatrixHandler::CreateBinary(
     const std::shared_ptr<BaseMapMatrix> base_matrix, unsigned char* buf,
     size_t buf_size) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidLosslessMapMatrixHandler::CreateBinary";
+
   const std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 
@@ -1272,6 +1324,8 @@ size_t PyramidLosslessMapMatrixHandler::CreateBinary(
 
 size_t PyramidLosslessMapMatrixHandler::GetBinarySize(
     const std::shared_ptr<BaseMapMatrix> base_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: PyramidLosslessMapMatrixHandler::GetBinarySize";
+
   const std::shared_ptr<PyramidMapMatrix> matrix =
       std::dynamic_pointer_cast<PyramidMapMatrix>(base_matrix);
 

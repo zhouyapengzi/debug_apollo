@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,11 +28,15 @@ namespace lexus {
 
 using ::apollo::drivers::canbus::Byte;
 
-Brakemotorrpt3403::Brakemotorrpt3403() {}
+Brakemotorrpt3403::Brakemotorrpt3403() {
+    AINFO<<"(DMCZP) EnteringMethod: Brakemotorrpt3403::Brakemotorrpt3403";
+}
 const int32_t Brakemotorrpt3403::ID = 0x403;
 
 void Brakemotorrpt3403::Parse(const std::uint8_t* bytes, int32_t length,
                               ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Brakemotorrpt3403::Parse";
+
   chassis->mutable_lexus()->mutable_brake_motor_rpt_3_403()->set_torque_output(
       torque_output(bytes, length));
   chassis->mutable_lexus()->mutable_brake_motor_rpt_3_403()->set_torque_input(
@@ -44,6 +49,8 @@ void Brakemotorrpt3403::Parse(const std::uint8_t* bytes, int32_t length,
 // 'motorola', 'physical_unit': 'N-m'}
 double Brakemotorrpt3403::torque_output(const std::uint8_t* bytes,
                                         int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Brakemotorrpt3403::torque_output";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 8);
 
@@ -75,6 +82,8 @@ double Brakemotorrpt3403::torque_output(const std::uint8_t* bytes,
 // 'motorola', 'physical_unit': 'N-m'}
 double Brakemotorrpt3403::torque_input(const std::uint8_t* bytes,
                                        int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Brakemotorrpt3403::torque_input";
+
   Byte t0(bytes + 4);
   int32_t x = t0.get_byte(0, 8);
 

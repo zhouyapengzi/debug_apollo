@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -23,6 +24,8 @@ namespace apollo {
 namespace storytelling {
 
 bool Storytelling::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: Storytelling::Init";
+
   FrameManager::Instance()->Init(node_);
   story_tellers_.emplace_back(new CloseToJunctionTeller());
 
@@ -34,6 +37,8 @@ bool Storytelling::Init() {
 }
 
 bool Storytelling::Proc() {
+    AINFO<<"(DMCZP) EnteringMethod: Storytelling::Proc";
+
   auto* manager = FrameManager::Instance();
   manager->StartFrame();
 

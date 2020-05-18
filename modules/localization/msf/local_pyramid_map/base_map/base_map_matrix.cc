@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -21,17 +22,25 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-BaseMapMatrix::BaseMapMatrix() {}
+BaseMapMatrix::BaseMapMatrix() {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapMatrix::BaseMapMatrix";
+}
 
 BaseMapMatrix::~BaseMapMatrix() {}
 
-BaseMapMatrix::BaseMapMatrix(const BaseMapMatrix& map_matrix) {}
+BaseMapMatrix::BaseMapMatrix(const BaseMapMatrix& map_matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapMatrix::BaseMapMatrix";
+}
 
 bool BaseMapMatrix::GetIntensityImg(cv::Mat* intensity_img) const {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapMatrix::GetIntensityImg";
+
   return false;
 }
 /**@brief get altitude image of node. */
 bool BaseMapMatrix::GetAltitudeImg(cv::Mat* altitude_img) const {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapMatrix::GetAltitudeImg";
+
   return false;
 }
 

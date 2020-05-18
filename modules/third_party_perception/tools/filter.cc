@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -32,6 +33,8 @@ namespace third_party_perception {
 namespace filter {
 
 bool IsPreserved(const RadarObstacle& radar_obstacle) {
+    AINFO<<"(DMCZP) EnteringMethod: IsPreserved";
+
   if (!radar_obstacle.movable()) {
     return false;
   }
@@ -47,6 +50,8 @@ bool IsPreserved(const RadarObstacle& radar_obstacle) {
 }
 
 RadarObstacles FilterRadarObstacles(const RadarObstacles& radar_obstacles) {
+    AINFO<<"(DMCZP) EnteringMethod: FilterRadarObstacles";
+
   RadarObstacles filtered_radar_obstacles;
   for (const auto& iter : radar_obstacles.radar_obstacle()) {
     if (IsPreserved(iter.second)) {

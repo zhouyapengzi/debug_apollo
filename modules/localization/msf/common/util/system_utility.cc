@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -27,21 +28,29 @@ namespace localization {
 namespace msf {
 
 bool system::IsExists(const std::string& path) {
+    AINFO<<"(DMCZP) EnteringMethod: system::IsExists";
+
   boost::filesystem::path p(path);
   return boost::filesystem::exists(p);
 }
 
 bool system::IsDirectory(const std::string& path) {
+    AINFO<<"(DMCZP) EnteringMethod: system::IsDirectory";
+
   boost::filesystem::path p(path);
   return boost::filesystem::is_directory(p);
 }
 
 bool system::CreateDirectory(const std::string& path) {
+    AINFO<<"(DMCZP) EnteringMethod: system::CreateDirectory";
+
   boost::filesystem::path p(path);
   return boost::filesystem::create_directory(p);
 }
 
 bool system::GetFileSize(const std::string& path, unsigned int* size) {
+    AINFO<<"(DMCZP) EnteringMethod: system::GetFileSize";
+
   boost::filesystem::path p(path);
   if (boost::filesystem::exists(p) && boost::filesystem::is_regular_file(p)) {
     *size = static_cast<unsigned int>(boost::filesystem::file_size(p));
@@ -53,6 +62,8 @@ bool system::GetFileSize(const std::string& path, unsigned int* size) {
 
 bool system::CopyFile(const std::string& src, const std::string& dst,
                       bool is_overwrite) {
+    AINFO<<"(DMCZP) EnteringMethod: system::CopyFile";
+
   boost::filesystem::path path_src(src);
   boost::filesystem::path path_dst(dst);
   boost::system::error_code error;
@@ -76,6 +87,8 @@ bool system::CopyFile(const std::string& src, const std::string& dst,
 void system::GetFilesInFolderRecursive(const std::string& folder,
                                        const std::string& ext,
                                        std::vector<std::string>* ret) {
+    AINFO<<"(DMCZP) EnteringMethod: system::GetFilesInFolderRecursive";
+
   ret->clear();
   namespace fs = boost::filesystem;
   if (!fs::exists(folder) || !fs::is_directory(folder)) {
@@ -96,6 +109,8 @@ void system::GetFilesInFolderRecursive(const std::string& folder,
 
 void system::GetFilesInFolder(const std::string& folder, const std::string& ext,
                               std::vector<std::string>* ret) {
+    AINFO<<"(DMCZP) EnteringMethod: system::GetFilesInFolder";
+
   ret->clear();
   namespace fs = boost::filesystem;
   if (!fs::exists(folder) || !fs::is_directory(folder)) {
@@ -116,6 +131,8 @@ void system::GetFilesInFolder(const std::string& folder, const std::string& ext,
 
 void system::GetFoldersInFolder(const std::string& folder,
                                 std::vector<std::string>* ret) {
+    AINFO<<"(DMCZP) EnteringMethod: system::GetFoldersInFolder";
+
   ret->clear();
   namespace fs = boost::filesystem;
   if (!fs::exists(folder) || !fs::is_directory(folder)) {

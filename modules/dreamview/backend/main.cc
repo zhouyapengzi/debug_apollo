@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -19,6 +20,8 @@
 #include "modules/dreamview/backend/dreamview.h"
 
 int main(int argc, char *argv[]) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
   google::ParseCommandLineFlags(&argc, &argv, true);
   // add by caros for dv performance improve
   apollo::cyber::GlobalData::Instance()->SetProcessGroup("dreamview_sched");

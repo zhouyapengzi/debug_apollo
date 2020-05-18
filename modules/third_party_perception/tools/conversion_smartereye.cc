@@ -50,6 +50,8 @@ apollo::perception::PerceptionObstacles SmartereyeToPerceptionObstacles(
     const apollo::drivers::SmartereyeLanemark& smartereye_lanemark,
     const apollo::localization::LocalizationEstimate& localization,
     const apollo::canbus::Chassis& chassis) {
+    AINFO<<"(DMCZP) EnteringMethod: SmartereyeToPerceptionObstacles";
+
   PerceptionObstacles obstacles;
   // retrieve position and velocity of the main vehicle from the localization
   // position

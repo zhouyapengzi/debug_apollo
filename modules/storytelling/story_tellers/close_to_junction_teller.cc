@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -33,6 +34,8 @@ using apollo::planning::ADCTrajectory;
 using apollo::prediction::PredictionMap;
 
 bool IsPointInPNCJunction(const PathPoint& point, std::string* junction_id) {
+    AINFO<<"(DMCZP) EnteringMethod: IsPointInPNCJunction";
+
   const auto junctions = PredictionMap::GetPNCJunctions(
       {point.x(), point.y()}, FLAGS_junction_search_radius);
   if (junctions.empty() || junctions.front() == nullptr) {
@@ -49,6 +52,8 @@ bool IsPointInPNCJunction(const PathPoint& point, std::string* junction_id) {
 
 bool IsPointInRegularJunction(const PathPoint& point,
                               std::string* junction_id) {
+    AINFO<<"(DMCZP) EnteringMethod: IsPointInRegularJunction";
+
   const auto junctions = PredictionMap::GetJunctions(
       {point.x(), point.y()}, FLAGS_junction_search_radius);
   if (junctions.empty() || junctions.front() == nullptr) {
@@ -70,6 +75,8 @@ bool IsPointInRegularJunction(const PathPoint& point,
  */
 double DistanceToJunction(const ADCTrajectory& adc_trajectory,
                           std::string* junction_id) {
+    AINFO<<"(DMCZP) EnteringMethod: DistanceToJunction";
+
   const double s_start = adc_trajectory.trajectory_point(0).path_point().s();
   // Test for PNCJunction.
   for (const auto& point : adc_trajectory.trajectory_point()) {
@@ -99,12 +106,16 @@ double DistanceToJunction(const ADCTrajectory& adc_trajectory,
 }  // namespace
 
 void CloseToJunctionTeller::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: CloseToJunctionTeller::Init";
+
   auto* manager = FrameManager::Instance();
   manager->CreateOrGetReader<ADCTrajectory>(FLAGS_planning_trajectory_topic);
   CHECK(PredictionMap::Ready()) << "PredictionMap not ready";
 }
 
 void CloseToJunctionTeller::Update(Stories* stories) {
+    AINFO<<"(DMCZP) EnteringMethod: CloseToJunctionTeller::Update";
+
   auto* manager = FrameManager::Instance();
   static auto planning_reader = manager->CreateOrGetReader<ADCTrajectory>(
       FLAGS_planning_trajectory_topic);

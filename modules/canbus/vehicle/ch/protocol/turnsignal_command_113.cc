@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -26,25 +27,35 @@ using ::apollo::drivers::canbus::Byte;
 const int32_t Turnsignalcommand113::ID = 0x113;
 
 // public
-Turnsignalcommand113::Turnsignalcommand113() { Reset(); }
+Turnsignalcommand113::Turnsignalcommand113() {
+    AINFO<<"(DMCZP) EnteringMethod: Turnsignalcommand113::Turnsignalcommand113";
+ Reset(); }
 
 uint32_t Turnsignalcommand113::GetPeriod() const {
+    AINFO<<"(DMCZP) EnteringMethod: Turnsignalcommand113::GetPeriod";
+
   // modify every protocol's period manually
   static const uint32_t PERIOD = 20 * 1000;
   return PERIOD;
 }
 
 void Turnsignalcommand113::UpdateData(uint8_t* data) {
+    AINFO<<"(DMCZP) EnteringMethod: Turnsignalcommand113::UpdateData";
+
   set_p_turn_signal_cmd(data, turn_signal_cmd_);
 }
 
 void Turnsignalcommand113::Reset() {
+    AINFO<<"(DMCZP) EnteringMethod: Turnsignalcommand113::Reset";
+
   // you should check this manually
   turn_signal_cmd_ = Turnsignal_command_113::TURN_SIGNAL_CMD_NONE;
 }
 
 Turnsignalcommand113* Turnsignalcommand113::set_turn_signal_cmd(
     Turnsignal_command_113::Turn_signal_cmdType turn_signal_cmd) {
+    AINFO<<"(DMCZP) EnteringMethod: Turnsignalcommand113::set_turn_signal_cmd";
+
   turn_signal_cmd_ = turn_signal_cmd;
   return this;
 }
@@ -57,6 +68,8 @@ Turnsignalcommand113* Turnsignalcommand113::set_turn_signal_cmd(
 void Turnsignalcommand113::set_p_turn_signal_cmd(
     uint8_t* data,
     Turnsignal_command_113::Turn_signal_cmdType turn_signal_cmd) {
+    AINFO<<"(DMCZP) EnteringMethod: Turnsignalcommand113::set_p_turn_signal_cmd";
+
   int x = turn_signal_cmd;
 
   Byte to_set(data + 0);

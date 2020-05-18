@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -25,11 +26,15 @@ namespace ch {
 
 using ::apollo::drivers::canbus::Byte;
 
-Gearstatus514::Gearstatus514() {}
+Gearstatus514::Gearstatus514() {
+    AINFO<<"(DMCZP) EnteringMethod: Gearstatus514::Gearstatus514";
+}
 const int32_t Gearstatus514::ID = 0x514;
 
 void Gearstatus514::Parse(const std::uint8_t* bytes, int32_t length,
                           ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Gearstatus514::Parse";
+
   chassis->mutable_ch()->mutable_gear_status_514()->set_gear_sts(
       gear_sts(bytes, length));
 }
@@ -41,6 +46,8 @@ void Gearstatus514::Parse(const std::uint8_t* bytes, int32_t length,
 // 'type': 'enum', 'order': 'intel', 'physical_unit': ''}
 Gear_status_514::Gear_stsType Gearstatus514::gear_sts(const std::uint8_t* bytes,
                                                       int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Gearstatus514::gear_sts";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 8);
 

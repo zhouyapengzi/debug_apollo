@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -30,6 +31,8 @@ static const char kBase64Array[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 std::string Base64Piece(const char in0, const char in1, const char in2) {
+    AINFO<<"(DMCZP) EnteringMethod: Base64Piece";
+
   const int triplet = in0 << 16 | in1 << 8 | in2;
   std::string out(4, '=');
   out[0] = kBase64Array[(triplet >> 18) & 0x3f];
@@ -46,6 +49,8 @@ std::string Base64Piece(const char in0, const char in1, const char in2) {
 }  // namespace
 
 std::string EncodeBase64(std::string_view in) {
+    AINFO<<"(DMCZP) EnteringMethod: EncodeBase64";
+
   std::string out;
   if (in.empty()) {
     return out;

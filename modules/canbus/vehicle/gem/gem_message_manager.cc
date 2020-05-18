@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /* Copyright 2018 The Apollo Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,6 +53,8 @@ namespace canbus {
 namespace gem {
 
 GemMessageManager::GemMessageManager() {
+    AINFO<<"(DMCZP) EnteringMethod: GemMessageManager::GemMessageManager";
+
   // Control Messages
   AddSendProtocolData<Accelcmd67, true>();
   AddSendProtocolData<Brakecmd6b, true>();

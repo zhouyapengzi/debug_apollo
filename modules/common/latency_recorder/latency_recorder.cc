@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -25,12 +26,16 @@ namespace common {
 
 LatencyRecorder::LatencyRecorder(const std::string& module_name)
     : module_name_(module_name) {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyRecorder::LatencyRecorder";
+
   records_.reset(new LatencyRecordMap);
 }
 
 void LatencyRecorder::AppendLatencyRecord(const uint64_t message_id,
                                           const absl::Time& begin_time,
                                           const absl::Time& end_time) {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyRecorder::AppendLatencyRecord";
+
   // TODO(michael): ALERT for now for trouble shooting,
   // CHECK_LT(begin_time, end_time) in the future to enforce the validation
   if (begin_time >= end_time) {
@@ -71,6 +76,8 @@ void LatencyRecorder::AppendLatencyRecord(const uint64_t message_id,
 
 std::shared_ptr<apollo::cyber::Writer<LatencyRecordMap>>
 LatencyRecorder::CreateWriter() {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyRecorder::CreateWriter";
+
   const std::string node_name_prefix = "latency_recorder";
   if (module_name_.empty()) {
     AERROR << "missing module name for sending latency records";
@@ -90,6 +97,8 @@ LatencyRecorder::CreateWriter() {
 
 void LatencyRecorder::PublishLatencyRecords(
     const std::shared_ptr<apollo::cyber::Writer<LatencyRecordMap>>& writer) {
+    AINFO<<"(DMCZP) EnteringMethod: LatencyRecorder::PublishLatencyRecords";
+
   records_->set_module_name(module_name_);
   apollo::common::util::FillHeader("LatencyRecorderMap", records_.get());
   writer->Write(*records_);

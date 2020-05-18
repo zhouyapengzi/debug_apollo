@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
@@ -33,6 +34,8 @@ using apollo::perception::PerceptionObstacles;
 
 ThirdPartyPerceptionMobileye::ThirdPartyPerceptionMobileye(
       apollo::cyber::Node* const node) :ThirdPartyPerception(node) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionMobileye::ThirdPartyPerceptionMobileye";
+
   mobileye_reader_ = node_->CreateReader<apollo::drivers::Mobileye>(
       FLAGS_mobileye_topic,
       [this](const std::shared_ptr<apollo::drivers::Mobileye> &message) {
@@ -52,6 +55,8 @@ ThirdPartyPerceptionMobileye::ThirdPartyPerceptionMobileye(
 }
 
 void ThirdPartyPerceptionMobileye::OnMobileye(const Mobileye& message) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionMobileye::OnMobileye";
+
   ADEBUG << "Received mobileye data: run mobileye callback.";
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   eye_obstacles_ = conversion_mobileye::MobileyeToPerceptionObstacles(
@@ -59,6 +64,8 @@ void ThirdPartyPerceptionMobileye::OnMobileye(const Mobileye& message) {
 }
 
 void ThirdPartyPerceptionMobileye::OnDelphiESR(const DelphiESR& message) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionMobileye::OnDelphiESR";
+
   ADEBUG << "Received delphi esr data: run delphi esr callback.";
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   last_radar_obstacles_.CopyFrom(current_radar_obstacles_);
@@ -73,6 +80,8 @@ void ThirdPartyPerceptionMobileye::OnDelphiESR(const DelphiESR& message) {
 }
 
 void ThirdPartyPerceptionMobileye::OnContiRadar(const ContiRadar& message) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionMobileye::OnContiRadar";
+
   ADEBUG << "Received delphi esr data: run continental radar callback.";
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   last_radar_obstacles_.CopyFrom(current_radar_obstacles_);
@@ -88,6 +97,8 @@ void ThirdPartyPerceptionMobileye::OnContiRadar(const ContiRadar& message) {
 
 bool ThirdPartyPerceptionMobileye::Process(
             PerceptionObstacles* const response) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionMobileye::Process";
+
   ADEBUG << "Timer is triggered: publish PerceptionObstacles";
   CHECK_NOTNULL(response);
 

@@ -46,6 +46,8 @@ using apollo::common::VehicleConfigHelper;
 namespace {
 
 std::string GetLogFileName() {
+    AINFO<<"(DMCZP) EnteringMethod: GetLogFileName";
+
   time_t raw_time;
   char name_buffer[80];
   std::time(&raw_time);
@@ -57,10 +59,14 @@ std::string GetLogFileName() {
   return std::string(name_buffer);
 }
 
-void WriteHeaders(std::ofstream &file_stream) {}
+void WriteHeaders(std::ofstream &file_stream) {
+    AINFO<<"(DMCZP) EnteringMethod: WriteHeaders";
+}
 }  // namespace
 
 MPCController::MPCController() : name_("MPC Controller") {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::MPCController";
+
   if (FLAGS_enable_csv_debug) {
     mpc_log_file_.open(GetLogFileName());
     mpc_log_file_ << std::fixed;
@@ -73,6 +79,8 @@ MPCController::MPCController() : name_("MPC Controller") {
 MPCController::~MPCController() { CloseLogFile(); }
 
 bool MPCController::LoadControlConf(const ControlConf *control_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::LoadControlConf";
+
   if (!control_conf) {
     AERROR << "[MPCController] control_conf = nullptr";
     return false;
@@ -145,10 +153,14 @@ bool MPCController::LoadControlConf(const ControlConf *control_conf) {
 
 void MPCController::ProcessLogs(const SimpleMPCDebug *debug,
                                 const canbus::Chassis *chassis) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::ProcessLogs";
+
   // TODO(QiL): Add debug information
 }
 
 void MPCController::LogInitParameters() {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::LogInitParameters";
+
   ADEBUG << name_ << " begin.";
   ADEBUG << "[MPCController parameters]"
          << " mass_: " << mass_ << ","
@@ -158,6 +170,8 @@ void MPCController::LogInitParameters() {
 }
 
 void MPCController::InitializeFilters(const ControlConf *control_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::InitializeFilters";
+
   // Low pass filter
   std::vector<double> den(3, 0.0);
   std::vector<double> num(3, 0.0);
@@ -171,6 +185,8 @@ void MPCController::InitializeFilters(const ControlConf *control_conf) {
 }
 
 Status MPCController::Init(const ControlConf *control_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::Init";
+
   if (!LoadControlConf(control_conf)) {
     AERROR << "failed to load control conf";
     return Status(ErrorCode::CONTROL_COMPUTE_ERROR,
@@ -243,21 +259,31 @@ Status MPCController::Init(const ControlConf *control_conf) {
 }
 
 void MPCController::CloseLogFile() {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::CloseLogFile";
+
   if (FLAGS_enable_csv_debug && mpc_log_file_.is_open()) {
     mpc_log_file_.close();
   }
 }
 
 double MPCController::Wheel2SteerPct(const double wheel_angle) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::Wheel2SteerPct";
+
   return wheel_angle / wheel_single_direction_max_degree_ * 100;
 }
 
-void MPCController::Stop() { CloseLogFile(); }
+void MPCController::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::Stop";
+ CloseLogFile(); }
 
-std::string MPCController::Name() const { return name_; }
+std::string MPCController::Name() const {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::Name";
+ return name_; }
 
 void MPCController::LoadMPCGainScheduler(
     const MPCControllerConf &mpc_controller_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::LoadMPCGainScheduler";
+
   const auto &lat_err_gain_scheduler =
       mpc_controller_conf.lat_err_gain_scheduler();
   const auto &heading_err_gain_scheduler =
@@ -303,6 +329,8 @@ Status MPCController::ComputeControlCommand(
     const canbus::Chassis *chassis,
     const planning::ADCTrajectory *planning_published_trajectory,
     ControlCommand *cmd) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::ComputeControlCommand";
+
   trajectory_analyzer_ =
       std::move(TrajectoryAnalyzer(planning_published_trajectory));
 
@@ -541,6 +569,8 @@ Status MPCController::ComputeControlCommand(
 }
 
 Status MPCController::Reset() {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::Reset";
+
   previous_heading_error_ = 0.0;
   previous_lateral_error_ = 0.0;
   return Status::OK();
@@ -548,6 +578,8 @@ Status MPCController::Reset() {
 
 void MPCController::LoadControlCalibrationTable(
     const MPCControllerConf &mpc_controller_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::LoadControlCalibrationTable";
+
   const auto &control_table = mpc_controller_conf.calibration_table();
   ADEBUG << "Control calibration table loaded";
   ADEBUG << "Control calibration table size is "
@@ -564,6 +596,8 @@ void MPCController::LoadControlCalibrationTable(
 }
 
 void MPCController::UpdateState(SimpleMPCDebug *debug) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::UpdateState";
+
   const auto &com = VehicleStateProvider::Instance()->ComputeCOMPosition(lr_);
   ComputeLateralErrors(com.x(), com.y(),
                        VehicleStateProvider::Instance()->heading(),
@@ -582,6 +616,8 @@ void MPCController::UpdateState(SimpleMPCDebug *debug) {
 }
 
 void MPCController::UpdateMatrix(SimpleMPCDebug *debug) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::UpdateMatrix";
+
   const double v = std::max(VehicleStateProvider::Instance()->linear_velocity(),
                             minimum_speed_protection_);
   matrix_a_(1, 1) = matrix_a_coeff_(1, 1) / v;
@@ -599,6 +635,8 @@ void MPCController::UpdateMatrix(SimpleMPCDebug *debug) {
 }
 
 void MPCController::FeedforwardUpdate(SimpleMPCDebug *debug) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::FeedforwardUpdate";
+
   const double v = VehicleStateProvider::Instance()->linear_velocity();
   const double kv =
       lr_ * mass_ / 2 / cf_ / wheelbase_ - lf_ * mass_ / 2 / cr_ / wheelbase_;
@@ -610,6 +648,8 @@ void MPCController::ComputeLateralErrors(
     const double x, const double y, const double theta, const double linear_v,
     const double angular_v, const double linear_a,
     const TrajectoryAnalyzer &trajectory_analyzer, SimpleMPCDebug *debug) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::ComputeLateralErrors";
+
   const auto matched_point =
       trajectory_analyzer.QueryNearestPointByPosition(x, y);
 
@@ -678,6 +718,8 @@ void MPCController::ComputeLateralErrors(
 
 void MPCController::ComputeLongitudinalErrors(
     const TrajectoryAnalyzer *trajectory_analyzer, SimpleMPCDebug *debug) {
+    AINFO<<"(DMCZP) EnteringMethod: MPCController::ComputeLongitudinalErrors";
+
   // the decomposed vehicle motion onto Frenet frame
   // s: longitudinal accumulated distance along reference trajectory
   // s_dot: longitudinal velocity along reference trajectory

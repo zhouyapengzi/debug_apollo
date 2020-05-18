@@ -26,6 +26,16 @@ DEFINE_double(qz, 0, "quaternion z");
 DEFINE_double(qw, 0, "quaternion w");
 
 int main(int32_t argc, char** argv) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
+    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
+
   google::InitGoogleLogging(argv[0]);
   FLAGS_alsologtostderr = true;
   FLAGS_v = 3;

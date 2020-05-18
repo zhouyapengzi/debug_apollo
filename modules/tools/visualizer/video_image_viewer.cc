@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -26,7 +27,9 @@ VideoImgViewer::VideoImgViewer(QWidget* parent)
       plane_(),
       ortho_camera_(),
       default_image_(nullptr),
-      video_image_shader_prog_(nullptr) {}
+      video_image_shader_prog_(nullptr) {
+    AINFO<<"(DMCZP) EnteringMethod: VideoImgViewer::VideoImgViewer";
+}
 
 VideoImgViewer::~VideoImgViewer() {
   if (is_init_) {
@@ -44,6 +47,8 @@ VideoImgViewer::~VideoImgViewer() {
 }
 
 void VideoImgViewer::initializeGL() {
+    AINFO<<"(DMCZP) EnteringMethod: VideoImgViewer::initializeGL";
+
   initializeOpenGLFunctions();
 
   glPointSize(1.0f);
@@ -96,6 +101,8 @@ void VideoImgViewer::initializeGL() {
 }
 
 void VideoImgViewer::resizeGL(int width, int height) {
+    AINFO<<"(DMCZP) EnteringMethod: VideoImgViewer::resizeGL";
+
   glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 
   if (is_init_) {
@@ -114,6 +121,8 @@ void VideoImgViewer::resizeGL(int width, int height) {
 }
 
 void VideoImgViewer::paintGL() {
+    AINFO<<"(DMCZP) EnteringMethod: VideoImgViewer::paintGL";
+
   if (is_init_) {
     plane_.Render();
   }

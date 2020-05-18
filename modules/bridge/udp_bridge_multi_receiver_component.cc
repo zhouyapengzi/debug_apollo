@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -22,9 +23,13 @@ namespace apollo {
 namespace bridge {
 
 UDPBridgeMultiReceiverComponent::UDPBridgeMultiReceiverComponent()
-    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::CONTROL) {}
+    : monitor_logger_buffer_(common::monitor::MonitorMessageItem::CONTROL) {
+    AINFO<<"(DMCZP) EnteringMethod: UDPBridgeMultiReceiverComponent::UDPBridgeMultiReceiverComponent";
+}
 
 bool UDPBridgeMultiReceiverComponent::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: UDPBridgeMultiReceiverComponent::Init";
+
   AINFO << "UDP bridge multi :receiver init, startin...";
   apollo::bridge::UDPBridgeReceiverRemoteInfo udp_bridge_remote;
   if (!this->GetProtoConfig(&udp_bridge_remote)) {
@@ -44,11 +49,15 @@ bool UDPBridgeMultiReceiverComponent::Init() {
 }
 
 bool UDPBridgeMultiReceiverComponent::InitSession(uint16_t port) {
+    AINFO<<"(DMCZP) EnteringMethod: UDPBridgeMultiReceiverComponent::InitSession";
+
   return listener_->Initialize(
       this, &UDPBridgeMultiReceiverComponent::MsgHandle, port);
 }
 
 void UDPBridgeMultiReceiverComponent::MsgDispatcher() {
+    AINFO<<"(DMCZP) EnteringMethod: UDPBridgeMultiReceiverComponent::MsgDispatcher";
+
   ADEBUG << "msg dispatcher start successful.";
   listener_->Listen();
 }
@@ -56,6 +65,8 @@ void UDPBridgeMultiReceiverComponent::MsgDispatcher() {
 std::shared_ptr<ProtoDiserializedBufBase>
 UDPBridgeMultiReceiverComponent::CreateBridgeProtoBuf(
     const BridgeHeader &header) {
+    AINFO<<"(DMCZP) EnteringMethod: UDPBridgeMultiReceiverComponent::CreateBridgeProtoBuf";
+
   std::shared_ptr<ProtoDiserializedBufBase> proto_buf;
   if (IsTimeout(header.GetTimeStamp())) {
     std::vector<std::shared_ptr<ProtoDiserializedBufBase>>::iterator itor =
@@ -86,6 +97,8 @@ UDPBridgeMultiReceiverComponent::CreateBridgeProtoBuf(
 }
 
 bool UDPBridgeMultiReceiverComponent::IsProtoExist(const BridgeHeader &header) {
+    AINFO<<"(DMCZP) EnteringMethod: UDPBridgeMultiReceiverComponent::IsProtoExist";
+
   for (auto proto : proto_list_) {
     if (proto->IsTheProto(header)) {
       return true;
@@ -95,6 +108,8 @@ bool UDPBridgeMultiReceiverComponent::IsProtoExist(const BridgeHeader &header) {
 }
 
 bool UDPBridgeMultiReceiverComponent::IsTimeout(double time_stamp) {
+    AINFO<<"(DMCZP) EnteringMethod: UDPBridgeMultiReceiverComponent::IsTimeout";
+
   if (enable_timeout_ == false) {
     return false;
   }
@@ -109,6 +124,8 @@ bool UDPBridgeMultiReceiverComponent::IsTimeout(double time_stamp) {
 }
 
 bool UDPBridgeMultiReceiverComponent::MsgHandle(int fd) {
+    AINFO<<"(DMCZP) EnteringMethod: UDPBridgeMultiReceiverComponent::MsgHandle";
+
   struct sockaddr_in client_addr;
   socklen_t sock_len = static_cast<socklen_t>(sizeof(client_addr));
   int bytes = 0;
@@ -174,6 +191,8 @@ bool UDPBridgeMultiReceiverComponent::MsgHandle(int fd) {
 
 bool UDPBridgeMultiReceiverComponent::RemoveInvalidBuf(
     uint32_t msg_id, const std::string &msg_name) {
+    AINFO<<"(DMCZP) EnteringMethod: UDPBridgeMultiReceiverComponent::RemoveInvalidBuf";
+
   if (msg_id == 0) {
     return false;
   }

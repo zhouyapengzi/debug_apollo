@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -22,9 +23,13 @@ namespace msf {
 
 LosslessMapNodePool::LosslessMapNodePool(unsigned int pool_size,
                                          unsigned int thread_size)
-    : BaseMapNodePool(pool_size, thread_size) {}
+    : BaseMapNodePool(pool_size, thread_size) {
+    AINFO<<"(DMCZP) EnteringMethod: LosslessMapNodePool::LosslessMapNodePool";
+}
 
 BaseMapNode* LosslessMapNodePool::AllocNewMapNode() {
+    AINFO<<"(DMCZP) EnteringMethod: LosslessMapNodePool::AllocNewMapNode";
+
   return new LosslessMapNode();
 }
 

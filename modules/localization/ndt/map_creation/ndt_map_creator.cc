@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -28,6 +29,8 @@
 #include "modules/localization/msf/local_pyramid_map/ndt_map/ndt_map_pool.h"
 
 int main(int argc, char** argv) {
+    AINFO<<"(DMCZP) EnteringMethod: main";
+
   boost::program_options::options_description boost_desc("Allowed options");
   boost_desc.add_options()("help", "produce help message")(
       "pcd_folders", boost::program_options::value<std::vector<std::string>>(),

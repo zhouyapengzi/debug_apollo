@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -24,18 +25,24 @@ namespace apollo {
 namespace hdmap {
 
 PoseCollectionAgent::PoseCollectionAgent(std::shared_ptr<JSonConf> sp_conf) {
+    AINFO<<"(DMCZP) EnteringMethod: PoseCollectionAgent::PoseCollectionAgent";
+
   sp_pj_transformer_ = std::make_shared<PJTransformer>(50);
   sp_conf_ = sp_conf;
   Reset();
 }
 
 void PoseCollectionAgent::Reset() {
+    AINFO<<"(DMCZP) EnteringMethod: PoseCollectionAgent::Reset";
+
   sp_pose_collection_ = std::make_shared<PoseCollection>(sp_conf_);
 }
 
 void PoseCollectionAgent::OnBestgnssposCallback(
     const std::shared_ptr<const apollo::drivers::gnss::GnssBestPose>
         &bestgnsspos) {
+    AINFO<<"(DMCZP) EnteringMethod: PoseCollectionAgent::OnBestgnssposCallback";
+
   if (sp_pose_collection_ == nullptr) {
     sp_pose_collection_ = std::make_shared<PoseCollection>(sp_conf_);
   }

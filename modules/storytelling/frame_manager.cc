@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -20,15 +21,23 @@ namespace apollo {
 namespace storytelling {
 
 FrameManager::FrameManager()
-    : log_buffer_(apollo::common::monitor::MonitorMessageItem::STORYTELLING) {}
+    : log_buffer_(apollo::common::monitor::MonitorMessageItem::STORYTELLING) {
+    AINFO<<"(DMCZP) EnteringMethod: FrameManager::FrameManager";
+}
 
 void FrameManager::Init(const std::shared_ptr<cyber::Node>& node) {
+    AINFO<<"(DMCZP) EnteringMethod: FrameManager::Init";
+
   node_ = node;
 }
 
-void FrameManager::StartFrame() { node_->Observe(); }
+void FrameManager::StartFrame() {
+    AINFO<<"(DMCZP) EnteringMethod: FrameManager::StartFrame";
+ node_->Observe(); }
 
 void FrameManager::EndFrame() {
+    AINFO<<"(DMCZP) EnteringMethod: FrameManager::EndFrame";
+
   // Print and publish all monitor logs.
   log_buffer_.Publish();
 }

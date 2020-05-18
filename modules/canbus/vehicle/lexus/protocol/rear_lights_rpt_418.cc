@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,11 +28,15 @@ namespace lexus {
 
 using ::apollo::drivers::canbus::Byte;
 
-Rearlightsrpt418::Rearlightsrpt418() {}
+Rearlightsrpt418::Rearlightsrpt418() {
+    AINFO<<"(DMCZP) EnteringMethod: Rearlightsrpt418::Rearlightsrpt418";
+}
 const int32_t Rearlightsrpt418::ID = 0x418;
 
 void Rearlightsrpt418::Parse(const std::uint8_t* bytes, int32_t length,
                              ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Rearlightsrpt418::Parse";
+
   chassis->mutable_lexus()
       ->mutable_rear_lights_rpt_418()
       ->set_reverse_lights_on_is_valid(
@@ -51,6 +56,8 @@ void Rearlightsrpt418::Parse(const std::uint8_t* bytes, int32_t length,
 // '[0|1]', 'bit': 9, 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Rearlightsrpt418::reverse_lights_on_is_valid(const std::uint8_t* bytes,
                                                   int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Rearlightsrpt418::reverse_lights_on_is_valid";
+
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(1, 1);
 
@@ -63,6 +70,8 @@ bool Rearlightsrpt418::reverse_lights_on_is_valid(const std::uint8_t* bytes,
 // '[0|1]', 'bit': 8, 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Rearlightsrpt418::brake_lights_on_is_valid(const std::uint8_t* bytes,
                                                 int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Rearlightsrpt418::brake_lights_on_is_valid";
+
   Byte t0(bytes + 1);
   int32_t x = t0.get_byte(0, 1);
 
@@ -75,6 +84,8 @@ bool Rearlightsrpt418::brake_lights_on_is_valid(const std::uint8_t* bytes,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Rearlightsrpt418::reverse_lights_on(const std::uint8_t* bytes,
                                          int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Rearlightsrpt418::reverse_lights_on";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(1, 1);
 
@@ -87,6 +98,8 @@ bool Rearlightsrpt418::reverse_lights_on(const std::uint8_t* bytes,
 // 'type': 'bool', 'order': 'motorola', 'physical_unit': ''}
 bool Rearlightsrpt418::brake_lights_on(const std::uint8_t* bytes,
                                        int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Rearlightsrpt418::brake_lights_on";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 1);
 

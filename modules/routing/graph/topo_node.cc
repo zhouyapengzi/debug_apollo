@@ -37,6 +37,8 @@ using ::google::protobuf::RepeatedPtrField;
 void ConvertOutRange(const RepeatedPtrField<CurveRange>& range_vec,
                      double start_s, double end_s,
                      std::vector<NodeSRange>* out_range, int* prefer_index) {
+    AINFO<<"(DMCZP) EnteringMethod: ConvertOutRange";
+
   out_range->clear();
   for (const auto& c_range : range_vec) {
     double s_s = c_range.start().s();
@@ -65,6 +67,8 @@ void ConvertOutRange(const RepeatedPtrField<CurveRange>& range_vec,
 
 bool TopoNode::IsOutRangeEnough(const std::vector<NodeSRange>& range_vec,
                                 double start_s, double end_s) {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::IsOutRangeEnough";
+
   if (!NodeSRange::IsEnoughForChangeLane(start_s, end_s)) {
     return false;
   }
@@ -95,6 +99,8 @@ bool TopoNode::IsOutRangeEnough(const std::vector<NodeSRange>& range_vec,
 
 TopoNode::TopoNode(const Node& node)
     : pb_node_(node), start_s_(0.0), end_s_(pb_node_.length()) {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::TopoNode";
+
   CHECK(pb_node_.length() > kLenghtEpsilon)
       << "Node length is invalid in pb: " << pb_node_.DebugString();
   Init();
@@ -103,6 +109,8 @@ TopoNode::TopoNode(const Node& node)
 
 TopoNode::TopoNode(const TopoNode* topo_node, const NodeSRange& range)
     : TopoNode(topo_node->PbNode()) {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::TopoNode";
+
   origin_node_ = topo_node;
   start_s_ = range.StartS();
   end_s_ = range.EndS();
@@ -112,6 +120,8 @@ TopoNode::TopoNode(const TopoNode* topo_node, const NodeSRange& range)
 TopoNode::~TopoNode() {}
 
 void TopoNode::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::Init";
+
   if (!FindAnchorPoint()) {
     AWARN << "Be attention!!! Find anchor point failed for lane: " << LaneId();
   }
@@ -130,6 +140,8 @@ void TopoNode::Init() {
 }
 
 bool TopoNode::FindAnchorPoint() {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::FindAnchorPoint";
+
   double total_size = 0;
   for (const auto& seg : CentralCurve().segment()) {
     total_size += seg.line_segment().point_size();
@@ -147,26 +159,44 @@ bool TopoNode::FindAnchorPoint() {
 }
 
 void TopoNode::SetAnchorPoint(const common::PointENU& anchor_point) {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::SetAnchorPoint";
+
   anchor_point_ = anchor_point;
 }
 
-const Node& TopoNode::PbNode() const { return pb_node_; }
+const Node& TopoNode::PbNode() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::PbNode";
+ return pb_node_; }
 
-double TopoNode::Length() const { return pb_node_.length(); }
+double TopoNode::Length() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::Length";
+ return pb_node_.length(); }
 
-double TopoNode::Cost() const { return pb_node_.cost(); }
+double TopoNode::Cost() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::Cost";
+ return pb_node_.cost(); }
 
-bool TopoNode::IsVirtual() const { return pb_node_.is_virtual(); }
+bool TopoNode::IsVirtual() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::IsVirtual";
+ return pb_node_.is_virtual(); }
 
-const std::string& TopoNode::LaneId() const { return pb_node_.lane_id(); }
+const std::string& TopoNode::LaneId() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::LaneId";
+ return pb_node_.lane_id(); }
 
-const std::string& TopoNode::RoadId() const { return pb_node_.road_id(); }
+const std::string& TopoNode::RoadId() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::RoadId";
+ return pb_node_.road_id(); }
 
 const hdmap::Curve& TopoNode::CentralCurve() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::CentralCurve";
+
   return pb_node_.central_curve();
 }
 
-const common::PointENU& TopoNode::AnchorPoint() const { return anchor_point_; }
+const common::PointENU& TopoNode::AnchorPoint() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::AnchorPoint";
+ return anchor_point_; }
 
 const std::vector<NodeSRange>& TopoNode::LeftOutRange() const {
   return left_out_sorted_range_;
@@ -219,23 +249,37 @@ const std::unordered_set<const TopoEdge*>& TopoNode::OutToSucEdge() const {
 }
 
 const TopoEdge* TopoNode::GetInEdgeFrom(const TopoNode* from_node) const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::GetInEdgeFrom";
+
   return FindPtrOrNull(in_edge_map_, from_node);
 }
 
 const TopoEdge* TopoNode::GetOutEdgeTo(const TopoNode* to_node) const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::GetOutEdgeTo";
+
   return FindPtrOrNull(out_edge_map_, to_node);
 }
 
-const TopoNode* TopoNode::OriginNode() const { return origin_node_; }
+const TopoNode* TopoNode::OriginNode() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::OriginNode";
+ return origin_node_; }
 
-double TopoNode::StartS() const { return start_s_; }
+double TopoNode::StartS() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::StartS";
+ return start_s_; }
 
-double TopoNode::EndS() const { return end_s_; }
+double TopoNode::EndS() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::EndS";
+ return end_s_; }
 
-bool TopoNode::IsSubNode() const { return OriginNode() != this; }
+bool TopoNode::IsSubNode() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::IsSubNode";
+ return OriginNode() != this; }
 
 bool TopoNode::IsOverlapEnough(const TopoNode* sub_node,
                                const TopoEdge* edge_for_type) const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::IsOverlapEnough";
+
   if (edge_for_type->Type() == TET_LEFT) {
     return (is_left_range_enough_ &&
             IsOutRangeEnough(left_out_sorted_range_, sub_node->StartS(),
@@ -253,6 +297,8 @@ bool TopoNode::IsOverlapEnough(const TopoNode* sub_node,
 }
 
 void TopoNode::AddInEdge(const TopoEdge* edge) {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::AddInEdge";
+
   if (edge->ToNode() != this) {
     return;
   }
@@ -277,6 +323,8 @@ void TopoNode::AddInEdge(const TopoEdge* edge) {
 }
 
 void TopoNode::AddOutEdge(const TopoEdge* edge) {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::AddOutEdge";
+
   if (edge->FromNode() != this) {
     return;
   }
@@ -301,34 +349,54 @@ void TopoNode::AddOutEdge(const TopoEdge* edge) {
 }
 
 bool TopoNode::IsInFromPreEdgeValid() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::IsInFromPreEdgeValid";
+
   return std::fabs(StartS() - OriginNode()->StartS()) < MIN_INTERNAL_FOR_NODE;
 }
 
 bool TopoNode::IsOutToSucEdgeValid() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoNode::IsOutToSucEdgeValid";
+
   return std::fabs(EndS() - OriginNode()->EndS()) < MIN_INTERNAL_FOR_NODE;
 }
 
 TopoEdge::TopoEdge(const Edge& edge, const TopoNode* from_node,
                    const TopoNode* to_node)
-    : pb_edge_(edge), from_node_(from_node), to_node_(to_node) {}
+    : pb_edge_(edge), from_node_(from_node), to_node_(to_node) {
+    AINFO<<"(DMCZP) EnteringMethod: TopoEdge::TopoEdge";
+}
 
 TopoEdge::~TopoEdge() {}
 
-const Edge& TopoEdge::PbEdge() const { return pb_edge_; }
+const Edge& TopoEdge::PbEdge() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoEdge::PbEdge";
+ return pb_edge_; }
 
-double TopoEdge::Cost() const { return pb_edge_.cost(); }
+double TopoEdge::Cost() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoEdge::Cost";
+ return pb_edge_.cost(); }
 
-const TopoNode* TopoEdge::FromNode() const { return from_node_; }
+const TopoNode* TopoEdge::FromNode() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoEdge::FromNode";
+ return from_node_; }
 
-const TopoNode* TopoEdge::ToNode() const { return to_node_; }
+const TopoNode* TopoEdge::ToNode() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoEdge::ToNode";
+ return to_node_; }
 
 const std::string& TopoEdge::FromLaneId() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoEdge::FromLaneId";
+
   return pb_edge_.from_lane_id();
 }
 
-const std::string& TopoEdge::ToLaneId() const { return pb_edge_.to_lane_id(); }
+const std::string& TopoEdge::ToLaneId() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoEdge::ToLaneId";
+ return pb_edge_.to_lane_id(); }
 
 TopoEdgeType TopoEdge::Type() const {
+    AINFO<<"(DMCZP) EnteringMethod: TopoEdge::Type";
+
   if (pb_edge_.direction_type() == Edge::LEFT) {
     return TET_LEFT;
   }

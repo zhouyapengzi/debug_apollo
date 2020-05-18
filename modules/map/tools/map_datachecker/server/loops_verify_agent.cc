@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -25,6 +26,8 @@ namespace hdmap {
 LoopsVerifyAgent::LoopsVerifyAgent(
     std::shared_ptr<JSonConf> sp_conf,
     std::shared_ptr<PoseCollectionAgent> sp_pose_collection_agent) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::LoopsVerifyAgent";
+
   sp_conf_ = sp_conf;
   sp_pose_collection_agent_ = sp_pose_collection_agent;
 }
@@ -32,6 +35,8 @@ LoopsVerifyAgent::LoopsVerifyAgent(
 grpc::Status LoopsVerifyAgent::ProcessGrpcRequest(
     grpc::ServerContext *context, LoopsVerifyRequest *request,
     LoopsVerifyResponse *response) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::ProcessGrpcRequest";
+
   AINFO << "LoopsVerifyAgent request is: " << request->DebugString();
   switch (request->cmd()) {
     case CmdType::START:
@@ -54,6 +59,8 @@ grpc::Status LoopsVerifyAgent::ProcessGrpcRequest(
 
 void LoopsVerifyAgent::StartVerify(LoopsVerifyRequest *request,
                                    LoopsVerifyResponse *response) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::StartVerify";
+
   AINFO << "Call StartVerify";
   if (GetState() == LoopsVerifyAgentState::RUNNING) {
     AINFO << "Verify is working, do not need start again";
@@ -74,6 +81,8 @@ void LoopsVerifyAgent::StartVerify(LoopsVerifyRequest *request,
 
 void LoopsVerifyAgent::CheckVerify(LoopsVerifyRequest *request,
                                    LoopsVerifyResponse *response) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::CheckVerify";
+
   AINFO << "Call CheckVerify";
   if (GetState() == LoopsVerifyAgentState::IDLE) {
     AINFO << "Verify does not work, start first";
@@ -125,6 +134,8 @@ void LoopsVerifyAgent::CheckVerify(LoopsVerifyRequest *request,
 
 void LoopsVerifyAgent::StopVerify(LoopsVerifyRequest *request,
                                   LoopsVerifyResponse *response) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::StopVerify";
+
   AINFO << "call StopVerify";
   response->set_code(ErrorCode::SUCCESS);
   SetState(LoopsVerifyAgentState::IDLE);
@@ -159,6 +170,8 @@ void LoopsVerifyAgent::StopVerify(LoopsVerifyRequest *request,
 
 std::shared_ptr<std::vector<std::pair<double, double>>>
 LoopsVerifyAgent::get_verify_range(LoopsVerifyRequest *request) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::get_verify_range";
+
   std::shared_ptr<std::vector<std::pair<double, double>>> sp_range(
       new std::vector<std::pair<double, double>>());
   for (const VerifyRange &range : request->range()) {
@@ -168,6 +181,8 @@ LoopsVerifyAgent::get_verify_range(LoopsVerifyRequest *request) {
 }
 
 size_t LoopsVerifyAgent::GetLoopsToCheck(LoopsVerifyRequest *request) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::GetLoopsToCheck";
+
   size_t loops_to_check = 0;
   DataType data_type = request->type();
   if (data_type == DataType::MAP_MAKING) {
@@ -183,6 +198,8 @@ double LoopsVerifyAgent::GetRangeIndex(
     std::shared_ptr<std::vector<std::pair<double, double>>> sp_range,
     std::vector<bool> *sp_range_index,
     std::shared_ptr<std::vector<FramePose>> sp_vec_poses) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::GetRangeIndex";
+
   if (sp_range == nullptr) {
     AINFO << "error, sp_range is null";
     return -1.0;
@@ -236,6 +253,8 @@ double LoopsVerifyAgent::GetRangeIndex(
 int LoopsVerifyAgent::GetPosesToCheck(
     std::shared_ptr<std::vector<std::pair<double, double>>> sp_range,
     std::vector<FramePose> *sp_poses) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::GetPosesToCheck";
+
   if (sp_pose_collection_agent_ == nullptr) {
     AINFO << "error, sp_pose_collection_agent is null";
     return -1;
@@ -274,6 +293,8 @@ int LoopsVerifyAgent::GetPosesToCheck(
 int LoopsVerifyAgent::DoStartVerify(
     std::shared_ptr<std::vector<std::pair<double, double>>> sp_range,
     double loops_to_check) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::DoStartVerify";
+
   clock_t start = clock();
   std::vector<FramePose> all_poses;
   GetPosesToCheck(sp_range, &all_poses);
@@ -287,8 +308,12 @@ int LoopsVerifyAgent::DoStartVerify(
   return 0;
 }
 
-void LoopsVerifyAgent::SetState(LoopsVerifyAgentState state) { state_ = state; }
-LoopsVerifyAgentState LoopsVerifyAgent::GetState() { return state_; }
+void LoopsVerifyAgent::SetState(LoopsVerifyAgentState state) {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::SetState";
+ state_ = state; }
+LoopsVerifyAgentState LoopsVerifyAgent::GetState() {
+    AINFO<<"(DMCZP) EnteringMethod: LoopsVerifyAgent::GetState";
+ return state_; }
 
 }  // namespace hdmap
 }  // namespace apollo

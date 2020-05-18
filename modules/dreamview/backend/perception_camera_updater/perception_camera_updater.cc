@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -36,6 +37,8 @@ using apollo::transform::TransformStamped;
 namespace {
 void ConvertMatrixToArray(const Eigen::Matrix4d &matrix,
                           std::vector<double> *array) {
+    AINFO<<"(DMCZP) EnteringMethod: ConvertMatrixToArray";
+
   const double *pointer = matrix.data();
   for (int i = 0; i < matrix.size(); ++i) {
     array->push_back(pointer[i]);
@@ -46,6 +49,8 @@ template <typename Point>
 void ConstructTransformationMatrix(const Quaternion &quaternion,
                                    const Point &translation,
                                    Eigen::Matrix4d *matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: ConstructTransformationMatrix";
+
   matrix->setConstant(0);
   Eigen::Quaterniond q;
   q.x() = quaternion.qx();
@@ -63,12 +68,18 @@ void ConstructTransformationMatrix(const Quaternion &quaternion,
 PerceptionCameraUpdater::PerceptionCameraUpdater(WebSocketHandler *websocket)
     : websocket_(websocket),
       node_(cyber::CreateNode("perception_camera_updater")) {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::PerceptionCameraUpdater";
+
   InitReaders();
 }
 
-void PerceptionCameraUpdater::Start() { enabled_ = true; }
+void PerceptionCameraUpdater::Start() {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::Start";
+ enabled_ = true; }
 
 void PerceptionCameraUpdater::Stop() {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::Stop";
+
   if (enabled_) {
     localization_queue_.clear();
     image_buffer_.clear();
@@ -80,6 +91,8 @@ void PerceptionCameraUpdater::Stop() {
 
 void PerceptionCameraUpdater::GetImageLocalization(
     std::vector<double> *localization) {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::GetImageLocalization";
+
   if (localization_queue_.empty()) {
     AERROR << "Localization queue is empty, cannot get localization for image,"
            << "image_timestamp: " << current_image_timestamp_;
@@ -118,6 +131,8 @@ void PerceptionCameraUpdater::GetImageLocalization(
 bool PerceptionCameraUpdater::QueryStaticTF(const std::string &frame_id,
                                             const std::string &child_frame_id,
                                             Eigen::Matrix4d *matrix) {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::QueryStaticTF";
+
   TransformStamped transform;
   if (tf_buffer_->GetLatestStaticTF(frame_id, child_frame_id, &transform)) {
     ConstructTransformationMatrix(transform.transform().rotation(),
@@ -129,6 +144,8 @@ bool PerceptionCameraUpdater::QueryStaticTF(const std::string &frame_id,
 
 void PerceptionCameraUpdater::GetLocalization2CameraTF(
     std::vector<double> *localization2camera_tf) {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::GetLocalization2CameraTF";
+
   Eigen::Matrix4d localization2camera_mat = Eigen::Matrix4d::Identity();
 
   // Since "/tf" topic has dynamic updates of world->novatel and
@@ -155,6 +172,8 @@ void PerceptionCameraUpdater::GetLocalization2CameraTF(
 
 void PerceptionCameraUpdater::OnImage(
     const std::shared_ptr<CompressedImage> &compressed_image) {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::OnImage";
+
   if (!enabled_ ||
       compressed_image->format() == "h265" /* skip video format */) {
     return;
@@ -195,6 +214,8 @@ void PerceptionCameraUpdater::OnImage(
 
 void PerceptionCameraUpdater::OnLocalization(
     const std::shared_ptr<LocalizationEstimate> &localization) {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::OnLocalization";
+
   if (!enabled_) {
     return;
   }
@@ -204,6 +225,8 @@ void PerceptionCameraUpdater::OnLocalization(
 }
 
 void PerceptionCameraUpdater::InitReaders() {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::InitReaders";
+
   node_->CreateReader<CompressedImage>(
       FLAGS_image_short_topic,
       [this](const std::shared_ptr<CompressedImage> &image) {
@@ -218,6 +241,8 @@ void PerceptionCameraUpdater::InitReaders() {
 }
 
 void PerceptionCameraUpdater::GetUpdate(std::string *camera_update) {
+    AINFO<<"(DMCZP) EnteringMethod: PerceptionCameraUpdater::GetUpdate";
+
   {
     std::lock(image_mutex_, localization_mutex_);
     std::lock_guard<std::mutex> lock1(image_mutex_, std::adopt_lock);

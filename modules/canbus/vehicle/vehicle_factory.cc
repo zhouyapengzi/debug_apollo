@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2017 The Apollo Authors. All Rights Reserved.
  *
@@ -29,6 +30,8 @@ namespace apollo {
 namespace canbus {
 
 void VehicleFactory::RegisterVehicleFactory() {
+    AINFO<<"(DMCZP) EnteringMethod: VehicleFactory::RegisterVehicleFactory";
+
   Register(apollo::common::LINCOLN_MKZ, []() -> AbstractVehicleFactory * {
     return new LincolnVehicleFactory();
   });

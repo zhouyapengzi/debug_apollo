@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -23,6 +24,8 @@ namespace apollo {
 namespace hdmap {
 
 MapDataCheckerAgent::MapDataCheckerAgent() {
+    AINFO<<"(DMCZP) EnteringMethod: MapDataCheckerAgent::MapDataCheckerAgent";
+
   sp_conf_ = ParseJson(FLAGS_conf_json);
   assert(sp_conf_ != nullptr);
   sp_pose_collection_agent_ = std::make_shared<PoseCollectionAgent>(sp_conf_);
@@ -39,12 +42,16 @@ MapDataCheckerAgent::MapDataCheckerAgent() {
 
 std::shared_ptr<PoseCollectionAgent>
 MapDataCheckerAgent::GetSpPoseCollectionAgent() {
+    AINFO<<"(DMCZP) EnteringMethod: MapDataCheckerAgent::GetSpPoseCollectionAgent";
+
   return sp_pose_collection_agent_;
 }
 
 grpc::Status MapDataCheckerAgent::ServiceChannelVerify(
     grpc::ServerContext *context, ChannelVerifyRequest *request,
     ChannelVerifyResponse *response) {
+    AINFO<<"(DMCZP) EnteringMethod: MapDataCheckerAgent::ServiceChannelVerify";
+
   return sp_channel_checker_agent_->ProcessGrpcRequest(context, request,
                                                        response);
 }
@@ -52,18 +59,24 @@ grpc::Status MapDataCheckerAgent::ServiceChannelVerify(
 grpc::Status MapDataCheckerAgent::ServiceStaticAlign(
     grpc::ServerContext *context, StaticAlignRequest *request,
     StaticAlignResponse *response) {
+    AINFO<<"(DMCZP) EnteringMethod: MapDataCheckerAgent::ServiceStaticAlign";
+
   return sp_static_align_agent_->ProcessGrpcRequest(context, request, response);
 }
 
 grpc::Status MapDataCheckerAgent::ServiceEightRoute(
     grpc::ServerContext *context, EightRouteRequest *request,
     EightRouteResponse *response) {
+    AINFO<<"(DMCZP) EnteringMethod: MapDataCheckerAgent::ServiceEightRoute";
+
   return sp_eight_route_agent_->ProcessGrpcRequest(context, request, response);
 }
 
 grpc::Status MapDataCheckerAgent::ServiceLoopsVerify(
     grpc::ServerContext *context, LoopsVerifyRequest *request,
     LoopsVerifyResponse *response) {
+    AINFO<<"(DMCZP) EnteringMethod: MapDataCheckerAgent::ServiceLoopsVerify";
+
   return sp_loops_verify_agent_->ProcessGrpcRequest(context, request, response);
 }
 

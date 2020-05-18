@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2019 The Apollo Authors. All Rights Reserved.
  *
@@ -23,7 +24,9 @@ namespace localization {
 namespace msf {
 namespace pyramid_map {
 
-BaseMapNodeConfig::BaseMapNodeConfig() {}
+BaseMapNodeConfig::BaseMapNodeConfig() {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapNodeConfig::BaseMapNodeConfig";
+}
 
 BaseMapNodeConfig::~BaseMapNodeConfig() {}
 
@@ -40,6 +43,8 @@ std::shared_ptr<BaseMapNodeConfig> BaseMapNodeConfig::Clone() {
 }
 
 unsigned int BaseMapNodeConfig::LoadBinary(const unsigned char *buf) {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapNodeConfig::LoadBinary";
+
   size_t binary_size = 0;
 
   // map_version
@@ -87,6 +92,8 @@ unsigned int BaseMapNodeConfig::LoadBinary(const unsigned char *buf) {
 
 unsigned int BaseMapNodeConfig::CreateBinary(unsigned char *buf,
                                              size_t buf_size) const {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapNodeConfig::CreateBinary";
+
   unsigned int target_size = GetBinarySize();
 
   if (buf_size < target_size) {
@@ -133,6 +140,8 @@ unsigned int BaseMapNodeConfig::CreateBinary(unsigned char *buf,
 }
 
 unsigned int BaseMapNodeConfig::GetBinarySize() const {
+    AINFO<<"(DMCZP) EnteringMethod: BaseMapNodeConfig::GetBinarySize";
+
   size_t binary_size = 0;
 
   // map_version

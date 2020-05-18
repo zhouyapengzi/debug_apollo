@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2020 The Apollo Authors. All Rights Reserved.
  *
@@ -29,6 +30,8 @@ using apollo::perception::PerceptionObstacles;
 
 ThirdPartyPerceptionSmartereye::ThirdPartyPerceptionSmartereye(
           apollo::cyber::Node* const node) :ThirdPartyPerception(node) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionSmartereye::ThirdPartyPerceptionSmartereye";
+
   smartereye_obstacles_reader_ =
       node_->CreateReader<apollo::drivers::SmartereyeObstacles>(
       FLAGS_smartereye_obstacles_topic,
@@ -47,6 +50,8 @@ ThirdPartyPerceptionSmartereye::ThirdPartyPerceptionSmartereye(
 
 void ThirdPartyPerceptionSmartereye::OnSmartereye(
               const apollo::drivers::SmartereyeObstacles& message) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionSmartereye::OnSmartereye";
+
   ADEBUG << "Received smartereye data: run smartereye callback.";
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   eye_obstacles_ = conversion_smartereye::SmartereyeToPerceptionObstacles(
@@ -55,6 +60,8 @@ void ThirdPartyPerceptionSmartereye::OnSmartereye(
 
 void ThirdPartyPerceptionSmartereye::OnSmartereyeLanemark(
               const apollo::drivers::SmartereyeLanemark& message) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionSmartereye::OnSmartereyeLanemark";
+
   ADEBUG << "Received smartereye data: run smartereye callback.";
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   smartereye_lanemark_.CopyFrom(message);
@@ -62,6 +69,8 @@ void ThirdPartyPerceptionSmartereye::OnSmartereyeLanemark(
 
 bool ThirdPartyPerceptionSmartereye::Process(
             PerceptionObstacles* const response) {
+    AINFO<<"(DMCZP) EnteringMethod: ThirdPartyPerceptionSmartereye::Process";
+
   ADEBUG << "Timer is triggered: publish PerceptionObstacles";
   CHECK_NOTNULL(response);
 

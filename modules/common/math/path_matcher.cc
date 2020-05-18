@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -33,6 +34,10 @@ namespace math {
 
 PathPoint PathMatcher::MatchToPath(const std::vector<PathPoint>& reference_line,
                                    const double x, const double y) {
+    AINFO<<"(DMCZP) EnteringMethod: PathMatcher::MatchToPath";
+
+    AINFO<<"(DMCZP) EnteringMethod: PathMatcher::MatchToPath";
+
   CHECK_GT(reference_line.size(), 0);
 
   auto func_distance_square = [](const PathPoint& point, const double x,
@@ -104,6 +109,8 @@ PathPoint PathMatcher::MatchToPath(const std::vector<PathPoint>& reference_line,
 PathPoint PathMatcher::FindProjectionPoint(const PathPoint& p0,
                                            const PathPoint& p1, const double x,
                                            const double y) {
+    AINFO<<"(DMCZP) EnteringMethod: PathMatcher::FindProjectionPoint";
+
   double v0x = x - p0.x();
   double v0y = y - p0.y();
 

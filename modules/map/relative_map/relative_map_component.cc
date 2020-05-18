@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -26,11 +27,15 @@ using apollo::localization::LocalizationEstimate;
 using apollo::perception::PerceptionObstacles;
 
 bool RelativeMapComponent::Init() {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMapComponent::Init";
+
   InitReaders();
   return relative_map_.Init().ok() && relative_map_.Start().ok();
 }
 
 bool RelativeMapComponent::Proc() {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMapComponent::Proc";
+
   auto map_msg = std::make_shared<MapMsg>();
   if (!relative_map_.Process(map_msg.get())) {
     return false;
@@ -41,6 +46,8 @@ bool RelativeMapComponent::Proc() {
 }
 
 bool RelativeMapComponent::InitReaders() {
+    AINFO<<"(DMCZP) EnteringMethod: RelativeMapComponent::InitReaders";
+
   perception_reader_ = node_->CreateReader<PerceptionObstacles>(
       FLAGS_perception_obstacle_topic,
       [this](const std::shared_ptr<PerceptionObstacles>& perception_obstacles) {

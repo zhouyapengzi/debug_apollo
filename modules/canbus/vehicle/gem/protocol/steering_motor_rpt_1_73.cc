@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -27,11 +28,15 @@ namespace gem {
 
 using ::apollo::drivers::canbus::Byte;
 
-Steeringmotorrpt173::Steeringmotorrpt173() {}
+Steeringmotorrpt173::Steeringmotorrpt173() {
+    AINFO<<"(DMCZP) EnteringMethod: Steeringmotorrpt173::Steeringmotorrpt173";
+}
 const int32_t Steeringmotorrpt173::ID = 0x73;
 
 void Steeringmotorrpt173::Parse(const std::uint8_t* bytes, int32_t length,
                                 ChassisDetail* chassis) const {
+    AINFO<<"(DMCZP) EnteringMethod: Steeringmotorrpt173::Parse";
+
   chassis->mutable_gem()->mutable_steering_motor_rpt_1_73()->set_motor_current(
       motor_current(bytes, length));
   chassis->mutable_gem()->mutable_steering_motor_rpt_1_73()->set_shaft_position(
@@ -43,6 +48,8 @@ void Steeringmotorrpt173::Parse(const std::uint8_t* bytes, int32_t length,
 // 'bit': 7, 'type': 'double', 'order': 'motorola', 'physical_unit': 'amps'}
 double Steeringmotorrpt173::motor_current(const std::uint8_t* bytes,
                                           int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Steeringmotorrpt173::motor_current";
+
   Byte t0(bytes + 0);
   int32_t x = t0.get_byte(0, 8);
 
@@ -71,6 +78,8 @@ double Steeringmotorrpt173::motor_current(const std::uint8_t* bytes,
 // 'motorola', 'physical_unit': 'amps'}
 double Steeringmotorrpt173::shaft_position(const std::uint8_t* bytes,
                                            int32_t length) const {
+    AINFO<<"(DMCZP) EnteringMethod: Steeringmotorrpt173::shaft_position";
+
   Byte t0(bytes + 4);
   int32_t x = t0.get_byte(0, 8);
 

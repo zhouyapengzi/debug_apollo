@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /******************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
@@ -22,10 +23,14 @@ RadarPoints::RadarPoints(
     const std::shared_ptr<QOpenGLShaderProgram>& shaderProgram)
     : RenderableObject(1, 3, shaderProgram),
       color_(1.0f, 0.0f, 0.0f),
-      buffer_(nullptr) {}
+      buffer_(nullptr) {
+    AINFO<<"(DMCZP) EnteringMethod: RadarPoints::RadarPoints";
+}
 
 bool RadarPoints::FillData(
     const std::shared_ptr<const apollo::drivers::RadarObstacles>& rawData) {
+    AINFO<<"(DMCZP) EnteringMethod: RadarPoints::FillData";
+
   bool ret = false;
 
   set_vertex_count(rawData->radar_obstacle_size());
@@ -55,6 +60,8 @@ bool RadarPoints::FillData(
 }
 
 bool RadarPoints::FillVertexBuffer(GLfloat* pBuffer) {
+    AINFO<<"(DMCZP) EnteringMethod: RadarPoints::FillVertexBuffer";
+
   if (buffer_ && pBuffer) {
     memcpy(pBuffer, buffer_, VertexBufferSize());
     delete[] buffer_;

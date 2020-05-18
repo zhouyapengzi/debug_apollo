@@ -1,3 +1,4 @@
+#include "cyber/common/log.h"
 /* Copyright 2019 The Apollo Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,6 +37,8 @@ namespace canbus {
 namespace ge3 {
 
 Ge3MessageManager::Ge3MessageManager() {
+    AINFO<<"(DMCZP) EnteringMethod: Ge3MessageManager::Ge3MessageManager";
+
   // Control Messages
   AddSendProtocolData<Pcbcm201, true>();
   AddSendProtocolData<Pcbcs202, true>();

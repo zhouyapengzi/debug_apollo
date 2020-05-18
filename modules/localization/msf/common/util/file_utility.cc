@@ -37,6 +37,10 @@ const size_t kBufferSize = 20480000;
 
 void FileUtility::ComputeFileMd5(const std::string &file_path,
                                  unsigned char res[kUcharMd5Length]) {
+    AINFO<<"(DMCZP) EnteringMethod: FileUtility::ComputeFileMd5";
+
+    AINFO<<"(DMCZP) EnteringMethod: FileUtility::ComputeFileMd5";
+
   std::vector<unsigned char> buf(kBufferSize);
   unsigned char *buf_pt = &buf[0];
 
@@ -95,6 +99,10 @@ void FileUtility::ComputeFileMd5(const std::string &file_path,
 
 void FileUtility::ComputeBinaryMd5(const unsigned char *binary, size_t size,
                                    unsigned char res[kUcharMd5Length]) {
+    AINFO<<"(DMCZP) EnteringMethod: FileUtility::ComputeBinaryMd5";
+
+    AINFO<<"(DMCZP) EnteringMethod: FileUtility::ComputeBinaryMd5";
+
   MD5 md5;
   md5.init();
   md5.update(binary, static_cast<unsigned int>(size));
