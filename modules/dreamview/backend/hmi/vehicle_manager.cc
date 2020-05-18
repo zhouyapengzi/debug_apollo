@@ -27,8 +27,6 @@ DEFINE_string(vehicle_data_config_filename,
               "Vehicle data config file.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace dreamview {
 
 using cyber::common::GetProtoFromFile;

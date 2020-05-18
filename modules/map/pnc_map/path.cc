@@ -33,8 +33,6 @@
 DEFINE_double(default_lane_width, 3.048, "default lane width is about 10 feet");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
 namespace hdmap {
 
 using apollo::common::math::Box2d;

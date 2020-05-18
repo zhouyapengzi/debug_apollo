@@ -5,6 +5,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "math",
     deps = [
+"//cyber",
         ":angle",
         ":cartesian_frenet_conversion",
         ":curve_fitting",
@@ -54,7 +55,11 @@ cc_library(
     name = "sin_table",
     srcs = ["sin_table.cc"],
     hdrs = ["sin_table.h"],
-)
+ deps = [
+        "//cyber/common:log",
+	],
+    )
+
 
 cc_library(
     name = "angle",
@@ -62,7 +67,9 @@ cc_library(
     hdrs = ["angle.h"],
     deps = [
         ":sin_table",
-    ],
+    
+	"//cyber/common:log",
+	],
 )
 
 cc_library(
@@ -70,7 +77,8 @@ cc_library(
     hdrs = ["euler_angles_zxy.h"],
     deps = [
         ":geometry",
-        "@eigen",
+        "//cyber/common:log",
+	"@eigen",
     ],
 )
 
@@ -82,6 +90,7 @@ cc_library(
         ":geometry",
         "//modules/common/proto:geometry_proto",
         "@eigen",
+	"//cyber/common:log",
     ],
 )
 
@@ -91,6 +100,7 @@ cc_library(
     deps = [
         ":matrix_operations",
         "@eigen",
+	"//cyber/common:log",
     ],
 )
 
@@ -127,6 +137,9 @@ cc_library(
 cc_library(
     name = "factorial",
     hdrs = ["factorial.h"],
+     deps = [
+        "//cyber/common:log",
+	],
 )
 
 cc_library(
@@ -135,7 +148,8 @@ cc_library(
     hdrs = ["path_matcher.h"],
     deps = [
         "//modules/common/math:linear_interpolation",
-        "//modules/common/proto:pnc_point_proto",
+        "//cyber/common:log",
+	"//modules/common/proto:pnc_point_proto",
     ],
 )
 
@@ -156,6 +170,7 @@ cc_test(
     srcs = ["angle_test.cc"],
     deps = [
         ":angle",
+	"//cyber/common:log",
         "@gtest//:main",
     ],
 )
@@ -164,6 +179,10 @@ cc_library(
     name = "search",
     srcs = ["search.cc"],
     hdrs = ["search.h"],
+    deps = [
+        
+        "//cyber/common:log",
+	],
 )
 
 cc_library(
@@ -172,7 +191,8 @@ cc_library(
     hdrs = ["linear_interpolation.h"],
     deps = [
         ":geometry",
-        "//modules/common/proto:pnc_point_proto",
+        "//cyber/common:log",
+	"//modules/common/proto:pnc_point_proto",
     ],
 )
 
@@ -233,6 +253,7 @@ cc_test(
     deps = [
         ":mpc",
         ":mpc_osqp",
+	"//cyber/common:log",
         "//modules/common/math/qp_solver",
         "//modules/common/math/qp_solver:active_set_qp_solver",
         "@gtest//:main",

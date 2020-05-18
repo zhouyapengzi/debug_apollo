@@ -34,8 +34,6 @@ DEFINE_bool(enable_functional_safety, true,
             "Whether to enable functional safety check.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
 namespace monitor {
 
 bool Monitor::Init() {

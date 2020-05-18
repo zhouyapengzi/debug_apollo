@@ -25,7 +25,6 @@
 DECLARE_string(flagfile);
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DECLARE_string";
 
 namespace routing {
 

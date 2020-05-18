@@ -33,12 +33,6 @@ DEFINE_string(localization_component_name, "Localization",
               "Localization component name.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 using apollo::localization::LocalizationStatus;
 using apollo::localization::MeasureState;

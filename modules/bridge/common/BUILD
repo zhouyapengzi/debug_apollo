@@ -6,20 +6,27 @@ cc_library(
     name = "bridge_buffer",
     srcs = ["bridge_buffer.cc"],
     hdrs = ["bridge_buffer.h"],
+     deps = [
+        "//cyber",
+    ],
 )
 
 cc_library(
     name = "bridge_gflags",
     srcs = ["bridge_gflags.cc"],
     hdrs = ["bridge_gflags.h"],
-)
+ deps = [
+        "//cyber",
+    ],
+    )
 
 cc_library(
     name = "util",
     srcs = ["util.cc"],
     hdrs = ["util.h"],
     deps = [
-        ":bridge_buffer",
+      "//cyber",
+		    ":bridge_buffer",
         ":macro",
     ],
 )
@@ -59,6 +66,9 @@ cc_library(
         "bridge_header.h",
         "bridge_header_item.h",
     ],
+    deps = [
+      "//cyber",
+      ],
 )
 
 cc_test(

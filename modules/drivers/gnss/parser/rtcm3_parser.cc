@@ -28,16 +28,12 @@ namespace {
 
 template <typename T>
 constexpr bool is_zero(T value) {
-    AINFO<<"(DMCZP) EnteringMethod: is_zero";
-
   return value == static_cast<T>(0);
 }
 
 }  // namespace
 
 Parser *Parser::CreateRtcmV3(bool is_base_station) {
-    AINFO<<"(DMCZP) EnteringMethod: *Parser::CreateRtcmV3";
-
   return new Rtcm3Parser(is_base_station);
 }
 

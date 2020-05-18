@@ -8,7 +8,9 @@ cc_library(
     hdrs = ["canbus_gflags.h"],
   copts = [  "-DMODULE_NAME=\\\"pz\\\"",  ],  
     deps = [
-        "//external:gflags",
+
+		    "//cyber",
+		    "//external:gflags",
     ],
 )
 

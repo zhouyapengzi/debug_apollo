@@ -28,10 +28,6 @@ DEFINE_double(system_status_publish_interval, 10,
               "SystemStatus publish interval.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 
 void SummaryMonitor::EscalateStatus(const ComponentStatus::Status new_status,

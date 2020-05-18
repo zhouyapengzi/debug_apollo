@@ -35,14 +35,6 @@ DEFINE_string(esdcan_component_name, "ESD-CAN",
               "Name of the ESD CAN component in SystemStatus.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_int32";
-
 namespace monitor {
 namespace {
 

@@ -50,10 +50,6 @@ DEFINE_double(channel_monitor_interval, 5,
               "Channel monitor checking interval in seconds.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 namespace {
 

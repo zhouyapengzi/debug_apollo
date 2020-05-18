@@ -40,10 +40,6 @@ DEFINE_double(resource_monitor_interval, 5,
               "Topic status checking interval (s).");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 
 namespace {

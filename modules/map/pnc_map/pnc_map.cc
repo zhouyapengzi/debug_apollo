@@ -45,12 +45,6 @@ DEFINE_double(
     "look forward this distance when creating reference line from routing");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
 namespace hdmap {
 
 using apollo::common::PointENU;

@@ -6,6 +6,9 @@ cc_library(
     name = "routing_gflags",
     srcs = ["routing_gflags.cc"],
     hdrs = ["routing_gflags.h"],
-)
+deps = [
+        "//cyber",
+	],
+    )
 
 cpplint()

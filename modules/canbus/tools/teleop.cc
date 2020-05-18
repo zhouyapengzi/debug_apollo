@@ -47,14 +47,6 @@ DEFINE_bool(
     "switch to use acceleration instead of throttle pedal and brake pedal");
 
 namespace {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
 
 using apollo::canbus::Chassis;
 using apollo::common::VehicleSignal;

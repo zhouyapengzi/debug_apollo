@@ -30,10 +30,6 @@ DEFINE_double(process_monitor_interval, 1.5,
               "Process status checking interval in seconds.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 
 ProcessMonitor::ProcessMonitor()

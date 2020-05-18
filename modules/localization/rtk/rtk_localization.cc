@@ -31,7 +31,6 @@ using ::Eigen::Vector3d;
 
 RTKLocalization::RTKLocalization()
     : map_offset_{
-    AINFO<<"(DMCZP) EnteringMethod: RTKLocalization::RTKLocalization";
 0.0, 0.0, 0.0},
       monitor_logger_(
           apollo::common::monitor::MonitorMessageItem::LOCALIZATION) {}

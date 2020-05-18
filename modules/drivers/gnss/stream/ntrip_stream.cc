@@ -30,8 +30,6 @@ namespace {
 
 template <typename T>
 constexpr bool is_zero(T value) {
-    AINFO<<"(DMCZP) EnteringMethod: is_zero";
-
   return value == static_cast<T>(0);
 }
 }  // namespace

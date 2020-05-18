@@ -29,10 +29,6 @@ DEFINE_double(safety_mode_seconds_before_estop, 10.0,
               "Interval before sending estop after we found critical errors.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 namespace {
 

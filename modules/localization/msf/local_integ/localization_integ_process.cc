@@ -35,7 +35,6 @@ LocalizationIntegProcess::LocalizationIntegProcess()
       integ_state_(IntegState::NOT_INIT),
       ins_pva_(),
       pva_covariance_{
-    AINFO<<"(DMCZP) EnteringMethod: LocalizationIntegProcess::LocalizationIntegProcess";
 0.0},
       corrected_imu_(),
       earth_param_(),

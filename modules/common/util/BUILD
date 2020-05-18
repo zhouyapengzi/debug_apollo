@@ -7,6 +7,7 @@ cc_library(
     srcs = ["util.cc"],
     hdrs = ["util.h"],
     deps = [
+		    "//cyber",
         "//cyber/common:types",
         "//modules/common/math",
         "//modules/common/proto:pnc_point_proto",
@@ -17,6 +18,7 @@ cc_library(
     name = "future",
     hdrs = ["future.h"],
     deps = [
+		    "//cyber",
         "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:optional",
@@ -60,6 +62,7 @@ cc_library(
     hdrs = ["string_util.h"],
     deps = [
         ":future",
+	"//cyber",
         "@com_google_protobuf//:protobuf",
     ],
 )
@@ -111,6 +114,7 @@ cc_library(
     hdrs = ["factory.h"],
     deps = [
         "//cyber/common",
+	"//cyber",
     ],
 )
 
@@ -119,6 +123,7 @@ cc_test(
     size = "small",
     srcs = ["factory_test.cc"],
     deps = [
+		    "//cyber",
         ":factory",
         "@gtest//:main",
     ],
@@ -129,6 +134,7 @@ cc_test(
     size = "small",
     srcs = ["lru_cache_test.cc"],
     deps = [
+		    "//cyber",
         "//modules/common/util:lru_cache",
         "@gtest//:main",
     ],
@@ -138,6 +144,7 @@ cc_library(
     name = "points_downsampler",
     hdrs = ["points_downsampler.h"],
     deps = [
+		    "//cyber",
         "//cyber/common",
         "//modules/common/math:geometry",
     ],
@@ -148,6 +155,7 @@ cc_test(
     size = "small",
     srcs = ["points_downsampler_test.cc"],
     deps = [
+		    "//cyber",
         ":points_downsampler",
         "@gtest//:main",
     ],
@@ -158,7 +166,8 @@ cc_library(
     srcs = ["json_util.cc"],
     hdrs = ["json_util.h"],
     deps = [
-        "//cyber/common",
+"//cyber",
+		    "//cyber/common",
         "//third_party/json",
         "@com_google_protobuf//:protobuf",
     ],

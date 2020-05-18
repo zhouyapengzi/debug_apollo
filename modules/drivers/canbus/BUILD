@@ -8,13 +8,15 @@ cc_library(
     hdrs = ["sensor_gflags.h"],
     deps = [
         "//external:gflags",
-    ],
+     "//cyber",
+	],
 )
 
 cc_library(
     name = "sensor_canbus_lib",
     hdrs = ["sensor_canbus.h"],
     deps = [
+		    "//cyber",
         ":sensor_gflags",
         "//modules/common/monitor_log",
         "//modules/drivers/canbus/can_client:can_client_factory",

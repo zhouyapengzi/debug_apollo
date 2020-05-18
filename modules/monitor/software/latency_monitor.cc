@@ -42,14 +42,6 @@ DEFINE_int32(latency_reader_capacity, 30,
              "The max message numbers in latency reader queue.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_int32";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 
 namespace {

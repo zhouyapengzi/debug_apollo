@@ -62,9 +62,6 @@ static_assert(sizeof(INDEX) == 9 * sizeof(int), "Incorrect size of INDEX");
 
 template <typename T>
 constexpr bool is_zero(T value) {
-    AINFO<<"(DMCZP) EnteringMethod: is_zero";
-
-    AINFO<<"(DMCZP) EnteringMethod: static_assert";
 
   return value == static_cast<T>(0);
 }
@@ -98,8 +95,6 @@ inline uint32_t crc32_block(const uint8_t* buffer, size_t length) {
 // Converts NovAtel's azimuth (north = 0, east = 90) to FLU yaw (east = 0, north
 // = pi/2).
 constexpr double azimuth_deg_to_yaw_rad(double azimuth) {
-    AINFO<<"(DMCZP) EnteringMethod: azimuth_deg_to_yaw_rad";
-
   return (90.0 - azimuth) * DEG_TO_RAD;
 }
 

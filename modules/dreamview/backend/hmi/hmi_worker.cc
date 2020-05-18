@@ -48,18 +48,6 @@ DEFINE_string(default_hmi_mode, "Mkz Standard Debug",
               "Default HMI Mode when there is no cache.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace dreamview {
 namespace {
 

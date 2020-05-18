@@ -39,12 +39,6 @@ DEFINE_string(socket_can_component_name, "SocketCAN",
               "Name of the Socket CAN component in SystemStatus.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 namespace {
 

@@ -32,7 +32,6 @@ LocalizationGnssProcess::LocalizationGnssProcess()
     : gnss_solver_(new GnssSolver()),
       enable_ins_aid_rtk_(true),
       gnss_lever_arm_{
-    AINFO<<"(DMCZP) EnteringMethod: LocalizationGnssProcess::LocalizationGnssProcess";
 0.0, 0.0, 0.0},
       sins_align_finish_(false),
       double_antenna_solver_(new GnssSolver()),

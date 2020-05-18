@@ -23,8 +23,6 @@
 DECLARE_string(flagfile);
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DECLARE_string";
-
 namespace third_party_perception {
 
 bool ThirdPartyPerceptionComponent::Init() {

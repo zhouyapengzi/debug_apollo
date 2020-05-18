@@ -10,7 +10,8 @@ cc_library(
         "//modules/common/data:global_flagfile",
     ],
     deps = [
-        "//external:gflags",
+"//cyber",
+		    "//external:gflags",
     ],
 )
 
@@ -22,7 +23,8 @@ cc_library(
         "//modules/common/data:vehicle_config_data",
     ],
     deps = [
-        ":config_gflags",
+        "//cyber",
+		    ":config_gflags",
         "//cyber/common:file",
         "//cyber/common:macros",
         "//modules/common/configs/proto:vehicle_config_proto",

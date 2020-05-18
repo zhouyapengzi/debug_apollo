@@ -9,7 +9,8 @@ cc_library(
     deps = [
         ":third_party_perception_gflags",
         "//modules/map/hdmap:hdmap_util",
-    ],
+"//cyber",
+	],
 )
 
 cc_library(
@@ -17,6 +18,7 @@ cc_library(
     srcs = ["third_party_perception_gflags.cc"],
     hdrs = ["third_party_perception_gflags.h"],
     deps = [
+		    "//cyber",
         "//external:gflags",
     ],
 )

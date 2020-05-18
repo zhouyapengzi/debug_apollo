@@ -27,8 +27,6 @@ DEFINE_string(kv_db_path, "/apollo/data/kv_db.sqlite",
               "Path to Key-value DB file.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace common {
 namespace {
 

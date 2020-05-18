@@ -9,7 +9,8 @@ cc_library(
     copts = ['-DMODULE_NAME=\\"control\\"'],
     deps = [
         "//external:gflags",
-    ],
+"//cyber",
+	],
 )
 
 cc_library(
@@ -17,6 +18,9 @@ cc_library(
     srcs = ["hysteresis_filter.cc"],
     hdrs = ["hysteresis_filter.h"],
     copts = ['-DMODULE_NAME=\\"control\\"'],
+    deps = [
+		    "//cyber",
+		    ],
 )
 
 cc_library(
@@ -130,6 +134,7 @@ cc_library(
         ":leadlag_controller",
         ":pid_controller",
         ":trajectory_analyzer",
+	"//cyber",
     ],
 )
 

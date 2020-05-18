@@ -45,38 +45,6 @@ DEFINE_double(l, 0.0, "l");
 using apollo::common::PointENU;
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
 namespace hdmap {
 
 #define QUIT_IF(CONDITION, RET, LEVEL, MSG, ...) \

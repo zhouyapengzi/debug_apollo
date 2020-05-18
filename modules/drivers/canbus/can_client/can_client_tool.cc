@@ -43,14 +43,6 @@ const int32_t MAX_CAN_SEND_FRAME_LEN = 1;
 const int32_t MAX_CAN_RECV_FRAME_LEN = 10;
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_int64";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
 namespace drivers {
 namespace canbus {
 

@@ -31,12 +31,6 @@ DEFINE_string(smart_recorder_component_name, "SmartRecorder",
               "Smart recorder component name.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 
 using apollo::data::RecordingState;

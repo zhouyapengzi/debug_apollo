@@ -8,7 +8,8 @@ cc_library(
     hdrs = ["qp_solver_gflags.h"],
     deps = [
         "//external:gflags",
-    ],
+ "//cyber/common:log",
+	],
 )
 
 cc_library(
@@ -17,6 +18,7 @@ cc_library(
     hdrs = ["qp_solver.h"],
     deps = [
         "@eigen",
+	 "//cyber/common:log",
     ],
 )
 

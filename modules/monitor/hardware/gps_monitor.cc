@@ -29,12 +29,6 @@ DEFINE_double(gps_monitor_interval, 3, "GPS status checking interval (s).");
 DEFINE_string(gps_component_name, "GPS", "GPS component name.");
 
 namespace apollo {
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
 namespace monitor {
 
 using apollo::drivers::gnss::GnssStatus;

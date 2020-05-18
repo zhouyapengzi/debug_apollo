@@ -9,7 +9,8 @@ cc_library(
     copts = ['-DMODULE_NAME=\\"routing\\"'],
     deps = [
         "//modules/routing/common:routing_gflags",
-        "//modules/routing/proto:routing_proto",
+"//cyber",
+	"//modules/routing/proto:routing_proto",
     ],
 )
 
@@ -23,7 +24,8 @@ cc_library(
         ":node_creator",
         "//modules/common/configs:vehicle_config_helper",
         "//modules/map/hdmap/adapter:opendrive_adapter",
-    ],
+    "//cyber",
+	],
 )
 
 cc_test(
@@ -42,6 +44,7 @@ cc_library(
     hdrs = ["node_creator.h"],
     copts = ['-DMODULE_NAME=\\"routing\\"'],
     deps = [
+		    "//cyber",
         "//modules/routing/proto:routing_proto",
     ],
 )
@@ -52,6 +55,7 @@ cc_binary(
     copts = ['-DMODULE_NAME=\\"routing\\"'],
     deps = [
         ":graph_creator",
+	"//cyber",
         "//modules/map/hdmap:hdmap_util",
     ],
 )
