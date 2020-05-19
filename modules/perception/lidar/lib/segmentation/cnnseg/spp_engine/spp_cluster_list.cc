@@ -86,8 +86,6 @@ size_t SppClusterList::HeightCut(float max_gap, size_t start_id) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SppClusterList::HeightCut";
   return count;
-
-   AINFO<<"(DMCZP) LeaveMethod: SppClusterList::HeightCut";
  }
 
 bool SppClusterList::ComputeHeightAndSplitCluster(size_t id, float max_gap) {
@@ -139,8 +137,6 @@ bool SppClusterList::ComputeHeightAndSplitCluster(size_t id, float max_gap) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SppClusterList::ComputeHeightAndSplitCluster";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: SppClusterList::ComputeHeightAndSplitCluster";
  }
 
 void SppClusterList::RemoveEmptyClusters() {

@@ -172,8 +172,6 @@ bool PlaneMotion::find_motion_with_timestamp(double timestamp,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PlaneMotion::find_motion_with_timestamp";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: PlaneMotion::find_motion_with_timestamp";
  }
 
 base::MotionBuffer PlaneMotion::get_buffer() {
@@ -183,8 +181,6 @@ base::MotionBuffer PlaneMotion::get_buffer() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PlaneMotion::get_buffer";
   return *mot_buffer_;
-
-   AINFO<<"(DMCZP) LeaveMethod: PlaneMotion::get_buffer";
  }
 
 void PlaneMotion::add_new_motion(double pre_image_timestamp,

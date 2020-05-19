@@ -89,7 +89,6 @@ Eigen::Matrix3d Camera2CarHomograph(Eigen::Matrix3d intrinsic,
   AINFO<<"(DMCZP) (return) LeaveMethod: Camera2CarHomograph";
   return H.inverse();
 
-   AINFO<<"(DMCZP) LeaveMethod: Camera2CarHomograph";
  }
 
 bool Visualizer::Init(const std::vector<std::string> &camera_names,
@@ -118,8 +117,6 @@ bool Visualizer::Init(const std::vector<std::string> &camera_names,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::Init";
  }
 
 bool Visualizer::Init_all_info_single_camera(
@@ -250,8 +247,6 @@ bool Visualizer::Init_all_info_single_camera(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::Init_all_info_single_camera";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::Init_all_info_single_camera";
  }
 
 bool Visualizer::adjust_angles(const std::string &camera_name,
@@ -333,7 +328,6 @@ bool Visualizer::adjust_angles(const std::string &camera_name,
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::adjust_angles";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::adjust_angles";
  }
 
 bool Visualizer::SetDirectory(const std::string &path) {
@@ -351,7 +345,6 @@ bool Visualizer::SetDirectory(const std::string &path) {
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::SetDirectory";
   return ret == 0;
 
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::SetDirectory";
  }
 
 std::string Visualizer::type_to_string(const base::ObjectType type) {
@@ -389,7 +382,6 @@ std::string Visualizer::type_to_string(const base::ObjectType type) {
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::type_to_string";
   return "WRNG";
 
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::type_to_string";
  }
 
 std::string Visualizer::sub_type_to_string(const base::ObjectSubType type) {
@@ -451,7 +443,6 @@ std::string Visualizer::sub_type_to_string(const base::ObjectSubType type) {
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::sub_type_to_string";
   return "WRNG";
 
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::sub_type_to_string";
  }
 
 bool Visualizer::reset_key() {
@@ -484,7 +475,6 @@ bool Visualizer::reset_key() {
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::reset_key";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::reset_key";
  }
 
 double Visualizer::regularize_angle(const double radian_angle) {
@@ -502,8 +492,6 @@ double Visualizer::regularize_angle(const double radian_angle) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::regularize_angle";
   return radian_angle;
-
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::regularize_angle";
  }
 
 // ZYX Euler angles to quaternion
@@ -580,8 +568,6 @@ bool Visualizer::euler_to_quaternion(Eigen::Vector4d *quaternion,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::euler_to_quaternion";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::euler_to_quaternion";
  }
 
 bool Visualizer::copy_backup_file(const std::string &filename) {
@@ -611,7 +597,6 @@ bool Visualizer::copy_backup_file(const std::string &filename) {
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::copy_backup_file";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::copy_backup_file";
  }
 
 bool Visualizer::save_extrinsic_in_yaml(const std::string &camera_name,
@@ -661,9 +646,7 @@ bool Visualizer::save_extrinsic_in_yaml(const std::string &camera_name,
   // try{
   //   if (node.IsNull()) {
   //     AINFO << "Load " << yaml_file << " failed! please check!";
-  //     
-  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
-  return false;
+  //     return false;
   //   }
   //   // Replace rotation only
   //   node["transform"]["rotation"]["x"].as<double>() = quaternion(0);
@@ -674,35 +657,26 @@ bool Visualizer::save_extrinsic_in_yaml(const std::string &camera_name,
   //   node.SaveFile(yaml_file);
   //   if (node.IsNull()) {
   //     AINFO << "Save " << yaml_file << " failed! please check!";
-  //     
-  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
-  return false;
+  //     return false;
   //   }
   // } catch (YAML::InvalidNode &in) {
   //   AERROR << "load/save camera extrisic file " << yaml_file
   //          << " with error, YAML::InvalidNode exception";
-  //   
-  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
-  return false;
+  //   return false;
   // } catch (YAML::TypedBadConversion<double> &bc) {
   //   AERROR << "load camera extrisic file " << yaml_file
   //          << " with error, YAML::TypedBadConversion exception";
-  //   
-  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
-  return false;
+  //    return false;
   // } catch (YAML::Exception &e) {
   //   AERROR << "load camera extrisic file " << yaml_file
   //          << " with error, YAML exception:" << e.what();
-  //   
-  AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
-  return false;
+  //    return false;
   // }
 
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::save_extrinsic_in_yaml";
  }
 
 bool Visualizer::save_manual_calibration_parameter(
@@ -756,7 +730,6 @@ bool Visualizer::save_manual_calibration_parameter(
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::save_manual_calibration_parameter";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::save_manual_calibration_parameter";
  }
 
 bool Visualizer::key_handler(const std::string &camera_name, const int key) {
@@ -988,8 +961,6 @@ bool Visualizer::key_handler(const std::string &camera_name, const int key) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::key_handler";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::key_handler";
  }
 
 // Draw trajectory of each object
@@ -1024,8 +995,6 @@ bool Visualizer::DrawTrajectories(const base::ObjectPtr &object,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::DrawTrajectories";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::DrawTrajectories";
  }
 
 void Visualizer::Draw2Dand3D(const cv::Mat &img, const CameraFrame &frame) {
@@ -1742,7 +1711,6 @@ cv::Point Visualizer::ground2image(const std::string &camera_name,
   AINFO<<"(DMCZP) (return) LeaveMethod: Visualizer::ground2image";
   return cv::Point(static_cast<int>(p_img(0)), static_cast<int>(p_img(1)));
 
-   AINFO<<"(DMCZP) LeaveMethod: Visualizer::ground2image";
  }
 
 }  // namespace camera

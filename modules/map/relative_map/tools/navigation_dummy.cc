@@ -33,7 +33,6 @@ DEFINE_string(navigation_dummy_file,
 int main(int argc, char** argv) {
     AINFO<<"(DMCZP) EnteringMethod: main";
 
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
 
   google::ParseCommandLineFlags(&argc, &argv, true);
   // Init the cyber framework

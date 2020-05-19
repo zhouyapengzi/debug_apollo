@@ -27,9 +27,6 @@ namespace apollo {
 namespace perception {
 
 Cipv::Cipv() {
-    AINFO<<"(DMCZP) EnteringMethod: Cipv::Cipv";
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::Cipv";
  }
 
 Cipv::~Cipv() {}
@@ -69,8 +66,6 @@ bool Cipv::Init(const Eigen::Matrix3d &homography_im2car,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::Init";
  }
 
 // Distance from a point to a line segment
@@ -94,8 +89,6 @@ bool Cipv::DistanceFromPointToLineSegment(const Point2Df &point,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::DistanceFromPointToLineSegment";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::DistanceFromPointToLineSegment";
  }
 
 // Select CIPV among multiple objects
@@ -168,7 +161,6 @@ bool Cipv::GetEgoLane(const std::vector<base::LaneLine> &lane_objects,
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::GetEgoLane";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::GetEgoLane";
  }
 
 // Make a virtual lane line using a reference lane line and its offset distance
@@ -188,8 +180,6 @@ bool Cipv::MakeVirtualLane(const LaneLineSimple &ref_lane_line,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::MakeVirtualLane";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::MakeVirtualLane";
  }
 
 float Cipv::VehicleDynamics(const uint32_t tick, const float yaw_rate,
@@ -219,9 +209,6 @@ float Cipv::VehicleDynamics(const uint32_t tick, const float yaw_rate,
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::VehicleDynamics";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::VehicleDynamics";
- 
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::VehicleDynamics";
  }
 
 // Provide vehicle dynamics considersing vehicle size
@@ -285,8 +272,6 @@ bool Cipv::MakeVirtualEgoLaneFromYawRate(const float yaw_rate,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::MakeVirtualEgoLaneFromYawRate";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::MakeVirtualEgoLaneFromYawRate";
  }
 
 // Elongate lane line
@@ -326,8 +311,6 @@ bool Cipv::ElongateEgoLane(const std::vector<base::LaneLine> &lane_objects,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::ElongateEgoLane";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::ElongateEgoLane";
  }
 
 // Create virtual lane line
@@ -349,7 +332,6 @@ bool Cipv::CreateVirtualEgoLane(const float yaw_rate, const float velocity,
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::CreateVirtualEgoLane";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::CreateVirtualEgoLane";
  }
 
 // Get closest edge of an object in image coordinate
@@ -407,7 +389,6 @@ bool Cipv::FindClosestObjectImage(const std::shared_ptr<base::Object> &object,
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::FindClosestObjectImage";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::FindClosestObjectImage";
  }
 // Get closest edge of an object in ground coordinate
 // TODO(techoe): This function should be changed to find min-y and max-y edges
@@ -651,8 +632,6 @@ bool Cipv::AreDistancesSane(const float distance_start_point_to_right_lane,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::AreDistancesSane";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::AreDistancesSane";
  }
 
 // Check if a point is left of a line segment
@@ -687,8 +666,6 @@ bool Cipv::IsPointLeftOfLine(const Point2Df &point,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsPointLeftOfLine";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::IsPointLeftOfLine";
  }
 
 // Check if the object is in the lane in image space
@@ -817,8 +794,6 @@ bool Cipv::IsObjectInTheLaneImage(const std::shared_ptr<base::Object> &object,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneImage";
   return (b_left_lane_clear && b_right_lane_clear);
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::IsObjectInTheLaneImage";
  }
 
 // Check if the object is in the lane in ego-ground space
@@ -951,8 +926,6 @@ bool Cipv::IsObjectInTheLaneGround(const std::shared_ptr<base::Object> &object,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLaneGround";
   return b_left_lane_clear && b_right_lane_clear;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::IsObjectInTheLaneGround";
  }
 
 // Check if the object is in the lane in ego-ground space
@@ -972,8 +945,6 @@ bool Cipv::IsObjectInTheLane(const std::shared_ptr<base::Object> &object,
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::IsObjectInTheLane";
   return IsObjectInTheLaneGround(object, egolane_ground, world2camera,
                                  b_virtual, distance);
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::IsObjectInTheLane";
  }
 
 // =====================================================================
@@ -1070,8 +1041,6 @@ bool Cipv::DetermineCipv(const std::vector<base::LaneLine> &lane_objects,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::DetermineCipv";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::DetermineCipv";
  }
 
 bool Cipv::TranformPoint(const Eigen::VectorXf &in,
@@ -1095,7 +1064,6 @@ bool Cipv::TranformPoint(const Eigen::VectorXf &in,
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::TranformPoint";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::TranformPoint";
  }
 
 bool Cipv::CollectDrops(const base::MotionBufferPtr &motion_buffer,
@@ -1223,8 +1191,6 @@ bool Cipv::CollectDrops(const base::MotionBufferPtr &motion_buffer,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::CollectDrops";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::CollectDrops";
  }
 
 bool Cipv::image2ground(const float image_x, const float image_y,
@@ -1249,8 +1215,6 @@ bool Cipv::image2ground(const float image_x, const float image_y,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::image2ground";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::image2ground";
  }
 
 bool Cipv::ground2image(const float ground_x, const float ground_y,
@@ -1276,15 +1240,12 @@ bool Cipv::ground2image(const float ground_x, const float ground_y,
   AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::ground2image";
   return false;
 
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::ground2image";
  }
 
 std::string Cipv::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: Cipv::Name";
  
-  AINFO<<"(DMC
-   AINFO<<"(DMCZP) LeaveMethod: Cipv::Name";
- ZP) (return) LeaveMethod: Cipv::Name";
+  AINFO<<"(DMCZP) (return) LeaveMethod: Cipv::Name";
   return "Cipv"; }
 
 // Register plugin.

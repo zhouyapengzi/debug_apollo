@@ -70,9 +70,7 @@ size_t SppEngine::ProcessConnectedComponentCluster(
   size_t num = detector_2d_cc_.Detect(&labels_2d_);
   if (num == 0) {
     ADEBUG << "No object detected";
-    // Later will decide if 
-  AINFO<<"(DMCZP) (return) LeaveMethod: SppEngine::ProcessConnectedComponentCluster";
-  return this function here
+    // Later will decide if return this function here
   }
   double detect_time = timer.toc(true);
   worker_.Join();
@@ -132,8 +130,6 @@ size_t SppEngine::ProcessConnectedComponentCluster(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SppEngine::ProcessConnectedComponentCluster";
   return clusters_.size();
-
-   AINFO<<"(DMCZP) LeaveMethod: SppEngine::ProcessConnectedComponentCluster";
  }
 
 size_t SppEngine::ProcessForegroundSegmentation(
@@ -146,8 +142,6 @@ size_t SppEngine::ProcessForegroundSegmentation(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SppEngine::ProcessForegroundSegmentation";
   return clusters_.size();
-
-   AINFO<<"(DMCZP) LeaveMethod: SppEngine::ProcessForegroundSegmentation";
  }
 
 size_t SppEngine::RemoveGroundPointsInForegroundCluster(
@@ -168,8 +162,6 @@ size_t SppEngine::RemoveGroundPointsInForegroundCluster(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SppEngine::RemoveGroundPointsInForegroundCluster";
   return clusters_.size();
-
-   AINFO<<"(DMCZP) LeaveMethod: SppEngine::RemoveGroundPointsInForegroundCluster";
  }
 
 }  // namespace lidar

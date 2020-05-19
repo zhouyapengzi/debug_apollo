@@ -61,8 +61,6 @@ bool OptionParser::parse_from_string(const std::string& input) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OptionParser::parse_from_string";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: OptionParser::parse_from_string";
  }
 
 std::ostream& operator<<(std::ostream& out, const OptionParser& rhs) {

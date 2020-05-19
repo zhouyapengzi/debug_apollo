@@ -53,8 +53,6 @@ bool MapManager::Init(const MapManagerInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MapManager::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MapManager::Init";
  }
 
 bool MapManager::Update(const MapManagerOptions& options, LidarFrame* frame) {
@@ -95,8 +93,6 @@ bool MapManager::Update(const MapManagerOptions& options, LidarFrame* frame) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MapManager::Update";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MapManager::Update";
  }
 bool MapManager::QueryPose(Eigen::Affine3d* sensor2world_pose) const {
     AINFO<<"(DMCZP) EnteringMethod: MapManager::QueryPose";
@@ -106,7 +102,6 @@ bool MapManager::QueryPose(Eigen::Affine3d* sensor2world_pose) const {
   AINFO<<"(DMCZP) (return) LeaveMethod: MapManager::QueryPose";
   return false;
 
-   AINFO<<"(DMCZP) LeaveMethod: MapManager::QueryPose";
  }
 
 }  // namespace lidar

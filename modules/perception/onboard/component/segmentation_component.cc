@@ -59,8 +59,6 @@ bool SegmentationComponent::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SegmentationComponent::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SegmentationComponent::Init";
  }
 
 bool SegmentationComponent::Proc(
@@ -82,8 +80,6 @@ bool SegmentationComponent::Proc(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SegmentationComponent::Proc";
   return status;
-
-   AINFO<<"(DMCZP) LeaveMethod: SegmentationComponent::Proc";
  }
 
 bool SegmentationComponent::InitAlgorithmPlugin() {
@@ -116,8 +112,6 @@ bool SegmentationComponent::InitAlgorithmPlugin() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SegmentationComponent::InitAlgorithmPlugin";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SegmentationComponent::InitAlgorithmPlugin";
  }
 
 bool SegmentationComponent::InternalProc(
@@ -186,8 +180,6 @@ bool SegmentationComponent::InternalProc(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SegmentationComponent::InternalProc";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SegmentationComponent::InternalProc";
  }
 
 }  // namespace onboard

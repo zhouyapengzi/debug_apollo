@@ -73,8 +73,6 @@ bool NCut::Init(const NCutParam &param) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCut::Init";
  }
 
 bool NCut::Configure(const NCutParam &ncut_param_) {
@@ -100,8 +98,6 @@ bool NCut::Configure(const NCutParam &ncut_param_) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::Configure";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCut::Configure";
  }
 
 void NCut::Segment(base::PointFCloudConstPtr cloud) {
@@ -367,8 +363,6 @@ NCut::NcutBoundingBox NCut::ComputeClusterBoundingBox(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::ComputeClusterBoundingBox";
   return box;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCut::ComputeClusterBoundingBox";
  }
 
 std::string NCut::GetPcLabel(const base::PointFCloudPtr &cloud) {
@@ -393,7 +387,6 @@ std::string NCut::GetPcLabel(const base::PointFCloudPtr &cloud) {
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::GetPcLabel";
   return label;
 
-   AINFO<<"(DMCZP) LeaveMethod: NCut::GetPcLabel";
  }
 
 void NCut::NormalizedCut(float ncuts_threshold, bool use_classifier,
@@ -653,8 +646,6 @@ float NCut::GetMinNcuts(const Eigen::MatrixXf &in_weights,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::GetMinNcuts";
   return opt_cost;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCut::GetMinNcuts";
  }
 
 void NCut::LaplacianDecomposition(const Eigen::MatrixXf &weights,
@@ -776,8 +767,6 @@ bool NCut::ComputeSquaredSkeletonDistance(const Eigen::MatrixXf &in1_points,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::ComputeSquaredSkeletonDistance";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCut::ComputeSquaredSkeletonDistance";
  }
 
 bool NCut::IsMovableObstacle(const std::vector<int> &cluster_ids,
@@ -803,8 +792,6 @@ bool NCut::IsMovableObstacle(const std::vector<int> &cluster_ids,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::IsMovableObstacle";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCut::IsMovableObstacle";
  }
 
 std::string NCut::GetClustersLabel(const std::vector<int> &cluster_ids) {
@@ -817,8 +804,6 @@ std::string NCut::GetClustersLabel(const std::vector<int> &cluster_ids) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::GetClustersLabel";
   return GetPcLabel(cloud);
-
-   AINFO<<"(DMCZP) LeaveMethod: NCut::GetClustersLabel";
  }
 
 void NCut::GetClustersPids(const std::vector<int> &cids,
@@ -879,8 +864,6 @@ int NCut::GetComponentBoundingBox(const std::vector<int> &cluster_ids,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::GetComponentBoundingBox";
   return num_points;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCut::GetComponentBoundingBox";
  }
 
 std::string NCut::GetPcRoughLabel(const base::PointFCloudPtr &cloud,
@@ -927,8 +910,6 @@ std::string NCut::GetPcRoughLabel(const base::PointFCloudPtr &cloud,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCut::GetPcRoughLabel";
   return label;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCut::GetPcRoughLabel";
  }
 
 void NCut::GetSegmentRoughSize(const base::PointFCloudPtr &cloud, float *length,

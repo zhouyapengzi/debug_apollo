@@ -46,8 +46,6 @@ bool MultiCueObstacleTransformer::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MultiCueObstacleTransformer::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MultiCueObstacleTransformer::Init";
  }
 
 void MultiCueObstacleTransformer::SetObjMapperOptions(
@@ -183,7 +181,6 @@ int MultiCueObstacleTransformer::MatchTemplates(base::ObjectSubType sub_type,
   AINFO<<"(DMCZP) (return) LeaveMethod: MultiCueObstacleTransformer::MatchTemplates";
   return type_min_vol_index;
 
-   AINFO<<"(DMCZP) LeaveMethod: MultiCueObstacleTransformer::MatchTemplates";
  }
 
 void MultiCueObstacleTransformer::FillResults(
@@ -298,7 +295,6 @@ bool MultiCueObstacleTransformer::Transform(
   AINFO<<"(DMCZP) (return) LeaveMethod: MultiCueObstacleTransformer::Transform";
   return nr_transformed_obj > 0;
 
-   AINFO<<"(DMCZP) LeaveMethod: MultiCueObstacleTransformer::Transform";
  }
 
 std::string MultiCueObstacleTransformer::Name() const {
@@ -308,7 +304,6 @@ std::string MultiCueObstacleTransformer::Name() const {
   AINFO<<"(DMCZP) (return) LeaveMethod: MultiCueObstacleTransformer::Name";
   return "MultiCueObstacleTransformer";
 
-   AINFO<<"(DMCZP) LeaveMethod: MultiCueObstacleTransformer::Name";
  }
 
 // Register plugin.

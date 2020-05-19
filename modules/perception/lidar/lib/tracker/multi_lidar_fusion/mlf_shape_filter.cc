@@ -48,8 +48,6 @@ bool MlfShapeFilter::Init(const MlfFilterInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfShapeFilter::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfShapeFilter::Init";
  }
 
 void MlfShapeFilter::UpdateWithObject(const MlfFilterOptions& options,

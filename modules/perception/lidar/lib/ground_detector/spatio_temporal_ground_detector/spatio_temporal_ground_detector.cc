@@ -77,8 +77,6 @@ bool SpatioTemporalGroundDetector::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SpatioTemporalGroundDetector::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SpatioTemporalGroundDetector::Init";
  }
 
 bool SpatioTemporalGroundDetector::Detect(const GroundDetectorOptions& options,
@@ -232,8 +230,6 @@ bool SpatioTemporalGroundDetector::Detect(const GroundDetectorOptions& options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SpatioTemporalGroundDetector::Detect";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SpatioTemporalGroundDetector::Detect";
  }
 
 PERCEPTION_REGISTER_GROUNDDETECTOR(SpatioTemporalGroundDetector);

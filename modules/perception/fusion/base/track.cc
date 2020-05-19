@@ -46,7 +46,6 @@ bool Track::Initialize(SensorObjectPtr obj, bool is_background) {
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::Initialize";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: Track::Initialize";
  }
 
 void Track::Reset() {
@@ -93,8 +92,6 @@ SensorObjectConstPtr Track::GetSensorObject(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::GetSensorObject";
   return nullptr;
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::GetSensorObject";
  }
 
 SensorObjectConstPtr Track::GetLatestLidarObject() const {
@@ -103,8 +100,6 @@ SensorObjectConstPtr Track::GetLatestLidarObject() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::GetLatestLidarObject";
   return GetLatestSensorObject(lidar_objects_);
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::GetLatestLidarObject";
  }
 
 SensorObjectConstPtr Track::GetLatestRadarObject() const {
@@ -113,8 +108,6 @@ SensorObjectConstPtr Track::GetLatestRadarObject() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::GetLatestRadarObject";
   return GetLatestSensorObject(radar_objects_);
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::GetLatestRadarObject";
  }
 
 SensorObjectConstPtr Track::GetLatestCameraObject() const {
@@ -123,8 +116,6 @@ SensorObjectConstPtr Track::GetLatestCameraObject() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::GetLatestCameraObject";
   return GetLatestSensorObject(camera_objects_);
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::GetLatestCameraObject";
  }
 
 SensorObjectConstPtr Track::GetLatestSensorObject(
@@ -140,8 +131,6 @@ SensorObjectConstPtr Track::GetLatestSensorObject(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::GetLatestSensorObject";
   return obj;
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::GetLatestSensorObject";
  }
 
 size_t Track::GenerateNewTrackId() {
@@ -156,8 +145,6 @@ size_t Track::GenerateNewTrackId() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::GenerateNewTrackId";
   return ret_track_id;
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::GenerateNewTrackId";
  }
 
 void Track::UpdateSensorObject(SensorId2ObjectMap* objects,
@@ -340,8 +327,6 @@ bool Track::IsVisible(const std::string& sensor_id) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::IsVisible";
   return (sensor_obj != nullptr && sensor_obj->GetInvisiblePeriod() < 1.0e-6);
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::IsVisible";
  }
 
 bool Track::IsLidarVisible() const {
@@ -357,8 +342,6 @@ bool Track::IsLidarVisible() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::IsLidarVisible";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::IsLidarVisible";
  }
 
 bool Track::IsRadarVisible() const {
@@ -374,8 +357,6 @@ bool Track::IsRadarVisible() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::IsRadarVisible";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::IsRadarVisible";
  }
 
 bool Track::IsCameraVisible() const {
@@ -391,8 +372,6 @@ bool Track::IsCameraVisible() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::IsCameraVisible";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: Track::IsCameraVisible";
  }
 
 void Track::UpdateWithSensorObjectForBackground(const SensorObjectPtr& obj) {
@@ -450,7 +429,6 @@ std::string Track::DebugString() const {
   AINFO<<"(DMCZP) (return) LeaveMethod: Track::DebugString";
   return oss.str();
 
-   AINFO<<"(DMCZP) LeaveMethod: Track::DebugString";
  }
 
 }  // namespace fusion

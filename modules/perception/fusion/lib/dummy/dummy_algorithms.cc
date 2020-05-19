@@ -28,8 +28,6 @@ bool DummyFusionSystem::Init(const FusionInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DummyFusionSystem::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DummyFusionSystem::Init";
  }
 
 bool DummyFusionSystem::Fuse(const FusionOptions& options,
@@ -57,17 +55,13 @@ bool DummyFusionSystem::Fuse(const FusionOptions& options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DummyFusionSystem::Fuse";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DummyFusionSystem::Fuse";
  }
 
 // class DummyDataAssociation implementation
 bool DummyDataAssociation::Init() {
     AINFO<<"(DMCZP) EnteringMethod: DummyDataAssociation::Init";
  
-  AINFO<<"(D
-   AINFO<<"(DMCZP) LeaveMethod: DummyDataAssociation::Init";
- MCZP) (return) LeaveMethod: DummyDataAssociation::Init";
+  AINFO<<"(DMCZP) (return) LeaveMethod: DummyDataAssociation::Init";
   return true; }
 
 bool DummyDataAssociation::Associate(const AssociationOptions& options,
@@ -79,8 +73,6 @@ bool DummyDataAssociation::Associate(const AssociationOptions& options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DummyDataAssociation::Associate";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DummyDataAssociation::Associate";
  }
 
 // class DummyTracker implementation
@@ -90,8 +82,6 @@ bool DummyTracker::Init(TrackPtr track, SensorObjectPtr measurement) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DummyTracker::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DummyTracker::Init";
  }
 
 void DummyTracker::UpdateWithMeasurement(const TrackerOptions& options,

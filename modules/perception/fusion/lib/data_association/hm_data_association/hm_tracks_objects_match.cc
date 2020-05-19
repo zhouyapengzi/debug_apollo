@@ -151,8 +151,6 @@ bool HMTrackersObjectsAssociation::Associate(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::Associate";
   return state;
-
-   AINFO<<"(DMCZP) LeaveMethod: HMTrackersObjectsAssociation::Associate";
  }
 void HMTrackersObjectsAssociation::PostIdAssign(
     const std::vector<TrackPtr>& fusion_tracks,
@@ -237,7 +235,6 @@ bool HMTrackersObjectsAssociation::MinimizeAssignment(
   AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::MinimizeAssignment";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: HMTrackersObjectsAssociation::MinimizeAssignment";
  }
 
 void HMTrackersObjectsAssociation::ComputeDistance(
@@ -285,9 +282,7 @@ void HMTrackersObjectsAssociation::ComputeDistance(
     SensorObjectConstPtr radar_object = fusion_track->GetLatestRadarObject();
     if (IsCamera(min_sensor_object)) {
       // TODO(linjian) not reasonable,
-      // just for 
-  AINFO<<"(DMCZP) (return) LeaveMethod: HMTrackersObjectsAssociation::ComputeDistance";
-  return dist score, the dist score is
+      // just for return dist score, the dist score is
       // a similarity probability [0, 1] 1 is the best
       association_result->track2measurements_dist[track_ind] = 0.0;
       for (size_t j = 0; j < association_mat[track_ind_loc].size(); ++j) {

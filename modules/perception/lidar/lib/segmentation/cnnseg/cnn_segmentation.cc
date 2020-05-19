@@ -142,8 +142,6 @@ bool CNNSegmentation::Init(const SegmentationInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::Init";
  }
 
 bool CNNSegmentation::InitClusterAndBackgroundSegmentation() {
@@ -242,8 +240,6 @@ bool CNNSegmentation::InitClusterAndBackgroundSegmentation() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::InitClusterAndBackgroundSegmentation";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::InitClusterAndBackgroundSegmentation";
  }
 
 void CNNSegmentation::MapPointToGrid(
@@ -354,8 +350,6 @@ bool CNNSegmentation::Segment(const SegmentationOptions& options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::Segment";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::Segment";
  }
 
 void CNNSegmentation::GetObjectsFromSppEngine(
@@ -538,8 +532,6 @@ bool CNNSegmentation::GetConfigs(std::string* param_file,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CNNSegmentation::GetConfigs";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CNNSegmentation::GetConfigs";
  }
 
 PERCEPTION_REGISTER_SEGMENTATION(CNNSegmentation);

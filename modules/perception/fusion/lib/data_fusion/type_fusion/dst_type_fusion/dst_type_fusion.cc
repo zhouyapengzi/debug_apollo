@@ -45,7 +45,6 @@ std::string vector2string(const std::vector<Type> &values) {
   AINFO<<"(DMCZP) (return) LeaveMethod: vector2string";
   return oss.str();
 
-   AINFO<<"(DMCZP) LeaveMethod: vector2string";
  }
 
 std::string DstTypeFusion::name_ = "DstTypeFusion";  // NOLINT
@@ -136,8 +135,6 @@ bool DstTypeFusion::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstTypeFusion::Init";
   return DstManager::Instance()->IsAppAdded(name_);
-
-   AINFO<<"(DMCZP) LeaveMethod: DstTypeFusion::Init";
  }
 
 void DstTypeFusion::UpdateWithMeasurement(const SensorObjectPtr measurement,
@@ -239,9 +236,7 @@ void DstTypeFusion::UpdateWithoutMeasurement(const std::string &sensor_id,
 std::string DstTypeFusion::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: DstTypeFusion::Name";
  
-  AINFO<<"(DM
-   AINFO<<"(DMCZP) LeaveMethod: DstTypeFusion::Name";
- CZP) (return) LeaveMethod: DstTypeFusion::Name";
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstTypeFusion::Name";
   return name_; }
 
 bool DstTypeFusion::TypToHyp(size_t object_type,
@@ -259,7 +254,6 @@ bool DstTypeFusion::TypToHyp(size_t object_type,
   AINFO<<"(DMCZP) (return) LeaveMethod: DstTypeFusion::TypToHyp";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: DstTypeFusion::TypToHyp";
  }
 
 bool DstTypeFusion::HypToTyp(uint64_t hypothesis_type,
@@ -277,7 +271,6 @@ bool DstTypeFusion::HypToTyp(uint64_t hypothesis_type,
   AINFO<<"(DMCZP) (return) LeaveMethod: DstTypeFusion::HypToTyp";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: DstTypeFusion::HypToTyp";
  }
 
 Dst DstTypeFusion::TypeProbsToDst(const std::vector<float> &type_probs) {
@@ -320,7 +313,6 @@ Dst DstTypeFusion::TypeProbsToDst(const std::vector<float> &type_probs) {
   AINFO<<"(DMCZP) (return) LeaveMethod: DstTypeFusion::TypeProbsToDst";
   return res_dst;
 
-   AINFO<<"(DMCZP) LeaveMethod: DstTypeFusion::TypeProbsToDst";
  }
 
 double DstTypeFusion::GetReliability(const std::string &sensor_id) const {
@@ -337,8 +329,6 @@ double DstTypeFusion::GetReliability(const std::string &sensor_id) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstTypeFusion::GetReliability";
   return find_res->second;
-
-   AINFO<<"(DMCZP) LeaveMethod: DstTypeFusion::GetReliability";
  }
 
 double DstTypeFusion::GetReliabilityForUnKnown(
@@ -365,7 +355,6 @@ double DstTypeFusion::GetReliabilityForUnKnown(
   AINFO<<"(DMCZP) (return) LeaveMethod: DstTypeFusion::GetReliabilityForUnKnown";
   return find_res->second * prob;
 
-   AINFO<<"(DMCZP) LeaveMethod: DstTypeFusion::GetReliabilityForUnKnown";
  }
 
 void DstTypeFusion::UpdateTypeState() {

@@ -81,7 +81,6 @@ base::BaseCameraModelPtr TrackObjectDistance::QueryCameraModel(
   return SensorDataManager::Instance()->GetCameraIntrinsic(
       camera->GetSensorId());
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::QueryCameraModel";
  }
 
 bool TrackObjectDistance::QueryWorld2CameraPose(
@@ -100,8 +99,6 @@ bool TrackObjectDistance::QueryWorld2CameraPose(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::QueryWorld2CameraPose";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::QueryWorld2CameraPose";
  }
 
 bool TrackObjectDistance::QueryLidar2WorldPose(
@@ -118,8 +115,6 @@ bool TrackObjectDistance::QueryLidar2WorldPose(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::QueryLidar2WorldPose";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::QueryLidar2WorldPose";
  }
 
 ProjectionCacheObject* TrackObjectDistance::BuildProjectionCacheObject(
@@ -250,7 +245,6 @@ ProjectionCacheObject* TrackObjectDistance::BuildProjectionCacheObject(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::BuildProjectionCacheObject";
   return cache_object;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::BuildProjectionCacheObject";
  }
 
 ProjectionCacheObject* TrackObjectDistance::QueryProjectionCacheObject(
@@ -283,7 +277,6 @@ ProjectionCacheObject* TrackObjectDistance::QueryProjectionCacheObject(
       lidar, camera, camera_model, measurement_sensor_id, measurement_timestamp,
       projection_sensor_id, projection_timestamp);
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::QueryProjectionCacheObject";
  }
 
 void TrackObjectDistance::QueryProjectedVeloCtOnCamera(
@@ -325,7 +318,6 @@ bool TrackObjectDistance::QueryPolygonDCenter(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::QueryPolygonDCenter";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::QueryPolygonDCenter";
  }
 
 bool TrackObjectDistance::IsTrackIdConsistent(
@@ -346,8 +338,6 @@ bool TrackObjectDistance::IsTrackIdConsistent(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::IsTrackIdConsistent";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::IsTrackIdConsistent";
  }
 
 bool TrackObjectDistance::LidarCameraCenterDistanceExceedDynamicThreshold(
@@ -375,7 +365,6 @@ bool TrackObjectDistance::LidarCameraCenterDistanceExceedDynamicThreshold(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::LidarCameraCenterDistanceExceedDynamicThreshold";
   return false;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::LidarCameraCenterDistanceExceedDynamicThreshold";
  }
 
 // @brief: compute the distance between input fused track and sensor object
@@ -449,7 +438,6 @@ float TrackObjectDistance::Compute(const TrackPtr& fused_track,
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::Compute";
   return min_distance;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::Compute";
  }
 
 // @brief: compute the distance between velodyne64 observation and
@@ -481,7 +469,6 @@ float TrackObjectDistance::ComputeLidarLidar(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputeLidarLidar";
   return distance;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputeLidarLidar";
  }
 
 // @brief: compute the distance between velodyne64 observation and
@@ -512,8 +499,6 @@ float TrackObjectDistance::ComputeLidarRadar(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputeLidarRadar";
   return distance;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputeLidarRadar";
  }
 
 // @brief: compute the distance between radar observation and
@@ -543,8 +528,6 @@ float TrackObjectDistance::ComputeRadarRadar(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputeRadarRadar";
   return distance;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputeRadarRadar";
  }
 
 // @brief: compute the distance between lidar observation and
@@ -635,8 +618,6 @@ float TrackObjectDistance::ComputeLidarCamera(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputeLidarCamera";
   return distance;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputeLidarCamera";
  }
 
 // @brief: compute the distance between radar observation and
@@ -731,8 +712,6 @@ float TrackObjectDistance::ComputeRadarCamera(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputeRadarCamera";
   return distance;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputeRadarCamera";
  }
 
 // @brief: compute the distance between camera observation and
@@ -745,8 +724,6 @@ float TrackObjectDistance::ComputeCameraCamera(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputeCameraCamera";
   return (std::numeric_limits<float>::max());
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputeCameraCamera";
  }
 
 // @brief: calculate the similarity between velodyne64 observation and
@@ -806,7 +783,6 @@ double TrackObjectDistance::ComputeLidarCameraSimilarity(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputeLidarCameraSimilarity";
   return similarity;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputeLidarCameraSimilarity";
  }
 
 // @brief: calculate the similarity between radar observation and
@@ -881,8 +857,6 @@ double TrackObjectDistance::ComputeRadarCameraSimilarity(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputeRadarCameraSimilarity";
   return similarity;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputeRadarCameraSimilarity";
  }
 
 // @brief: compute polygon distance between fused object and sensor object
@@ -918,7 +892,6 @@ float TrackObjectDistance::ComputePolygonDistance3d(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputePolygonDistance3d";
   return distance;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputePolygonDistance3d";
  }
 
 // @brief: compute euclidean distance of input pts
@@ -934,7 +907,6 @@ float TrackObjectDistance::ComputeEuclideanDistance(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputeEuclideanDistance";
   return distance;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputeEuclideanDistance";
  }
 
 // @brief: compute polygon center
@@ -943,12 +915,8 @@ bool TrackObjectDistance::ComputePolygonCenter(
     const base::PolygonDType& polygon, Eigen::Vector3d* center) {
     AINFO<<"(DMCZP) EnteringMethod: TrackObjectDistance::ComputePolygonCenter";
 
-    AINFO<<"(DMCZP) EnteringMethod: TrackObjectDistance::ComputePolygonCenter";
-
   int size = static_cast<int>(polygon.size());
   if (size == 0) {
-    
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputePolygonCenter";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputePolygonCenter";
   return false;
@@ -961,14 +929,9 @@ bool TrackObjectDistance::ComputePolygonCenter(
   }
   (*center) /= size;
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputePolygonCenter";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputePolygonCenter";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputePolygonCenter";
- 
-   AINFO<<"(DMCZP) LeaveMethod: TrackObjectDistance::ComputePolygonCenter";
  }
 
 // @brief: compute polygon center
@@ -976,7 +939,8 @@ bool TrackObjectDistance::ComputePolygonCenter(
 bool TrackObjectDistance::ComputePolygonCenter(
     const base::PolygonDType& polygon, const Eigen::Vector3d& ref_pos,
     int range, Eigen::Vector3d* center) {
-  base::PolygonDType polygon_part;
+ AINFO<<"(DMCZP) EnteringMethod: TrackObjectDistance::ComputePolygonCenter";
+    	base::PolygonDType polygon_part;
   std::map<double, int> distance2idx;
   for (size_t idx = 0; idx < polygon.size(); ++idx) {
     const auto& point = polygon.at(idx);
@@ -993,6 +957,7 @@ bool TrackObjectDistance::ComputePolygonCenter(
     polygon_part.push_back(polygon[it->second]);
   }
   bool state = ComputePolygonCenter(polygon_part, center);
+  AINFO<<"(DMCZP) (return) LeaveMethod: TrackObjectDistance::ComputePolygonCenter";
   return state;
 }
 

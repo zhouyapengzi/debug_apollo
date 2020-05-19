@@ -38,59 +38,12 @@ DEFINE_bool(obs_enable_local_pose_extrapolation, true,
 void TransformCache::AddTransform(const StampedTransform& transform) {
     AINFO<<"(DMCZP) EnteringMethod: TransformCache::AddTransform";
 
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
   if (transforms_.empty()) {
     transforms_.push_back(transform);
-    
-  AINFO<<"(DMCZP) (return) LeaveMethod: TransformCache::AddTransform";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
   return;
   }
   double delt = transform.timestamp - transforms_.back().timestamp;
   if (delt < 0.0) {
-    AINFO << "ERROR: add earlier transform to transform cache";
-    
-  AINFO<<"(DMCZP) (return) LeaveMethod: TransformCache::AddTransform";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
   return;
   }
 
@@ -103,22 +56,6 @@ void TransformCache::AddTransform(const StampedTransform& transform) {
   } while (!transforms_.empty());
 
   transforms_.push_back(transform);
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformCache::AddTransform";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_bool";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_double";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_double";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_double";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
  }
 
 bool TransformCache::QueryTransform(double timestamp,
@@ -140,8 +77,6 @@ bool TransformCache::QueryTransform(double timestamp,
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformCache::QueryTransform";
   return false;
   } else if (delt < 0.0) {
-    AINFO << "ERROR: query earlier timestamp than transform cache";
-    
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformCache::QueryTransform";
   return false;
   }
@@ -177,14 +112,10 @@ bool TransformCache::QueryTransform(double timestamp,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformCache::QueryTransform";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformCache::QueryTransform";
  }
 
 void TransformWrapper::Init(
     const std::string& sensor2novatel_tf2_child_frame_id) {
-    AINFO<<"(DMCZP) EnteringMethod: TransformWrapper::Init";
-
     AINFO<<"(DMCZP) EnteringMethod: TransformWrapper::Init";
 
   sensor2novatel_tf2_frame_id_ = FLAGS_obs_sensor2novatel_tf2_frame_id;
@@ -194,8 +125,6 @@ void TransformWrapper::Init(
       FLAGS_obs_novatel2world_tf2_child_frame_id;
   transform_cache_.SetCacheDuration(FLAGS_obs_transform_cache_size);
   inited_ = true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformWrapper::Init";
  
    AINFO<<"(DMCZP) LeaveMethod: TransformWrapper::Init";
  }
@@ -276,7 +205,6 @@ bool TransformWrapper::GetSensor2worldTrans(
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformWrapper::GetSensor2worldTrans";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TransformWrapper::GetSensor2worldTrans";
  }
 
 bool TransformWrapper::GetExtrinsics(Eigen::Affine3d* trans) {
@@ -292,8 +220,6 @@ bool TransformWrapper::GetExtrinsics(Eigen::Affine3d* trans) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformWrapper::GetExtrinsics";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformWrapper::GetExtrinsics";
  }
 
 bool TransformWrapper::GetTrans(double timestamp, Eigen::Affine3d* trans,
@@ -322,7 +248,6 @@ bool TransformWrapper::GetTrans(double timestamp, Eigen::Affine3d* trans,
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformWrapper::GetTrans";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TransformWrapper::GetTrans";
  }
 
 bool TransformWrapper::QueryTrans(double timestamp, StampedTransform* trans,
@@ -366,8 +291,6 @@ bool TransformWrapper::QueryTrans(double timestamp, StampedTransform* trans,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformWrapper::QueryTrans";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformWrapper::QueryTrans";
  }
 
 bool TransformWrapper::GetExtrinsicsBySensorId(
@@ -394,8 +317,6 @@ bool TransformWrapper::GetExtrinsicsBySensorId(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformWrapper::GetExtrinsicsBySensorId";
   return status;
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformWrapper::GetExtrinsicsBySensorId";
  }
 
 }  // namespace onboard

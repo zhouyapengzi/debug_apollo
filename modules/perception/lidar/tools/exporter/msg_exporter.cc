@@ -153,8 +153,6 @@ bool MsgExporter::SavePointCloud(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MsgExporter::SavePointCloud";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MsgExporter::SavePointCloud";
  }
 
 bool MsgExporter::SaveImage(const unsigned char* color_image,
@@ -184,8 +182,6 @@ bool MsgExporter::SaveImage(const unsigned char* color_image,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MsgExporter::SaveImage";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MsgExporter::SaveImage";
  }
 
 bool MsgExporter::QuerySensorToWorldPose(double timestamp,
@@ -214,8 +210,6 @@ bool MsgExporter::QuerySensorToWorldPose(double timestamp,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MsgExporter::QuerySensorToWorldPose";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MsgExporter::QuerySensorToWorldPose";
  }
 
 bool MsgExporter::QueryPose(double timestamp, const std::string& frame_id,
@@ -257,7 +251,6 @@ bool MsgExporter::QueryPose(double timestamp, const std::string& frame_id,
   AINFO<<"(DMCZP) (return) LeaveMethod: MsgExporter::QueryPose";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: MsgExporter::QueryPose";
  }
 
 bool MsgExporter::SavePose(const Eigen::Matrix4d& pose, double timestamp,
@@ -278,8 +271,6 @@ bool MsgExporter::SavePose(const Eigen::Matrix4d& pose, double timestamp,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MsgExporter::SavePose";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MsgExporter::SavePose";
  }
 
 bool MsgExporter::IsStereoCamera(const std::string& channel) {
@@ -290,7 +281,6 @@ bool MsgExporter::IsStereoCamera(const std::string& channel) {
   AINFO<<"(DMCZP) (return) LeaveMethod: MsgExporter::IsStereoCamera";
   return strs.size() > 2 && strs[2] == "smartereye";
 
-   AINFO<<"(DMCZP) LeaveMethod: MsgExporter::IsStereoCamera";
  }
 
 bool MsgExporter::IsCamera(const std::string& channel) {
@@ -301,7 +291,6 @@ bool MsgExporter::IsCamera(const std::string& channel) {
   AINFO<<"(DMCZP) (return) LeaveMethod: MsgExporter::IsCamera";
   return strs.size() > 1 && strs[1] == "camera";
 
-   AINFO<<"(DMCZP) LeaveMethod: MsgExporter::IsCamera";
  }
 
 bool MsgExporter::IsLidar(const std::string& channel) {
@@ -311,8 +300,6 @@ bool MsgExporter::IsLidar(const std::string& channel) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MsgExporter::IsLidar";
   return strs.size() > 0 && strs.back() == "PointCloud2";
-
-   AINFO<<"(DMCZP) LeaveMethod: MsgExporter::IsLidar";
  }
 
 std::string MsgExporter::TransformChannelToFolder(const std::string& channel) {
@@ -327,8 +314,6 @@ std::string MsgExporter::TransformChannelToFolder(const std::string& channel) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MsgExporter::TransformChannelToFolder";
   return target;
-
-   AINFO<<"(DMCZP) LeaveMethod: MsgExporter::TransformChannelToFolder";
  }
 
 }  // namespace lidar

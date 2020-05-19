@@ -181,8 +181,6 @@ std::string Object::to_string() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Object::to_string";
   return oss.str();
-
-   AINFO<<"(DMCZP) LeaveMethod: Object::to_string";
  }
 
 std::string get_object_name(ObjectType obj_type) {
@@ -215,8 +213,6 @@ std::string get_object_name(ObjectType obj_type) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: get_object_name";
   return obj_name;
-
-   AINFO<<"(DMCZP) LeaveMethod: get_object_name";
  }
 
 std::string get_sensor_name(SensorType sensor_type) {
@@ -243,8 +239,6 @@ std::string get_sensor_name(SensorType sensor_type) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: get_sensor_name";
   return sensor_name;
-
-   AINFO<<"(DMCZP) LeaveMethod: get_sensor_name";
  }
 
 std::string SensorObjects::to_string() const {
@@ -262,8 +256,6 @@ std::string SensorObjects::to_string() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorObjects::to_string";
   return oss.str();
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorObjects::to_string";
  }
 
 ObjectType translate_string_to_type(const std::string& str) {
@@ -288,8 +280,6 @@ ObjectType translate_string_to_type(const std::string& str) {
   AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_type";
   return UNKNOWN;
   }
-
-   AINFO<<"(DMCZP) LeaveMethod: translate_string_to_type";
  }
 
 unsigned int translate_type_to_index(const ObjectType& type) {
@@ -309,7 +299,6 @@ unsigned int translate_type_to_index(const ObjectType& type) {
   return 0;
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: translate_type_to_index";
  }
 
 std::string translate_type_index_to_string(unsigned int index) {
@@ -338,7 +327,6 @@ std::string translate_type_index_to_string(unsigned int index) {
   return "others";
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: translate_type_index_to_string";
  }
 
 SensorType translate_string_to_sensor_type(const std::string& str) {
@@ -365,8 +353,6 @@ SensorType translate_string_to_sensor_type(const std::string& str) {
   AINFO<<"(DMCZP) (return) LeaveMethod: translate_string_to_sensor_type";
   return UNKNOWN_SENSOR_TYPE;
   }
-
-   AINFO<<"(DMCZP) LeaveMethod: translate_string_to_sensor_type";
  }
 
 std::string translate_type_to_string(ObjectType type) {
@@ -398,7 +384,6 @@ std::string translate_type_to_string(ObjectType type) {
   return "others";
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: translate_type_to_string";
  }
 
 std::string translate_sensor_type_to_string(const SensorType& type) {
@@ -427,7 +412,6 @@ std::string translate_sensor_type_to_string(const SensorType& type) {
   return "unknown_sensor_type";
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: translate_sensor_type_to_string";
  }
 
 }  // namespace benchmark

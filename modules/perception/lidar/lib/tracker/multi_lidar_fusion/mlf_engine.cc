@@ -74,8 +74,6 @@ bool MlfEngine::Init(const MultiTargetTrackerInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfEngine::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfEngine::Init";
  }
 
 bool MlfEngine::Track(const MultiTargetTrackerOptions& options,
@@ -124,8 +122,6 @@ bool MlfEngine::Track(const MultiTargetTrackerOptions& options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfEngine::Track";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfEngine::Track";
  }
 
 void MlfEngine::SplitAndTransformToTrackedObjects(

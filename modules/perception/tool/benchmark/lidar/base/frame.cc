@@ -229,8 +229,6 @@ bool Frame::load(const std::vector<std::string>& filenames) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Frame::load";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Frame::load";
  }
 
 void Frame::build_indices() {

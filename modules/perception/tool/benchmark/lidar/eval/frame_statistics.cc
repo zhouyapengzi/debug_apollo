@@ -38,8 +38,6 @@ double cal_point_based_jaccard_index(unsigned int n1, unsigned int n2,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: cal_point_based_jaccard_index";
   return static_cast<double>(overlap) / static_cast<double>(n1 + n2 - overlap);
-
-   AINFO<<"(DMCZP) LeaveMethod: cal_point_based_jaccard_index";
  }
 
 void FrameStatistics::set_jaccard_index_threshold(double threshold) {
@@ -86,8 +84,6 @@ double FrameStatistics::jaccard_index_percentile() const {
   AINFO<<"(DMCZP) (return) LeaveMethod: FrameStatistics::jaccard_index_percentile";
   return 0.0;
   }
-
-   AINFO<<"(DMCZP) LeaveMethod: FrameStatistics::jaccard_index_percentile";
  }
 
 bool FrameStatistics::find_association() {
@@ -390,14 +386,8 @@ bool FrameStatistics::cal_meta_statistics() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: FrameStatistics::cal_meta_statistics";
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: FrameStatistics::find_association";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: FrameStatistics::cal_meta_statistics";
  }
-
-
-   AINFO<<"(DMCZP) LeaveMethod: FrameStatistics::find_association";
  }  // namespace benchmark
 }  // namespace perception
 }  // namespace apollo

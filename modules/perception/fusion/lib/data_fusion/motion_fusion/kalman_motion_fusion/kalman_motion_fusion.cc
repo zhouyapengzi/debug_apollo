@@ -46,8 +46,6 @@ bool KalmanMotionFusion::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanMotionFusion::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanMotionFusion::Init";
  }
 
 bool KalmanMotionFusion::InitFilter(const SensorObjectConstPtr& sensor_object) {
@@ -111,7 +109,6 @@ bool KalmanMotionFusion::InitFilter(const SensorObjectConstPtr& sensor_object) {
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanMotionFusion::InitFilter";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: KalmanMotionFusion::InitFilter";
  }
 
 void KalmanMotionFusion::GetStates(Eigen::Vector3d* anchor_point,
@@ -422,7 +419,6 @@ Eigen::VectorXd KalmanMotionFusion::ComputeAccelerationMeasurement(
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanMotionFusion::ComputeAccelerationMeasurement";
   return acceleration_measurement;
 
-   AINFO<<"(DMCZP) LeaveMethod: KalmanMotionFusion::ComputeAccelerationMeasurement";
  }
 
 void KalmanMotionFusion::RewardRMatrix(const base::SensorType& sensor_type,
@@ -488,8 +484,6 @@ Eigen::Vector4d KalmanMotionFusion::ComputePseudoMeasurement(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanMotionFusion::ComputePseudoMeasurement";
   return pseudo_measurement;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanMotionFusion::ComputePseudoMeasurement";
  }
 
 Eigen::Vector4d KalmanMotionFusion::ComputePseudoLidarMeasurement(
@@ -575,8 +569,6 @@ Eigen::Vector4d KalmanMotionFusion::ComputePseudoLidarMeasurement(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanMotionFusion::ComputePseudoLidarMeasurement";
   return pseudo_measurement;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanMotionFusion::ComputePseudoLidarMeasurement";
  }
 
 Eigen::Vector4d KalmanMotionFusion::ComputePseudoCameraMeasurement(
@@ -663,7 +655,6 @@ Eigen::Vector4d KalmanMotionFusion::ComputePseudoCameraMeasurement(
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanMotionFusion::ComputePseudoCameraMeasurement";
   return pseudo_measurement;
 
-   AINFO<<"(DMCZP) LeaveMethod: KalmanMotionFusion::ComputePseudoCameraMeasurement";
  }
 
 Eigen::Vector4d KalmanMotionFusion::ComputePseudoRadarMeasurement(
@@ -791,8 +782,6 @@ Eigen::Vector4d KalmanMotionFusion::ComputePseudoRadarMeasurement(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanMotionFusion::ComputePseudoRadarMeasurement";
   return pseudo_measurement;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanMotionFusion::ComputePseudoRadarMeasurement";
  }
 
 void KalmanMotionFusion::UpdateSensorHistory(
@@ -831,8 +820,6 @@ int KalmanMotionFusion::GetSensorHistoryLength(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanMotionFusion::GetSensorHistoryLength";
   return sensor_history_length;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanMotionFusion::GetSensorHistoryLength";
  }
 
 int KalmanMotionFusion::GetSensorHistoryIndex(
@@ -857,7 +844,6 @@ int KalmanMotionFusion::GetSensorHistoryIndex(
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanMotionFusion::GetSensorHistoryIndex";
   return -1;
 
-   AINFO<<"(DMCZP) LeaveMethod: KalmanMotionFusion::GetSensorHistoryIndex";
  }
 
 }  // namespace fusion

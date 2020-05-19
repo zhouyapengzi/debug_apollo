@@ -92,8 +92,6 @@ bool ContiArsTracker::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ContiArsTracker::Init";
   return state;
-
-   AINFO<<"(DMCZP) LeaveMethod: ContiArsTracker::Init";
  }
 
 bool ContiArsTracker::Track(const base::Frame &detected_frame,
@@ -106,8 +104,6 @@ bool ContiArsTracker::Track(const base::Frame &detected_frame,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ContiArsTracker::Track";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ContiArsTracker::Track";
  }
 
 void ContiArsTracker::TrackObjects(const base::Frame &radar_frame) {

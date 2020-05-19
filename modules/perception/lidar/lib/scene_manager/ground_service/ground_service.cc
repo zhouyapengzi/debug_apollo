@@ -86,8 +86,6 @@ uint32_t inline GetIndex(uint32_t r, uint32_t c, uint32_t cols) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GetIndex";
   return (r * cols + c);
-
-   AINFO<<"(DMCZP) LeaveMethod: GetIndex";
  }
 
 bool GroundServiceContent::PointToGrid(const Eigen::Vector3d& world_point,
@@ -145,8 +143,6 @@ float GroundServiceContent::PointToPlaneDistance(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GroundServiceContent::PointToPlaneDistance";
   return out;
-
-   AINFO<<"(DMCZP) LeaveMethod: GroundServiceContent::PointToPlaneDistance";
  }
 
 bool GroundServiceContent::Init(double roi_x, double roi_y, uint32_t rows,
@@ -168,8 +164,6 @@ bool GroundServiceContent::Init(double roi_x, double roi_y, uint32_t rows,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GroundServiceContent::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: GroundServiceContent::Init";
  }
 
 bool GroundService::Init(const SceneServiceInitOptions& options) {
@@ -208,28 +202,20 @@ bool GroundService::Init(const SceneServiceInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GroundService::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: GroundService::Init";
  }
 
 float GroundService::QueryPointToGroundDistance(
     const Eigen::Vector3d& world_point) {
     AINFO<<"(DMCZP) EnteringMethod: GroundService::QueryPointToGroundDistance";
 
-    AINFO<<"(DMCZP) EnteringMethod: GroundService::QueryPointToGroundDistance";
-
   std::lock_guard<std::mutex> lock(mutex_);
   float distance =
       QueryPointToGroundDistance(world_point, *ground_content_ref_);
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: GroundService::QueryPointToGroundDistance";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GroundService::QueryPointToGroundDistance";
   return distance;
 
-   AINFO<<"(DMCZP) LeaveMethod: GroundService::QueryPointToGroundDistance";
- 
-   AINFO<<"(DMCZP) LeaveMethod: GroundService::QueryPointToGroundDistance";
  }
 
 float GroundService::QueryPointToGroundDistance(

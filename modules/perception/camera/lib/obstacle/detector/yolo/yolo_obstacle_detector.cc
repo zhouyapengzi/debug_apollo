@@ -304,49 +304,29 @@ bool YoloObstacleDetector::Init(const ObstacleDetectorInitOptions &options) {
   min_dims_.min_2d_height /= static_cast<float>(height_);
 
   if (!LoadAnchors(anchors_file, &anchors_)) {
-    
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return false;
   }
   if (!LoadTypes(types_file, &types_)) {
-    
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return false;
   }
   if (!LoadExpand(expand_file, &expands_)) {
-    
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return false;
   }
   CHECK(expands_.size() == types_.size());
   if (!InitNet(yolo_param_, model_root)) {
-    
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return false;
   }
   InitYoloBlob(yolo_param_.net_param());
   if (!InitFeatureExtractor(model_root)) {
-    
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return false;
   }
-  
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Init";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::Init";
  }
 
 bool YoloObstacleDetector::InitFeatureExtractor(const std::string &root_dir) {
@@ -365,17 +345,11 @@ bool YoloObstacleDetector::InitFeatureExtractor(const std::string &root_dir) {
   if (!feature_extractor_->Init(feat_options)) {
     
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitFeatureExtractor";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return false;
   }
   
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitFeatureExtractor";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::InitFeatureExtractor";
  }
 
 bool YoloObstacleDetector::Detect(const ObstacleDetectorOptions &options,
@@ -385,8 +359,6 @@ bool YoloObstacleDetector::Detect(const ObstacleDetectorOptions &options,
   if (frame == nullptr) {
     
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return false;
   }
 
@@ -395,8 +367,6 @@ bool YoloObstacleDetector::Detect(const ObstacleDetectorOptions &options,
     AERROR << "Failed to set device to " << gpu_id_;
     
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return false;
   }
 
@@ -459,17 +429,11 @@ bool YoloObstacleDetector::Detect(const ObstacleDetectorOptions &options,
 
   
   AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: YoloObstacleDetector::InitNet";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::Detect";
  }
 
 REGISTER_OBSTACLE_DETECTOR(YoloObstacleDetector);
 
-
-   AINFO<<"(DMCZP) LeaveMethod: YoloObstacleDetector::InitNet";
  }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

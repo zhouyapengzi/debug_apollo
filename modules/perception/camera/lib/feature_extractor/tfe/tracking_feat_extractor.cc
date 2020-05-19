@@ -72,7 +72,6 @@ bool TrackingFeatureExtractor::Init(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackingFeatureExtractor::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackingFeatureExtractor::Init";
  }
 void TrackingFeatureExtractor::init_roipooling(
     const FeatureExtractorInitOptions &options,
@@ -149,7 +148,6 @@ bool TrackingFeatureExtractor::Extract(const FeatureExtractorOptions &options,
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackingFeatureExtractor::Extract";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrackingFeatureExtractor::Extract";
  }
 REGISTER_FEATURE_EXTRACTOR(TrackingFeatureExtractor);
 }  // namespace camera

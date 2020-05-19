@@ -76,7 +76,6 @@ static int GetGpuId(const camera::CameraPerceptionInitOptions &options) {
   AINFO<<"(DMCZP) (return) LeaveMethod: GetGpuId";
   return perception_param.gpu_id();
 
-   AINFO<<"(DMCZP) LeaveMethod: GetGpuId";
  }
 
 static bool SetCameraHeight(const std::string &sensor_name,
@@ -117,8 +116,6 @@ static bool SetCameraHeight(const std::string &sensor_name,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SetCameraHeight";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SetCameraHeight";
  }
 
 // @description: load camera extrinsics from yaml file
@@ -187,8 +184,6 @@ static bool LoadExtrinsics(const std::string &yaml_file,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadExtrinsics";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LoadExtrinsics";
  }
 
 // @description: get project matrix
@@ -222,8 +217,6 @@ static bool GetProjectMatrix(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GetProjectMatrix";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: GetProjectMatrix";
  }
 
 LaneDetectionComponent::~LaneDetectionComponent() {}
@@ -279,8 +272,6 @@ bool LaneDetectionComponent::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::Init";
  }
 
 // On receiving motion service input, convert it to motion_buff_
@@ -392,9 +383,7 @@ void LaneDetectionComponent::OnReceiveImage(
 int LaneDetectionComponent::InitConfig() {
     AINFO<<"(DMCZP) EnteringMethod: LaneDetectionComponent::InitConfig";
 
-  // the macro READ_CONF would 
-  AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::InitConfig";
-  return cyber::FAIL if config not exists
+  // the macro READ_CONF would return cyber::FAIL if config not exists
   apollo::perception::onboard::LaneDetection lane_detection_param;
   if (!GetProtoConfig(&lane_detection_param)) {
     AINFO << "load lane detection component proto param failed";
@@ -472,8 +461,6 @@ int LaneDetectionComponent::InitConfig() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::InitConfig";
   return cyber::SUCC;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::InitConfig";
  }
 
 int LaneDetectionComponent::InitSensorInfo() {
@@ -534,8 +521,6 @@ int LaneDetectionComponent::InitSensorInfo() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::InitSensorInfo";
   return cyber::SUCC;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::InitSensorInfo";
  }
 
 int LaneDetectionComponent::InitAlgorithmPlugin() {
@@ -553,7 +538,6 @@ int LaneDetectionComponent::InitAlgorithmPlugin() {
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::InitAlgorithmPlugin";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::InitAlgorithmPlugin";
  }
 
 int LaneDetectionComponent::InitCameraFrames() {
@@ -630,8 +614,6 @@ int LaneDetectionComponent::InitCameraFrames() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::InitCameraFrames";
   return cyber::SUCC;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::InitCameraFrames";
  }
 
 int LaneDetectionComponent::InitProjectMatrix() {
@@ -653,8 +635,6 @@ int LaneDetectionComponent::InitProjectMatrix() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::InitProjectMatrix";
   return cyber::SUCC;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::InitProjectMatrix";
  }
 
 int LaneDetectionComponent::InitMotionService() {
@@ -676,7 +656,6 @@ int LaneDetectionComponent::InitMotionService() {
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::InitMotionService";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::InitMotionService";
  }
 
 int LaneDetectionComponent::InitCameraListeners() {
@@ -698,7 +677,6 @@ int LaneDetectionComponent::InitCameraListeners() {
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::InitCameraListeners";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::InitCameraListeners";
  }
 
 void LaneDetectionComponent::SetCameraHeightAndPitch() {
@@ -836,8 +814,6 @@ int LaneDetectionComponent::InternalProc(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::InternalProc";
   return cyber::SUCC;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::InternalProc";
  }
 
 int LaneDetectionComponent::ConvertLaneToCameraLaneline(
@@ -922,7 +898,6 @@ int LaneDetectionComponent::ConvertLaneToCameraLaneline(
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::ConvertLaneToCameraLaneline";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::ConvertLaneToCameraLaneline";
  }
 
 int LaneDetectionComponent::MakeProtobufMsg(
@@ -980,8 +955,6 @@ int LaneDetectionComponent::MakeProtobufMsg(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneDetectionComponent::MakeProtobufMsg";
   return cyber::SUCC;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneDetectionComponent::MakeProtobufMsg";
  }
 
 }  // namespace onboard

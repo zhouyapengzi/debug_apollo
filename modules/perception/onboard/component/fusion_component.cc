@@ -38,7 +38,6 @@ bool FusionComponent::Init() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionComponent::Init";
   return false;
   }
-  AINFO << "Fusion Component Configs: " << comp_config.DebugString();
 
   // to load component configs
   fusion_method_ = comp_config.fusion_method();
@@ -56,7 +55,6 @@ bool FusionComponent::Init() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionComponent::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionComponent::Init";
  }
 
 bool FusionComponent::Proc(const std::shared_ptr<SensorFrameMessage>& message) {
@@ -91,8 +89,6 @@ bool FusionComponent::Proc(const std::shared_ptr<SensorFrameMessage>& message) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionComponent::Proc";
   return status;
-
-   AINFO<<"(DMCZP) LeaveMethod: FusionComponent::Proc";
  }
 
 bool FusionComponent::InitAlgorithmPlugin() {
@@ -112,8 +108,6 @@ bool FusionComponent::InitAlgorithmPlugin() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionComponent::InitAlgorithmPlugin";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: FusionComponent::InitAlgorithmPlugin";
  }
 
 bool FusionComponent::InternalProc(
@@ -228,7 +222,6 @@ bool FusionComponent::InternalProc(
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionComponent::InternalProc";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionComponent::InternalProc";
  }
 
 }  // namespace onboard

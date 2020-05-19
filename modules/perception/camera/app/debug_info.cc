@@ -106,11 +106,7 @@ int WriteDetections(const bool enabled, const std::string &out_path,
                     const std::vector<base::ObjectPtr> &objects) {
     AINFO<<"(DMCZP) EnteringMethod: WriteDetections";
 
-    AINFO<<"(DMCZP) EnteringMethod: WriteDetections";
-
   if (!enabled) {
-    
-  AINFO<<"(DMCZP) (return) LeaveMethod: WriteDetections";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: WriteDetections";
   return -1;
@@ -119,8 +115,6 @@ int WriteDetections(const bool enabled, const std::string &out_path,
   AINFO << "Write detection to: " << out_path;
   if (!outf.is_open()) {
     AERROR << "Cannot open output file: " << out_path;
-    
-  AINFO<<"(DMCZP) (return) LeaveMethod: WriteDetections";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: WriteDetections";
   return -1;
@@ -196,14 +190,9 @@ int WriteDetections(const bool enabled, const std::string &out_path,
   }
   outf.close();
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: WriteDetections";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: WriteDetections";
   return 0;
-
-   AINFO<<"(DMCZP) LeaveMethod: WriteDetections";
- 
-   AINFO<<"(DMCZP) LeaveMethod: WriteDetections";
  }
 
 int WriteDetections(const bool enabled, const std::string &out_path,
@@ -359,8 +348,6 @@ int WriteCalibrationOutput(bool enabled, const std::string &out_path,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: WriteCalibrationOutput";
   return 0;
-
-   AINFO<<"(DMCZP) LeaveMethod: WriteCalibrationOutput";
  }
 
 void WriteFusionTracking(std::ofstream &fout, int frame_num,

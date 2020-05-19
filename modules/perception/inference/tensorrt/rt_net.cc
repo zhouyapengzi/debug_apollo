@@ -565,8 +565,6 @@ bool RTNet::loadWeights(const std::string &model_file, WeightMap *weight_map) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::loadWeights";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RTNet::loadWeights";
  }
 void RTNet::mergeBN(int index, LayerParameter *layer_param) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::mergeBN";
@@ -613,8 +611,6 @@ nvinfer1::Weights RTNet::loadLayerWeights(const float *data, int size) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::loadLayerWeights";
   return wt;
-
-   AINFO<<"(DMCZP) LeaveMethod: RTNet::loadLayerWeights";
  }
 nvinfer1::Weights RTNet::loadLayerWeights(float data, int size) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::loadLayerWeights";
@@ -631,8 +627,6 @@ nvinfer1::Weights RTNet::loadLayerWeights(float data, int size) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::loadLayerWeights";
   return wt;
-
-   AINFO<<"(DMCZP) LeaveMethod: RTNet::loadLayerWeights";
  }
 
 RTNet::RTNet(const std::string &net_file, const std::string &model_file,
@@ -641,18 +635,10 @@ RTNet::RTNet(const std::string &net_file, const std::string &model_file,
     : output_names_(outputs), input_names_(inputs) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::RTNet";
 
-    AINFO<<"(DMCZP) EnteringMethod: RTNet::RTNet";
-
-    AINFO<<"(DMCZP) EnteringMethod: RTNet::RTNet";
-
   loadWeights(model_file, &weight_map_);
   net_param_.reset(new NetParameter);
   loadNetParams(net_file, net_param_.get());
 
-   AINFO<<"(DMCZP) LeaveMethod: RTNet::RTNet";
- 
-   AINFO<<"(DMCZP) LeaveMethod: RTNet::RTNet";
- 
    AINFO<<"(DMCZP) LeaveMethod: RTNet::RTNet";
  }
 RTNet::RTNet(const std::string &net_file, const std::string &model_file,
@@ -707,8 +693,6 @@ bool RTNet::shape(const std::string &name, std::vector<int> *res) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::shape";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RTNet::shape";
  }
 void RTNet::init_blob(std::vector<std::string> *names) {
     AINFO<<"(DMCZP) EnteringMethod: RTNet::init_blob";
@@ -774,8 +758,6 @@ bool RTNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RTNet::Init";
  }
 bool RTNet::checkInt8(const std::string &gpu_name,
                       nvinfer1::IInt8Calibrator *calibrator) {
@@ -800,8 +782,6 @@ bool RTNet::checkInt8(const std::string &gpu_name,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::checkInt8";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: RTNet::checkInt8";
  }
 bool RTNet::addInput(const TensorDimsMap &tensor_dims_map,
                      const std::map<std::string, std::vector<int>> &shapes,
@@ -830,8 +810,6 @@ bool RTNet::addInput(const TensorDimsMap &tensor_dims_map,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RTNet::addInput";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RTNet::addInput";
  }
 
 void RTNet::parse_with_api(

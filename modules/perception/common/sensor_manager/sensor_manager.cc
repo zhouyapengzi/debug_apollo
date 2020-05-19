@@ -116,8 +116,6 @@ bool SensorManager::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::Init";
  }
 
 bool SensorManager::IsSensorExist(const std::string& name) const {
@@ -126,8 +124,6 @@ bool SensorManager::IsSensorExist(const std::string& name) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsSensorExist";
   return sensor_info_map_.find(name) != sensor_info_map_.end();
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsSensorExist";
  }
 
 bool SensorManager::GetSensorInfo(const std::string& name,
@@ -152,8 +148,6 @@ bool SensorManager::GetSensorInfo(const std::string& name,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::GetSensorInfo";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::GetSensorInfo";
  }
 
 std::shared_ptr<BaseCameraDistortionModel> SensorManager::GetDistortCameraModel(
@@ -184,8 +178,6 @@ bool SensorManager::IsHdLidar(const std::string& name) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsHdLidar";
   return this->IsHdLidar(type);
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsHdLidar";
  }
 
 bool SensorManager::IsHdLidar(const SensorType& type) const {
@@ -195,8 +187,6 @@ bool SensorManager::IsHdLidar(const SensorType& type) const {
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsHdLidar";
   return type == SensorType::VELODYNE_128 || type == SensorType::VELODYNE_64 ||
          type == SensorType::VELODYNE_32 || type == SensorType::VELODYNE_16;
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsHdLidar";
  }
 
 bool SensorManager::IsLdLidar(const std::string& name) const {
@@ -213,8 +203,6 @@ bool SensorManager::IsLdLidar(const std::string& name) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsLdLidar";
   return this->IsLdLidar(type);
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsLdLidar";
  }
 
 bool SensorManager::IsLdLidar(const SensorType& type) const {
@@ -223,8 +211,6 @@ bool SensorManager::IsLdLidar(const SensorType& type) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsLdLidar";
   return type == SensorType::LDLIDAR_4 || type == SensorType::LDLIDAR_1;
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsLdLidar";
  }
 
 bool SensorManager::IsLidar(const std::string& name) const {
@@ -241,8 +227,6 @@ bool SensorManager::IsLidar(const std::string& name) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsLidar";
   return this->IsLidar(type);
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsLidar";
  }
 
 bool SensorManager::IsLidar(const SensorType& type) const {
@@ -251,8 +235,6 @@ bool SensorManager::IsLidar(const SensorType& type) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsLidar";
   return this->IsHdLidar(type) || this->IsLdLidar(type);
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsLidar";
  }
 
 bool SensorManager::IsRadar(const std::string& name) const {
@@ -269,8 +251,6 @@ bool SensorManager::IsRadar(const std::string& name) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsRadar";
   return this->IsRadar(type);
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsRadar";
  }
 
 bool SensorManager::IsRadar(const SensorType& type) const {
@@ -280,8 +260,6 @@ bool SensorManager::IsRadar(const SensorType& type) const {
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsRadar";
   return type == SensorType::SHORT_RANGE_RADAR ||
          type == SensorType::LONG_RANGE_RADAR;
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsRadar";
  }
 
 bool SensorManager::IsCamera(const std::string& name) const {
@@ -298,8 +276,6 @@ bool SensorManager::IsCamera(const std::string& name) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsCamera";
   return this->IsCamera(type);
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsCamera";
  }
 
 bool SensorManager::IsCamera(const SensorType& type) const {
@@ -309,8 +285,6 @@ bool SensorManager::IsCamera(const SensorType& type) const {
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsCamera";
   return type == SensorType::MONOCULAR_CAMERA ||
          type == SensorType::STEREO_CAMERA;
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsCamera";
  }
 
 bool SensorManager::IsUltrasonic(const std::string& name) const {
@@ -327,8 +301,6 @@ bool SensorManager::IsUltrasonic(const std::string& name) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsUltrasonic";
   return this->IsUltrasonic(type);
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsUltrasonic";
  }
 
 bool SensorManager::IsUltrasonic(const SensorType& type) const {
@@ -337,8 +309,6 @@ bool SensorManager::IsUltrasonic(const SensorType& type) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::IsUltrasonic";
   return type == SensorType::ULTRASONIC;
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::IsUltrasonic";
  }
 
 std::string SensorManager::GetFrameId(const std::string& name) const {
@@ -348,8 +318,6 @@ std::string SensorManager::GetFrameId(const std::string& name) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SensorManager::GetFrameId";
   return itr == sensor_info_map_.end() ? std::string("") : itr->second.frame_id;
-
-   AINFO<<"(DMCZP) LeaveMethod: SensorManager::GetFrameId";
  }
 
 }  // namespace common

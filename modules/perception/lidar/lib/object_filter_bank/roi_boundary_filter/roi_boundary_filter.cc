@@ -49,8 +49,6 @@ bool ROIBoundaryFilter::Init(const ObjectFilterInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ROIBoundaryFilter::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ROIBoundaryFilter::Init";
  }
 
 bool ROIBoundaryFilter::Filter(const ObjectFilterOptions& options,
@@ -110,8 +108,6 @@ bool ROIBoundaryFilter::Filter(const ObjectFilterOptions& options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ROIBoundaryFilter::Filter";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ROIBoundaryFilter::Filter";
  }
 
 void ROIBoundaryFilter::BuildWorldPolygons(const ObjectFilterOptions& options,

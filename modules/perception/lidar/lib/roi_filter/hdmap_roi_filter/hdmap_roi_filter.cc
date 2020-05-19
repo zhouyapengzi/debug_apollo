@@ -78,8 +78,6 @@ bool HdmapROIFilter::Init(const ROIFilterInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HdmapROIFilter::Init";
  }
 
 bool HdmapROIFilter::Filter(const ROIFilterOptions& options,
@@ -155,8 +153,6 @@ bool HdmapROIFilter::Filter(const ROIFilterOptions& options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::Filter";
   return ret;
-
-   AINFO<<"(DMCZP) LeaveMethod: HdmapROIFilter::Filter";
  }
 
 bool HdmapROIFilter::FilterWithPolygonMask(
@@ -203,7 +199,6 @@ bool HdmapROIFilter::FilterWithPolygonMask(
                                   no_edge_table_) &&
          Bitmap2dFilter(cloud, bitmap_, roi_indices);
 
-   AINFO<<"(DMCZP) LeaveMethod: HdmapROIFilter::FilterWithPolygonMask";
  }
 
 void HdmapROIFilter::TransformFrame(
@@ -271,8 +266,6 @@ bool HdmapROIFilter::Bitmap2dFilter(const base::PointFCloudPtr& in_cloud,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HdmapROIFilter::Bitmap2dFilter";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HdmapROIFilter::Bitmap2dFilter";
  }
 
 PERCEPTION_REGISTER_ROIFILTER(HdmapROIFilter);

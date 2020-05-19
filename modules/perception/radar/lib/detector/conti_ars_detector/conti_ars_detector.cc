@@ -25,9 +25,7 @@ namespace radar {
 bool ContiArsDetector::Init() {
     AINFO<<"(DMCZP) EnteringMethod: ContiArsDetector::Init";
  
-  AINFO<<"(D
-   AINFO<<"(DMCZP) LeaveMethod: ContiArsDetector::Init";
- MCZP) (return) LeaveMethod: ContiArsDetector::Init";
+  AINFO<<"(DMCZP) (return) LeaveMethod: ContiArsDetector::Init";
   return true; }
 
 bool ContiArsDetector::Detect(const drivers::ContiRadar& corrected_obstacles,
@@ -41,16 +39,12 @@ bool ContiArsDetector::Detect(const drivers::ContiRadar& corrected_obstacles,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ContiArsDetector::Detect";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ContiArsDetector::Detect";
  }
 
 std::string ContiArsDetector::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: ContiArsDetector::Name";
  
-  AINFO<<"(DMCZP) (return)
-   AINFO<<"(DMCZP) LeaveMethod: ContiArsDetector::Name";
-  LeaveMethod: ContiArsDetector::Name";
+  AINFO<<"(DMCZP) (return)LeaveMethod: ContiArsDetector::Name";
   return "ContiArsDetector"; }
 
 void ContiArsDetector::RawObs2Frame(

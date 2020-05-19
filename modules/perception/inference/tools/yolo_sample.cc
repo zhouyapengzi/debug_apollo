@@ -36,19 +36,6 @@ DEFINE_string(res_dir, "./result.dat", "path of result");
 int main(int argc, char **argv) {
     AINFO<<"(DMCZP) EnteringMethod: main";
 
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_bool";
 
   google::ParseCommandLineFlags(&argc, &argv, true);
 
@@ -116,34 +103,6 @@ int main(int argc, char **argv) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: main";
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
   return 0;
 
-   AINFO<<"(DMCZP) LeaveMethod: main";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_bool";
  }

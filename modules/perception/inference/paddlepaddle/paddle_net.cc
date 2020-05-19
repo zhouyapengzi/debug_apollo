@@ -31,10 +31,6 @@ PaddleNet::PaddleNet(const std::string &model_file,
       param_file_(param_file),
       output_names_(outputs) {
     AINFO<<"(DMCZP) EnteringMethod: PaddleNet::PaddleNet";
-
-    AINFO<<"(DMCZP) EnteringMethod: PaddleNet::PaddleNet";
-
-   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::PaddleNet";
  
    AINFO<<"(DMCZP) LeaveMethod: PaddleNet::PaddleNet";
  }
@@ -106,8 +102,6 @@ bool PaddleNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PaddleNet::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::Init";
  }
 
 PaddleNet::PaddleNet(const std::string &model_file,
@@ -149,8 +143,6 @@ bool PaddleNet::reshape() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PaddleNet::reshape";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::reshape";
  }
 
 void PaddleNet::Infer() {
@@ -225,8 +217,6 @@ bool PaddleNet::shape(const std::string &name, std::vector<int> *res) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PaddleNet::shape";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PaddleNet::shape";
  }
 
 }  // namespace inference

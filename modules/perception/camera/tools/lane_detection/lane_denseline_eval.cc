@@ -218,8 +218,6 @@ int lane_postprocessor_eval() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: lane_postprocessor_eval";
   return 0;
-
-   AINFO<<"(DMCZP) LeaveMethod: lane_postprocessor_eval";
  }
 
 }  // namespace camera
@@ -235,6 +233,4 @@ int main(int argc, char** argv) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: main";
   return apollo::perception::camera::lane_postprocessor_eval();
-
-   AINFO<<"(DMCZP) LeaveMethod: main";
  }

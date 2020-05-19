@@ -71,8 +71,6 @@ bool KalmanFilter::Init(const Eigen::VectorXd &initial_belief_states,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilter::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilter::Init";
  }
 
 bool KalmanFilter::Predict(const Eigen::MatrixXd &transform_matrix,
@@ -118,8 +116,6 @@ bool KalmanFilter::Predict(const Eigen::MatrixXd &transform_matrix,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilter::Predict";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilter::Predict";
  }
 
 bool KalmanFilter::Correct(const Eigen::VectorXd &cur_observation,
@@ -170,8 +166,6 @@ bool KalmanFilter::Correct(const Eigen::VectorXd &cur_observation,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilter::Correct";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilter::Correct";
  }
 
 bool KalmanFilter::SetControlMatrix(const Eigen::MatrixXd &control_matrix) {
@@ -194,16 +188,12 @@ bool KalmanFilter::SetControlMatrix(const Eigen::MatrixXd &control_matrix) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilter::SetControlMatrix";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilter::SetControlMatrix";
  }
 
 Eigen::VectorXd KalmanFilter::GetStates() const {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::GetStates";
  
-  AINFO<<"(DMCZP) (ret
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilter::GetStates";
- urn) LeaveMethod: KalmanFilter::GetStates";
+  AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilter::GetStates";
   return global_states_; }
 
 Eigen::MatrixXd KalmanFilter::GetUncertainty() const {
@@ -212,8 +202,6 @@ Eigen::MatrixXd KalmanFilter::GetUncertainty() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilter::GetUncertainty";
   return global_uncertainty_;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilter::GetUncertainty";
  }
 
 bool KalmanFilter::SetGainBreakdownThresh(const std::vector<bool> &break_down,
@@ -234,8 +222,6 @@ bool KalmanFilter::SetGainBreakdownThresh(const std::vector<bool> &break_down,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilter::SetGainBreakdownThresh";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilter::SetGainBreakdownThresh";
  }
 
 bool KalmanFilter::SetValueBreakdownThresh(const std::vector<bool> &break_down,
@@ -256,8 +242,6 @@ bool KalmanFilter::SetValueBreakdownThresh(const std::vector<bool> &break_down,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilter::SetValueBreakdownThresh";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilter::SetValueBreakdownThresh";
  }
 void KalmanFilter::CorrectionBreakdown() {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilter::CorrectionBreakdown";
@@ -299,8 +283,6 @@ bool KalmanFilter::DeCorrelation(int x, int y, int x_len, int y_len) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilter::DeCorrelation";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilter::DeCorrelation";
  }
 
 }  // namespace fusion

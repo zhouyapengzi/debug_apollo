@@ -99,7 +99,6 @@ bool TrafficLightCameraPerception::Init(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightCameraPerception::Init";
  }
 
 bool TrafficLightCameraPerception::Perception(
@@ -150,7 +149,6 @@ bool TrafficLightCameraPerception::Perception(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightCameraPerception::Perception";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightCameraPerception::Perception";
  }
 
 }  // namespace camera

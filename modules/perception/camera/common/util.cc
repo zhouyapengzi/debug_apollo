@@ -28,8 +28,6 @@ bool Equal(double x, double target, double eps) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Equal";
   return std::abs(x - target) < eps;
-
-   AINFO<<"(DMCZP) LeaveMethod: Equal";
  }
 bool Equal(float x, float target, float eps) {
     AINFO<<"(DMCZP) EnteringMethod: Equal";
@@ -37,8 +35,6 @@ bool Equal(float x, float target, float eps) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Equal";
   return std::abs(x - target) < eps;
-
-   AINFO<<"(DMCZP) LeaveMethod: Equal";
  }
 
 bool LoadAnchors(const std::string &path, std::vector<float> *anchors) {
@@ -67,8 +63,6 @@ bool LoadAnchors(const std::string &path, std::vector<float> *anchors) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadAnchors";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LoadAnchors";
  }
 
 bool LoadTypes(const std::string &path,
@@ -99,8 +93,6 @@ bool LoadTypes(const std::string &path,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadTypes";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LoadTypes";
  }
 bool LoadExpand(const std::string &path, std::vector<float> *expands) {
     AINFO<<"(DMCZP) EnteringMethod: LoadExpand";
@@ -122,8 +114,6 @@ bool LoadExpand(const std::string &path, std::vector<float> *expands) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadExpand";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LoadExpand";
  }
 bool ResizeCPU(const base::Blob<uint8_t> &src_blob,
                std::shared_ptr<base::Blob<float>> dst_blob, int stepwidth,
@@ -199,8 +189,6 @@ bool ResizeCPU(const base::Blob<uint8_t> &src_blob,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ResizeCPU";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ResizeCPU";
  }
 
 std::string GetCyberWorkRoot() {
@@ -213,8 +201,6 @@ std::string GetCyberWorkRoot() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GetCyberWorkRoot";
   return work_root;
-
-   AINFO<<"(DMCZP) LeaveMethod: GetCyberWorkRoot";
  }
 
 void FillObjectPolygonFromBBox3D(base::Object *object_ptr) {

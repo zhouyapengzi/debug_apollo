@@ -61,8 +61,6 @@ bool DstManager::AddApp(const std::string &app_name,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::AddApp";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DstManager::AddApp";
  }
 
 bool DstManager::IsAppAdded(const std::string &app_name) {
@@ -77,8 +75,6 @@ bool DstManager::IsAppAdded(const std::string &app_name) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::IsAppAdded";
   return iter->second.init_;
-
-   AINFO<<"(DMCZP) LeaveMethod: DstManager::IsAppAdded";
  }
 
 DstCommonDataPtr DstManager::GetAppDataPtr(const std::string &app_name) {
@@ -99,8 +95,6 @@ DstCommonDataPtr DstManager::GetAppDataPtr(const std::string &app_name) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::GetAppDataPtr";
   return nullptr;
-
-   AINFO<<"(DMCZP) LeaveMethod: DstManager::GetAppDataPtr";
  }
 
 size_t DstManager::FodSubsetToInd(const std::string &app_name,
@@ -114,8 +108,6 @@ size_t DstManager::FodSubsetToInd(const std::string &app_name,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::FodSubsetToInd";
   return iter->second;
-
-   AINFO<<"(DMCZP) LeaveMethod: DstManager::FodSubsetToInd";
  }
 
 uint64_t DstManager::IndToFodSubset(const std::string &app_name,
@@ -127,8 +119,6 @@ uint64_t DstManager::IndToFodSubset(const std::string &app_name,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::IndToFodSubset";
   return iter->second.fod_subsets_[ind];
-
-   AINFO<<"(DMCZP) LeaveMethod: DstManager::IndToFodSubset";
  }
 
 void DstManager::BuildSubsetsIndMap(DstCommonData *dst_data) {
@@ -231,8 +221,6 @@ bool DstManager::ComputeRelations(DstCommonData *dst_data) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstManager::ComputeRelations";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DstManager::ComputeRelations";
  }
 
 void DstManager::BuildNamesMap(const std::vector<std::string> &fod_subset_names,
@@ -292,8 +280,6 @@ double Dst::GetSubsetBfmass(uint64_t fod_subset) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Dst::GetSubsetBfmass";
   return bba_vec_[idx];
-
-   AINFO<<"(DMCZP) LeaveMethod: Dst::GetSubsetBfmass";
  }
 
 double Dst::GetIndBfmass(size_t ind) const {
@@ -303,8 +289,6 @@ double Dst::GetIndBfmass(size_t ind) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Dst::GetIndBfmass";
   return bba_vec_[ind];
-
-   AINFO<<"(DMCZP) LeaveMethod: Dst::GetIndBfmass";
  }
 
 bool Dst::SetBbaVec(const std::vector<double> &bba_vec) {
@@ -334,8 +318,6 @@ bool Dst::SetBbaVec(const std::vector<double> &bba_vec) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Dst::SetBbaVec";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Dst::SetBbaVec";
  }
 
 bool Dst::SetBba(const std::map<uint64_t, double> &bba_map) {
@@ -370,8 +352,6 @@ bool Dst::SetBba(const std::map<uint64_t, double> &bba_map) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Dst::SetBba";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: Dst::SetBba";
  }
 
 std::string Dst::PrintBba() const {
@@ -411,8 +391,6 @@ std::string Dst::PrintBba() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Dst::PrintBba";
   return res;
-
-   AINFO<<"(DMCZP) LeaveMethod: Dst::PrintBba";
  }
 
 void Dst::ComputeSptPlsUct() const {
@@ -526,10 +504,7 @@ Dst operator*(const Dst &dst, double w) {
   // check w
   if (w < 0.0 || w > 1.0) {
     AERROR << boost::format(
-                  "the weight of bba %lf is not valid, 
-  AINFO<<"(DMCZP) (return) LeaveMethod: operator*";
-  return default bba") %
-                  w;
+                  "the weight of bba %lf is not valid, return default bba") % w;
     
   AINFO<<"(DMCZP) (return) LeaveMethod: operator*";
   return res;
@@ -547,8 +522,6 @@ Dst operator*(const Dst &dst, double w) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: operator*";
   return res;
-
-   AINFO<<"(DMCZP) LeaveMethod: operator*";
  }
 
 }  // namespace fusion

@@ -76,8 +76,6 @@ bool Pt3dToCamera2d(const Eigen::Vector3d& pt3d,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Pt3dToCamera2d";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: Pt3dToCamera2d";
  }
 
 bool IsObjectEightVerticesAllBehindCamera(
@@ -99,8 +97,6 @@ bool IsObjectEightVerticesAllBehindCamera(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: IsObjectEightVerticesAllBehindCamera";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: IsObjectEightVerticesAllBehindCamera";
  }
 
 float ObjectInCameraView(SensorObjectConstPtr sensor_object,
@@ -228,8 +224,6 @@ float ObjectInCameraView(SensorObjectConstPtr sensor_object,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjectInCameraView";
   return static_cast<float>(in_view_ratio * sigmoid_like_fun(dist_to_camera));
-
-   AINFO<<"(DMCZP) LeaveMethod: ObjectInCameraView";
  }
 
 }  // namespace fusion

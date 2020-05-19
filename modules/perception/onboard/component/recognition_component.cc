@@ -49,8 +49,6 @@ bool RecognitionComponent::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RecognitionComponent::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RecognitionComponent::Init";
  }
 
 bool RecognitionComponent::Proc(
@@ -75,7 +73,6 @@ bool RecognitionComponent::Proc(
   AINFO<<"(DMCZP) (return) LeaveMethod: RecognitionComponent::Proc";
   return false;
 
-   AINFO<<"(DMCZP) LeaveMethod: RecognitionComponent::Proc";
  }
 
 bool RecognitionComponent::InitAlgorithmPlugin() {
@@ -100,8 +97,6 @@ bool RecognitionComponent::InitAlgorithmPlugin() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RecognitionComponent::InitAlgorithmPlugin";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RecognitionComponent::InitAlgorithmPlugin";
  }
 
 bool RecognitionComponent::InternalProc(
@@ -162,8 +157,6 @@ bool RecognitionComponent::InternalProc(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RecognitionComponent::InternalProc";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RecognitionComponent::InternalProc";
  }
 
 }  // namespace onboard

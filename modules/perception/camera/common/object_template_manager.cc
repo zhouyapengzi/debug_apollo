@@ -185,8 +185,6 @@ bool ObjectTemplateManager::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjectTemplateManager::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObjectTemplateManager::Init";
  }
 
 void ObjectTemplateManager::LoadVehTemplates(const ObjectTemplate &tmplt) {
@@ -262,8 +260,6 @@ float ObjectTemplateManager::Get3dDimensionSimilarity(const float *hwl1,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjectTemplateManager::Get3dDimensionSimilarity";
   return iou_h * iou_h * iou_w * iou_l;  // h^2 * w * l
-
-   AINFO<<"(DMCZP) LeaveMethod: ObjectTemplateManager::Get3dDimensionSimilarity";
  }
 
 // for general visual obj
@@ -329,8 +325,6 @@ float ObjectTemplateManager::VehObjHwlBySearchTemplates(float *hwl, int *index,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjectTemplateManager::VehObjHwlBySearchTemplates";
   return score_best;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObjectTemplateManager::VehObjHwlBySearchTemplates";
  }
 
 }  // namespace camera

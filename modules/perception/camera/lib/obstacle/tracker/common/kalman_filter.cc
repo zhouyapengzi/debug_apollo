@@ -100,9 +100,7 @@ void KalmanFilterConstVelocity::Correct(const Eigen::VectorXd &z) {
 Eigen::Vector4d KalmanFilterConstVelocity::get_state() const {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilterConstVelocity::get_state";
  
-  AINFO<<"(DMC
-   AINFO<<"(DMCZP) LeaveMethod: KalmanFilterConstVelocity::get_state";
- ZP) (return) LeaveMethod: KalmanFilterConstVelocity::get_state";
+  AINFO<<"(DMCZP) (return) LeaveMethod: KalmanFilterConstVelocity::get_state";
   return state_; }
 void KalmanFilterConstVelocity::MagicPosition(const Eigen::VectorXd &pos) {
     AINFO<<"(DMCZP) EnteringMethod: KalmanFilterConstVelocity::MagicPosition";
@@ -184,9 +182,7 @@ void ExtendedKalmanFilter::Correct(const Eigen::VectorXd &z) {
 Eigen::Vector4d ExtendedKalmanFilter::get_state() const {
     AINFO<<"(DMCZP) EnteringMethod: ExtendedKalmanFilter::get_state";
  
-  AINFO<<"(DMC
-   AINFO<<"(DMCZP) LeaveMethod: ExtendedKalmanFilter::get_state";
- ZP) (return) LeaveMethod: ExtendedKalmanFilter::get_state";
+  AINFO<<"(DMCZP) (return) LeaveMethod: ExtendedKalmanFilter::get_state";
   return state_; }
 
 void MeanFilter::SetWindow(int window) {
@@ -232,17 +228,13 @@ void MeanFilter::AddMeasure(const Eigen::VectorXd &z) {
 const Eigen::VectorXd &MeanFilter::get_state() const {
     AINFO<<"(DMCZP) EnteringMethod: &MeanFilter::get_state";
  
-  AINFO<<"(DMC
-   AINFO<<"(DMCZP) LeaveMethod: &MeanFilter::get_state";
- ZP) (return) LeaveMethod: &MeanFilter::get_state";
+  AINFO<<"(DMCZP) (return) LeaveMethod: &MeanFilter::get_state";
   return state_; }
 
 const Eigen::MatrixXd &MeanFilter::get_variance() const {
     AINFO<<"(DMCZP) EnteringMethod: &MeanFilter::get_variance";
  
-  AINFO<<"(DMCZP)
-   AINFO<<"(DMCZP) LeaveMethod: &MeanFilter::get_variance";
-  (return) LeaveMethod: &MeanFilter::get_variance";
+  AINFO<<"(DMCZP) (return) LeaveMethod: &MeanFilter::get_variance";
   return variance_; }
 
 void FirstOrderRCLowPassFilter::SetAlpha(float alpha) {
@@ -270,9 +262,7 @@ void FirstOrderRCLowPassFilter::AddMeasure(const Eigen::VectorXd &z) {
 Eigen::VectorXd FirstOrderRCLowPassFilter::get_state() const {
     AINFO<<"(DMCZP) EnteringMethod: FirstOrderRCLowPassFilter::get_state";
  
-  AINFO<<"(DMC
-   AINFO<<"(DMCZP) LeaveMethod: FirstOrderRCLowPassFilter::get_state";
- ZP) (return) LeaveMethod: FirstOrderRCLowPassFilter::get_state";
+  AINFO<<"(DMCZP) (return) LeaveMethod: FirstOrderRCLowPassFilter::get_state";
   return state_; }
 
 struct {
@@ -314,7 +304,6 @@ Eigen::VectorXd MaxNMeanFilter::get_state() const {
   AINFO<<"(DMCZP) (return) LeaveMethod: MaxNMeanFilter::get_state";
   return x;
 
-   AINFO<<"(DMCZP) LeaveMethod: MaxNMeanFilter::get_state";
  }
 void MaxNMeanFilter::Clear() {
     AINFO<<"(DMCZP) EnteringMethod: MaxNMeanFilter::Clear";

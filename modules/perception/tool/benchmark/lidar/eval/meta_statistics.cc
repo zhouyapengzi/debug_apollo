@@ -92,8 +92,6 @@ unsigned int MetaStatistics::get_type_index(const ObjectType& type) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_type_index";
   return index;
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_type_index";
  }
 
 unsigned int MetaStatistics::get_range_index(const PositionMetric& position) {
@@ -102,8 +100,6 @@ unsigned int MetaStatistics::get_range_index(const PositionMetric& position) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_range_index";
   return _s_range_interface->get_index(position);
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_range_index";
  }
 
 unsigned int MetaStatistics::get_confidence_index(double confidence) {
@@ -113,8 +109,6 @@ unsigned int MetaStatistics::get_confidence_index(double confidence) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_confidence_index";
   return index;
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_confidence_index";
  }
 
 unsigned int MetaStatistics::get_type_dim() {
@@ -123,8 +117,6 @@ unsigned int MetaStatistics::get_type_dim() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_type_dim";
   return 4;  // should be sync with get_type_index and object.h!
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_type_dim";
  }
 
 unsigned int MetaStatistics::get_range_dim() {
@@ -133,8 +125,6 @@ unsigned int MetaStatistics::get_range_dim() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_range_dim";
   return _s_range_interface->get_dim();
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_range_dim";
  }
 
 unsigned int MetaStatistics::get_confidence_dim() {
@@ -143,8 +133,6 @@ unsigned int MetaStatistics::get_confidence_dim() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_confidence_dim";
   return 10001;  // should be sync with get_confidence_index!
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_confidence_dim";
  }
 
 std::string MetaStatistics::get_type(unsigned int index) {
@@ -159,8 +147,6 @@ std::string MetaStatistics::get_type(unsigned int index) {
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_type";
   return translate_type_index_to_string(index);
   }
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_type";
  }
 
 std::string MetaStatistics::get_range(unsigned int index) {
@@ -169,8 +155,6 @@ std::string MetaStatistics::get_range(unsigned int index) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_range";
   return _s_range_interface->get_element(index);
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_range";
  }
 
 double MetaStatistics::get_confidence(unsigned int index) {
@@ -185,16 +169,12 @@ double MetaStatistics::get_confidence(unsigned int index) {
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_confidence";
   return 0.01 * index;
   }
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_confidence";
  }
 
 unsigned int MetaStatistics::get_recall_dim() {
     AINFO<<"(DMCZP) EnteringMethod: MetaStatistics::get_recall_dim";
  
-  AINFO<<"(DMCZP) (re
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_recall_dim";
- turn) LeaveMethod: MetaStatistics::get_recall_dim";
+  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_recall_dim";
   return _s_recall_dim; }
 
 MetaStatistics::MetaStatistics() {
@@ -607,10 +587,6 @@ void MetaStatistics::get_2017_classification_accuracy(
   if (accuracys == nullptr) {
     
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_classification_accuracy";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
   return;
   }
   accuracys->resize(get_type_dim(),
@@ -653,10 +629,6 @@ void MetaStatistics::get_2016_classification_accuracy(
   if (accuracys == nullptr) {
     
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2016_classification_accuracy";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
   return;
   }
   accuracys->resize(get_type_dim(), std::vector<double>(get_range_dim(), 0.0));
@@ -686,10 +658,6 @@ void MetaStatistics::get_classification_confusion_matrix(
   if (matrix_gt_major == nullptr || matrix_det_major == nullptr) {
     
   AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_classification_confusion_matrix";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
   return;
   }
   matrix_gt_major->resize(get_type_dim(),
@@ -874,18 +842,10 @@ std::ostream& operator<<(std::ostream& out, const MetaStatistics& rhs) {
   }
   out << "==================================================================="
       << std::endl;
-
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_aad";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
   return out;
 }
 
-
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2017_aad";
  }  // namespace benchmark
 
-   AINFO<<"(DMCZP) LeaveMethod: MetaStatistics::get_2017_detection_precision_and_recall";
  }  // namespace perception
 }  // namespace apollo

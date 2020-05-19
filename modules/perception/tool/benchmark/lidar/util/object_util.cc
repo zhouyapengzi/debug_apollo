@@ -63,8 +63,6 @@ bool get_bbox_vertices(const ObjectConstPtr object,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: get_bbox_vertices";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: get_bbox_vertices";
  }
 
 bool fill_objects_with_point_cloud(std::vector<ObjectPtr>* objects,
@@ -150,8 +148,6 @@ bool fill_objects_with_point_cloud(std::vector<ObjectPtr>* objects,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: fill_objects_with_point_cloud";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: fill_objects_with_point_cloud";
  }
 
 bool fill_axis_align_box(ObjectPtr object) {
@@ -186,8 +182,6 @@ bool fill_axis_align_box(ObjectPtr object) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: fill_axis_align_box";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: fill_axis_align_box";
  }
 
 }  // namespace benchmark

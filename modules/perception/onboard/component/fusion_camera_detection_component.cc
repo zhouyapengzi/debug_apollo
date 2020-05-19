@@ -74,7 +74,6 @@ static int GetGpuId(const camera::CameraPerceptionInitOptions &options) {
   AINFO<<"(DMCZP) (return) LeaveMethod: GetGpuId";
   return perception_param.gpu_id();
 
-   AINFO<<"(DMCZP) LeaveMethod: GetGpuId";
  }
 
 bool SetCameraHeight(const std::string &sensor_name,
@@ -116,7 +115,6 @@ bool SetCameraHeight(const std::string &sensor_name,
   AINFO<<"(DMCZP) (return) LeaveMethod: SetCameraHeight";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: SetCameraHeight";
  }
 
 // @description: load camera extrinsics from yaml file
@@ -186,7 +184,6 @@ bool LoadExtrinsics(const std::string &yaml_file,
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadExtrinsics";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: LoadExtrinsics";
  }
 
 // @description: get project matrix
@@ -222,7 +219,6 @@ bool GetProjectMatrix(
   AINFO<<"(DMCZP) (return) LeaveMethod: GetProjectMatrix";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: GetProjectMatrix";
  }
 
 FusionCameraDetectionComponent::~FusionCameraDetectionComponent() {}
@@ -325,7 +321,6 @@ bool FusionCameraDetectionComponent::Init() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::Init";
  }
 
 void FusionCameraDetectionComponent::OnReceiveImage(
@@ -410,9 +405,7 @@ void FusionCameraDetectionComponent::OnReceiveImage(
 int FusionCameraDetectionComponent::InitConfig() {
     AINFO<<"(DMCZP) EnteringMethod: FusionCameraDetectionComponent::InitConfig";
 
-  // the macro READ_CONF would 
-  AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::InitConfig";
-  return cyber::FAIL if config not exists
+  // the macro READ_CONF would return cyber::FAIL if config not exists
   apollo::perception::onboard::FusionCameraDetection
       fusion_camera_detection_param;
   if (!GetProtoConfig(&fusion_camera_detection_param)) {
@@ -524,7 +517,6 @@ int FusionCameraDetectionComponent::InitConfig() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::InitConfig";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::InitConfig";
  }
 
 int FusionCameraDetectionComponent::InitSensorInfo() {
@@ -586,7 +578,6 @@ int FusionCameraDetectionComponent::InitSensorInfo() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::InitSensorInfo";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::InitSensorInfo";
  }
 
 int FusionCameraDetectionComponent::InitAlgorithmPlugin() {
@@ -604,7 +595,6 @@ int FusionCameraDetectionComponent::InitAlgorithmPlugin() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::InitAlgorithmPlugin";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::InitAlgorithmPlugin";
  }
 
 int FusionCameraDetectionComponent::InitCameraFrames() {
@@ -685,7 +675,6 @@ int FusionCameraDetectionComponent::InitCameraFrames() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::InitCameraFrames";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::InitCameraFrames";
  }
 
 int FusionCameraDetectionComponent::InitProjectMatrix() {
@@ -708,7 +697,6 @@ int FusionCameraDetectionComponent::InitProjectMatrix() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::InitProjectMatrix";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::InitProjectMatrix";
  }
 
 int FusionCameraDetectionComponent::InitCameraListeners() {
@@ -730,7 +718,6 @@ int FusionCameraDetectionComponent::InitCameraListeners() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::InitCameraListeners";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::InitCameraListeners";
  }
 
 int FusionCameraDetectionComponent::InitMotionService() {
@@ -752,7 +739,6 @@ int FusionCameraDetectionComponent::InitMotionService() {
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::InitMotionService";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::InitMotionService";
  }
 
 // On receiving motion service input, convert it to motion_buff_
@@ -992,7 +978,6 @@ int FusionCameraDetectionComponent::InternalProc(
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::InternalProc";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::InternalProc";
  }
 
 int FusionCameraDetectionComponent::MakeProtobufMsg(
@@ -1064,7 +1049,6 @@ int FusionCameraDetectionComponent::MakeProtobufMsg(
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::MakeProtobufMsg";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::MakeProtobufMsg";
  }
 
 int FusionCameraDetectionComponent::ConvertObjectToPb(
@@ -1151,7 +1135,6 @@ int FusionCameraDetectionComponent::ConvertObjectToPb(
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::ConvertObjectToPb";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::ConvertObjectToPb";
  }
 
 int FusionCameraDetectionComponent::ConvertObjectToCameraObstacle(
@@ -1195,7 +1178,6 @@ int FusionCameraDetectionComponent::ConvertObjectToCameraObstacle(
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::ConvertObjectToCameraObstacle";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::ConvertObjectToCameraObstacle";
  }
 
 int FusionCameraDetectionComponent::ConvertLaneToCameraLaneline(
@@ -1280,7 +1262,6 @@ int FusionCameraDetectionComponent::ConvertLaneToCameraLaneline(
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::ConvertLaneToCameraLaneline";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::ConvertLaneToCameraLaneline";
  }
 
 int FusionCameraDetectionComponent::MakeCameraDebugMsg(
@@ -1348,7 +1329,6 @@ int FusionCameraDetectionComponent::MakeCameraDebugMsg(
   AINFO<<"(DMCZP) (return) LeaveMethod: FusionCameraDetectionComponent::MakeCameraDebugMsg";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: FusionCameraDetectionComponent::MakeCameraDebugMsg";
  }
 
 }  // namespace onboard

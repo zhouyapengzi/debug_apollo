@@ -66,8 +66,6 @@ bool SceneManager::InitInternal(const SceneManagerInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SceneManager::InitInternal";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SceneManager::InitInternal";
  }
 
 bool SceneManager::Init(const SceneManagerInitOptions& options) {
@@ -78,8 +76,6 @@ bool SceneManager::Init(const SceneManagerInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SceneManager::Init";
   return status;
-
-   AINFO<<"(DMCZP) LeaveMethod: SceneManager::Init";
  }
 
 bool SceneManager::Reset(const SceneManagerInitOptions& options) {
@@ -91,8 +87,6 @@ bool SceneManager::Reset(const SceneManagerInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SceneManager::Reset";
   return status;
-
-   AINFO<<"(DMCZP) LeaveMethod: SceneManager::Reset";
  }
 
 SceneServicePtr SceneManager::Service(const std::string& name) {
@@ -107,8 +101,6 @@ SceneServicePtr SceneManager::Service(const std::string& name) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SceneManager::Service";
   return iter->second;
-
-   AINFO<<"(DMCZP) LeaveMethod: SceneManager::Service";
  }
 
 }  // namespace lidar

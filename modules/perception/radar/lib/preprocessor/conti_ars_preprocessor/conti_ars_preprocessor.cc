@@ -35,8 +35,6 @@ bool ContiArsPreprocessor::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ContiArsPreprocessor::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ContiArsPreprocessor::Init";
  }
 
 bool ContiArsPreprocessor::Preprocess(
@@ -52,8 +50,6 @@ bool ContiArsPreprocessor::Preprocess(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ContiArsPreprocessor::Preprocess";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ContiArsPreprocessor::Preprocess";
  }
 
 std::string ContiArsPreprocessor::Name() const {
@@ -62,8 +58,6 @@ std::string ContiArsPreprocessor::Name() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ContiArsPreprocessor::Name";
   return "ContiArsPreprocessor";
-
-   AINFO<<"(DMCZP) LeaveMethod: ContiArsPreprocessor::Name";
  }
 
 void ContiArsPreprocessor::SkipObjects(
@@ -130,8 +124,6 @@ int ContiArsPreprocessor::GetNextId() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ContiArsPreprocessor::GetNextId";
   return current_idx_;
-
-   AINFO<<"(DMCZP) LeaveMethod: ContiArsPreprocessor::GetNextId";
  }
 
 PERCEPTION_REGISTER_PREPROCESSOR(ContiArsPreprocessor);

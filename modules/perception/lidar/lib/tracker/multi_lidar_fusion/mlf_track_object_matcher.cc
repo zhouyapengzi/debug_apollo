@@ -64,8 +64,6 @@ bool MlfTrackObjectMatcher::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfTrackObjectMatcher::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfTrackObjectMatcher::Init";
  }
 
 void MlfTrackObjectMatcher::Match(

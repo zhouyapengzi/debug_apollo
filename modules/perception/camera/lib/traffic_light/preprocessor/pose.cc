@@ -28,16 +28,12 @@ bool CarPose::Init(double ts, const Eigen::Matrix4d &pose) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CarPose::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CarPose::Init";
  }
 
 const Eigen::Matrix4d CarPose::getCarPose() const {
     AINFO<<"(DMCZP) EnteringMethod: CarPose::getCarPose";
  
-  AINFO<<"(DM
-   AINFO<<"(DMCZP) LeaveMethod: CarPose::getCarPose";
- CZP) (return) LeaveMethod: CarPose::getCarPose";
+  AINFO<<"(DMCZP) (return) LeaveMethod: CarPose::getCarPose";
   return pose_; }
 
 const Eigen::Vector3d CarPose::getCarPosition() const {
@@ -51,8 +47,6 @@ const Eigen::Vector3d CarPose::getCarPosition() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CarPose::getCarPosition";
   return p;
-
-   AINFO<<"(DMCZP) LeaveMethod: CarPose::getCarPosition";
  }
 
 void CarPose::SetCameraPose(const std::string &camera_name,
@@ -84,8 +78,6 @@ bool CarPose::GetCameraPose(const std::string &camera_name,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CarPose::GetCameraPose";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CarPose::GetCameraPose";
  }
 
 std::ostream &operator<<(std::ostream &os, const CarPose &pose) {

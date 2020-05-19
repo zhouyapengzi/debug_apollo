@@ -51,8 +51,6 @@ bool TrafficLightRecognition::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightRecognition::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightRecognition::Init";
  }
 
 bool TrafficLightRecognition::Detect(const TrafficLightDetectorOptions& options,
@@ -91,7 +89,6 @@ bool TrafficLightRecognition::Detect(const TrafficLightDetectorOptions& options,
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightRecognition::Detect";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightRecognition::Detect";
  }
 
 std::string TrafficLightRecognition::Name() const {
@@ -100,8 +97,6 @@ std::string TrafficLightRecognition::Name() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightRecognition::Name";
   return "TrafficLightRecognition";
-
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightRecognition::Name";
  }
 
 REGISTER_TRAFFIC_LIGHT_DETECTOR(TrafficLightRecognition);

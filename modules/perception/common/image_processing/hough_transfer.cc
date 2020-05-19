@@ -90,8 +90,6 @@ bool HoughTransfer::Init(int img_w, int img_h, float d_r, float d_theta) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HoughTransfer::Init";
   return prepared_;
-
-   AINFO<<"(DMCZP) LeaveMethod: HoughTransfer::Init";
  }
 
 // step2
@@ -119,8 +117,6 @@ bool HoughTransfer::ImageVote(const std::vector<int>& image,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HoughTransfer::ImageVote";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HoughTransfer::ImageVote";
  }
 
 // @brief: transform one point to parameter space in polar coodinates and vote
@@ -188,8 +184,6 @@ bool HoughTransfer::GetLines(int min_pt_num, int r_neibor, int theta_neibor,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HoughTransfer::GetLines";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HoughTransfer::GetLines";
  }
 
 unsigned int HoughTransfer::MemoryConsume() const {
@@ -213,8 +207,6 @@ unsigned int HoughTransfer::MemoryConsume() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HoughTransfer::MemoryConsume";
   return size;
-
-   AINFO<<"(DMCZP) LeaveMethod: HoughTransfer::MemoryConsume";
  }
 
 // prepared state not change.
@@ -283,8 +275,6 @@ bool HoughTransfer::CheckPrepared() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HoughTransfer::CheckPrepared";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HoughTransfer::CheckPrepared";
  }
 
 void HoughTransfer::GetMaxVotes(int min_pt_num, int r_neibor, int theta_neibor,
@@ -348,8 +338,6 @@ bool HoughTransfer::VotePosToHoughLine(int vote_pos, bool with_distribute,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HoughTransfer::VotePosToHoughLine";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HoughTransfer::VotePosToHoughLine";
  }
 
 }  // namespace common

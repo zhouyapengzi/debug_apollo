@@ -130,11 +130,6 @@ inline void SyncedMemory::to_cpu() {
       if (cpu_ptr_ == nullptr) {
         AERROR << "cpu_ptr_ is null";
         
-  AINFO<<"(DMCZP) (return) LeaveMethod: SyncedMemory::to_cpu";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
   return;
       }
       memset(cpu_ptr_, 0, size_);
@@ -197,15 +192,8 @@ const void* SyncedMemory::cpu_data() {
 
   check_device();
   to_cpu();
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: SyncedMemory::cpu_data";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
+  AINFO<<"(DMCZP) LeaveMethod: SyncedMemory::cpu_data";
   return (const void*)cpu_ptr_;
-
-   AINFO<<"(DMCZP) LeaveMethod: SyncedMemory::cpu_data";
  }
 
 void SyncedMemory::set_cpu_data(void* data) {
@@ -231,19 +219,11 @@ const void* SyncedMemory::gpu_data() {
   to_gpu();
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SyncedMemory::gpu_data";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
   return (const void*)gpu_ptr_;
 #else
   NO_GPU;
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SyncedMemory::gpu_data";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
   return nullptr;
 #endif
 
@@ -277,13 +257,7 @@ void* SyncedMemory::mutable_cpu_data() {
   head_ = HEAD_AT_CPU;
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SyncedMemory::mutable_cpu_data";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
   return cpu_ptr_;
-
-   AINFO<<"(DMCZP) LeaveMethod: SyncedMemory::mutable_cpu_data";
  }
 
 void* SyncedMemory::mutable_gpu_data() {
@@ -295,19 +269,11 @@ void* SyncedMemory::mutable_gpu_data() {
   head_ = HEAD_AT_GPU;
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SyncedMemory::mutable_gpu_data";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
   return gpu_ptr_;
 #else
   NO_GPU;
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SyncedMemory::mutable_gpu_data";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Copyright";
   return nullptr;
 #endif
 
@@ -354,8 +320,4 @@ void SyncedMemory::check_device() {
 
 }  // namespace base
 }  // namespace perception
-
-   AINFO<<"(DMCZP) LeaveMethod: Copyright";
- 
-   AINFO<<"(DMCZP) LeaveMethod: Copyright";
  }  // namespace apollo

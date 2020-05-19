@@ -59,8 +59,6 @@ bool GroundServiceDetector::Init(const GroundDetectorInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GroundServiceDetector::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: GroundServiceDetector::Init";
  }
 
 bool GroundServiceDetector::Detect(const GroundDetectorOptions& options,
@@ -101,8 +99,6 @@ bool GroundServiceDetector::Detect(const GroundDetectorOptions& options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GroundServiceDetector::Detect";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: GroundServiceDetector::Detect";
  }
 
 PERCEPTION_REGISTER_GROUNDDETECTOR(GroundServiceDetector);

@@ -36,8 +36,6 @@ bool LaneLineCalibrator::Init(const CalibratorInitOptions &options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneLineCalibrator::Init";
  }
 
 bool LaneLineCalibrator::Calibrate(const CalibratorOptions &options,
@@ -110,8 +108,6 @@ bool LaneLineCalibrator::Calibrate(const CalibratorOptions &options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::Calibrate";
   return updated;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneLineCalibrator::Calibrate";
  }
 
 bool LaneLineCalibrator::LoadEgoLaneline(
@@ -174,8 +170,6 @@ bool LaneLineCalibrator::LoadEgoLaneline(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneLineCalibrator::LoadEgoLaneline";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneLineCalibrator::LoadEgoLaneline";
  }
 
 // Register plugin.

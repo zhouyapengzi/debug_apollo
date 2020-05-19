@@ -86,8 +86,6 @@ bool DenselineLanePostprocessor::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::Init";
  }
 
 bool DenselineLanePostprocessor::Process2D(
@@ -126,8 +124,6 @@ bool DenselineLanePostprocessor::Process2D(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::Process2D";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::Process2D";
  }
 
 bool DenselineLanePostprocessor::Process3D(
@@ -140,7 +136,6 @@ bool DenselineLanePostprocessor::Process3D(
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::Process3D";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::Process3D";
  }
 
 void DenselineLanePostprocessor::ConvertImagePoint2Camera(CameraFrame* frame) {
@@ -180,8 +175,6 @@ std::string DenselineLanePostprocessor::Name() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::Name";
   return "DenselineLanePostprocessor";
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::Name";
  }
 
 void DenselineLanePostprocessor::CalLaneMap(
@@ -395,8 +388,6 @@ bool DenselineLanePostprocessor::MaxScorePoint(const float* score_pointer,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::MaxScorePoint";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::MaxScorePoint";
  }
 
 bool DenselineLanePostprocessor::SelectLanecenterCCs(
@@ -439,8 +430,6 @@ bool DenselineLanePostprocessor::SelectLanecenterCCs(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::SelectLanecenterCCs";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::SelectLanecenterCCs";
  }
 
 // @brief: locate lane line points
@@ -525,7 +514,6 @@ bool DenselineLanePostprocessor::LocateLanelinePointSet(
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::LocateLanelinePointSet";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::LocateLanelinePointSet";
  }
 
 // @brief: classify lane ccs type in image domain
@@ -598,8 +586,6 @@ bool DenselineLanePostprocessor::ClassifyLaneCCsPosTypeInImage(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::ClassifyLaneCCsPosTypeInImage";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::ClassifyLaneCCsPosTypeInImage";
  }
 
 // @brief classify lane line pos type in image
@@ -721,8 +707,6 @@ bool DenselineLanePostprocessor::LocateNeighborLaneLine(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::LocateNeighborLaneLine";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::LocateNeighborLaneLine";
  }
 
 // @brief: convert the point to the original image
@@ -894,8 +878,6 @@ DenselineLanePostprocessor::GetLanelinePointSet() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::GetLanelinePointSet";
   return image_group_point_set_;
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::GetLanelinePointSet";
  }
 
 std::vector<LanePointInfo>
@@ -947,8 +929,6 @@ DenselineLanePostprocessor::GetAllInferLinePointSet() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLanePostprocessor::GetAllInferLinePointSet";
   return image_laneline_point_set_;
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLanePostprocessor::GetAllInferLinePointSet";
  }
 
 void DenselineLanePostprocessor::GetLaneCCs(

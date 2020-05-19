@@ -77,8 +77,6 @@ T GetPolyValue(T a, T b, T c, T d, T x) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GetPolyValue";
   return y;
-
-   AINFO<<"(DMCZP) LeaveMethod: GetPolyValue";
  }
 
 bool DarkSCNNLanePostprocessor::Init(
@@ -129,8 +127,6 @@ bool DarkSCNNLanePostprocessor::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLanePostprocessor::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DarkSCNNLanePostprocessor::Init";
  }
 
 bool DarkSCNNLanePostprocessor::Process2D(
@@ -422,8 +418,6 @@ bool DarkSCNNLanePostprocessor::Process2D(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLanePostprocessor::Process2D";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DarkSCNNLanePostprocessor::Process2D";
  }
 
 // Produce laneline output in camera coordinates (optional)
@@ -436,8 +430,6 @@ bool DarkSCNNLanePostprocessor::Process3D(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLanePostprocessor::Process3D";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DarkSCNNLanePostprocessor::Process3D";
  }
 
 void DarkSCNNLanePostprocessor::ConvertImagePoint2Camera(CameraFrame* frame) {
@@ -519,7 +511,6 @@ std::string DarkSCNNLanePostprocessor::Name() const {
   AINFO<<"(DMCZP) (return) LeaveMethod: DarkSCNNLanePostprocessor::Name";
   return "DarkSCNNLanePostprocessor";
 
-   AINFO<<"(DMCZP) LeaveMethod: DarkSCNNLanePostprocessor::Name";
  }
 
 REGISTER_LANE_POSTPROCESSOR(DarkSCNNLanePostprocessor);

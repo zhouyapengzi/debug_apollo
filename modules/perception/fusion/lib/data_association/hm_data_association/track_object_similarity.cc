@@ -162,7 +162,6 @@ double ComputePtsBoxShapeSimilarity(const ProjectionCachePtr& cache,
   AINFO<<"(DMCZP) (return) LeaveMethod: ComputePtsBoxShapeSimilarity";
   return shape_similarity;
 
-   AINFO<<"(DMCZP) LeaveMethod: ComputePtsBoxShapeSimilarity";
  }
 // @brief: calculate the similarity between cloud and camera box
 // @return the similarity which belongs to [0, 1].
@@ -236,8 +235,6 @@ double ComputeRadarCameraYSimilarity(const double velo_ct_y,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ComputeRadarCameraYSimilarity";
   return y_similarity;
-
-   AINFO<<"(DMCZP) LeaveMethod: ComputeRadarCameraYSimilarity";
  }
 double ComputeRadarCameraHSimilarity(
     const SensorObjectConstPtr& radar, const SensorObjectConstPtr& camera,
@@ -268,8 +265,6 @@ double ComputeRadarCameraHSimilarity(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ComputeRadarCameraHSimilarity";
   return height_similarity;
-
-   AINFO<<"(DMCZP) LeaveMethod: ComputeRadarCameraHSimilarity";
  }
 double ComputeRadarCameraWSimilarity(
     const SensorObjectConstPtr& radar, const double width, const double size_x,
@@ -296,8 +291,6 @@ double ComputeRadarCameraWSimilarity(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ComputeRadarCameraWSimilarity";
   return width_similarity;
-
-   AINFO<<"(DMCZP) LeaveMethod: ComputeRadarCameraWSimilarity";
  }
 double ComputeRadarCameraLocSimilarity(const Eigen::Vector3d& radar_ct,
                                        const SensorObjectConstPtr& camera,
@@ -317,8 +310,6 @@ double ComputeRadarCameraLocSimilarity(const Eigen::Vector3d& radar_ct,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ComputeRadarCameraLocSimilarity";
   return ct_similarity;
-
-   AINFO<<"(DMCZP) LeaveMethod: ComputeRadarCameraLocSimilarity";
  }
 
 double ComputeRadarCameraVelocitySimilarity(
@@ -351,7 +342,6 @@ double ComputeRadarCameraVelocitySimilarity(
   return 0.5;
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: ComputeRadarCameraVelocitySimilarity";
  }
 
 }  // namespace fusion

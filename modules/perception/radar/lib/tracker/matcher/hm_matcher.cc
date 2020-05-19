@@ -68,8 +68,6 @@ bool HMMatcher::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::Init";
  }
 // @brief match radar objects to tracks
 // @params[IN] radar_tracks: global tracks
@@ -94,8 +92,6 @@ bool HMMatcher::Match(const std::vector<RadarTrackPtr> &radar_tracks,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::Match";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::Match";
  }
 
 bool HMMatcher::RefinedTrack(const base::ObjectPtr &track_object,
@@ -123,8 +119,6 @@ bool HMMatcher::RefinedTrack(const base::ObjectPtr &track_object,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HMMatcher::RefinedTrack";
   return dist < BaseMatcher::GetMaxMatchDistance();
-
-   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::RefinedTrack";
  }
 
 void HMMatcher::TrackObjectPropertyMatch(
@@ -225,8 +219,6 @@ double HMMatcher::DistanceBetweenObs(const base::ObjectPtr &obs1,
           obs1->velocity.cast<double>() * time_diff)
       .head(2)
       .norm();
-
-   AINFO<<"(DMCZP) LeaveMethod: HMMatcher::DistanceBetweenObs";
  }
 
 PERCEPTION_REGISTER_MATCHER(HMMatcher);

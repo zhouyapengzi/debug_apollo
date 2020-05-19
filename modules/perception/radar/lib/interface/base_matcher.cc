@@ -34,9 +34,8 @@ void BaseMatcher::SetMaxMatchDistance(double dist) {
 double BaseMatcher::GetMaxMatchDistance() {
     AINFO<<"(DMCZP) EnteringMethod: BaseMatcher::GetMaxMatchDistance";
  
-  AINFO<<"(DMCZP) (return) Le
-   AINFO<<"(DMCZP) LeaveMethod: BaseMatcher::GetMaxMatchDistance";
- aveMethod: BaseMatcher::GetMaxMatchDistance";
+  AINFO<<"(DMCZP) (return) LeaveMethod: BaseMatcher::GetMaxMatchDistance";
+
   return s_max_match_distance_; }
 
 void BaseMatcher::SetBoundMatchDistance(double dist) {
@@ -50,9 +49,7 @@ void BaseMatcher::SetBoundMatchDistance(double dist) {
 double BaseMatcher::GetBoundMatchDistance() {
     AINFO<<"(DMCZP) EnteringMethod: BaseMatcher::GetBoundMatchDistance";
  
-  AINFO<<"(DMCZP) (return) Leav
-   AINFO<<"(DMCZP) LeaveMethod: BaseMatcher::GetBoundMatchDistance";
- eMethod: BaseMatcher::GetBoundMatchDistance";
+  AINFO<<"(DMCZP) (return) LeaveMethod: BaseMatcher::GetBoundMatchDistance";
   return s_bound_match_distance_; }
 
 void BaseMatcher::IDMatch(const std::vector<RadarTrackPtr> &radar_tracks,
@@ -117,14 +114,11 @@ bool BaseMatcher::RefinedTrack(const base::ObjectPtr &track_object,
     AINFO<<"(DMCZP) EnteringMethod: BaseMatcher::RefinedTrack";
 
   // This function is supposed to 
-  AINFO<<"(DMCZP) (return) LeaveMethod: BaseMatcher::RefinedTrack";
-  return true in the base class.
+  //return true in the base class.
   // Specific actions can be overrided in derived classes.
   
   AINFO<<"(DMCZP) (return) LeaveMethod: BaseMatcher::RefinedTrack";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: BaseMatcher::RefinedTrack";
  }
 
 }  // namespace radar

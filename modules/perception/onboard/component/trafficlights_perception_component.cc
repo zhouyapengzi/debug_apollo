@@ -92,7 +92,6 @@ static int GetGpuId(
   AINFO<<"(DMCZP) (return) LeaveMethod: GetGpuId";
   return trafficlight_param.gpu_id();
 
-   AINFO<<"(DMCZP) LeaveMethod: GetGpuId";
  }
 
 bool TrafficLightsPerceptionComponent::Init() {
@@ -146,8 +145,6 @@ bool TrafficLightsPerceptionComponent::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::Init";
  }
 
 int TrafficLightsPerceptionComponent::InitConfig() {
@@ -211,7 +208,6 @@ int TrafficLightsPerceptionComponent::InitConfig() {
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::InitConfig";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::InitConfig";
  }
 
 int TrafficLightsPerceptionComponent::InitAlgorithmPlugin() {
@@ -300,7 +296,6 @@ int TrafficLightsPerceptionComponent::InitAlgorithmPlugin() {
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::InitAlgorithmPlugin";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::InitAlgorithmPlugin";
  }
 
 int TrafficLightsPerceptionComponent::InitCameraListeners() {
@@ -325,7 +320,6 @@ int TrafficLightsPerceptionComponent::InitCameraListeners() {
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::InitCameraListeners";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::InitCameraListeners";
  }
 
 int TrafficLightsPerceptionComponent::InitV2XListener() {
@@ -342,7 +336,6 @@ int TrafficLightsPerceptionComponent::InitV2XListener() {
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::InitV2XListener";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::InitV2XListener";
  }
 
 int TrafficLightsPerceptionComponent::InitCameraFrame() {
@@ -380,7 +373,6 @@ int TrafficLightsPerceptionComponent::InitCameraFrame() {
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::InitCameraFrame";
   return cyber::SUCC;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::InitCameraFrame";
  }
 
 void TrafficLightsPerceptionComponent::OnReceiveImage(
@@ -640,7 +632,6 @@ bool TrafficLightsPerceptionComponent::QueryPoseAndSignals(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::QueryPoseAndSignals";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::QueryPoseAndSignals";
  }
 
 bool TrafficLightsPerceptionComponent::VerifyLightsProjection(
@@ -676,7 +667,6 @@ bool TrafficLightsPerceptionComponent::VerifyLightsProjection(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::VerifyLightsProjection";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::VerifyLightsProjection";
  }
 
 bool TrafficLightsPerceptionComponent::UpdateCameraSelection(
@@ -726,7 +716,6 @@ bool TrafficLightsPerceptionComponent::UpdateCameraSelection(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::UpdateCameraSelection";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::UpdateCameraSelection";
  }
 
 bool TrafficLightsPerceptionComponent::CheckCameraImageStatus(
@@ -773,7 +762,6 @@ bool TrafficLightsPerceptionComponent::CheckCameraImageStatus(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::CheckCameraImageStatus";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::CheckCameraImageStatus";
  }
 
 bool TrafficLightsPerceptionComponent::GetCarPose(const double timestamp,
@@ -813,7 +801,6 @@ bool TrafficLightsPerceptionComponent::GetCarPose(const double timestamp,
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::GetCarPose";
   return state > 0;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::GetCarPose";
  }
 
 bool TrafficLightsPerceptionComponent::GetPoseFromTF(
@@ -858,7 +845,6 @@ bool TrafficLightsPerceptionComponent::GetPoseFromTF(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::GetPoseFromTF";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::GetPoseFromTF";
  }
 
 bool TrafficLightsPerceptionComponent::TransformOutputMessage(
@@ -1032,7 +1018,6 @@ double TrafficLightsPerceptionComponent::stopline_distance(
     
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::stopline_distance";
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::TransformOutputMessage";
   return -1;
   }
   const apollo::hdmap::Curve& stopline = stoplines_.Get(0);
@@ -1044,7 +1029,6 @@ double TrafficLightsPerceptionComponent::stopline_distance(
     
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::stopline_distance";
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::TransformOutputMessage";
   return -1;
   }
   if (!stopline.segment(0).has_line_segment()) {
@@ -1055,7 +1039,6 @@ double TrafficLightsPerceptionComponent::stopline_distance(
     
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::stopline_distance";
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::TransformOutputMessage";
   return -1;
   }
 
@@ -1067,7 +1050,6 @@ double TrafficLightsPerceptionComponent::stopline_distance(
     
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::stopline_distance";
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::TransformOutputMessage";
   return -1;
   }
 
@@ -1082,10 +1064,8 @@ double TrafficLightsPerceptionComponent::stopline_distance(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::stopline_distance";
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::TransformOutputMessage";
   return stopline_pt_cam(2);
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::stopline_distance";
  }
 
 bool TrafficLightsPerceptionComponent::TransformDebugMessage(
@@ -1152,12 +1132,10 @@ bool TrafficLightsPerceptionComponent::TransformDebugMessage(
   }
 
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::TransformDebugMessage";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::TransformOutputMessage";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::TransformDebugMessage";
  }
 
 void TrafficLightsPerceptionComponent::Visualize(
@@ -1173,7 +1151,6 @@ void TrafficLightsPerceptionComponent::Visualize(
     
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::Visualize";
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightsPerceptionComponent::TransformOutputMessage";
   return;
   }
   cv::Mat output_image(image_height_, image_width_, CV_8UC3,
@@ -1336,7 +1313,6 @@ void TrafficLightsPerceptionComponent::SendSimulationMsg() {
  }
 
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightsPerceptionComponent::TransformOutputMessage";
  }  // namespace onboard
 }  // namespace perception
 }  // namespace apollo

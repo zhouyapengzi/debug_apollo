@@ -68,8 +68,6 @@ bool CCRFOneShotTypeFusion::Init(const TypeFusionInitOption& option) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CCRFOneShotTypeFusion::Init";
  }
 
 bool CCRFOneShotTypeFusion::TypeFusion(const TypeFusionOption& option,
@@ -96,8 +94,6 @@ bool CCRFOneShotTypeFusion::TypeFusion(const TypeFusionOption& option,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::TypeFusion";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CCRFOneShotTypeFusion::TypeFusion";
  }
 
 bool CCRFOneShotTypeFusion::FuseOneShotTypeProbs(const ObjectPtr& object,
@@ -147,8 +143,6 @@ bool CCRFOneShotTypeFusion::FuseOneShotTypeProbs(const ObjectPtr& object,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CCRFOneShotTypeFusion::FuseOneShotTypeProbs";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CCRFOneShotTypeFusion::FuseOneShotTypeProbs";
  }
 
 bool CCRFSequenceTypeFusion::Init(const TypeFusionInitOption& option) {
@@ -184,8 +178,6 @@ bool CCRFSequenceTypeFusion::Init(const TypeFusionInitOption& option) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CCRFSequenceTypeFusion::Init";
  }
 
 bool CCRFSequenceTypeFusion::TypeFusion(const TypeFusionOption& option,
@@ -205,8 +197,6 @@ bool CCRFSequenceTypeFusion::TypeFusion(const TypeFusionOption& option,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::TypeFusion";
   return FuseWithConditionalProbabilityInference(tracked_objects);
-
-   AINFO<<"(DMCZP) LeaveMethod: CCRFSequenceTypeFusion::TypeFusion";
  }
 
 bool CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference(
@@ -261,8 +251,6 @@ bool CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CCRFSequenceTypeFusion::FuseWithConditionalProbabilityInference";
  }
 
 bool CCRFSequenceTypeFusion::RecoverFromLogProbability(Vectord* prob,
@@ -278,8 +266,6 @@ bool CCRFSequenceTypeFusion::RecoverFromLogProbability(Vectord* prob,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CCRFSequenceTypeFusion::RecoverFromLogProbability";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CCRFSequenceTypeFusion::RecoverFromLogProbability";
  }
 
 PERCEPTION_REGISTER_ONESHOTTYPEFUSION(CCRFOneShotTypeFusion);

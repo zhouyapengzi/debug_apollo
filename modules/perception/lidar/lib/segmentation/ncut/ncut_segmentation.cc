@@ -134,7 +134,6 @@ bool NCutSegmentation::Init(const SegmentationInitOptions& options) {
   AINFO<<"(DMCZP) (return) LeaveMethod: NCutSegmentation::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: NCutSegmentation::Init";
  }
 
 bool NCutSegmentation::Configure(std::string param_file) {
@@ -163,8 +162,6 @@ bool NCutSegmentation::Configure(std::string param_file) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCutSegmentation::Configure";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCutSegmentation::Configure";
  }
 
 bool NCutSegmentation::GetConfigs(std::string* param_file) {
@@ -190,8 +187,6 @@ bool NCutSegmentation::GetConfigs(std::string* param_file) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCutSegmentation::GetConfigs";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCutSegmentation::GetConfigs";
  }
 
 bool NCutSegmentation::Segment(const SegmentationOptions& options,
@@ -435,7 +430,6 @@ bool NCutSegmentation::Segment(const SegmentationOptions& options,
   AINFO<<"(DMCZP) (return) LeaveMethod: NCutSegmentation::Segment";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: NCutSegmentation::Segment";
  }
 
 base::ObjectType NCutSegmentation::Label2Type(const std::string& label) {
@@ -464,8 +458,6 @@ base::ObjectType NCutSegmentation::Label2Type(const std::string& label) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCutSegmentation::Label2Type";
   return base::ObjectType::UNKNOWN;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCutSegmentation::Label2Type";
  }
 
 void NCutSegmentation::PartitionConnectedComponents(
@@ -597,14 +589,10 @@ bool NCutSegmentation::IsOutlier(const base::PointFCloudPtr& in_cloud) {
   // std::pair<float, bool> dist = _ground_detector.distance_to_ground(pt_max);
   // if (dist.second && dist.first < _outlier_height) {
   //    
-  AINFO<<"(DMCZP) (return) LeaveMethod: NCutSegmentation::IsOutlier";
-  return true;
   //}
   
   AINFO<<"(DMCZP) (return) LeaveMethod: NCutSegmentation::IsOutlier";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: NCutSegmentation::IsOutlier";
  }
 
 #ifdef DEBUG_NCUT

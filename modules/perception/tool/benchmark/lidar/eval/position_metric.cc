@@ -80,25 +80,19 @@ unsigned int DistanceBasedRangeInterface::get_index(
   // unsigned int index = static_cast<unsigned int>(position.radial_distance /
   // 30.0);
   // index = index > 2 ? 2 : index;
-  // 
-  AINFO<<"(DMCZP) (return) LeaveMethod: DistanceBasedRangeInterface::get_index";
-  return index;
+  // return index;
   unsigned int index =
       static_cast<unsigned int>(position.radial_distance / _s_half_distance);
   index = index > 2 ? 2 : index;
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DistanceBasedRangeInterface::get_index";
   return index;
-
-   AINFO<<"(DMCZP) LeaveMethod: DistanceBasedRangeInterface::get_index";
  }
 
 unsigned int DistanceBasedRangeInterface::get_dim() const {
     AINFO<<"(DMCZP) EnteringMethod: DistanceBasedRangeInterface::get_dim";
  
-  AINFO<<
-   AINFO<<"(DMCZP) LeaveMethod: DistanceBasedRangeInterface::get_dim";
- "(DMCZP) (return) LeaveMethod: DistanceBasedRangeInterface::get_dim";
+  AINFO<<"(DMCZP) (return) LeaveMethod: DistanceBasedRangeInterface::get_dim";
   return 3; }
 
 std::string DistanceBasedRangeInterface::get_element(unsigned int index) const {
@@ -136,9 +130,7 @@ unsigned int DistanceBasedRangeRadarInterface::get_index(
   // unsigned int index = static_cast<unsigned int>(position.radial_distance /
   // 30.0);
   // index = index > 2 ? 2 : index;
-  // 
-  AINFO<<"(DMCZP) (return) LeaveMethod: DistanceBasedRangeRadarInterface::get_index";
-  return index;
+  // return index;
   unsigned int distance = static_cast<unsigned int>(position.radial_distance);
   if (distance < 30) {
     
@@ -162,15 +154,12 @@ unsigned int DistanceBasedRangeRadarInterface::get_index(
   return 4;
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: DistanceBasedRangeRadarInterface::get_index";
  }
 
 unsigned int DistanceBasedRangeRadarInterface::get_dim() const {
     AINFO<<"(DMCZP) EnteringMethod: DistanceBasedRangeRadarInterface::get_dim";
  
-  AINFO<<
-   AINFO<<"(DMCZP) LeaveMethod: DistanceBasedRangeRadarInterface::get_dim";
- "(DMCZP) (return) LeaveMethod: DistanceBasedRangeRadarInterface::get_dim";
+  AINFO<<"(DMCZP) (return) LeaveMethod: DistanceBasedRangeRadarInterface::get_dim";
   return 5; }
 
 std::string DistanceBasedRangeRadarInterface::get_element(
@@ -206,7 +195,6 @@ std::string DistanceBasedRangeRadarInterface::get_element(
     }
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: DistanceBasedRangeRadarInterface::get_element";
  }
 
 double ViewBasedRangeInterface::_s_front_view_angle = 60.0;
@@ -256,21 +244,13 @@ unsigned int ViewBasedRangeInterface::get_index(
   return 3;
   }
   // if (position.angle <= _s_front_view_angle * 0.5) {
-  //    
-  AINFO<<"(DMCZP) (return) LeaveMethod: ViewBasedRangeInterface::get_index";
-  return 0;
+  //    return 0;
   //} else if (position.angle >= 180.0 - _s_rear_view_angle * 0.5) {
-  //    
-  AINFO<<"(DMCZP) (return) LeaveMethod: ViewBasedRangeInterface::get_index";
-  return 1;
+  //    return 1;
   //} else if (position.horizontal_distance <= 30.0) {
-  //    
-  AINFO<<"(DMCZP) (return) LeaveMethod: ViewBasedRangeInterface::get_index";
-  return 2;
+  //   return 2;
   //} else {
-  //    
-  AINFO<<"(DMCZP) (return) LeaveMethod: ViewBasedRangeInterface::get_index";
-  return 3;
+  //    return 3;
   //}
   if (position.angle <= _s_front_view_angle * 0.5 &&
       position.radial_distance <= _s_front_view_distance) {
@@ -292,7 +272,6 @@ unsigned int ViewBasedRangeInterface::get_index(
   AINFO<<"(DMCZP) (return) LeaveMethod: ViewBasedRangeInterface::get_index";
   return 3;
 
-   AINFO<<"(DMCZP) LeaveMethod: ViewBasedRangeInterface::get_index";
  }
 
 unsigned int ViewBasedRangeInterface::get_dim() const {
@@ -334,7 +313,6 @@ std::string ViewBasedRangeInterface::get_element(unsigned int index) const {
     }
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: ViewBasedRangeInterface::get_element";
  }
 
 double BoxBasedRangeInterface::_s_front_box_distance = 120.0;
@@ -380,16 +358,12 @@ unsigned int BoxBasedRangeInterface::get_index(
   AINFO<<"(DMCZP) (return) LeaveMethod: BoxBasedRangeInterface::get_index";
   return 1;
   }
-
-   AINFO<<"(DMCZP) LeaveMethod: BoxBasedRangeInterface::get_index";
  }
 
 unsigned int BoxBasedRangeInterface::get_dim() const {
     AINFO<<"(DMCZP) EnteringMethod: BoxBasedRangeInterface::get_dim";
  
-  AINFO<<
-   AINFO<<"(DMCZP) LeaveMethod: BoxBasedRangeInterface::get_dim";
- "(DMCZP) (return) LeaveMethod: BoxBasedRangeInterface::get_dim";
+  AINFO<<"(DMCZP) (return) LeaveMethod: BoxBasedRangeInterface::get_dim";
   return 2; }
 
 std::string BoxBasedRangeInterface::get_element(unsigned int index) const {
@@ -415,7 +389,6 @@ std::string BoxBasedRangeInterface::get_element(unsigned int index) const {
     }
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: BoxBasedRangeInterface::get_element";
  }
 
 bool RoiDistanceBasedRangeInterface::_s_ignore_roi_outside = false;
@@ -445,8 +418,6 @@ unsigned int RoiDistanceBasedRangeInterface::get_index(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RoiDistanceBasedRangeInterface::get_index";
   return index;
-
-   AINFO<<"(DMCZP) LeaveMethod: RoiDistanceBasedRangeInterface::get_index";
  }
 
 unsigned int RoiDistanceBasedRangeInterface::get_dim() const {
@@ -455,8 +426,6 @@ unsigned int RoiDistanceBasedRangeInterface::get_dim() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RoiDistanceBasedRangeInterface::get_dim";
   return _s_ignore_roi_outside ? 3 : 5;
-
-   AINFO<<"(DMCZP) LeaveMethod: RoiDistanceBasedRangeInterface::get_dim";
  }
 
 std::string RoiDistanceBasedRangeInterface::get_element(
@@ -511,7 +480,6 @@ std::string RoiDistanceBasedRangeInterface::get_element(
     }
   }
 
-   AINFO<<"(DMCZP) LeaveMethod: RoiDistanceBasedRangeInterface::get_element";
  }
 
 }  // namespace benchmark

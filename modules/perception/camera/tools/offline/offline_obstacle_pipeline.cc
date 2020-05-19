@@ -99,31 +99,6 @@ void save_image(const std::string &path, base::Image8U &image) {
 
    AINFO<<"(DMCZP) LeaveMethod: save_image";
  
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_LANE_POSTPROCESSOR";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_LANE_DETECTOR";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_CALIBRATION_SERVICE";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_CALIBRATOR";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_LANE_DETECTOR";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_LANE_POSTPROCESSOR";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_FEATURE_EXTRACTOR";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_FEATURE_EXTRACTOR";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_OBSTACLE_POSTPROCESSOR";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_OBSTACLE_TRANSFORMER";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_FEATURE_EXTRACTOR";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_OBSTACLE_TRACKER";
- 
-   AINFO<<"(DMCZP) LeaveMethod: REGISTER_OBSTACLE_DETECTOR";
  }
 
 int work() {
@@ -154,38 +129,6 @@ int work() {
   fin.open(FLAGS_test_list, std::ifstream::in);
   if (!fin.is_open()) {
     AERROR << "Cannot open image list: " << FLAGS_test_list;
-    
-  AINFO<<"(DMCZP) (return) LeaveMethod: work";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
   return -1;
   }
 
@@ -245,36 +188,6 @@ int work() {
             << " to ground";
       
   AINFO<<"(DMCZP) (return) LeaveMethod: work";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
   return -1;
     }
     float camera_ground_height = static_cast<float>(c2g.translation()[2]);
@@ -292,36 +205,6 @@ int work() {
         AINFO << "Failed to query transform";
         
   AINFO<<"(DMCZP) (return) LeaveMethod: work";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
   return -1;
       }
       Eigen::Vector3d euler = trans.linear().eulerAngles(0, 1, 2);
@@ -372,36 +255,6 @@ int work() {
       AERROR << "Cannot read image: " << image_path;
       
   AINFO<<"(DMCZP) (return) LeaveMethod: work";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
   return -1;
     }
 
@@ -428,36 +281,6 @@ int work() {
               << FLAGS_base_camera_name;
         
   AINFO<<"(DMCZP) (return) LeaveMethod: work";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
   return -1;
       }
       frame.project_matrix =
@@ -478,36 +301,6 @@ int work() {
             << " to novatel";
       
   AINFO<<"(DMCZP) (return) LeaveMethod: work";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
   return -1;
     }
     frame.camera2world_pose = pose * c2n;
@@ -565,72 +358,11 @@ int work() {
   }
   
   AINFO<<"(DMCZP) (return) LeaveMethod: work";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_bool";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_double";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DEFINE_string";
   return 0;
 
-   AINFO<<"(DMCZP) LeaveMethod: work";
  }
 }  // namespace camera
 }  // namespace perception
-
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_bool";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_double";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
- 
-   AINFO<<"(DMCZP) LeaveMethod: DEFINE_string";
  }  // namespace apollo
 
 int main(int argc, char *argv[]) {
@@ -645,5 +377,4 @@ int main(int argc, char *argv[]) {
   AINFO<<"(DMCZP) (return) LeaveMethod: main";
   return apollo::perception::camera::work();
 
-   AINFO<<"(DMCZP) LeaveMethod: main";
  }

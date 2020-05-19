@@ -164,8 +164,6 @@ bool TrafficLightDetection::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::Init";
  }
 
 bool TrafficLightDetection::Inference(
@@ -252,7 +250,6 @@ bool TrafficLightDetection::Inference(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Inference";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::Inference";
  }
 
 bool TrafficLightDetection::Detect(const TrafficLightDetectorOptions &options,
@@ -317,7 +314,6 @@ bool TrafficLightDetection::Detect(const TrafficLightDetectorOptions &options,
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Detect";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::Detect";
  }
 
 bool TrafficLightDetection::SelectOutputBoxes(
@@ -406,7 +402,6 @@ bool TrafficLightDetection::SelectOutputBoxes(
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::SelectOutputBoxes";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::SelectOutputBoxes";
  }
 
 void TrafficLightDetection::ApplyNMS(std::vector<base::TrafficLightPtr> *lights,
@@ -477,7 +472,6 @@ std::string TrafficLightDetection::Name() const {
   AINFO<<"(DMCZP) (return) LeaveMethod: TrafficLightDetection::Name";
   return "TrafficLightDetection";
 
-   AINFO<<"(DMCZP) LeaveMethod: TrafficLightDetection::Name";
  }
 
 REGISTER_TRAFFIC_LIGHT_DETECTOR(TrafficLightDetection);

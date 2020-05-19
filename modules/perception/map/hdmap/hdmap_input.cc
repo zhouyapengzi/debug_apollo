@@ -55,8 +55,6 @@ bool HDMapInput::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::Init";
   return InitInternal();
-
-   AINFO<<"(DMCZP) LeaveMethod: HDMapInput::Init";
  }
 
 bool HDMapInput::InitInternal() {
@@ -77,7 +75,6 @@ bool HDMapInput::InitInternal() {
   AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::InitInternal";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: HDMapInput::InitInternal";
  }
 
 bool HDMapInput::Reset() {
@@ -89,7 +86,6 @@ bool HDMapInput::Reset() {
   AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::Reset";
   return InitInternal();
 
-   AINFO<<"(DMCZP) LeaveMethod: HDMapInput::Reset";
  }
 
 bool HDMapInput::InitHDMap() {
@@ -135,8 +131,6 @@ bool HDMapInput::InitHDMap() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::InitHDMap";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HDMapInput::InitHDMap";
  }
 
 bool HDMapInput::GetRoiHDMapStruct(
@@ -188,7 +182,6 @@ bool HDMapInput::GetRoiHDMapStruct(
   AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::GetRoiHDMapStruct";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: HDMapInput::GetRoiHDMapStruct";
  }
 
 void HDMapInput::MergeBoundaryJunction(
@@ -314,8 +307,6 @@ bool HDMapInput::GetRoadBoundaryFilteredByJunctions(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::GetRoadBoundaryFilteredByJunctions";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: HDMapInput::GetRoadBoundaryFilteredByJunctions";
  }
 
 void HDMapInput::DownsamplePoints(const base::PointDCloudPtr& raw_cloud_ptr,
@@ -427,8 +418,6 @@ bool HDMapInput::GetNearestLaneDirection(const base::PointD& pointd,
 
   // if (hdmap_ == nullptr) {
   //   
-  AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::GetNearestLaneDirection";
-  return false;
   // }
   // apollo::common::PointENU point;
   // point.set_x(pointd.x);
@@ -444,8 +433,6 @@ bool HDMapInput::GetNearestLaneDirection(const base::PointD& pointd,
   //   AINFO << "Failed to get nearest lane for point " <<
   //   point.DebugString();
   //   
-  AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::GetNearestLaneDirection";
-  return false;
   // }
   // // get lane heading of nearest s
   // const adu::hdmap::Trajectory& nearest_lane_trajectory
@@ -457,7 +444,6 @@ bool HDMapInput::GetNearestLaneDirection(const base::PointD& pointd,
   AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::GetNearestLaneDirection";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: HDMapInput::GetNearestLaneDirection";
  }
 
 bool HDMapInput::GetSignalsFromHDMap(
@@ -489,7 +475,6 @@ bool HDMapInput::GetSignalsFromHDMap(
   AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::GetSignalsFromHDMap";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: HDMapInput::GetSignalsFromHDMap";
  }
 
 bool HDMapInput::GetSignals(const Eigen::Vector3d& pointd,
@@ -507,8 +492,6 @@ bool HDMapInput::GetSignals(const Eigen::Vector3d& pointd,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: HDMapInput::GetSignals";
   return GetSignalsFromHDMap(pointd, forward_distance, signals);
-
-   AINFO<<"(DMCZP) LeaveMethod: HDMapInput::GetSignals";
  }
 
 }  // namespace map

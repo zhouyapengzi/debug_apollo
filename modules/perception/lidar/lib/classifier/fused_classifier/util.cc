@@ -118,8 +118,6 @@ bool LoadSingleMatrix(std::ifstream& fin, Matrixd* matrix) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadSingleMatrix";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LoadSingleMatrix";
  }
 
 bool LoadSingleMatrixFile(const std::string& filename, Matrixd* matrix) {
@@ -142,8 +140,6 @@ bool LoadSingleMatrixFile(const std::string& filename, Matrixd* matrix) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadSingleMatrixFile";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LoadSingleMatrixFile";
  }
 
 bool LoadMultipleMatricesFile(const std::string& filename,
@@ -176,8 +172,6 @@ bool LoadMultipleMatricesFile(const std::string& filename,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadMultipleMatricesFile";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LoadMultipleMatricesFile";
  }
 
 }  // namespace util

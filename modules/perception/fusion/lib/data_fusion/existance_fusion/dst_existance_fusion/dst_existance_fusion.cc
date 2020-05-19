@@ -95,7 +95,6 @@ bool DstExistanceFusion::Init() {
   return DstManager::Instance()->IsAppAdded(name_) &&
          DstManager::Instance()->IsAppAdded(toic_name_);
 
-   AINFO<<"(DMCZP) LeaveMethod: DstExistanceFusion::Init";
  }
 
 void DstExistanceFusion::UpdateWithMeasurement(
@@ -227,8 +226,6 @@ double DstExistanceFusion::ComputeDistDecay(base::ObjectConstPtr obj,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstExistanceFusion::ComputeDistDecay";
   return dist_decay;
-
-   AINFO<<"(DMCZP) LeaveMethod: DstExistanceFusion::ComputeDistDecay";
  }
 
 double DstExistanceFusion::ComputeFeatureInfluence(
@@ -250,8 +247,6 @@ double DstExistanceFusion::ComputeFeatureInfluence(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstExistanceFusion::ComputeFeatureInfluence";
   return velocity_fact * confidence;
-
-   AINFO<<"(DMCZP) LeaveMethod: DstExistanceFusion::ComputeFeatureInfluence";
  }
 
 double DstExistanceFusion::GetExistReliability(
@@ -278,7 +273,6 @@ double DstExistanceFusion::GetExistReliability(
   AINFO<<"(DMCZP) (return) LeaveMethod: DstExistanceFusion::GetExistReliability";
   return 0.6;
 
-   AINFO<<"(DMCZP) LeaveMethod: DstExistanceFusion::GetExistReliability";
  }
 
 double DstExistanceFusion::GetUnexistReliability(const std::string &sensor_id) {
@@ -299,8 +293,6 @@ double DstExistanceFusion::GetUnexistReliability(const std::string &sensor_id) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DstExistanceFusion::GetUnexistReliability";
   return 0.6;
-
-   AINFO<<"(DMCZP) LeaveMethod: DstExistanceFusion::GetUnexistReliability";
  }
 
 void DstExistanceFusion::UpdateToicWithoutCameraMeasurement(
@@ -412,9 +404,7 @@ void DstExistanceFusion::UpdateToicWithCameraMeasurement(
 std::string DstExistanceFusion::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: DstExistanceFusion::Name";
  
-  AINFO<<"(DM
-   AINFO<<"(DMCZP) LeaveMethod: DstExistanceFusion::Name";
- CZP) (return) LeaveMethod: DstExistanceFusion::Name";
+  AINFO<<"(DMCZP) (return) LeaveMethod: DstExistanceFusion::Name";
   return name_; }
 
 double DstExistanceFusion::GetExistanceProbability() const {
@@ -443,7 +433,6 @@ double DstExistanceFusion::GetToicProbability() const {
   AINFO<<"(DMCZP) (return) LeaveMethod: DstExistanceFusion::GetToicProbability";
   return toic_probs_vec[toic_ind];
 
-   AINFO<<"(DMCZP) LeaveMethod: DstExistanceFusion::GetToicProbability";
  }
 
 void DstExistanceFusion::UpdateExistanceState() {
@@ -469,8 +458,8 @@ void DstExistanceFusion::UpdateExistanceState() {
   const double min_p = 0.2;
   double toic_score = scale_probability(toic_p, max_p, min_p);
   // when this fused object have lidar object, just 
-  AINFO<<"(DMCZP) (return) LeaveMethod: DstExistanceFusion::UpdateExistanceState";
-  return 1.0
+  //AINFO<<"(DMCZP) (return) LeaveMethod: DstExistanceFusion::UpdateExistanceState";
+ // return 1.0
   // which means wen do not want introducing historical information
   // to affect the association, but when this fused object have just
   // radar object, we want using the historical information to filter

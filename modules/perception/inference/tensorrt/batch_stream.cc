@@ -94,8 +94,6 @@ bool BatchStream::next() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: BatchStream::next";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: BatchStream::next";
  }
 
 void BatchStream::skip(int skipCount) {
@@ -143,8 +141,6 @@ bool BatchStream::update() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: BatchStream::update";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: BatchStream::update";
  }
 
 }  // namespace inference

@@ -24,9 +24,7 @@ namespace lidar {
 bool DummyROIFilter::Init(const ROIFilterInitOptions& options) {
     AINFO<<"(DMCZP) EnteringMethod: DummyROIFilter::Init";
  
-  AINFO<<"(D
-   AINFO<<"(DMCZP) LeaveMethod: DummyROIFilter::Init";
- MCZP) (return) LeaveMethod: DummyROIFilter::Init";
+  AINFO<<"(DMCZP) (return) LeaveMethod: DummyROIFilter::Init";
   return true; }
 
 bool DummyROIFilter::Filter(const ROIFilterOptions& options,
@@ -50,7 +48,6 @@ bool DummyROIFilter::Filter(const ROIFilterOptions& options,
   AINFO<<"(DMCZP) (return) LeaveMethod: DummyROIFilter::Filter";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: DummyROIFilter::Filter";
  }
 
 PERCEPTION_REGISTER_ROIFILTER(DummyROIFilter);

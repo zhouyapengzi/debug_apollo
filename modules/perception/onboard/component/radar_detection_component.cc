@@ -65,8 +65,6 @@ bool RadarDetectionComponent::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RadarDetectionComponent::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RadarDetectionComponent::Init";
  }
 
 bool RadarDetectionComponent::Proc(const std::shared_ptr<ContiRadar>& message) {
@@ -87,8 +85,6 @@ bool RadarDetectionComponent::Proc(const std::shared_ptr<ContiRadar>& message) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RadarDetectionComponent::Proc";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RadarDetectionComponent::Proc";
  }
 
 bool RadarDetectionComponent::InitAlgorithmPlugin() {
@@ -117,8 +113,6 @@ bool RadarDetectionComponent::InitAlgorithmPlugin() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RadarDetectionComponent::InitAlgorithmPlugin";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RadarDetectionComponent::InitAlgorithmPlugin";
  }
 
 bool RadarDetectionComponent::InternalProc(
@@ -232,8 +226,6 @@ bool RadarDetectionComponent::InternalProc(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RadarDetectionComponent::InternalProc";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RadarDetectionComponent::InternalProc";
  }
 
 bool RadarDetectionComponent::GetCarLocalizationSpeed(
@@ -278,8 +270,6 @@ bool RadarDetectionComponent::GetCarLocalizationSpeed(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RadarDetectionComponent::GetCarLocalizationSpeed";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RadarDetectionComponent::GetCarLocalizationSpeed";
  }
 
 }  // namespace onboard

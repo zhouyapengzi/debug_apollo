@@ -51,8 +51,6 @@ bool ConfigManager::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ConfigManager::Init";
   return InitInternal();
-
-   AINFO<<"(DMCZP) LeaveMethod: ConfigManager::Init";
  }
 
 bool ConfigManager::InitInternal() {
@@ -136,8 +134,6 @@ bool ConfigManager::InitInternal() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ConfigManager::InitInternal";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ConfigManager::InitInternal";
  }
 
 bool ConfigManager::Reset() {
@@ -148,8 +144,6 @@ bool ConfigManager::Reset() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ConfigManager::Reset";
   return InitInternal();
-
-   AINFO<<"(DMCZP) LeaveMethod: ConfigManager::Reset";
  }
 
 bool ConfigManager::GetModelConfig(const std::string &model_name,
@@ -173,7 +167,6 @@ bool ConfigManager::GetModelConfig(const std::string &model_name,
   AINFO<<"(DMCZP) (return) LeaveMethod: ConfigManager::GetModelConfig";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: ConfigManager::GetModelConfig";
  }
 
 ConfigManager::~ConfigManager() {
@@ -269,8 +262,6 @@ bool ModelConfig::Reset(const ModelConfigProto &proto) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ModelConfig::Reset";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ModelConfig::Reset";
  }
 
 }  // namespace lib

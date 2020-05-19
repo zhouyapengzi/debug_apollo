@@ -83,8 +83,6 @@ bool ConvertGround4ToGround3(const float &baseline,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ConvertGround4ToGround3";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ConvertGround4ToGround3";
  }
 
 void GetGroundPlanePitchHeight(const float &baseline,
@@ -328,8 +326,6 @@ bool CameraGroundPlaneDetector::DetetGround(float pitch, float camera_height,
   AINFO<<"(DMCZP) (return) LeaveMethod: CameraGroundPlaneDetector::DetetGround";
   return false;
   }
-
-   AINFO<<"(DMCZP) LeaveMethod: CameraGroundPlaneDetector::DetetGround";
  }
 
 bool CameraGroundPlaneDetector::DetectGroundFromSamples(float *vd, int count_vd,
@@ -408,8 +404,6 @@ bool CameraGroundPlaneDetector::DetectGroundFromSamples(float *vd, int count_vd,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CameraGroundPlaneDetector::DetectGroundFromSamples";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CameraGroundPlaneDetector::DetectGroundFromSamples";
  }
 
 }  // namespace camera

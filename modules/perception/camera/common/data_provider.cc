@@ -114,8 +114,6 @@ bool DataProvider::Init(const DataProvider::InitOptions &options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DataProvider::Init";
  }
 
 bool DataProvider::FillImageData(int rows, int cols, const uint8_t *data,
@@ -203,8 +201,6 @@ bool DataProvider::FillImageData(int rows, int cols, const uint8_t *data,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::FillImageData";
   return success;
-
-   AINFO<<"(DMCZP) LeaveMethod: DataProvider::FillImageData";
  }
 
 #if 0
@@ -314,8 +310,6 @@ bool DataProvider::GetImage(const DataProvider::ImageOptions &options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::GetImage";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DataProvider::GetImage";
  }
 
 bool DataProvider::to_gray_image() {
@@ -338,9 +332,7 @@ bool DataProvider::to_gray_image() {
                                roi, coeffs);
       gray_ready_ = true;
     } else {
-      AWARN << "No image data filled yet, 
-  AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::to_gray_image";
-  return uninitialized blob!";
+      AWARN << "No image data filled yet, return uninitialized blob!";
       
   AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::to_gray_image";
   return false;
@@ -349,8 +341,6 @@ bool DataProvider::to_gray_image() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::to_gray_image";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DataProvider::to_gray_image";
  }
 
 bool DataProvider::to_rgb_image() {
@@ -372,9 +362,7 @@ bool DataProvider::to_rgb_image() {
                        rgb_->mutable_gpu_data(), rgb_->width_step(), roi);
       rgb_ready_ = true;
     } else {
-      AWARN << "No image data filled yet, 
-  AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::to_rgb_image";
-  return uninitialized blob!";
+      AWARN << "No image data filled yet, return uninitialized blob!";
       
   AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::to_rgb_image";
   return false;
@@ -383,8 +371,6 @@ bool DataProvider::to_rgb_image() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::to_rgb_image";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DataProvider::to_rgb_image";
  }
 
 bool DataProvider::to_bgr_image() {
@@ -405,9 +391,7 @@ bool DataProvider::to_bgr_image() {
                        bgr_->mutable_gpu_data(), bgr_->width_step(), roi);
       bgr_ready_ = true;
     } else {
-      AWARN << "No image data filled yet, 
-  AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::to_bgr_image";
-  return uninitialized blob!";
+      AWARN << "No image data filled yet, return uninitialized blob!";
       
   AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::to_bgr_image";
   return false;
@@ -416,8 +400,6 @@ bool DataProvider::to_bgr_image() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DataProvider::to_bgr_image";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DataProvider::to_bgr_image";
  }
 
 }  // namespace camera

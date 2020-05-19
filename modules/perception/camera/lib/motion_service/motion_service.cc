@@ -37,9 +37,7 @@ bool MotionService::Init() {
   // node_.reset(new cyber::Node("MotionService"));
   vehicle_planemotion_ = new PlaneMotion(motion_buffer_size_);
 
-  // the macro READ_CONF would 
-  AINFO<<"(DMCZP) (return) LeaveMethod: MotionService::Init";
-  return cyber::FAIL if config not exists
+  // the macro READ_CONF would return cyber::FAIL if config not exists
   apollo::perception::onboard::MotionService motion_service_param;
   if (!GetProtoConfig(&motion_service_param)) {
     AINFO << "load lane detection component proto param failed";
@@ -87,8 +85,6 @@ bool MotionService::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MotionService::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MotionService::Init";
  }
 
 // On receiving image input, just need to record its timestamp
@@ -247,8 +243,6 @@ base::MotionBuffer MotionService::GetMotionBuffer() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MotionService::GetMotionBuffer";
   return vehicle_planemotion_->get_buffer();
-
-   AINFO<<"(DMCZP) LeaveMethod: MotionService::GetMotionBuffer";
  }
 
 double MotionService::GetLatestTimestamp() {
@@ -258,8 +252,6 @@ double MotionService::GetLatestTimestamp() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MotionService::GetLatestTimestamp";
   return pre_camera_timestamp_;
-
-   AINFO<<"(DMCZP) LeaveMethod: MotionService::GetLatestTimestamp";
  }
 
 // retrieve vehiclestattus at the closeset cameratimestamp
@@ -270,8 +262,6 @@ bool MotionService::GetMotionInformation(double timestamp,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MotionService::GetMotionInformation";
   return vehicle_planemotion_->find_motion_with_timestamp(timestamp, vs);
-
-   AINFO<<"(DMCZP) LeaveMethod: MotionService::GetMotionInformation";
  }
 
 }  // namespace camera

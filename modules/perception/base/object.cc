@@ -106,8 +106,6 @@ std::string Object::ToString() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Object::ToString";
   return oss.str();
-
-   AINFO<<"(DMCZP) LeaveMethod: Object::ToString";
  }
 
 }  // namespace base

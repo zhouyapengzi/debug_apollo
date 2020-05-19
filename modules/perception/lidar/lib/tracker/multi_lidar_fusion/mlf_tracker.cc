@@ -55,8 +55,6 @@ bool MlfTracker::Init(const MlfTrackerInitOptions options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfTracker::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfTracker::Init";
  }
 
 void MlfTracker::InitializeTrack(MlfTrackDataPtr new_track_data,

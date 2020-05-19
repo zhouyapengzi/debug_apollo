@@ -88,35 +88,28 @@ bool LidarObstacleSegmentation::Init(
   AINFO<<"(DMCZP) (return) LeaveMethod: LidarObstacleSegmentation::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: LidarObstacleSegmentation::Init";
  }
 
 LidarProcessResult LidarObstacleSegmentation::Process(
     const LidarObstacleSegmentationOptions& options, LidarFrame* frame) {
     AINFO<<"(DMCZP) EnteringMethod: LidarObstacleSegmentation::Process";
 
-    AINFO<<"(DMCZP) EnteringMethod: LidarObstacleSegmentation::Process";
 
   PointCloudPreprocessorOptions preprocessor_options;
   preprocessor_options.sensor2novatel_extrinsics =
       options.sensor2novatel_extrinsics;
   if (cloud_preprocessor_.Preprocess(preprocessor_options, frame)) {
     
-  AINFO<<"(DMCZP) (return) LeaveMethod: LidarObstacleSegmentation::Process";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LidarObstacleSegmentation::Process";
   return ProcessCommon(options, frame);
   }
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: LidarObstacleSegmentation::Process";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LidarObstacleSegmentation::Process";
   return LidarProcessResult(LidarErrorCode::PointCloudPreprocessorError,
                             "Failed to preprocess point cloud.");
 
-   AINFO<<"(DMCZP) LeaveMethod: LidarObstacleSegmentation::Process";
- 
-   AINFO<<"(DMCZP) LeaveMethod: LidarObstacleSegmentation::Process";
  }
 
 LidarProcessResult LidarObstacleSegmentation::Process(
@@ -187,8 +180,6 @@ LidarProcessResult LidarObstacleSegmentation::ProcessCommon(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LidarObstacleSegmentation::ProcessCommon";
   return LidarProcessResult(LidarErrorCode::Succeed);
-
-   AINFO<<"(DMCZP) LeaveMethod: LidarObstacleSegmentation::ProcessCommon";
  }
 
 }  // namespace lidar

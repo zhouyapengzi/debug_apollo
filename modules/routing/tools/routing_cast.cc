@@ -29,7 +29,6 @@ using apollo::cyber::Rate;
 int main(int argc, char *argv[]) {
     AINFO<<"(DMCZP) EnteringMethod: main";
 
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
 
   google::ParseCommandLineFlags(&argc, &argv, true);
   apollo::cyber::Init(argv[0]);

@@ -76,8 +76,6 @@ inline bool ROIServiceContent::CheckBit(const size_t loc,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ROIServiceContent::CheckBit";
   return block & (static_cast<uint64_t>(1) << loc);
-
-   AINFO<<"(DMCZP) LeaveMethod: ROIServiceContent::CheckBit";
  }
 
 bool ROIServiceContent::Check(const Eigen::Vector3d& world_point) const {
@@ -106,8 +104,6 @@ bool ROIServiceContent::Check(const Eigen::Vector3d& world_point) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ROIServiceContent::Check";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: ROIServiceContent::Check";
  }
 
 bool ROIService::Init(const SceneServiceInitOptions& options) {
@@ -131,8 +127,6 @@ bool ROIService::Init(const SceneServiceInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ROIService::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ROIService::Init";
  }
 
 bool ROIService::QueryIsPointInROI(const Eigen::Vector3d& world_point) {
@@ -143,8 +137,6 @@ bool ROIService::QueryIsPointInROI(const Eigen::Vector3d& world_point) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ROIService::QueryIsPointInROI";
   return status;
-
-   AINFO<<"(DMCZP) LeaveMethod: ROIService::QueryIsPointInROI";
  }
 
 bool ROIService::QueryIsPointInROI(const Eigen::Vector3d& world_point,
@@ -154,8 +146,6 @@ bool ROIService::QueryIsPointInROI(const Eigen::Vector3d& world_point,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ROIService::QueryIsPointInROI";
   return content.Check(world_point);
-
-   AINFO<<"(DMCZP) LeaveMethod: ROIService::QueryIsPointInROI";
  }
 
 PERCEPTION_REGISTER_SCENESERVICECONTENT(ROIServiceContent);

@@ -32,7 +32,6 @@ double BoundedScalePositiveProbability(double p, double max_p, double min_p) {
   AINFO<<"(DMCZP) (return) LeaveMethod: BoundedScalePositiveProbability";
   return p;
 
-   AINFO<<"(DMCZP) LeaveMethod: BoundedScalePositiveProbability";
  }
 // @brief: scale input prob
 // @return scaled prob
@@ -50,7 +49,6 @@ double ScalePositiveProbability(double p, double max_p, double th_p) {
   AINFO<<"(DMCZP) (return) LeaveMethod: ScalePositiveProbability";
   return p;
 
-   AINFO<<"(DMCZP) LeaveMethod: ScalePositiveProbability";
  }
 // @brief: calculate the Welsh Loss
 // @return Welsh Loss of input dist
@@ -70,7 +68,6 @@ double WelshVarLossFun(double dist, double th, double scale) {
   AINFO<<"(DMCZP) (return) LeaveMethod: WelshVarLossFun";
   return p;
 
-   AINFO<<"(DMCZP) LeaveMethod: WelshVarLossFun";
  }
 // @brief: fuse two probabilities, fused prob is greater than 0.5, if
 // the sum of input prob pair is greater than 1, otherwise, fused prob
@@ -85,7 +82,6 @@ double FuseTwoProbabilities(double prob1, double prob2) {
   AINFO<<"(DMCZP) (return) LeaveMethod: FuseTwoProbabilities";
   return prob;
 
-   AINFO<<"(DMCZP) LeaveMethod: FuseTwoProbabilities";
  }
 // @brief: fuse multiple probabilities
 // @return fsued probability of input multiple probabilities
@@ -115,7 +111,6 @@ double FuseMultipleProbabilities(const std::vector<double>& probs) {
   AINFO<<"(DMCZP) (return) LeaveMethod: FuseMultipleProbabilities";
   return log_odd_to_prob(log_odd_probs_sum);
 
-   AINFO<<"(DMCZP) LeaveMethod: FuseMultipleProbabilities";
  }
 
 }  // namespace fusion

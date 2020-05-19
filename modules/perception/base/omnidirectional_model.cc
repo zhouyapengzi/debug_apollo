@@ -61,8 +61,6 @@ Eigen::Vector2f OmnidirectionalCameraDistortionModel::Project(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::Project";
   return projection;
-
-   AINFO<<"(DMCZP) LeaveMethod: OmnidirectionalCameraDistortionModel::Project";
  }
 
 std::shared_ptr<BaseCameraModel>
@@ -77,8 +75,6 @@ OmnidirectionalCameraDistortionModel::get_camera_model() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::get_camera_model";
   return std::dynamic_pointer_cast<BaseCameraModel>(camera_model);
-
-   AINFO<<"(DMCZP) LeaveMethod: OmnidirectionalCameraDistortionModel::get_camera_model";
  }
 
 bool OmnidirectionalCameraDistortionModel::set_params(
@@ -142,8 +138,6 @@ bool OmnidirectionalCameraDistortionModel::set_params(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OmnidirectionalCameraDistortionModel::set_params";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: OmnidirectionalCameraDistortionModel::set_params";
  }
 
 }  // namespace base

@@ -25,7 +25,6 @@ DEFINE_string(vehicle_data_path, "modules/calibration/data/mkz_example",
 int main(int argc, char **argv) {
     AINFO<<"(DMCZP) EnteringMethod: main";
 
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
 
   FLAGS_logtostderr = true;
   google::InitGoogleLogging(argv[0]);

@@ -26,7 +26,6 @@ void MessageCallback(
     const std::shared_ptr<apollo::planning::ADCTrajectory>& trajectory) {
     AINFO<<"(DMCZP) EnteringMethod: MessageCallback";
 
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
 
   if (trajectory->debug().planning_data().has_routing()) {
     std::ofstream dump_file(FLAGS_routing_dump_file);

@@ -50,7 +50,6 @@ bool LocationRefinerObstaclePostprocessor::Init(
   AINFO<<"(DMCZP) (return) LeaveMethod: LocationRefinerObstaclePostprocessor::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: LocationRefinerObstaclePostprocessor::Init";
  }
 
 bool LocationRefinerObstaclePostprocessor::Process(
@@ -173,7 +172,6 @@ bool LocationRefinerObstaclePostprocessor::Process(
   AINFO<<"(DMCZP) (return) LeaveMethod: LocationRefinerObstaclePostprocessor::Process";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: LocationRefinerObstaclePostprocessor::Process";
  }
 
 std::string LocationRefinerObstaclePostprocessor::Name() const {
@@ -183,7 +181,6 @@ std::string LocationRefinerObstaclePostprocessor::Name() const {
   AINFO<<"(DMCZP) (return) LeaveMethod: LocationRefinerObstaclePostprocessor::Name";
   return "LocationRefinerObstaclePostprocessor";
 
-   AINFO<<"(DMCZP) LeaveMethod: LocationRefinerObstaclePostprocessor::Name";
  }
 
 // Register plugin.

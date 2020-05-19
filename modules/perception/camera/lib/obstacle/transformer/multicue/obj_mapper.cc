@@ -94,8 +94,6 @@ bool ObjMapper::SolveCenterFromNearestVerticalEdge(const float *bbox,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjMapper::SolveCenterFromNearestVerticalEdge";
   return center[2] > params_.depth_min;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObjMapper::SolveCenterFromNearestVerticalEdge";
  }
 
 bool ObjMapper::Solve3dBboxGivenOneFullBboxDimensionOrientation(
@@ -134,8 +132,6 @@ bool ObjMapper::Solve3dBboxGivenOneFullBboxDimensionOrientation(
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjMapper::Solve3dBboxGivenOneFullBboxDimensionOrientation";
   return success &&
          GetProjectionScore(*ry, bbox, hwl, center, true) > params_.iou_suc;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObjMapper::Solve3dBboxGivenOneFullBboxDimensionOrientation";
  }
 
 bool ObjMapper::Solve3dBbox(const ObjMapperOptions &options, float center[3],
@@ -239,8 +235,6 @@ bool ObjMapper::Solve3dBbox(const ObjMapperOptions &options, float center[3],
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjMapper::Solve3dBbox";
   return success;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObjMapper::Solve3dBbox";
  }
 
 void ObjMapper::PostRefineOrientation(const float *bbox, const float *hwl,

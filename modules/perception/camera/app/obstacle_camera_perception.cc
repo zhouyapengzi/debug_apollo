@@ -182,8 +182,6 @@ bool ObstacleCameraPerception::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObstacleCameraPerception::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObstacleCameraPerception::Init";
  }
 
 void ObstacleCameraPerception::InitLane(
@@ -334,8 +332,6 @@ bool ObstacleCameraPerception::GetCalibrationService(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObstacleCameraPerception::GetCalibrationService";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObstacleCameraPerception::GetCalibrationService";
  }
 
 bool ObstacleCameraPerception::Perception(
@@ -526,8 +522,6 @@ bool ObstacleCameraPerception::Perception(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObstacleCameraPerception::Perception";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObstacleCameraPerception::Perception";
  }
 }  // namespace camera
 }  // namespace perception

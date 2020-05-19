@@ -43,8 +43,6 @@ bool ObstacleMultiSensorFusion::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObstacleMultiSensorFusion::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObstacleMultiSensorFusion::Init";
  }
 
 bool ObstacleMultiSensorFusion::Process(const base::FrameConstPtr& frame,
@@ -56,7 +54,6 @@ bool ObstacleMultiSensorFusion::Process(const base::FrameConstPtr& frame,
   AINFO<<"(DMCZP) (return) LeaveMethod: ObstacleMultiSensorFusion::Process";
   return fusion_->Fuse(options, frame, objects);
 
-   AINFO<<"(DMCZP) LeaveMethod: ObstacleMultiSensorFusion::Process";
  }
 
 }  // namespace fusion

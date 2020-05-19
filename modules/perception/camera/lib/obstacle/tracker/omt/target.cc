@@ -31,9 +31,8 @@ int Target::global_track_id = 0;
 int Target::Size() const {
     AINFO<<"(DMCZP) EnteringMethod: Target::Size";
  
-  AINFO<<"(DMCZP) (return) LeaveMethod: Target::
-   AINFO<<"(DMCZP) LeaveMethod: Target::Size";
- Size";
+  AINFO<<"(DMCZP) (return) LeaveMethod: Target::Size";
+
   return static_cast<int>(tracked_objects.size()); }
 
 void Target::Clear() {
@@ -54,7 +53,6 @@ TrackObjectPtr Target::get_object(int index) const {
   return tracked_objects[(index + tracked_objects.size()) %
                          tracked_objects.size()];
 
-   AINFO<<"(DMCZP) LeaveMethod: Target::get_object";
  }
 void Target::Add(TrackObjectPtr object) {
     AINFO<<"(DMCZP) EnteringMethod: Target::Add";
@@ -554,8 +552,6 @@ bool Target::CheckStatic() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Target::CheckStatic";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: Target::CheckStatic";
  }
 
 bool Target::isTracked() const {
@@ -564,15 +560,11 @@ bool Target::isTracked() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: Target::isTracked";
   return Size() >= target_param_.tracked_life();
-
-   AINFO<<"(DMCZP) LeaveMethod: Target::isTracked";
  }
 bool Target::isLost() const {
     AINFO<<"(DMCZP) EnteringMethod: Target::isLost";
  
-  AINFO<<"(DMCZP) (r
-   AINFO<<"(DMCZP) LeaveMethod: Target::isLost";
- eturn) LeaveMethod: Target::isLost";
+  AINFO<<"(DMCZP) (return) LeaveMethod: Target::isLost";
   return lost_age > 0; }
 
 }  // namespace camera

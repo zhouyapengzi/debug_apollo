@@ -39,7 +39,6 @@ bool compare(const SemanticTable &s1, const SemanticTable &s2) {
   AINFO<<"(DMCZP) (return) LeaveMethod: compare";
   return s1.semantic == s2.semantic;
 
-   AINFO<<"(DMCZP) LeaveMethod: compare";
  }
 
 bool SemanticReviser::Init(const TrafficLightTrackerInitOptions &options) {
@@ -68,8 +67,6 @@ bool SemanticReviser::Init(const TrafficLightTrackerInitOptions &options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::Init";
  }
 
 void SemanticReviser::UpdateHistoryAndLights(
@@ -155,8 +152,6 @@ base::TLColor SemanticReviser::ReviseBySemantic(
   AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::ReviseBySemantic";
   return max_color;
   }
-
-   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::ReviseBySemantic";
  }
 
 void SemanticReviser::ReviseLights(std::vector<base::TrafficLightPtr> *lights,
@@ -322,15 +317,12 @@ bool SemanticReviser::Track(const TrafficLightTrackerOptions &options,
   AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::Track";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::Track";
  }
 
 std::string SemanticReviser::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: SemanticReviser::Name";
  
-  AINFO<<"(DMCZP) (return
-   AINFO<<"(DMCZP) LeaveMethod: SemanticReviser::Name";
- ) LeaveMethod: SemanticReviser::Name";
+  AINFO<<"(DMCZP) (return) LeaveMethod: SemanticReviser::Name";
   return "SemanticReviser"; }
 
 REGISTER_TRAFFIC_LIGHT_TRACKER(SemanticReviser);

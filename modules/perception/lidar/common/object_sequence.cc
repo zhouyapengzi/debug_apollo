@@ -50,8 +50,6 @@ bool ObjectSequence::AddTrackedFrameObjects(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjectSequence::AddTrackedFrameObjects";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObjectSequence::AddTrackedFrameObjects";
  }
 
 bool ObjectSequence::GetTrackInTemporalWindow(TrackIdKey track_id,
@@ -81,8 +79,6 @@ bool ObjectSequence::GetTrackInTemporalWindow(TrackIdKey track_id,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjectSequence::GetTrackInTemporalWindow";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ObjectSequence::GetTrackInTemporalWindow";
  }
 
 void ObjectSequence::RemoveStaleTracks(TimeStampKey current_stamp) {

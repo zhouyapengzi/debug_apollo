@@ -50,8 +50,6 @@ bool load_pcl_pcds(const std::string& filename, PointCloudPtr cloud_out,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: load_pcl_pcds";
   return iter->second(filename, cloud_out);
-
-   AINFO<<"(DMCZP) LeaveMethod: load_pcl_pcds";
  }
 
 bool load_pcl_pcds_xyzit(const std::string& filename, PointCloudPtr cloud_out) {
@@ -80,8 +78,6 @@ bool load_pcl_pcds_xyzit(const std::string& filename, PointCloudPtr cloud_out) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: load_pcl_pcds_xyzit";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: load_pcl_pcds_xyzit";
  }
 
 bool load_pcl_pcds_xyzl(const std::string& filename, PointCloudPtr cloud_out) {
@@ -111,8 +107,6 @@ bool load_pcl_pcds_xyzl(const std::string& filename, PointCloudPtr cloud_out) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: load_pcl_pcds_xyzl";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: load_pcl_pcds_xyzl";
  }
 
 bool load_frame_objects(const std::string& filename,
@@ -301,8 +295,6 @@ bool load_frame_objects(const std::string& filename,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: load_frame_objects";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: load_frame_objects";
  }
 
 bool load_sensor2world_pose(const std::string& filename,
@@ -337,8 +329,6 @@ bool load_sensor2world_pose(const std::string& filename,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: load_sensor2world_pose";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: load_sensor2world_pose";
  }
 
 bool save_frame_objects(const std::string& filename,
@@ -381,8 +371,6 @@ bool save_frame_objects(const std::string& filename,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: save_frame_objects";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: save_frame_objects";
  }
 
 }  // namespace benchmark

@@ -41,8 +41,6 @@ bool UndistortionHandler::set_device(int device) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: UndistortionHandler::set_device";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: UndistortionHandler::set_device";
  }
 /* Initialization of the GPU routines for camera data preprocessing
  *
@@ -97,8 +95,6 @@ bool UndistortionHandler::Init(const std::string &sensor_name, int device) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: UndistortionHandler::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: UndistortionHandler::Init";
  }
 
 bool UndistortionHandler::Handle(const base::Image8U &src_img,
@@ -157,8 +153,6 @@ bool UndistortionHandler::Handle(const base::Image8U &src_img,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: UndistortionHandler::Handle";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: UndistortionHandler::Handle";
  }
 
 bool UndistortionHandler::Release(void) {
@@ -169,7 +163,6 @@ bool UndistortionHandler::Release(void) {
   AINFO<<"(DMCZP) (return) LeaveMethod: UndistortionHandler::Release";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: UndistortionHandler::Release";
  }
 
 void UndistortionHandler::InitUndistortRectifyMap(

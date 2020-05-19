@@ -62,8 +62,6 @@ bool config_parser(const std::string& config_file,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: config_parser";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: config_parser";
  }
 }  // namespace lidar
 }  // namespace perception

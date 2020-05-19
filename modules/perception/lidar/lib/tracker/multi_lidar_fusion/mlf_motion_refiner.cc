@@ -50,8 +50,6 @@ bool MlfMotionRefiner::Init(const MlfMotionRefinerInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfMotionRefiner::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfMotionRefiner::Init";
  }
 
 bool MlfMotionRefiner::Refine(const MlfTrackDataConstPtr& track_data,
@@ -105,8 +103,6 @@ bool MlfMotionRefiner::Refine(const MlfTrackDataConstPtr& track_data,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfMotionRefiner::Refine";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfMotionRefiner::Refine";
  }
 
 bool MlfMotionRefiner::CheckStaticHypothesisByState(
@@ -168,8 +164,6 @@ bool MlfMotionRefiner::CheckStaticHypothesisByState(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfMotionRefiner::CheckStaticHypothesisByState";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfMotionRefiner::CheckStaticHypothesisByState";
  }
 
 bool MlfMotionRefiner::CheckStaticHypothesisByVelocityAngleChange(
@@ -224,8 +218,6 @@ bool MlfMotionRefiner::CheckStaticHypothesisByVelocityAngleChange(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfMotionRefiner::CheckStaticHypothesisByVelocityAngleChange";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfMotionRefiner::CheckStaticHypothesisByVelocityAngleChange";
  }
 
 }  // namespace lidar

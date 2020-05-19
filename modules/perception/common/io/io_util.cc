@@ -61,8 +61,6 @@ bool ReadPoseFile(const std::string &filename, Eigen::Affine3d *pose,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ReadPoseFile";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ReadPoseFile";
  }
 
 bool LoadBrownCameraIntrinsic(const std::string &yaml_file,
@@ -109,8 +107,6 @@ bool LoadBrownCameraIntrinsic(const std::string &yaml_file,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadBrownCameraIntrinsic";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LoadBrownCameraIntrinsic";
  }
 
 bool LoadOmnidirectionalCameraIntrinsics(
@@ -191,8 +187,6 @@ bool LoadOmnidirectionalCameraIntrinsics(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LoadOmnidirectionalCameraIntrinsics";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LoadOmnidirectionalCameraIntrinsics";
  }
 
 bool GetFileList(const std::string &path, const std::string &suffix,
@@ -221,8 +215,6 @@ bool GetFileList(const std::string &path, const std::string &suffix,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GetFileList";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: GetFileList";
  }
 
 }  // namespace common

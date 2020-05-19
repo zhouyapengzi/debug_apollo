@@ -29,8 +29,6 @@ bool LidarOutputComponent::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LidarOutputComponent::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LidarOutputComponent::Init";
  }
 
 bool LidarOutputComponent::Proc(
@@ -62,7 +60,6 @@ bool LidarOutputComponent::Proc(
   AINFO<<"(DMCZP) (return) LeaveMethod: LidarOutputComponent::Proc";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: LidarOutputComponent::Proc";
  }
 
 }  // namespace onboard

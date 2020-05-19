@@ -219,8 +219,6 @@ float TrackedObject::GetVelThreshold(base::ObjectPtr obj) const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackedObject::GetVelThreshold";
   return 0.0f;
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::GetVelThreshold";
  }
 
 void TrackedObject::ToObject(base::ObjectPtr obj) const {
@@ -269,9 +267,7 @@ std::string TrackedObject::ToString() const {
     AINFO<<"(DMCZP) EnteringMethod: TrackedObject::ToString";
 
   // std::string txt;
-  // 
-  AINFO<<"(DMCZP) (return) LeaveMethod: TrackedObject::ToString";
-  return txt;
+  // return txt;
   std::ostringstream oos;
   oos << "obj id: " << object_ptr->id << ", track_id: " << object_ptr->track_id
       << ", bary_center: (" << barycenter[0] << "," << barycenter[1] << ","
@@ -281,8 +277,6 @@ std::string TrackedObject::ToString() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TrackedObject::ToString";
   return oos.str();
-
-   AINFO<<"(DMCZP) LeaveMethod: TrackedObject::ToString";
  }
 
 void TrackedObject::ComputeShapeFeatures() {

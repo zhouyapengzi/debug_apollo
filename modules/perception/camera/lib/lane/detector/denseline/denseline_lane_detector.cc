@@ -164,8 +164,6 @@ bool DenselineLaneDetector::Detect(const LaneDetectorOptions &options,
     AINFO << "camera frame is empty.";
     
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Init";
   return false;
   }
 
@@ -175,8 +173,6 @@ bool DenselineLaneDetector::Detect(const LaneDetectorOptions &options,
            << data_provider->src_width();
     
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Init";
   return false;
   }
   if (input_height_ != data_provider->src_height()) {
@@ -184,16 +180,12 @@ bool DenselineLaneDetector::Detect(const LaneDetectorOptions &options,
            << data_provider->src_height();
     
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Init";
   return false;
   }
 
   if (!data_provider->GetImage(data_provider_image_option_, &image_src_)) {
     
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Init";
   return false;
   }
 
@@ -209,16 +201,12 @@ bool DenselineLaneDetector::Detect(const LaneDetectorOptions &options,
     AERROR << "height is not equal" << blob_height << " vs " << resize_height_;
     
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Init";
   return false;
   }
   if (blob_width != resize_width_) {
     AERROR << "width is not equal" << blob_width << " vs " << resize_width_;
     
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Init";
   return false;
   }
   ADEBUG << "image_blob: " << image_src_.blob()->shape_string();
@@ -238,11 +226,8 @@ bool DenselineLaneDetector::Detect(const LaneDetectorOptions &options,
   ADEBUG << frame->lane_detected_blob->shape_string();
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Detect";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLaneDetector::Detect";
  }
 
 std::string DenselineLaneDetector::Name() const {
@@ -250,17 +235,10 @@ std::string DenselineLaneDetector::Name() const {
 
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Name";
-  
-  AINFO<<"(DMCZP) (return) LeaveMethod: DenselineLaneDetector::Init";
   return "DenselineLaneDetector";
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLaneDetector::Name";
  }
 
 REGISTER_LANE_DETECTOR(DenselineLaneDetector);
-
-
-   AINFO<<"(DMCZP) LeaveMethod: DenselineLaneDetector::Init";
  }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

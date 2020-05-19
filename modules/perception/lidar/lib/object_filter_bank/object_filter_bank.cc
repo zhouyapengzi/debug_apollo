@@ -62,7 +62,6 @@ bool ObjectFilterBank::Init(const ObjectFilterInitOptions& options) {
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjectFilterBank::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: ObjectFilterBank::Init";
  }
 
 bool ObjectFilterBank::Filter(const ObjectFilterOptions& options,
@@ -81,7 +80,6 @@ bool ObjectFilterBank::Filter(const ObjectFilterOptions& options,
   AINFO<<"(DMCZP) (return) LeaveMethod: ObjectFilterBank::Filter";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: ObjectFilterBank::Filter";
  }
 
 }  // namespace lidar

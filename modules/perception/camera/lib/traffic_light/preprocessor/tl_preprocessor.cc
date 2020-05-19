@@ -46,8 +46,6 @@ bool TLPreprocessor::Init(const TrafficLightPreprocessorInitOptions &options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::Init";
  }
 
 bool TLPreprocessor::UpdateCameraSelection(
@@ -79,8 +77,6 @@ bool TLPreprocessor::UpdateCameraSelection(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::UpdateCameraSelection";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::UpdateCameraSelection";
  }
 
 bool TLPreprocessor::SyncInformation(const double image_timestamp,
@@ -124,8 +120,6 @@ bool TLPreprocessor::SyncInformation(const double image_timestamp,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::SyncInformation";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::SyncInformation";
  }
 
 bool TLPreprocessor::UpdateLightsProjection(
@@ -188,7 +182,6 @@ bool TLPreprocessor::UpdateLightsProjection(
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::UpdateLightsProjection";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::UpdateLightsProjection";
  }
 
 bool TLPreprocessor::SetCameraWorkingFlag(const std::string &camera_name,
@@ -208,8 +201,6 @@ bool TLPreprocessor::SetCameraWorkingFlag(const std::string &camera_name,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::SetCameraWorkingFlag";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::SetCameraWorkingFlag";
  }
 
 bool TLPreprocessor::GetCameraWorkingFlag(const std::string &camera_name,
@@ -235,7 +226,6 @@ bool TLPreprocessor::GetCameraWorkingFlag(const std::string &camera_name,
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::GetCameraWorkingFlag";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::GetCameraWorkingFlag";
  }
 
 void TLPreprocessor::SelectCamera(
@@ -344,8 +334,6 @@ bool TLPreprocessor::ProjectLights(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::ProjectLights";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::ProjectLights";
  }
 
 bool TLPreprocessor::ProjectLightsAndSelectCamera(
@@ -406,8 +394,6 @@ bool TLPreprocessor::ProjectLightsAndSelectCamera(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::ProjectLightsAndSelectCamera";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::ProjectLightsAndSelectCamera";
  }
 
 bool TLPreprocessor::GetAlllightsOutsideFlag() const {
@@ -423,9 +409,7 @@ bool TLPreprocessor::GetAlllightsOutsideFlag() const {
 std::string TLPreprocessor::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: TLPreprocessor::Name";
  
-  AINFO<<"(DMCZP) (retur
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::Name";
- n) LeaveMethod: TLPreprocessor::Name";
+  AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::Name";
   return "TLPreprocessor"; }
 
 std::string TLPreprocessor::GetMinFocalLenWorkingCameraName() const {
@@ -440,14 +424,10 @@ std::string TLPreprocessor::GetMinFocalLenWorkingCameraName() const {
   return *itr;
     }
   }
-  AWARN << "No working camera, 
-  AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::GetMinFocalLenWorkingCameraName";
-  return empty camera_name";
+  AWARN << "No working camera, return empty camera_name";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::GetMinFocalLenWorkingCameraName";
   return "";
-
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::GetMinFocalLenWorkingCameraName";
  }
 
 std::string TLPreprocessor::GetMaxFocalLenWorkingCameraName() const {
@@ -462,14 +442,11 @@ std::string TLPreprocessor::GetMaxFocalLenWorkingCameraName() const {
   return camera_name;
     }
   }
-  AWARN << "No working camera, 
-  AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::GetMaxFocalLenWorkingCameraName";
-  return empty camera_name";
+  AWARN << "No working camera, return empty camera_name";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TLPreprocessor::GetMaxFocalLenWorkingCameraName";
   return "";
 
-   AINFO<<"(DMCZP) LeaveMethod: TLPreprocessor::GetMaxFocalLenWorkingCameraName";
  }
 
 }  // namespace camera

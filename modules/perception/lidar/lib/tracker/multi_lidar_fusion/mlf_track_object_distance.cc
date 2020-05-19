@@ -86,8 +86,6 @@ bool MlfTrackObjectDistance::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfTrackObjectDistance::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfTrackObjectDistance::Init";
  }
 
 float MlfTrackObjectDistance::ComputeDistance(
@@ -166,8 +164,6 @@ float MlfTrackObjectDistance::ComputeDistance(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfTrackObjectDistance::ComputeDistance";
   return distance;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfTrackObjectDistance::ComputeDistance";
  }
 
 }  // namespace lidar

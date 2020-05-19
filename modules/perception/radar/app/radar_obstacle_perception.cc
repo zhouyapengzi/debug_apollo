@@ -68,8 +68,6 @@ bool RadarObstaclePerception::Init(const std::string& pipeline_name) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RadarObstaclePerception::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RadarObstaclePerception::Init";
  }
 
 bool RadarObstaclePerception::Perceive(
@@ -117,8 +115,6 @@ bool RadarObstaclePerception::Perceive(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RadarObstaclePerception::Perceive";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: RadarObstaclePerception::Perceive";
  }
 
 std::string RadarObstaclePerception::Name() const {
@@ -127,8 +123,6 @@ std::string RadarObstaclePerception::Name() const {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: RadarObstaclePerception::Name";
   return "RadarObstaclePerception";
-
-   AINFO<<"(DMCZP) LeaveMethod: RadarObstaclePerception::Name";
  }
 
 PERCEPTION_REGISTER_RADAR_OBSTACLE_PERCEPTION(RadarObstaclePerception);

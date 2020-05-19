@@ -117,7 +117,6 @@ bool TransformServer::Init(const std::vector<std::string> &camera_names,
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformServer::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: TransformServer::Init";
  }
 
 bool TransformServer::LoadFromFile(const std::string &tf_input,
@@ -151,8 +150,6 @@ bool TransformServer::LoadFromFile(const std::string &tf_input,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformServer::LoadFromFile";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformServer::LoadFromFile";
  }
 
 bool TransformServer::QueryPos(double timestamp, Eigen::Affine3d *pose) {
@@ -172,8 +169,6 @@ bool TransformServer::QueryPos(double timestamp, Eigen::Affine3d *pose) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformServer::QueryPos";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformServer::QueryPos";
  }
 
 bool TransformServer::AddTransform(const std::string &child_frame_id,
@@ -211,8 +206,6 @@ bool TransformServer::AddTransform(const std::string &child_frame_id,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformServer::AddTransform";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformServer::AddTransform";
  }
 
 bool TransformServer::QueryTransform(const std::string &child_frame_id,
@@ -244,8 +237,6 @@ bool TransformServer::QueryTransform(const std::string &child_frame_id,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformServer::QueryTransform";
   return FindTransform(child_frame_id, frame_id, transform, &visited);
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformServer::QueryTransform";
  }
 
 bool TransformServer::FindTransform(const std::string &child_frame_id,
@@ -292,8 +283,6 @@ bool TransformServer::FindTransform(const std::string &child_frame_id,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: TransformServer::FindTransform";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: TransformServer::FindTransform";
  }
 
 void TransformServer::print() {

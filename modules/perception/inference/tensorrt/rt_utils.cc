@@ -43,8 +43,6 @@ bool ReadProtoFromTextFile(const std::string &filename,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ReadProtoFromTextFile";
   return success;
-
-   AINFO<<"(DMCZP) LeaveMethod: ReadProtoFromTextFile";
  }
 
 bool ReadProtoFromBinaryFile(const std::string &filename,
@@ -68,8 +66,6 @@ bool ReadProtoFromBinaryFile(const std::string &filename,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ReadProtoFromBinaryFile";
   return success;
-
-   AINFO<<"(DMCZP) LeaveMethod: ReadProtoFromBinaryFile";
  }
 bool loadNetParams(const std::string &param_file, NetParameter *param) {
     AINFO<<"(DMCZP) EnteringMethod: loadNetParams";
@@ -77,8 +73,6 @@ bool loadNetParams(const std::string &param_file, NetParameter *param) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: loadNetParams";
   return ReadProtoFromTextFile(param_file, param);
-
-   AINFO<<"(DMCZP) LeaveMethod: loadNetParams";
  }
 std::string locateFile(const std::string &network, const std::string &input) {
     AINFO<<"(DMCZP) EnteringMethod: locateFile";
@@ -86,8 +80,6 @@ std::string locateFile(const std::string &network, const std::string &input) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: locateFile";
   return network + "/" + input;
-
-   AINFO<<"(DMCZP) LeaveMethod: locateFile";
  }
 }  // namespace inference
 }  // namespace perception

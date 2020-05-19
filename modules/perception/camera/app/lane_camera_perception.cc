@@ -69,8 +69,6 @@ bool LaneCameraPerception::Init(const CameraPerceptionInitOptions &options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::Init";
  }
 
 void LaneCameraPerception::InitLane(
@@ -223,7 +221,6 @@ bool LaneCameraPerception::GetCalibrationService(
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::GetCalibrationService";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::GetCalibrationService";
  }
 
 bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
@@ -302,8 +299,6 @@ bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LaneCameraPerception::Perception";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: LaneCameraPerception::Perception";
  }
 }  // namespace camera
 }  // namespace perception

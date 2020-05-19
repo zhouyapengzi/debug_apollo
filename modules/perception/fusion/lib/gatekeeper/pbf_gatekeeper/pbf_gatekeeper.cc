@@ -74,16 +74,12 @@ bool PbfGatekeeper::Init() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PbfGatekeeper::Init";
  }
 
 std::string PbfGatekeeper::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: PbfGatekeeper::Name";
  
-  AINFO<<"(DMCZP) (retu
-   AINFO<<"(DMCZP) LeaveMethod: PbfGatekeeper::Name";
- rn) LeaveMethod: PbfGatekeeper::Name";
+  AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::Name";
   return "PbfGatekeeper"; }
 
 bool PbfGatekeeper::AbleToPublish(const TrackPtr &track) {
@@ -126,8 +122,6 @@ bool PbfGatekeeper::AbleToPublish(const TrackPtr &track) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::AbleToPublish";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PbfGatekeeper::AbleToPublish";
  }
 
 bool PbfGatekeeper::LidarAbleToPublish(const TrackPtr &track) {
@@ -142,8 +136,6 @@ bool PbfGatekeeper::LidarAbleToPublish(const TrackPtr &track) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::LidarAbleToPublish";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: PbfGatekeeper::LidarAbleToPublish";
  }
 
 bool PbfGatekeeper::RadarAbleToPublish(const TrackPtr &track, bool is_night) {
@@ -173,9 +165,7 @@ bool PbfGatekeeper::RadarAbleToPublish(const TrackPtr &track, bool is_night) {
       //   if (!is_night) {
       //     if (toic_p > params_.toic_threshold) {
       //       set_velocity_to_zero();
-      //       
-  AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::RadarAbleToPublish";
-  return true;
+      //       return true;
       //     }
       //   } else {
       //     // the velocity buffer is [-3, +3] m/s
@@ -183,16 +173,12 @@ bool PbfGatekeeper::RadarAbleToPublish(const TrackPtr &track, bool is_night) {
       //     double v_slope = 1.0;
       //     auto heading_v_decision = [](double x, double c, double k) {
       //       x = x - c;
-      //       
-  AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::RadarAbleToPublish";
-  return 0.5 + 0.5 * x * k / std::sqrt(1 + x * x * k * k);
+      //       return 0.5 + 0.5 * x * k / std::sqrt(1 + x * x * k * k);
       //     };
       //     auto fuse_two_probabilities = [](double p1, double p2) {
       //       double p = (p1 * p2) / (2 * p1 * p2 + 1 - p1 - p2);
       //       p = std::min(1.0 - std::numeric_limits<float>::epsilon(), p);
-      //       
-  AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::RadarAbleToPublish";
-  return p;
+      //       return p;
       //     };
 
       //     double min_toic_p = 0.2;
@@ -201,9 +187,7 @@ bool PbfGatekeeper::RadarAbleToPublish(const TrackPtr &track, bool is_night) {
       //     double p = fuse_two_probabilities(toic_p, v_p);
       //     if (p > 0.5) {
       //       set_velocity_to_zero();
-      //       
-  AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::RadarAbleToPublish";
-  return true;
+      //       return true;
       //     }
       //   }
       // }
@@ -226,8 +210,6 @@ bool PbfGatekeeper::RadarAbleToPublish(const TrackPtr &track, bool is_night) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::RadarAbleToPublish";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: PbfGatekeeper::RadarAbleToPublish";
  }
 
 bool PbfGatekeeper::CameraAbleToPublish(const TrackPtr &track, bool is_night) {
@@ -264,8 +246,6 @@ bool PbfGatekeeper::CameraAbleToPublish(const TrackPtr &track, bool is_night) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PbfGatekeeper::CameraAbleToPublish";
   return false;
-
-   AINFO<<"(DMCZP) LeaveMethod: PbfGatekeeper::CameraAbleToPublish";
  }
 
 }  // namespace fusion

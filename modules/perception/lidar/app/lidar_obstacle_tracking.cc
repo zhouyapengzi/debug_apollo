@@ -65,7 +65,6 @@ bool LidarObstacleTracking::Init(
   AINFO<<"(DMCZP) (return) LeaveMethod: LidarObstacleTracking::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: LidarObstacleTracking::Init";
  }
 
 LidarProcessResult LidarObstacleTracking::Process(
@@ -98,8 +97,6 @@ LidarProcessResult LidarObstacleTracking::Process(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: LidarObstacleTracking::Process";
   return LidarProcessResult(LidarErrorCode::Succeed);
-
-   AINFO<<"(DMCZP) LeaveMethod: LidarObstacleTracking::Process";
  }
 
 }  // namespace lidar

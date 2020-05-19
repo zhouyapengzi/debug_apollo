@@ -64,8 +64,6 @@ bool DetectionEvaluation::init(const std::string& clouds,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DetectionEvaluation::init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: DetectionEvaluation::init";
  }
 
 void DetectionEvaluation::run_evaluation() {

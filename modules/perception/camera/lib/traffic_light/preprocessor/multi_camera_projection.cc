@@ -91,7 +91,6 @@ bool MultiCamerasProjection::Init(const MultiCamerasInitOption& options) {
   AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Init";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::Init";
  }
 
 bool MultiCamerasProjection::Project(const CarPose& pose,
@@ -131,7 +130,6 @@ bool MultiCamerasProjection::Project(const CarPose& pose,
   AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::Project";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::Project";
  }
 
 bool MultiCamerasProjection::HasCamera(const std::string& camera_name) const {
@@ -144,7 +142,6 @@ bool MultiCamerasProjection::HasCamera(const std::string& camera_name) const {
   return iter != camera_names_.end() &&
          camera_models_.find(camera_name) != camera_models_.end();
 
-   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::HasCamera";
  }
 
 int MultiCamerasProjection::getImageWidth(
@@ -161,7 +158,6 @@ int MultiCamerasProjection::getImageWidth(
   AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::getImageWidth";
   return static_cast<int>(camera_models_.at(camera_name)->get_width());
 
-   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::getImageWidth";
  }
 
 int MultiCamerasProjection::getImageHeight(
@@ -177,8 +173,6 @@ int MultiCamerasProjection::getImageHeight(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::getImageHeight";
   return static_cast<int>(camera_models_.at(camera_name)->get_height());
-
-   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::getImageHeight";
  }
 
 bool MultiCamerasProjection::BoundaryBasedProject(
@@ -244,7 +238,6 @@ bool MultiCamerasProjection::BoundaryBasedProject(
   AINFO<<"(DMCZP) (return) LeaveMethod: MultiCamerasProjection::BoundaryBasedProject";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: MultiCamerasProjection::BoundaryBasedProject";
  }
 
 }  // namespace camera

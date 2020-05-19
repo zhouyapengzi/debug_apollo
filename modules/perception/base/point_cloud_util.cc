@@ -79,8 +79,6 @@ double OrientCloud(const PointFCloud& pc, PointFCloud* pc_out, bool demean) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OrientCloud";
   return theta;
-
-   AINFO<<"(DMCZP) LeaveMethod: OrientCloud";
  }
 
 bool GetPointCloudMinareaBbox(const PointFCloud& pc, BoundingCube* box,
@@ -125,8 +123,6 @@ bool GetPointCloudMinareaBbox(const PointFCloud& pc, BoundingCube* box,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: GetPointCloudMinareaBbox";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: GetPointCloudMinareaBbox";
  }
 
 }  // namespace base

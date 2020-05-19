@@ -49,13 +49,6 @@ using apollo::hdmap::adapter::OpendriveAdapter;
 static void DownsampleCurve(Curve* curve) {
     AINFO<<"(DMCZP) EnteringMethod: DownsampleCurve";
 
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_int32";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_int32";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_double";
-
-    AINFO<<"(DMCZP) EnteringMethod: DEFINE_string";
 
   auto* line_segment = curve->mutable_segment(0)->mutable_line_segment();
   std::vector<PointENU> points(line_segment->point().begin(),

@@ -27,10 +27,6 @@ CaffeNet::CaffeNet(const std::string &net_file, const std::string &model_file,
     : net_file_(net_file), model_file_(model_file), output_names_(outputs) {
     AINFO<<"(DMCZP) EnteringMethod: CaffeNet::CaffeNet";
 
-    AINFO<<"(DMCZP) EnteringMethod: CaffeNet::CaffeNet";
-
-   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::CaffeNet";
- 
    AINFO<<"(DMCZP) LeaveMethod: CaffeNet::CaffeNet";
  }
 
@@ -81,8 +77,6 @@ bool CaffeNet::Init(const std::map<std::string, std::vector<int>> &shapes) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CaffeNet::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::Init";
  }
 
 CaffeNet::CaffeNet(const std::string &net_file, const std::string &model_file,
@@ -119,8 +113,6 @@ bool CaffeNet::reshape() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CaffeNet::reshape";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::reshape";
  }
 
 void CaffeNet::Infer() {
@@ -171,8 +163,6 @@ bool CaffeNet::shape(const std::string &name, std::vector<int> *res) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CaffeNet::shape";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CaffeNet::shape";
  }
 
 }  // namespace inference

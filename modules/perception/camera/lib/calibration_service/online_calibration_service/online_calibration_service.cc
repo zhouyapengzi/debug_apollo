@@ -68,8 +68,6 @@ bool OnlineCalibrationService::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OnlineCalibrationService::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: OnlineCalibrationService::Init";
  }
 
 bool OnlineCalibrationService::BuildIndex() {
@@ -79,8 +77,6 @@ bool OnlineCalibrationService::BuildIndex() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OnlineCalibrationService::BuildIndex";
   return is_service_ready_;
-
-   AINFO<<"(DMCZP) LeaveMethod: OnlineCalibrationService::BuildIndex";
  }
 
 bool OnlineCalibrationService::QueryDepthOnGroundPlane(int x, int y,
@@ -111,8 +107,6 @@ bool OnlineCalibrationService::QueryDepthOnGroundPlane(int x, int y,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OnlineCalibrationService::QueryDepthOnGroundPlane";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: OnlineCalibrationService::QueryDepthOnGroundPlane";
  }
 
 bool OnlineCalibrationService::QueryPoint3dOnGroundPlane(
@@ -145,7 +139,6 @@ bool OnlineCalibrationService::QueryPoint3dOnGroundPlane(
   AINFO<<"(DMCZP) (return) LeaveMethod: OnlineCalibrationService::QueryPoint3dOnGroundPlane";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: OnlineCalibrationService::QueryPoint3dOnGroundPlane";
  }
 
 bool OnlineCalibrationService::QueryGroundPlaneInCameraFrame(
@@ -173,8 +166,6 @@ bool OnlineCalibrationService::QueryGroundPlaneInCameraFrame(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OnlineCalibrationService::QueryGroundPlaneInCameraFrame";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: OnlineCalibrationService::QueryGroundPlaneInCameraFrame";
  }
 
 bool OnlineCalibrationService::QueryCameraToGroundHeightAndPitchAngle(
@@ -205,8 +196,6 @@ bool OnlineCalibrationService::QueryCameraToGroundHeightAndPitchAngle(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: OnlineCalibrationService::QueryCameraToGroundHeightAndPitchAngle";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: OnlineCalibrationService::QueryCameraToGroundHeightAndPitchAngle";
  }
 
 void OnlineCalibrationService::Update(CameraFrame *frame) {
@@ -295,7 +284,6 @@ std::string OnlineCalibrationService::Name() const {
   AINFO<<"(DMCZP) (return) LeaveMethod: OnlineCalibrationService::Name";
   return "OnlineCalibrationService";
 
-   AINFO<<"(DMCZP) LeaveMethod: OnlineCalibrationService::Name";
  }
 REGISTER_CALIBRATION_SERVICE(OnlineCalibrationService);
 

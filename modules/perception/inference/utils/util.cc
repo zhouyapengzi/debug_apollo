@@ -54,8 +54,6 @@ bool write_result(const std::string &out_path,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: write_result";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: write_result";
  }
 
 }  // namespace inference

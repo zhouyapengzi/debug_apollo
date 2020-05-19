@@ -65,8 +65,6 @@ bool MlfMotionFilter::Init(const MlfFilterInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: MlfMotionFilter::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: MlfMotionFilter::Init";
  }
 
 void MlfMotionFilter::UpdateWithObject(const MlfFilterOptions& options,

@@ -64,21 +64,16 @@ bool PointCloudPreprocessor::Init(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PointCloudPreprocessor::Init";
  }
 
 bool PointCloudPreprocessor::Preprocess(
     const PointCloudPreprocessorOptions& options,
     const std::shared_ptr<apollo::drivers::PointCloud const>& message,
     LidarFrame* frame) const {
-    AINFO<<"(DMCZP) EnteringMethod: PointCloudPreprocessor::Preprocess";
 
     AINFO<<"(DMCZP) EnteringMethod: PointCloudPreprocessor::Preprocess";
 
   if (frame == nullptr) {
-    
-  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Preprocess";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Preprocess";
   return false;
@@ -127,14 +122,9 @@ bool PointCloudPreprocessor::Preprocess(
     TransformCloud(frame->cloud, frame->lidar2world_pose, frame->world_cloud);
   }
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Preprocess";
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::Preprocess";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PointCloudPreprocessor::Preprocess";
- 
-   AINFO<<"(DMCZP) LeaveMethod: PointCloudPreprocessor::Preprocess";
  }
 
 bool PointCloudPreprocessor::Preprocess(
@@ -212,8 +202,6 @@ bool PointCloudPreprocessor::TransformCloud(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PointCloudPreprocessor::TransformCloud";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PointCloudPreprocessor::TransformCloud";
  }
 
 }  // namespace lidar

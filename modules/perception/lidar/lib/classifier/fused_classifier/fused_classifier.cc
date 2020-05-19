@@ -60,8 +60,6 @@ bool FusedClassifier::Init(const ClassifierInitOptions& options) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: FusedClassifier::Init";
   return init_success;
-
-   AINFO<<"(DMCZP) LeaveMethod: FusedClassifier::Init";
  }
 
 bool FusedClassifier::Classify(const ClassifierOptions& options,
@@ -126,8 +124,6 @@ bool FusedClassifier::Classify(const ClassifierOptions& options,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: FusedClassifier::Classify";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: FusedClassifier::Classify";
  }
 
 PERCEPTION_REGISTER_CLASSIFIER(FusedClassifier);

@@ -107,6 +107,7 @@ void ClassifyBySimple::Init(
       new base::Image8U(resize_height_, resize_width_, base::Color::BGR));
 
   AINFO << "Init Done";
+ AINFO<<"(DMCZP) (return) LeaveMethod: ClassifyBySimple::Init";
 }
 
 void ClassifyBySimple::Perform(const CameraFrame* frame,
@@ -118,7 +119,6 @@ void ClassifyBySimple::Perform(const CameraFrame* frame,
     
   AINFO<<"(DMCZP) (return) LeaveMethod: ClassifyBySimple::Perform";
   
-  AINFO<<"(DMCZP) (return) LeaveMethod: ClassifyBySimple::Init";
   return;
   }
   std::shared_ptr<base::Blob<uint8_t>> rectified_blob;
@@ -183,7 +183,6 @@ void ClassifyBySimple::Prob2Color(const float* out_put_data, float threshold,
  }
 
 
-   AINFO<<"(DMCZP) LeaveMethod: ClassifyBySimple::Init";
  }  // namespace camera
 }  // namespace perception
 }  // namespace apollo

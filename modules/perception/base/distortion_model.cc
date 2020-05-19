@@ -69,8 +69,6 @@ Eigen::Vector2f BrownCameraDistortionModel::Project(
   
   AINFO<<"(DMCZP) (return) LeaveMethod: BrownCameraDistortionModel::Project";
   return pt2d_img;
-
-   AINFO<<"(DMCZP) LeaveMethod: BrownCameraDistortionModel::Project";
  }
 
 std::shared_ptr<BaseCameraModel>
@@ -85,8 +83,6 @@ BrownCameraDistortionModel::get_camera_model() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: BrownCameraDistortionModel::get_camera_model";
   return std::dynamic_pointer_cast<BaseCameraModel>(camera_model);
-
-   AINFO<<"(DMCZP) LeaveMethod: BrownCameraDistortionModel::get_camera_model";
  }
 
 bool BrownCameraDistortionModel::set_params(size_t width, size_t height,
@@ -120,8 +116,6 @@ bool BrownCameraDistortionModel::set_params(size_t width, size_t height,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: BrownCameraDistortionModel::set_params";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: BrownCameraDistortionModel::set_params";
  }
 
 }  // namespace base

@@ -33,8 +33,6 @@ int DisjointSet::Add() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DisjointSet::Add";
   return cur_size;
-
-   AINFO<<"(DMCZP) LeaveMethod: DisjointSet::Add";
  }
 
 int DisjointSet::Find(int x) {
@@ -61,8 +59,6 @@ int DisjointSet::Find(int x) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: DisjointSet::Find";
   return y;
-
-   AINFO<<"(DMCZP) LeaveMethod: DisjointSet::Find";
  }
 
 // point the x and y to smaller root of the two
@@ -243,8 +239,6 @@ bool FindCC(const std::vector<unsigned char>& src, int width, int height,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: FindCC";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: FindCC";
  }
 
 bool ImagePoint2Camera(const base::Point2DF& img_point, float pitch_angle,
@@ -274,8 +268,6 @@ bool ImagePoint2Camera(const base::Point2DF& img_point, float pitch_angle,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ImagePoint2Camera";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: ImagePoint2Camera";
  }
 
 bool CameraPoint2Image(const Eigen::Vector3d& camera_point,
@@ -298,8 +290,6 @@ bool CameraPoint2Image(const Eigen::Vector3d& camera_point,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: CameraPoint2Image";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: CameraPoint2Image";
  }
 bool ComparePoint2DY(const base::Point2DF& point1,
                      const base::Point2DF& point2) {
@@ -308,8 +298,6 @@ bool ComparePoint2DY(const base::Point2DF& point1,
   
   AINFO<<"(DMCZP) (return) LeaveMethod: ComparePoint2DY";
   return point1.y < point2.y;
-
-   AINFO<<"(DMCZP) LeaveMethod: ComparePoint2DY";
  }
 
 bool FindKSmallValue(const float* distance, int dim, int k, int* index) {
@@ -366,8 +354,6 @@ bool FindKSmallValue(const float* distance, int dim, int k, int* index) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: FindKSmallValue";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: FindKSmallValue";
  }
 
 bool FindKLargeValue(const float* distance, int dim, int k, int* index) {
@@ -426,8 +412,6 @@ bool FindKLargeValue(const float* distance, int dim, int k, int* index) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: FindKLargeValue";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: FindKLargeValue";
  }
 }  // namespace camera
 }  // namespace perception

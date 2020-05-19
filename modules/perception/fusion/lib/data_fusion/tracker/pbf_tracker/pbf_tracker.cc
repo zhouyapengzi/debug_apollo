@@ -81,7 +81,6 @@ bool PbfTracker::InitParams() {
   AINFO<<"(DMCZP) (return) LeaveMethod: PbfTracker::InitParams";
   return true;
 
-   AINFO<<"(DMCZP) LeaveMethod: PbfTracker::InitParams";
  }
 
 bool PbfTracker::InitMethods() {
@@ -126,8 +125,6 @@ bool PbfTracker::InitMethods() {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PbfTracker::InitMethods";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PbfTracker::InitMethods";
  }
 
 bool PbfTracker::Init(TrackPtr track, SensorObjectPtr measurement) {
@@ -143,8 +140,6 @@ bool PbfTracker::Init(TrackPtr track, SensorObjectPtr measurement) {
   
   AINFO<<"(DMCZP) (return) LeaveMethod: PbfTracker::Init";
   return true;
-
-   AINFO<<"(DMCZP) LeaveMethod: PbfTracker::Init";
  }
 
 void PbfTracker::UpdateWithMeasurement(const TrackerOptions& options,
@@ -190,9 +185,7 @@ void PbfTracker::UpdateWithoutMeasurement(const TrackerOptions& options,
 std::string PbfTracker::Name() const {
     AINFO<<"(DMCZP) EnteringMethod: PbfTracker::Name";
  
-  AINFO<<"(DMCZP) (r
-   AINFO<<"(DMCZP) LeaveMethod: PbfTracker::Name";
- eturn) LeaveMethod: PbfTracker::Name";
+  AINFO<<"(DMCZP) (return) LeaveMethod: PbfTracker::Name";
   return "PbfTracker"; }
 
 }  // namespace fusion
