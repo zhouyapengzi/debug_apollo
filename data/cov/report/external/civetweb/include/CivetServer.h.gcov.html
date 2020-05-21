@@ -1,0 +1,708 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/civetweb/include/CivetServer.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">external/civetweb/include</a> - CivetServer.h<span style="font-size: 80%;"> (source / <a href="CivetServer.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">57.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright (c) 2013-2017 the Civetweb developers</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) 2013 No Face Press, LLC
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * License http://opensource.org/licenses/mit-license.php MIT License
+<span class="lineNum">       5 </span>                :            :  */
+<span class="lineNum">       6 </span>                :            : 
+<span class="lineNum">       7 </span>                :            : #ifndef _CIVETWEB_SERVER_H_
+<span class="lineNum">       8 </span>                :            : #define _CIVETWEB_SERVER_H_
+<span class="lineNum">       9 </span>                :            : #ifdef __cplusplus
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : #include &quot;civetweb.h&quot;
+<span class="lineNum">      12 </span>                :            : #include &lt;map&gt;
+<span class="lineNum">      13 </span>                :            : #include &lt;stdexcept&gt;
+<span class="lineNum">      14 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      15 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : // forward declaration
+<span class="lineNum">      18 </span>                :            : class CivetServer;
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : /**
+<span class="lineNum">      21 </span>                :            :  * Exception class for thrown exceptions within the CivetHandler object.
+<span class="lineNum">      22 </span>                :            :  */
+<span class="lineNum">      23 </span>                :            : class CIVETWEB_API CivetException : public std::runtime_error
+<span class="lineNum">      24 </span>                :            : {
+<span class="lineNum">      25 </span>                :            :   public:
+<span class="lineNum">      26 </span>                :            :         CivetException(const std::string &amp;msg) : std::runtime_error(msg)
+<span class="lineNum">      27 </span>                :            :         {
+<span class="lineNum">      28 </span>                :            :         }
+<span class="lineNum">      29 </span>                :            : };
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : /**
+<span class="lineNum">      32 </span>                :            :  * Basic interface for a URI request handler.  Handlers implementations
+<span class="lineNum">      33 </span>                :            :  * must be reentrant.
+<span class="lineNum">      34 </span>                :            :  */
+<span class="lineNum">      35 </span>                :            : class CIVETWEB_API CivetHandler
+<span class="lineNum">      36 </span>                :            : {
+<span class="lineNum">      37 </span>                :            :   public:
+<span class="lineNum">      38 </span>                :            :         /**
+<span class="lineNum">      39 </span>                :            :          * Destructor
+<span class="lineNum">      40 </span>                :            :          */
+<span class="lineNum">      41 </span>                :            :         virtual ~CivetHandler()
+<span class="lineNum">      42 </span>                :            :         {
+<span class="lineNum">      43 </span>                :            :         }
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            :         /**
+<span class="lineNum">      46 </span>                :            :          * Callback method for GET request.
+<span class="lineNum">      47 </span>                :            :          *
+<span class="lineNum">      48 </span>                :            :          * @param server - the calling server
+<span class="lineNum">      49 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">      50 </span>                :            :          * @returns true if implemented, false otherwise
+<span class="lineNum">      51 </span>                :            :          */
+<span class="lineNum">      52 </span>                :            :         virtual bool handleGet(CivetServer *server, struct mg_connection *conn);
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            :         /**
+<span class="lineNum">      55 </span>                :            :          * Callback method for POST request.
+<span class="lineNum">      56 </span>                :            :          *
+<span class="lineNum">      57 </span>                :            :          * @param server - the calling server
+<span class="lineNum">      58 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">      59 </span>                :            :          * @returns true if implemented, false otherwise
+<span class="lineNum">      60 </span>                :            :          */
+<span class="lineNum">      61 </span>                :            :         virtual bool handlePost(CivetServer *server, struct mg_connection *conn);
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :            :         /**
+<span class="lineNum">      64 </span>                :            :          * Callback method for HEAD request.
+<span class="lineNum">      65 </span>                :            :          *
+<span class="lineNum">      66 </span>                :            :          * @param server - the calling server
+<span class="lineNum">      67 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">      68 </span>                :            :          * @returns true if implemented, false otherwise
+<span class="lineNum">      69 </span>                :            :          */
+<span class="lineNum">      70 </span>                :            :         virtual bool handleHead(CivetServer *server, struct mg_connection *conn);
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            :         /**
+<span class="lineNum">      73 </span>                :            :          * Callback method for PUT request.
+<span class="lineNum">      74 </span>                :            :          *
+<span class="lineNum">      75 </span>                :            :          * @param server - the calling server
+<span class="lineNum">      76 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">      77 </span>                :            :          * @returns true if implemented, false otherwise
+<span class="lineNum">      78 </span>                :            :          */
+<span class="lineNum">      79 </span>                :            :         virtual bool handlePut(CivetServer *server, struct mg_connection *conn);
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :         /**
+<span class="lineNum">      82 </span>                :            :          * Callback method for DELETE request.
+<span class="lineNum">      83 </span>                :            :          *
+<span class="lineNum">      84 </span>                :            :          * @param server - the calling server
+<span class="lineNum">      85 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">      86 </span>                :            :          * @returns true if implemented, false otherwise
+<span class="lineNum">      87 </span>                :            :          */
+<span class="lineNum">      88 </span>                :            :         virtual bool handleDelete(CivetServer *server, struct mg_connection *conn);
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :            :         /**
+<span class="lineNum">      91 </span>                :            :          * Callback method for OPTIONS request.
+<span class="lineNum">      92 </span>                :            :          *
+<span class="lineNum">      93 </span>                :            :          * @param server - the calling server
+<span class="lineNum">      94 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">      95 </span>                :            :          * @returns true if implemented, false otherwise
+<span class="lineNum">      96 </span>                :            :          */
+<span class="lineNum">      97 </span>                :            :         virtual bool handleOptions(CivetServer *server, struct mg_connection *conn);
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :            :         /**
+<span class="lineNum">     100 </span>                :            :          * Callback method for PATCH request.
+<span class="lineNum">     101 </span>                :            :          *
+<span class="lineNum">     102 </span>                :            :          * @param server - the calling server
+<span class="lineNum">     103 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     104 </span>                :            :          * @returns true if implemented, false otherwise
+<span class="lineNum">     105 </span>                :            :          */
+<span class="lineNum">     106 </span>                :            :         virtual bool handlePatch(CivetServer *server, struct mg_connection *conn);
+<span class="lineNum">     107 </span>                :            : };
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            : /**
+<span class="lineNum">     110 </span>                :            :  * Basic interface for a URI authorization handler.  Handler implementations
+<span class="lineNum">     111 </span>                :            :  * must be reentrant.
+<span class="lineNum">     112 </span>                :            :  */
+<span class="lineNum">     113 </span>                :            : class CIVETWEB_API CivetAuthHandler
+<span class="lineNum">     114 </span>                :            : {
+<span class="lineNum">     115 </span>                :            :   public:
+<span class="lineNum">     116 </span>                :            :         /**
+<span class="lineNum">     117 </span>                :            :          * Destructor
+<span class="lineNum">     118 </span>                :            :          */
+<span class="lineNum">     119 </span>                :            :         virtual ~CivetAuthHandler()
+<span class="lineNum">     120 </span>                :            :         {
+<span class="lineNum">     121 </span>                :            :         }
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :            :         /**
+<span class="lineNum">     124 </span>                :            :          * Callback method for authorization requests. It is up the this handler
+<span class="lineNum">     125 </span>                :            :          * to generate 401 responses if authorization fails.
+<span class="lineNum">     126 </span>                :            :          *
+<span class="lineNum">     127 </span>                :            :          * @param server - the calling server
+<span class="lineNum">     128 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     129 </span>                :            :          * @returns true if authorization succeeded, false otherwise
+<span class="lineNum">     130 </span>                :            :          */
+<span class="lineNum">     131 </span>                :            :         virtual bool authorize(CivetServer *server, struct mg_connection *conn) = 0;
+<span class="lineNum">     132 </span>                :            : };
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :            : /**
+<span class="lineNum">     135 </span>                :            :  * Basic interface for a websocket handler.  Handlers implementations
+<a name="136"><span class="lineNum">     136 </span>                :            :  * must be reentrant.</a>
+<span class="lineNum">     137 </span>                :            :  */
+<span class="lineNum">     138 </span>                :<span class="lineCov">          1 : class CIVETWEB_API CivetWebSocketHandler</span>
+<span class="lineNum">     139 </span>                :            : {
+<span class="lineNum">     140 </span>                :            :   public:
+<span class="lineNum">     141 </span>                :            :         /**
+<a name="142"><span class="lineNum">     142 </span>                :            :          * Destructor</a>
+<span class="lineNum">     143 </span>                :            :          */
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :         virtual ~CivetWebSocketHandler()</span>
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :         {</span>
+<span class="lineNum">     146 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :            :         /**
+<span class="lineNum">     149 </span>                :            :          * Callback method for when the client intends to establish a websocket
+<span class="lineNum">     150 </span>                :            :          *connection, before websocket handshake.
+<span class="lineNum">     151 </span>                :            :          *
+<span class="lineNum">     152 </span>                :            :          * @param server - the calling server
+<span class="lineNum">     153 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     154 </span>                :            :          * @returns true to keep socket open, false to close it
+<span class="lineNum">     155 </span>                :            :          */
+<span class="lineNum">     156 </span>                :            :         virtual bool handleConnection(CivetServer *server,
+<span class="lineNum">     157 </span>                :            :                                       const struct mg_connection *conn);
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :            :         /**
+<span class="lineNum">     160 </span>                :            :          * Callback method for when websocket handshake is successfully completed,
+<span class="lineNum">     161 </span>                :            :          *and connection is ready for data exchange.
+<span class="lineNum">     162 </span>                :            :          *
+<span class="lineNum">     163 </span>                :            :          * @param server - the calling server
+<span class="lineNum">     164 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     165 </span>                :            :          */
+<span class="lineNum">     166 </span>                :            :         virtual void handleReadyState(CivetServer *server,
+<span class="lineNum">     167 </span>                :            :                                       struct mg_connection *conn);
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            :         /**
+<span class="lineNum">     170 </span>                :            :          * Callback method for when a data frame has been received from the client.
+<span class="lineNum">     171 </span>                :            :          *
+<span class="lineNum">     172 </span>                :            :          * @param server - the calling server
+<span class="lineNum">     173 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     174 </span>                :            :          * @bits: first byte of the websocket frame, see websocket RFC at
+<span class="lineNum">     175 </span>                :            :          *http://tools.ietf.org/html/rfc6455, section 5.2
+<span class="lineNum">     176 </span>                :            :          * @data, data_len: payload, with mask (if any) already applied.
+<span class="lineNum">     177 </span>                :            :          * @returns true to keep socket open, false to close it
+<span class="lineNum">     178 </span>                :            :          */
+<span class="lineNum">     179 </span>                :            :         virtual bool handleData(CivetServer *server,
+<span class="lineNum">     180 </span>                :            :                                 struct mg_connection *conn,
+<span class="lineNum">     181 </span>                :            :                                 int bits,
+<span class="lineNum">     182 </span>                :            :                                 char *data,
+<span class="lineNum">     183 </span>                :            :                                 size_t data_len);
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :            :         /**
+<span class="lineNum">     186 </span>                :            :          * Callback method for when the connection is closed.
+<span class="lineNum">     187 </span>                :            :          *
+<span class="lineNum">     188 </span>                :            :          * @param server - the calling server
+<span class="lineNum">     189 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     190 </span>                :            :          */
+<span class="lineNum">     191 </span>                :            :         virtual void handleClose(CivetServer *server,
+<span class="lineNum">     192 </span>                :            :                                  const struct mg_connection *conn);
+<span class="lineNum">     193 </span>                :            : };
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :            : /**
+<span class="lineNum">     196 </span>                :            :  * CivetCallbacks
+<span class="lineNum">     197 </span>                :            :  *
+<span class="lineNum">     198 </span>                :            :  * wrapper for mg_callbacks
+<span class="lineNum">     199 </span>                :            :  */
+<span class="lineNum">     200 </span>                :            : struct CIVETWEB_API CivetCallbacks : public mg_callbacks {
+<span class="lineNum">     201 </span>                :            :         CivetCallbacks();
+<span class="lineNum">     202 </span>                :            : };
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :            : /**
+<span class="lineNum">     205 </span>                :            :  * CivetServer
+<span class="lineNum">     206 </span>                :            :  *
+<span class="lineNum">     207 </span>                :            :  * Basic class for embedded web server.  This has an URL mapping built-in.
+<span class="lineNum">     208 </span>                :            :  */
+<span class="lineNum">     209 </span>                :            : class CIVETWEB_API CivetServer
+<span class="lineNum">     210 </span>                :            : {
+<span class="lineNum">     211 </span>                :            :   public:
+<span class="lineNum">     212 </span>                :            :         /**
+<span class="lineNum">     213 </span>                :            :          * Constructor
+<span class="lineNum">     214 </span>                :            :          *
+<span class="lineNum">     215 </span>                :            :          * This automatically starts the sever.
+<span class="lineNum">     216 </span>                :            :          * It is good practice to call getContext() after this in case there
+<span class="lineNum">     217 </span>                :            :          * were errors starting the server.
+<span class="lineNum">     218 </span>                :            :          *
+<span class="lineNum">     219 </span>                :            :          * Note: CivetServer should not be used as a static instance in a Windows
+<span class="lineNum">     220 </span>                :            :          * DLL, since the constructor creates threads and the destructor joins
+<span class="lineNum">     221 </span>                :            :          * them again (creating/joining threads should not be done in static
+<span class="lineNum">     222 </span>                :            :          * constructors).
+<span class="lineNum">     223 </span>                :            :          *
+<span class="lineNum">     224 </span>                :            :          * @param options - the web server options.
+<span class="lineNum">     225 </span>                :            :          * @param callbacks - optional web server callback methods.
+<span class="lineNum">     226 </span>                :            :          *
+<span class="lineNum">     227 </span>                :            :          * @throws CivetException
+<span class="lineNum">     228 </span>                :            :          */
+<span class="lineNum">     229 </span>                :            :         CivetServer(const char **options,
+<span class="lineNum">     230 </span>                :            :                     const struct CivetCallbacks *callbacks = 0,
+<span class="lineNum">     231 </span>                :            :                     const void *UserContext = 0);
+<span class="lineNum">     232 </span>                :            :         CivetServer(std::vector&lt;std::string&gt; options,
+<span class="lineNum">     233 </span>                :            :                     const struct CivetCallbacks *callbacks = 0,
+<span class="lineNum">     234 </span>                :            :                     const void *UserContext = 0);
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :            :         /**
+<span class="lineNum">     237 </span>                :            :          * Destructor
+<span class="lineNum">     238 </span>                :            :          */
+<span class="lineNum">     239 </span>                :            :         virtual ~CivetServer();
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :            :         /**
+<span class="lineNum">     242 </span>                :            :          * close()
+<span class="lineNum">     243 </span>                :            :          *
+<span class="lineNum">     244 </span>                :            :          * Stops server and frees resources.
+<span class="lineNum">     245 </span>                :            :          */
+<span class="lineNum">     246 </span>                :            :         void close();
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :            :         /**
+<span class="lineNum">     249 </span>                :            :          * getContext()
+<span class="lineNum">     250 </span>                :            :          *
+<span class="lineNum">     251 </span>                :            :          * @return the context or 0 if not running.
+<span class="lineNum">     252 </span>                :            :          */
+<span class="lineNum">     253 </span>                :            :         const struct mg_context *
+<span class="lineNum">     254 </span>                :            :         getContext() const
+<span class="lineNum">     255 </span>                :            :         {
+<span class="lineNum">     256 </span>                :            :                 return context;
+<span class="lineNum">     257 </span>                :            :         }
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :            :         /**
+<span class="lineNum">     260 </span>                :            :          * addHandler(const std::string &amp;, CivetHandler *)
+<span class="lineNum">     261 </span>                :            :          *
+<span class="lineNum">     262 </span>                :            :          * Adds a URI handler.  If there is existing URI handler, it will
+<span class="lineNum">     263 </span>                :            :          * be replaced with this one.
+<span class="lineNum">     264 </span>                :            :          *
+<span class="lineNum">     265 </span>                :            :          * URI's are ordered and prefix (REST) URI's are supported.
+<span class="lineNum">     266 </span>                :            :          *
+<span class="lineNum">     267 </span>                :            :          *  @param uri - URI to match.
+<span class="lineNum">     268 </span>                :            :          *  @param handler - handler instance to use.
+<span class="lineNum">     269 </span>                :            :          */
+<span class="lineNum">     270 </span>                :            :         void addHandler(const std::string &amp;uri, CivetHandler *handler);
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :            :         void
+<span class="lineNum">     273 </span>                :            :         addHandler(const std::string &amp;uri, CivetHandler &amp;handler)
+<span class="lineNum">     274 </span>                :            :         {
+<span class="lineNum">     275 </span>                :            :                 addHandler(uri, &amp;handler);
+<span class="lineNum">     276 </span>                :            :         }
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :            :         /**
+<span class="lineNum">     279 </span>                :            :          * addWebSocketHandler
+<span class="lineNum">     280 </span>                :            :          *
+<span class="lineNum">     281 </span>                :            :          * Adds a WebSocket handler for a specific URI.  If there is existing URI
+<span class="lineNum">     282 </span>                :            :          *handler, it will
+<span class="lineNum">     283 </span>                :            :          * be replaced with this one.
+<span class="lineNum">     284 </span>                :            :          *
+<span class="lineNum">     285 </span>                :            :          * URI's are ordered and prefix (REST) URI's are supported.
+<span class="lineNum">     286 </span>                :            :          *
+<span class="lineNum">     287 </span>                :            :          *  @param uri - URI to match.
+<span class="lineNum">     288 </span>                :            :          *  @param handler - handler instance to use.
+<span class="lineNum">     289 </span>                :            :          */
+<span class="lineNum">     290 </span>                :            :         void addWebSocketHandler(const std::string &amp;uri,
+<span class="lineNum">     291 </span>                :            :                                  CivetWebSocketHandler *handler);
+<a name="292"><span class="lineNum">     292 </span>                :            : </a>
+<span class="lineNum">     293 </span>                :            :         void
+<span class="lineNum">     294 </span>                :<span class="lineCov">          2 :         addWebSocketHandler(const std::string &amp;uri, CivetWebSocketHandler &amp;handler)</span>
+<span class="lineNum">     295 </span>                :            :         {
+<span class="lineNum">     296 </span>                :<span class="lineCov">          2 :                 addWebSocketHandler(uri, &amp;handler);</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">          2 :         }</span>
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :            :         /**
+<span class="lineNum">     300 </span>                :            :          * removeHandler(const std::string &amp;)
+<span class="lineNum">     301 </span>                :            :          *
+<span class="lineNum">     302 </span>                :            :          * Removes a handler.
+<span class="lineNum">     303 </span>                :            :          *
+<span class="lineNum">     304 </span>                :            :          * @param uri - the exact URL used in addHandler().
+<span class="lineNum">     305 </span>                :            :          */
+<span class="lineNum">     306 </span>                :            :         void removeHandler(const std::string &amp;uri);
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :            :         /**
+<span class="lineNum">     309 </span>                :            :          * removeWebSocketHandler(const std::string &amp;)
+<span class="lineNum">     310 </span>                :            :          *
+<span class="lineNum">     311 </span>                :            :          * Removes a web socket handler.
+<span class="lineNum">     312 </span>                :            :          *
+<span class="lineNum">     313 </span>                :            :          * @param uri - the exact URL used in addWebSocketHandler().
+<span class="lineNum">     314 </span>                :            :          */
+<span class="lineNum">     315 </span>                :            :         void removeWebSocketHandler(const std::string &amp;uri);
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :            :         /**
+<span class="lineNum">     318 </span>                :            :          * addAuthHandler(const std::string &amp;, CivetAuthHandler *)
+<span class="lineNum">     319 </span>                :            :          *
+<span class="lineNum">     320 </span>                :            :          * Adds a URI authorization handler.  If there is existing URI authorization
+<span class="lineNum">     321 </span>                :            :          * handler, it will be replaced with this one.
+<span class="lineNum">     322 </span>                :            :          *
+<span class="lineNum">     323 </span>                :            :          * URI's are ordered and prefix (REST) URI's are supported.
+<span class="lineNum">     324 </span>                :            :          *
+<span class="lineNum">     325 </span>                :            :          * @param uri - URI to match.
+<span class="lineNum">     326 </span>                :            :          * @param handler - authorization handler instance to use.
+<span class="lineNum">     327 </span>                :            :          */
+<span class="lineNum">     328 </span>                :            :         void addAuthHandler(const std::string &amp;uri, CivetAuthHandler *handler);
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :            :         void
+<span class="lineNum">     331 </span>                :            :         addAuthHandler(const std::string &amp;uri, CivetAuthHandler &amp;handler)
+<span class="lineNum">     332 </span>                :            :         {
+<span class="lineNum">     333 </span>                :            :                 addAuthHandler(uri, &amp;handler);
+<span class="lineNum">     334 </span>                :            :         }
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>                :            :         /**
+<span class="lineNum">     337 </span>                :            :          * removeAuthHandler(const std::string &amp;)
+<span class="lineNum">     338 </span>                :            :          *
+<span class="lineNum">     339 </span>                :            :          * Removes an authorization handler.
+<span class="lineNum">     340 </span>                :            :          *
+<span class="lineNum">     341 </span>                :            :          * @param uri - the exact URL used in addAuthHandler().
+<span class="lineNum">     342 </span>                :            :          */
+<span class="lineNum">     343 </span>                :            :         void removeAuthHandler(const std::string &amp;uri);
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>                :            :         /**
+<span class="lineNum">     346 </span>                :            :          * getListeningPorts()
+<span class="lineNum">     347 </span>                :            :          *
+<span class="lineNum">     348 </span>                :            :          * Returns a list of ports that are listening
+<span class="lineNum">     349 </span>                :            :          *
+<span class="lineNum">     350 </span>                :            :          * @return A vector of ports
+<span class="lineNum">     351 </span>                :            :          */
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :            :         std::vector&lt;int&gt; getListeningPorts();
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :            :         /**
+<span class="lineNum">     356 </span>                :            :          * getCookie(struct mg_connection *conn, const std::string &amp;cookieName,
+<span class="lineNum">     357 </span>                :            :          *std::string &amp;cookieValue)
+<span class="lineNum">     358 </span>                :            :          *
+<span class="lineNum">     359 </span>                :            :          * Puts the cookie value string that matches the cookie name in the
+<span class="lineNum">     360 </span>                :            :          *cookieValue destinaton string.
+<span class="lineNum">     361 </span>                :            :          *
+<span class="lineNum">     362 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     363 </span>                :            :          * @param cookieName - cookie name to get the value from
+<span class="lineNum">     364 </span>                :            :          * @param cookieValue - cookie value is returned using thiis reference
+<span class="lineNum">     365 </span>                :            :          * @returns the size of the cookie value string read.
+<span class="lineNum">     366 </span>                :            :          */
+<span class="lineNum">     367 </span>                :            :         static int getCookie(struct mg_connection *conn,
+<span class="lineNum">     368 </span>                :            :                              const std::string &amp;cookieName,
+<span class="lineNum">     369 </span>                :            :                              std::string &amp;cookieValue);
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>                :            :         /**
+<span class="lineNum">     372 </span>                :            :          * getHeader(struct mg_connection *conn, const std::string &amp;headerName)
+<span class="lineNum">     373 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     374 </span>                :            :          * @param headerName - header name to get the value from
+<span class="lineNum">     375 </span>                :            :          * @returns a char array which contains the header value as string
+<span class="lineNum">     376 </span>                :            :          */
+<span class="lineNum">     377 </span>                :            :         static const char *getHeader(struct mg_connection *conn,
+<span class="lineNum">     378 </span>                :            :                                      const std::string &amp;headerName);
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>                :            :         /**
+<span class="lineNum">     381 </span>                :            :          * getParam(struct mg_connection *conn, const char *, std::string &amp;, size_t)
+<span class="lineNum">     382 </span>                :            :          *
+<span class="lineNum">     383 </span>                :            :          * Returns a query which contained in the supplied buffer.  The
+<span class="lineNum">     384 </span>                :            :          * occurrence value is a zero-based index of a particular key name.  This
+<span class="lineNum">     385 </span>                :            :          * should not be confused with the index over all of the keys.  Note that
+<span class="lineNum">     386 </span>                :            :          *this
+<span class="lineNum">     387 </span>                :            :          * function assumes that parameters are sent as text in http query string
+<span class="lineNum">     388 </span>                :            :          * format, which is the default for web forms. This function will work for
+<span class="lineNum">     389 </span>                :            :          * html forms with method=&quot;GET&quot; and method=&quot;POST&quot; attributes. In other
+<span class="lineNum">     390 </span>                :            :          *cases,
+<span class="lineNum">     391 </span>                :            :          * you may use a getParam version that directly takes the data instead of
+<span class="lineNum">     392 </span>                :            :          *the
+<span class="lineNum">     393 </span>                :            :          * connection as a first argument.
+<span class="lineNum">     394 </span>                :            :          *
+<span class="lineNum">     395 </span>                :            :          * @param conn - parameters are read from the data sent through this
+<span class="lineNum">     396 </span>                :            :          *connection
+<span class="lineNum">     397 </span>                :            :          * @param name - the key to search for
+<span class="lineNum">     398 </span>                :            :          * @param dst - the destination string
+<span class="lineNum">     399 </span>                :            :          * @param occurrence - the occurrence of the selected name in the query (0
+<span class="lineNum">     400 </span>                :            :          *based).
+<span class="lineNum">     401 </span>                :            :          * @return true if key was found
+<span class="lineNum">     402 </span>                :            :          */
+<span class="lineNum">     403 </span>                :            :         static bool getParam(struct mg_connection *conn,
+<span class="lineNum">     404 </span>                :            :                              const char *name,
+<span class="lineNum">     405 </span>                :            :                              std::string &amp;dst,
+<span class="lineNum">     406 </span>                :            :                              size_t occurrence = 0);
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>                :            :         /**
+<span class="lineNum">     409 </span>                :            :          * getParam(const std::string &amp;, const char *, std::string &amp;, size_t)
+<span class="lineNum">     410 </span>                :            :          *
+<span class="lineNum">     411 </span>                :            :          * Returns a query parameter contained in the supplied buffer.  The
+<span class="lineNum">     412 </span>                :            :          * occurrence value is a zero-based index of a particular key name.  This
+<span class="lineNum">     413 </span>                :            :          * should not be confused with the index over all of the keys.
+<span class="lineNum">     414 </span>                :            :          *
+<span class="lineNum">     415 </span>                :            :          * @param data - the query string (text)
+<span class="lineNum">     416 </span>                :            :          * @param name - the key to search for
+<span class="lineNum">     417 </span>                :            :          * @param dst - the destination string
+<span class="lineNum">     418 </span>                :            :          * @param occurrence - the occurrence of the selected name in the query (0
+<span class="lineNum">     419 </span>                :            :          *based).
+<span class="lineNum">     420 </span>                :            :          * @return true if key was found
+<span class="lineNum">     421 </span>                :            :          */
+<span class="lineNum">     422 </span>                :            :         static bool
+<span class="lineNum">     423 </span>                :            :         getParam(const std::string &amp;data,
+<span class="lineNum">     424 </span>                :            :                  const char *name,
+<span class="lineNum">     425 </span>                :            :                  std::string &amp;dst,
+<span class="lineNum">     426 </span>                :            :                  size_t occurrence = 0)
+<span class="lineNum">     427 </span>                :            :         {
+<span class="lineNum">     428 </span>                :            :                 return getParam(data.c_str(), data.length(), name, dst, occurrence);
+<span class="lineNum">     429 </span>                :            :         }
+<span class="lineNum">     430 </span>                :            : 
+<span class="lineNum">     431 </span>                :            :         /**
+<span class="lineNum">     432 </span>                :            :          * getParam(const char *, size_t, const char *, std::string &amp;, size_t)
+<span class="lineNum">     433 </span>                :            :          *
+<span class="lineNum">     434 </span>                :            :          * Returns a query parameter contained in the supplied buffer.  The
+<span class="lineNum">     435 </span>                :            :          * occurrence value is a zero-based index of a particular key name.  This
+<span class="lineNum">     436 </span>                :            :          * should not be confused with the index over all of the keys.
+<span class="lineNum">     437 </span>                :            :          *
+<span class="lineNum">     438 </span>                :            :          * @param data the - query string (text)
+<span class="lineNum">     439 </span>                :            :          * @param data_len - length of the query string
+<span class="lineNum">     440 </span>                :            :          * @param name - the key to search for
+<span class="lineNum">     441 </span>                :            :          * @param dst - the destination string
+<span class="lineNum">     442 </span>                :            :          * @param occurrence - the occurrence of the selected name in the query (0
+<span class="lineNum">     443 </span>                :            :          *based).
+<span class="lineNum">     444 </span>                :            :          * @return true if key was found
+<span class="lineNum">     445 </span>                :            :          */
+<span class="lineNum">     446 </span>                :            :         static bool getParam(const char *data,
+<span class="lineNum">     447 </span>                :            :                              size_t data_len,
+<span class="lineNum">     448 </span>                :            :                              const char *name,
+<span class="lineNum">     449 </span>                :            :                              std::string &amp;dst,
+<span class="lineNum">     450 </span>                :            :                              size_t occurrence = 0);
+<span class="lineNum">     451 </span>                :            : 
+<span class="lineNum">     452 </span>                :            :         /**
+<span class="lineNum">     453 </span>                :            :          * getPostData(struct mg_connection *)
+<span class="lineNum">     454 </span>                :            :          *
+<span class="lineNum">     455 </span>                :            :          * Returns response body from a request made as POST. Since the
+<span class="lineNum">     456 </span>                :            :          * connections map is protected, it can't be directly accessed.
+<span class="lineNum">     457 </span>                :            :          * This uses string to store post data to handle big posts.
+<span class="lineNum">     458 </span>                :            :          *
+<span class="lineNum">     459 </span>                :            :          * @param conn - connection from which post data will be read
+<span class="lineNum">     460 </span>                :            :          * @return Post data (empty if not available).
+<span class="lineNum">     461 </span>                :            :          */
+<span class="lineNum">     462 </span>                :            :         static std::string getPostData(struct mg_connection *conn);
+<span class="lineNum">     463 </span>                :            : 
+<span class="lineNum">     464 </span>                :            :         /**
+<span class="lineNum">     465 </span>                :            :          * urlDecode(const std::string &amp;, std::string &amp;, bool)
+<span class="lineNum">     466 </span>                :            :          *
+<span class="lineNum">     467 </span>                :            :          * @param src - string to be decoded
+<span class="lineNum">     468 </span>                :            :          * @param dst - destination string
+<span class="lineNum">     469 </span>                :            :          * @param is_form_url_encoded - true if form url encoded
+<span class="lineNum">     470 </span>                :            :          *       form-url-encoded data differs from URI encoding in a way that it
+<span class="lineNum">     471 </span>                :            :          *       uses '+' as character for space, see RFC 1866 section 8.2.1
+<span class="lineNum">     472 </span>                :            :          *       http://ftp.ics.uci.edu/pub/ietf/html/rfc1866.txt
+<span class="lineNum">     473 </span>                :            :          */
+<span class="lineNum">     474 </span>                :            :         static void
+<span class="lineNum">     475 </span>                :            :         urlDecode(const std::string &amp;src,
+<span class="lineNum">     476 </span>                :            :                   std::string &amp;dst,
+<span class="lineNum">     477 </span>                :            :                   bool is_form_url_encoded = true)
+<span class="lineNum">     478 </span>                :            :         {
+<span class="lineNum">     479 </span>                :            :                 urlDecode(src.c_str(), src.length(), dst, is_form_url_encoded);
+<span class="lineNum">     480 </span>                :            :         }
+<span class="lineNum">     481 </span>                :            : 
+<span class="lineNum">     482 </span>                :            :         /**
+<span class="lineNum">     483 </span>                :            :          * urlDecode(const char *, size_t, std::string &amp;, bool)
+<span class="lineNum">     484 </span>                :            :          *
+<span class="lineNum">     485 </span>                :            :          * @param src - buffer to be decoded
+<span class="lineNum">     486 </span>                :            :          * @param src_len - length of buffer to be decoded
+<span class="lineNum">     487 </span>                :            :          * @param dst - destination string
+<span class="lineNum">     488 </span>                :            :          * @param is_form_url_encoded - true if form url encoded
+<span class="lineNum">     489 </span>                :            :          *       form-url-encoded data differs from URI encoding in a way that it
+<span class="lineNum">     490 </span>                :            :          *       uses '+' as character for space, see RFC 1866 section 8.2.1
+<span class="lineNum">     491 </span>                :            :          *       http://ftp.ics.uci.edu/pub/ietf/html/rfc1866.txt
+<span class="lineNum">     492 </span>                :            :          */
+<span class="lineNum">     493 </span>                :            :         static void urlDecode(const char *src,
+<span class="lineNum">     494 </span>                :            :                               size_t src_len,
+<span class="lineNum">     495 </span>                :            :                               std::string &amp;dst,
+<span class="lineNum">     496 </span>                :            :                               bool is_form_url_encoded = true);
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>                :            :         /**
+<span class="lineNum">     499 </span>                :            :          * urlDecode(const char *, std::string &amp;, bool)
+<span class="lineNum">     500 </span>                :            :          *
+<span class="lineNum">     501 </span>                :            :          * @param src - buffer to be decoded (0 terminated)
+<span class="lineNum">     502 </span>                :            :          * @param dst - destination string
+<span class="lineNum">     503 </span>                :            :          * @param is_form_url_encoded true - if form url encoded
+<span class="lineNum">     504 </span>                :            :          *       form-url-encoded data differs from URI encoding in a way that it
+<span class="lineNum">     505 </span>                :            :          *       uses '+' as character for space, see RFC 1866 section 8.2.1
+<span class="lineNum">     506 </span>                :            :          *       http://ftp.ics.uci.edu/pub/ietf/html/rfc1866.txt
+<span class="lineNum">     507 </span>                :            :          */
+<span class="lineNum">     508 </span>                :            :         static void urlDecode(const char *src,
+<span class="lineNum">     509 </span>                :            :                               std::string &amp;dst,
+<span class="lineNum">     510 </span>                :            :                               bool is_form_url_encoded = true);
+<span class="lineNum">     511 </span>                :            : 
+<span class="lineNum">     512 </span>                :            :         /**
+<span class="lineNum">     513 </span>                :            :          * urlEncode(const std::string &amp;, std::string &amp;, bool)
+<span class="lineNum">     514 </span>                :            :          *
+<span class="lineNum">     515 </span>                :            :          * @param src - buffer to be encoded
+<span class="lineNum">     516 </span>                :            :          * @param dst - destination string
+<span class="lineNum">     517 </span>                :            :          * @param append - true if string should not be cleared before encoding.
+<span class="lineNum">     518 </span>                :            :          */
+<span class="lineNum">     519 </span>                :            :         static void
+<span class="lineNum">     520 </span>                :            :         urlEncode(const std::string &amp;src, std::string &amp;dst, bool append = false)
+<span class="lineNum">     521 </span>                :            :         {
+<span class="lineNum">     522 </span>                :            :                 urlEncode(src.c_str(), src.length(), dst, append);
+<span class="lineNum">     523 </span>                :            :         }
+<span class="lineNum">     524 </span>                :            : 
+<span class="lineNum">     525 </span>                :            :         /**
+<span class="lineNum">     526 </span>                :            :          * urlEncode(const char *, size_t, std::string &amp;, bool)
+<span class="lineNum">     527 </span>                :            :          *
+<span class="lineNum">     528 </span>                :            :          * @param src - buffer to be encoded (0 terminated)
+<span class="lineNum">     529 </span>                :            :          * @param dst - destination string
+<span class="lineNum">     530 </span>                :            :          * @param append - true if string should not be cleared before encoding.
+<span class="lineNum">     531 </span>                :            :          */
+<span class="lineNum">     532 </span>                :            :         static void
+<span class="lineNum">     533 </span>                :            :         urlEncode(const char *src, std::string &amp;dst, bool append = false);
+<span class="lineNum">     534 </span>                :            : 
+<span class="lineNum">     535 </span>                :            :         /**
+<span class="lineNum">     536 </span>                :            :          * urlEncode(const char *, size_t, std::string &amp;, bool)
+<span class="lineNum">     537 </span>                :            :          *
+<span class="lineNum">     538 </span>                :            :          * @param src - buffer to be encoded
+<span class="lineNum">     539 </span>                :            :          * @param src_len - length of buffer to be decoded
+<span class="lineNum">     540 </span>                :            :          * @param dst - destination string
+<span class="lineNum">     541 </span>                :            :          * @param append - true if string should not be cleared before encoding.
+<span class="lineNum">     542 </span>                :            :          */
+<span class="lineNum">     543 </span>                :            :         static void urlEncode(const char *src,
+<span class="lineNum">     544 </span>                :            :                               size_t src_len,
+<span class="lineNum">     545 </span>                :            :                               std::string &amp;dst,
+<span class="lineNum">     546 </span>                :            :                               bool append = false);
+<span class="lineNum">     547 </span>                :            : 
+<span class="lineNum">     548 </span>                :            :         // generic user context which can be set/read,
+<span class="lineNum">     549 </span>                :            :         // the server does nothing with this apart from keep it.
+<span class="lineNum">     550 </span>                :            :         const void *
+<span class="lineNum">     551 </span>                :            :         getUserContext() const
+<span class="lineNum">     552 </span>                :            :         {
+<span class="lineNum">     553 </span>                :            :                 return UserContext;
+<span class="lineNum">     554 </span>                :            :         }
+<span class="lineNum">     555 </span>                :            : 
+<span class="lineNum">     556 </span>                :            :   protected:
+<span class="lineNum">     557 </span>                :            :         class CivetConnection
+<span class="lineNum">     558 </span>                :            :         {
+<span class="lineNum">     559 </span>                :            :           public:
+<span class="lineNum">     560 </span>                :            :                 char *postData;
+<span class="lineNum">     561 </span>                :            :                 unsigned long postDataLen;
+<span class="lineNum">     562 </span>                :            : 
+<span class="lineNum">     563 </span>                :            :                 CivetConnection();
+<span class="lineNum">     564 </span>                :            :                 ~CivetConnection();
+<span class="lineNum">     565 </span>                :            :         };
+<span class="lineNum">     566 </span>                :            : 
+<span class="lineNum">     567 </span>                :            :         struct mg_context *context;
+<span class="lineNum">     568 </span>                :            :         std::map&lt;struct mg_connection *, class CivetConnection&gt; connections;
+<span class="lineNum">     569 </span>                :            : 
+<span class="lineNum">     570 </span>                :            :         // generic user context which can be set/read,
+<span class="lineNum">     571 </span>                :            :         // the server does nothing with this apart from keep it.
+<span class="lineNum">     572 </span>                :            :         const void *UserContext;
+<span class="lineNum">     573 </span>                :            : 
+<span class="lineNum">     574 </span>                :            :   private:
+<span class="lineNum">     575 </span>                :            :         /**
+<span class="lineNum">     576 </span>                :            :          * requestHandler(struct mg_connection *, void *cbdata)
+<span class="lineNum">     577 </span>                :            :          *
+<span class="lineNum">     578 </span>                :            :          * Handles the incoming request.
+<span class="lineNum">     579 </span>                :            :          *
+<span class="lineNum">     580 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     581 </span>                :            :          * @param cbdata - pointer to the CivetHandler instance.
+<span class="lineNum">     582 </span>                :            :          * @returns 0 if implemented, false otherwise
+<span class="lineNum">     583 </span>                :            :          */
+<span class="lineNum">     584 </span>                :            :         static int requestHandler(struct mg_connection *conn, void *cbdata);
+<span class="lineNum">     585 </span>                :            : 
+<span class="lineNum">     586 </span>                :            :         static int webSocketConnectionHandler(const struct mg_connection *conn,
+<span class="lineNum">     587 </span>                :            :                                               void *cbdata);
+<span class="lineNum">     588 </span>                :            :         static void webSocketReadyHandler(struct mg_connection *conn, void *cbdata);
+<span class="lineNum">     589 </span>                :            :         static int webSocketDataHandler(struct mg_connection *conn,
+<span class="lineNum">     590 </span>                :            :                                         int bits,
+<span class="lineNum">     591 </span>                :            :                                         char *data,
+<span class="lineNum">     592 </span>                :            :                                         size_t data_len,
+<span class="lineNum">     593 </span>                :            :                                         void *cbdata);
+<span class="lineNum">     594 </span>                :            :         static void webSocketCloseHandler(const struct mg_connection *conn,
+<span class="lineNum">     595 </span>                :            :                                           void *cbdata);
+<span class="lineNum">     596 </span>                :            :         /**
+<span class="lineNum">     597 </span>                :            :          * authHandler(struct mg_connection *, void *cbdata)
+<span class="lineNum">     598 </span>                :            :          *
+<span class="lineNum">     599 </span>                :            :          * Handles the authorization requests.
+<span class="lineNum">     600 </span>                :            :          *
+<span class="lineNum">     601 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     602 </span>                :            :          * @param cbdata - pointer to the CivetAuthHandler instance.
+<span class="lineNum">     603 </span>                :            :          * @returns 1 if authorized, 0 otherwise
+<span class="lineNum">     604 </span>                :            :          */
+<span class="lineNum">     605 </span>                :            :         static int authHandler(struct mg_connection *conn, void *cbdata);
+<span class="lineNum">     606 </span>                :            : 
+<span class="lineNum">     607 </span>                :            :         /**
+<span class="lineNum">     608 </span>                :            :          * closeHandler(struct mg_connection *)
+<span class="lineNum">     609 </span>                :            :          *
+<span class="lineNum">     610 </span>                :            :          * Handles closing a request (internal handler)
+<span class="lineNum">     611 </span>                :            :          *
+<span class="lineNum">     612 </span>                :            :          * @param conn - the connection information
+<span class="lineNum">     613 </span>                :            :          */
+<span class="lineNum">     614 </span>                :            :         static void closeHandler(const struct mg_connection *conn);
+<span class="lineNum">     615 </span>                :            : 
+<span class="lineNum">     616 </span>                :            :         /**
+<span class="lineNum">     617 </span>                :            :          * Stores the user provided close handler
+<span class="lineNum">     618 </span>                :            :          */
+<span class="lineNum">     619 </span>                :            :         void (*userCloseHandler)(const struct mg_connection *conn);
+<span class="lineNum">     620 </span>                :            : };
+<span class="lineNum">     621 </span>                :            : 
+<span class="lineNum">     622 </span>                :            : #endif /*  __cplusplus */
+<span class="lineNum">     623 </span>                :            : #endif /* _CIVETWEB_SERVER_H_ */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

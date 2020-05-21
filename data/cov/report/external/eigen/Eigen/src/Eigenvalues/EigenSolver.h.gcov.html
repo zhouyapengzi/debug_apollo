@@ -1,0 +1,737 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Eigenvalues/EigenSolver.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Eigenvalues</a> - EigenSolver.h<span style="font-size: 80%;"> (source / <a href="EigenSolver.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">141</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">410</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2008 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       5 </span>                :            : // Copyright (C) 2010,2012 Jitse Niesen &lt;jitse@maths.leeds.ac.uk&gt;
+<span class="lineNum">       6 </span>                :            : //
+<span class="lineNum">       7 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       8 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       9 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : #ifndef EIGEN_EIGENSOLVER_H
+<span class="lineNum">      12 </span>                :            : #define EIGEN_EIGENSOLVER_H
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : #include &quot;./RealSchur.h&quot;
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : namespace Eigen { 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : /** \eigenvalues_module \ingroup Eigenvalues_Module
+<span class="lineNum">      19 </span>                :            :   *
+<span class="lineNum">      20 </span>                :            :   *
+<span class="lineNum">      21 </span>                :            :   * \class EigenSolver
+<span class="lineNum">      22 </span>                :            :   *
+<span class="lineNum">      23 </span>                :            :   * \brief Computes eigenvalues and eigenvectors of general matrices
+<span class="lineNum">      24 </span>                :            :   *
+<span class="lineNum">      25 </span>                :            :   * \tparam _MatrixType the type of the matrix of which we are computing the
+<span class="lineNum">      26 </span>                :            :   * eigendecomposition; this is expected to be an instantiation of the Matrix
+<span class="lineNum">      27 </span>                :            :   * class template. Currently, only real matrices are supported.
+<span class="lineNum">      28 </span>                :            :   *
+<span class="lineNum">      29 </span>                :            :   * The eigenvalues and eigenvectors of a matrix \f$ A \f$ are scalars
+<span class="lineNum">      30 </span>                :            :   * \f$ \lambda \f$ and vectors \f$ v \f$ such that \f$ Av = \lambda v \f$.  If
+<span class="lineNum">      31 </span>                :            :   * \f$ D \f$ is a diagonal matrix with the eigenvalues on the diagonal, and
+<span class="lineNum">      32 </span>                :            :   * \f$ V \f$ is a matrix with the eigenvectors as its columns, then \f$ A V =
+<span class="lineNum">      33 </span>                :            :   * V D \f$. The matrix \f$ V \f$ is almost always invertible, in which case we
+<span class="lineNum">      34 </span>                :            :   * have \f$ A = V D V^{-1} \f$. This is called the eigendecomposition.
+<span class="lineNum">      35 </span>                :            :   *
+<span class="lineNum">      36 </span>                :            :   * The eigenvalues and eigenvectors of a matrix may be complex, even when the
+<span class="lineNum">      37 </span>                :            :   * matrix is real. However, we can choose real matrices \f$ V \f$ and \f$ D
+<span class="lineNum">      38 </span>                :            :   * \f$ satisfying \f$ A V = V D \f$, just like the eigendecomposition, if the
+<span class="lineNum">      39 </span>                :            :   * matrix \f$ D \f$ is not required to be diagonal, but if it is allowed to
+<span class="lineNum">      40 </span>                :            :   * have blocks of the form
+<span class="lineNum">      41 </span>                :            :   * \f[ \begin{bmatrix} u &amp; v \\ -v &amp; u \end{bmatrix} \f]
+<span class="lineNum">      42 </span>                :            :   * (where \f$ u \f$ and \f$ v \f$ are real numbers) on the diagonal.  These
+<span class="lineNum">      43 </span>                :            :   * blocks correspond to complex eigenvalue pairs \f$ u \pm iv \f$. We call
+<span class="lineNum">      44 </span>                :            :   * this variant of the eigendecomposition the pseudo-eigendecomposition.
+<span class="lineNum">      45 </span>                :            :   *
+<span class="lineNum">      46 </span>                :            :   * Call the function compute() to compute the eigenvalues and eigenvectors of
+<span class="lineNum">      47 </span>                :            :   * a given matrix. Alternatively, you can use the 
+<span class="lineNum">      48 </span>                :            :   * EigenSolver(const MatrixType&amp;, bool) constructor which computes the
+<span class="lineNum">      49 </span>                :            :   * eigenvalues and eigenvectors at construction time. Once the eigenvalue and
+<span class="lineNum">      50 </span>                :            :   * eigenvectors are computed, they can be retrieved with the eigenvalues() and
+<span class="lineNum">      51 </span>                :            :   * eigenvectors() functions. The pseudoEigenvalueMatrix() and
+<span class="lineNum">      52 </span>                :            :   * pseudoEigenvectors() methods allow the construction of the
+<span class="lineNum">      53 </span>                :            :   * pseudo-eigendecomposition.
+<span class="lineNum">      54 </span>                :            :   *
+<span class="lineNum">      55 </span>                :            :   * The documentation for EigenSolver(const MatrixType&amp;, bool) contains an
+<span class="lineNum">      56 </span>                :            :   * example of the typical use of this class.
+<span class="lineNum">      57 </span>                :            :   *
+<span class="lineNum">      58 </span>                :            :   * \note The implementation is adapted from
+<span class="lineNum">      59 </span>                :            :   * &lt;a href=&quot;http://math.nist.gov/javanumerics/jama/&quot;&gt;JAMA&lt;/a&gt; (public domain).
+<span class="lineNum">      60 </span>                :            :   * Their code is based on EISPACK.
+<span class="lineNum">      61 </span>                :            :   *
+<span class="lineNum">      62 </span>                :            :   * \sa MatrixBase::eigenvalues(), class ComplexEigenSolver, class SelfAdjointEigenSolver
+<span class="lineNum">      63 </span>                :            :   */
+<span class="lineNum">      64 </span>                :            : template&lt;typename _MatrixType&gt; class EigenSolver
+<span class="lineNum">      65 </span>                :            : {
+<span class="lineNum">      66 </span>                :            :   public:
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :            :     /** \brief Synonym for the template parameter \p _MatrixType. */
+<span class="lineNum">      69 </span>                :            :     typedef _MatrixType MatrixType;
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            :     enum {
+<span class="lineNum">      72 </span>                :            :       RowsAtCompileTime = MatrixType::RowsAtCompileTime,
+<span class="lineNum">      73 </span>                :            :       ColsAtCompileTime = MatrixType::ColsAtCompileTime,
+<span class="lineNum">      74 </span>                :            :       Options = MatrixType::Options,
+<span class="lineNum">      75 </span>                :            :       MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
+<span class="lineNum">      76 </span>                :            :       MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime
+<span class="lineNum">      77 </span>                :            :     };
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :            :     /** \brief Scalar type for matrices of type #MatrixType. */
+<span class="lineNum">      80 </span>                :            :     typedef typename MatrixType::Scalar Scalar;
+<span class="lineNum">      81 </span>                :            :     typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">      82 </span>                :            :     typedef typename MatrixType::Index Index;
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :            :     /** \brief Complex scalar type for #MatrixType. 
+<span class="lineNum">      85 </span>                :            :       *
+<span class="lineNum">      86 </span>                :            :       * This is \c std::complex&lt;Scalar&gt; if #Scalar is real (e.g.,
+<span class="lineNum">      87 </span>                :            :       * \c float or \c double) and just \c Scalar if #Scalar is
+<span class="lineNum">      88 </span>                :            :       * complex.
+<span class="lineNum">      89 </span>                :            :       */
+<span class="lineNum">      90 </span>                :            :     typedef std::complex&lt;RealScalar&gt; ComplexScalar;
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :     /** \brief Type for vector of eigenvalues as returned by eigenvalues(). 
+<span class="lineNum">      93 </span>                :            :       *
+<span class="lineNum">      94 </span>                :            :       * This is a column vector with entries of type #ComplexScalar.
+<span class="lineNum">      95 </span>                :            :       * The length of the vector is the size of #MatrixType.
+<span class="lineNum">      96 </span>                :            :       */
+<span class="lineNum">      97 </span>                :            :     typedef Matrix&lt;ComplexScalar, ColsAtCompileTime, 1, Options &amp; ~RowMajor, MaxColsAtCompileTime, 1&gt; EigenvalueType;
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :            :     /** \brief Type for matrix of eigenvectors as returned by eigenvectors(). 
+<span class="lineNum">     100 </span>                :            :       *
+<span class="lineNum">     101 </span>                :            :       * This is a square matrix with entries of type #ComplexScalar. 
+<span class="lineNum">     102 </span>                :            :       * The size is the same as the size of #MatrixType.
+<span class="lineNum">     103 </span>                :            :       */
+<span class="lineNum">     104 </span>                :            :     typedef Matrix&lt;ComplexScalar, RowsAtCompileTime, ColsAtCompileTime, Options, MaxRowsAtCompileTime, MaxColsAtCompileTime&gt; EigenvectorsType;
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :     /** \brief Default constructor.
+<span class="lineNum">     107 </span>                :            :       *
+<span class="lineNum">     108 </span>                :            :       * The default constructor is useful in cases in which the user intends to
+<span class="lineNum">     109 </span>                :            :       * perform decompositions via EigenSolver::compute(const MatrixType&amp;, bool).
+<span class="lineNum">     110 </span>                :            :       *
+<span class="lineNum">     111 </span>                :            :       * \sa compute() for an example.
+<span class="lineNum">     112 </span>                :            :       */
+<span class="lineNum">     113 </span>                :            :  EigenSolver() : m_eivec(), m_eivalues(), m_isInitialized(false), m_realSchur(), m_matT(), m_tmp() {}
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :     /** \brief Default constructor with memory preallocation
+<span class="lineNum">     116 </span>                :            :       *
+<span class="lineNum">     117 </span>                :            :       * Like the default constructor but with preallocation of the internal data
+<span class="lineNum">     118 </span>                :            :       * according to the specified problem \a size.
+<span class="lineNum">     119 </span>                :            :       * \sa EigenSolver()
+<span class="lineNum">     120 </span>                :            :       */
+<span class="lineNum">     121 </span>                :            :     EigenSolver(Index size)
+<span class="lineNum">     122 </span>                :            :       : m_eivec(size, size),
+<span class="lineNum">     123 </span>                :            :         m_eivalues(size),
+<span class="lineNum">     124 </span>                :            :         m_isInitialized(false),
+<span class="lineNum">     125 </span>                :            :         m_eigenvectorsOk(false),
+<span class="lineNum">     126 </span>                :            :         m_realSchur(size),
+<span class="lineNum">     127 </span>                :            :         m_matT(size, size), 
+<span class="lineNum">     128 </span>                :            :         m_tmp(size)
+<span class="lineNum">     129 </span>                :            :     {}
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :            :     /** \brief Constructor; computes eigendecomposition of given matrix. 
+<span class="lineNum">     132 </span>                :            :       * 
+<span class="lineNum">     133 </span>                :            :       * \param[in]  matrix  Square matrix whose eigendecomposition is to be computed.
+<span class="lineNum">     134 </span>                :            :       * \param[in]  computeEigenvectors  If true, both the eigenvectors and the
+<span class="lineNum">     135 </span>                :            :       *    eigenvalues are computed; if false, only the eigenvalues are
+<span class="lineNum">     136 </span>                :            :       *    computed. 
+<span class="lineNum">     137 </span>                :            :       *
+<span class="lineNum">     138 </span>                :            :       * This constructor calls compute() to compute the eigenvalues
+<span class="lineNum">     139 </span>                :            :       * and eigenvectors.
+<span class="lineNum">     140 </span>                :            :       *
+<span class="lineNum">     141 </span>                :            :       * Example: \include EigenSolver_EigenSolver_MatrixType.cpp
+<span class="lineNum">     142 </span>                :            :       * Output: \verbinclude EigenSolver_EigenSolver_MatrixType.out
+<span class="lineNum">     143 </span>                :            :       *
+<a name="144"><span class="lineNum">     144 </span>                :            :       * \sa compute()</a>
+<span class="lineNum">     145 </span>                :            :       */
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :     EigenSolver(const MatrixType&amp; matrix, bool computeEigenvectors = true)</span>
+<span class="lineNum">     147 </span>                :            :       : m_eivec(matrix.rows(), matrix.cols()),
+<span class="lineNum">     148 </span>                :            :         m_eivalues(matrix.cols()),
+<span class="lineNum">     149 </span>                :            :         m_isInitialized(false),
+<span class="lineNum">     150 </span>                :            :         m_eigenvectorsOk(false),
+<span class="lineNum">     151 </span>                :            :         m_realSchur(matrix.cols()),
+<span class="lineNum">     152 </span>                :            :         m_matT(matrix.rows(), matrix.cols()), 
+<span class="lineNum">     153 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :         m_tmp(matrix.cols())</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     154 </span>                :            :     {
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :       compute(matrix, computeEigenvectors);</span>
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :            :     /** \brief Returns the eigenvectors of given matrix. 
+<span class="lineNum">     159 </span>                :            :       *
+<span class="lineNum">     160 </span>                :            :       * \returns  %Matrix whose columns are the (possibly complex) eigenvectors.
+<span class="lineNum">     161 </span>                :            :       *
+<span class="lineNum">     162 </span>                :            :       * \pre Either the constructor 
+<span class="lineNum">     163 </span>                :            :       * EigenSolver(const MatrixType&amp;,bool) or the member function
+<span class="lineNum">     164 </span>                :            :       * compute(const MatrixType&amp;, bool) has been called before, and
+<span class="lineNum">     165 </span>                :            :       * \p computeEigenvectors was set to true (the default).
+<span class="lineNum">     166 </span>                :            :       *
+<span class="lineNum">     167 </span>                :            :       * Column \f$ k \f$ of the returned matrix is an eigenvector corresponding
+<span class="lineNum">     168 </span>                :            :       * to eigenvalue number \f$ k \f$ as returned by eigenvalues().  The
+<span class="lineNum">     169 </span>                :            :       * eigenvectors are normalized to have (Euclidean) norm equal to one. The
+<span class="lineNum">     170 </span>                :            :       * matrix returned by this function is the matrix \f$ V \f$ in the
+<span class="lineNum">     171 </span>                :            :       * eigendecomposition \f$ A = V D V^{-1} \f$, if it exists.
+<span class="lineNum">     172 </span>                :            :       *
+<span class="lineNum">     173 </span>                :            :       * Example: \include EigenSolver_eigenvectors.cpp
+<span class="lineNum">     174 </span>                :            :       * Output: \verbinclude EigenSolver_eigenvectors.out
+<span class="lineNum">     175 </span>                :            :       *
+<span class="lineNum">     176 </span>                :            :       * \sa eigenvalues(), pseudoEigenvectors()
+<span class="lineNum">     177 </span>                :            :       */
+<span class="lineNum">     178 </span>                :            :     EigenvectorsType eigenvectors() const;
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :            :     /** \brief Returns the pseudo-eigenvectors of given matrix. 
+<span class="lineNum">     181 </span>                :            :       *
+<span class="lineNum">     182 </span>                :            :       * \returns  Const reference to matrix whose columns are the pseudo-eigenvectors.
+<span class="lineNum">     183 </span>                :            :       *
+<span class="lineNum">     184 </span>                :            :       * \pre Either the constructor 
+<span class="lineNum">     185 </span>                :            :       * EigenSolver(const MatrixType&amp;,bool) or the member function
+<span class="lineNum">     186 </span>                :            :       * compute(const MatrixType&amp;, bool) has been called before, and
+<span class="lineNum">     187 </span>                :            :       * \p computeEigenvectors was set to true (the default).
+<span class="lineNum">     188 </span>                :            :       *
+<span class="lineNum">     189 </span>                :            :       * The real matrix \f$ V \f$ returned by this function and the
+<span class="lineNum">     190 </span>                :            :       * block-diagonal matrix \f$ D \f$ returned by pseudoEigenvalueMatrix()
+<span class="lineNum">     191 </span>                :            :       * satisfy \f$ AV = VD \f$.
+<span class="lineNum">     192 </span>                :            :       *
+<span class="lineNum">     193 </span>                :            :       * Example: \include EigenSolver_pseudoEigenvectors.cpp
+<span class="lineNum">     194 </span>                :            :       * Output: \verbinclude EigenSolver_pseudoEigenvectors.out
+<span class="lineNum">     195 </span>                :            :       *
+<span class="lineNum">     196 </span>                :            :       * \sa pseudoEigenvalueMatrix(), eigenvectors()
+<span class="lineNum">     197 </span>                :            :       */
+<span class="lineNum">     198 </span>                :            :     const MatrixType&amp; pseudoEigenvectors() const
+<span class="lineNum">     199 </span>                :            :     {
+<span class="lineNum">     200 </span>                :            :       eigen_assert(m_isInitialized &amp;&amp; &quot;EigenSolver is not initialized.&quot;);
+<span class="lineNum">     201 </span>                :            :       eigen_assert(m_eigenvectorsOk &amp;&amp; &quot;The eigenvectors have not been computed together with the eigenvalues.&quot;);
+<span class="lineNum">     202 </span>                :            :       return m_eivec;
+<span class="lineNum">     203 </span>                :            :     }
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :            :     /** \brief Returns the block-diagonal matrix in the pseudo-eigendecomposition.
+<span class="lineNum">     206 </span>                :            :       *
+<span class="lineNum">     207 </span>                :            :       * \returns  A block-diagonal matrix.
+<span class="lineNum">     208 </span>                :            :       *
+<span class="lineNum">     209 </span>                :            :       * \pre Either the constructor 
+<span class="lineNum">     210 </span>                :            :       * EigenSolver(const MatrixType&amp;,bool) or the member function
+<span class="lineNum">     211 </span>                :            :       * compute(const MatrixType&amp;, bool) has been called before.
+<span class="lineNum">     212 </span>                :            :       *
+<span class="lineNum">     213 </span>                :            :       * The matrix \f$ D \f$ returned by this function is real and
+<span class="lineNum">     214 </span>                :            :       * block-diagonal. The blocks on the diagonal are either 1-by-1 or 2-by-2
+<span class="lineNum">     215 </span>                :            :       * blocks of the form
+<span class="lineNum">     216 </span>                :            :       * \f$ \begin{bmatrix} u &amp; v \\ -v &amp; u \end{bmatrix} \f$.
+<span class="lineNum">     217 </span>                :            :       * These blocks are not sorted in any particular order.
+<span class="lineNum">     218 </span>                :            :       * The matrix \f$ D \f$ and the matrix \f$ V \f$ returned by
+<span class="lineNum">     219 </span>                :            :       * pseudoEigenvectors() satisfy \f$ AV = VD \f$.
+<span class="lineNum">     220 </span>                :            :       *
+<span class="lineNum">     221 </span>                :            :       * \sa pseudoEigenvectors() for an example, eigenvalues()
+<span class="lineNum">     222 </span>                :            :       */
+<span class="lineNum">     223 </span>                :            :     MatrixType pseudoEigenvalueMatrix() const;
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :            :     /** \brief Returns the eigenvalues of given matrix. 
+<span class="lineNum">     226 </span>                :            :       *
+<span class="lineNum">     227 </span>                :            :       * \returns A const reference to the column vector containing the eigenvalues.
+<span class="lineNum">     228 </span>                :            :       *
+<span class="lineNum">     229 </span>                :            :       * \pre Either the constructor 
+<span class="lineNum">     230 </span>                :            :       * EigenSolver(const MatrixType&amp;,bool) or the member function
+<span class="lineNum">     231 </span>                :            :       * compute(const MatrixType&amp;, bool) has been called before.
+<span class="lineNum">     232 </span>                :            :       *
+<span class="lineNum">     233 </span>                :            :       * The eigenvalues are repeated according to their algebraic multiplicity,
+<span class="lineNum">     234 </span>                :            :       * so there are as many eigenvalues as rows in the matrix. The eigenvalues 
+<span class="lineNum">     235 </span>                :            :       * are not sorted in any particular order.
+<span class="lineNum">     236 </span>                :            :       *
+<span class="lineNum">     237 </span>                :            :       * Example: \include EigenSolver_eigenvalues.cpp
+<span class="lineNum">     238 </span>                :            :       * Output: \verbinclude EigenSolver_eigenvalues.out
+<span class="lineNum">     239 </span>                :            :       *
+<span class="lineNum">     240 </span>                :            :       * \sa eigenvectors(), pseudoEigenvalueMatrix(),
+<a name="241"><span class="lineNum">     241 </span>                :            :       *     MatrixBase::eigenvalues()</a>
+<span class="lineNum">     242 </span>                :            :       */
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :     const EigenvalueType&amp; eigenvalues() const</span>
+<span class="lineNum">     244 </span>                :            :     {
+<span class="lineNum">     245 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       eigen_assert(m_isInitialized &amp;&amp; &quot;EigenSolver is not initialized.&quot;);</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :       return m_eivalues;</span>
+<span class="lineNum">     247 </span>                :            :     }
+<span class="lineNum">     248 </span>                :            : 
+<span class="lineNum">     249 </span>                :            :     /** \brief Computes eigendecomposition of given matrix. 
+<span class="lineNum">     250 </span>                :            :       * 
+<span class="lineNum">     251 </span>                :            :       * \param[in]  matrix  Square matrix whose eigendecomposition is to be computed.
+<span class="lineNum">     252 </span>                :            :       * \param[in]  computeEigenvectors  If true, both the eigenvectors and the
+<span class="lineNum">     253 </span>                :            :       *    eigenvalues are computed; if false, only the eigenvalues are
+<span class="lineNum">     254 </span>                :            :       *    computed. 
+<span class="lineNum">     255 </span>                :            :       * \returns    Reference to \c *this
+<span class="lineNum">     256 </span>                :            :       *
+<span class="lineNum">     257 </span>                :            :       * This function computes the eigenvalues of the real matrix \p matrix.
+<span class="lineNum">     258 </span>                :            :       * The eigenvalues() function can be used to retrieve them.  If 
+<span class="lineNum">     259 </span>                :            :       * \p computeEigenvectors is true, then the eigenvectors are also computed
+<span class="lineNum">     260 </span>                :            :       * and can be retrieved by calling eigenvectors().
+<span class="lineNum">     261 </span>                :            :       *
+<span class="lineNum">     262 </span>                :            :       * The matrix is first reduced to real Schur form using the RealSchur
+<span class="lineNum">     263 </span>                :            :       * class. The Schur decomposition is then used to compute the eigenvalues
+<span class="lineNum">     264 </span>                :            :       * and eigenvectors.
+<span class="lineNum">     265 </span>                :            :       *
+<span class="lineNum">     266 </span>                :            :       * The cost of the computation is dominated by the cost of the
+<span class="lineNum">     267 </span>                :            :       * Schur decomposition, which is very approximately \f$ 25n^3 \f$
+<span class="lineNum">     268 </span>                :            :       * (where \f$ n \f$ is the size of the matrix) if \p computeEigenvectors 
+<span class="lineNum">     269 </span>                :            :       * is true, and \f$ 10n^3 \f$ if \p computeEigenvectors is false.
+<span class="lineNum">     270 </span>                :            :       *
+<span class="lineNum">     271 </span>                :            :       * This method reuses of the allocated data in the EigenSolver object.
+<span class="lineNum">     272 </span>                :            :       *
+<span class="lineNum">     273 </span>                :            :       * Example: \include EigenSolver_compute.cpp
+<span class="lineNum">     274 </span>                :            :       * Output: \verbinclude EigenSolver_compute.out
+<span class="lineNum">     275 </span>                :            :       */
+<span class="lineNum">     276 </span>                :            :     EigenSolver&amp; compute(const MatrixType&amp; matrix, bool computeEigenvectors = true);
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :            :     ComputationInfo info() const
+<span class="lineNum">     279 </span>                :            :     {
+<span class="lineNum">     280 </span>                :            :       eigen_assert(m_isInitialized &amp;&amp; &quot;EigenSolver is not initialized.&quot;);
+<span class="lineNum">     281 </span>                :            :       return m_realSchur.info();
+<span class="lineNum">     282 </span>                :            :     }
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>                :            :     /** \brief Sets the maximum number of iterations allowed. */
+<span class="lineNum">     285 </span>                :            :     EigenSolver&amp; setMaxIterations(Index maxIters)
+<span class="lineNum">     286 </span>                :            :     {
+<span class="lineNum">     287 </span>                :            :       m_realSchur.setMaxIterations(maxIters);
+<span class="lineNum">     288 </span>                :            :       return *this;
+<span class="lineNum">     289 </span>                :            :     }
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :            :     /** \brief Returns the maximum number of iterations. */
+<span class="lineNum">     292 </span>                :            :     Index getMaxIterations()
+<span class="lineNum">     293 </span>                :            :     {
+<span class="lineNum">     294 </span>                :            :       return m_realSchur.getMaxIterations();
+<span class="lineNum">     295 </span>                :            :     }
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>                :            :   private:
+<span class="lineNum">     298 </span>                :            :     void doComputeEigenvectors();
+<span class="lineNum">     299 </span>                :            : 
+<a name="300"><span class="lineNum">     300 </span>                :            :   protected:</a>
+<span class="lineNum">     301 </span>                :            :     
+<span class="lineNum">     302 </span>                :<span class="lineNoCov">          0 :     static void check_template_parameters()</span>
+<span class="lineNum">     303 </span>                :            :     {
+<span class="lineNum">     304 </span>                :            :       EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar);
+<span class="lineNum">     305 </span>                :            :       EIGEN_STATIC_ASSERT(!NumTraits&lt;Scalar&gt;::IsComplex, NUMERIC_TYPE_MUST_BE_REAL);
+<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     307 </span>                :            :     
+<span class="lineNum">     308 </span>                :            :     MatrixType m_eivec;
+<span class="lineNum">     309 </span>                :            :     EigenvalueType m_eivalues;
+<span class="lineNum">     310 </span>                :            :     bool m_isInitialized;
+<span class="lineNum">     311 </span>                :            :     bool m_eigenvectorsOk;
+<span class="lineNum">     312 </span>                :            :     RealSchur&lt;MatrixType&gt; m_realSchur;
+<span class="lineNum">     313 </span>                :            :     MatrixType m_matT;
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :            :     typedef Matrix&lt;Scalar, ColsAtCompileTime, 1, Options &amp; ~RowMajor, MaxColsAtCompileTime, 1&gt; ColumnVectorType;
+<span class="lineNum">     316 </span>                :            :     ColumnVectorType m_tmp;
+<span class="lineNum">     317 </span>                :            : };
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     320 </span>                :            : MatrixType EigenSolver&lt;MatrixType&gt;::pseudoEigenvalueMatrix() const
+<span class="lineNum">     321 </span>                :            : {
+<span class="lineNum">     322 </span>                :            :   eigen_assert(m_isInitialized &amp;&amp; &quot;EigenSolver is not initialized.&quot;);
+<span class="lineNum">     323 </span>                :            :   Index n = m_eivalues.rows();
+<span class="lineNum">     324 </span>                :            :   MatrixType matD = MatrixType::Zero(n,n);
+<span class="lineNum">     325 </span>                :            :   for (Index i=0; i&lt;n; ++i)
+<span class="lineNum">     326 </span>                :            :   {
+<span class="lineNum">     327 </span>                :            :     if (internal::isMuchSmallerThan(numext::imag(m_eivalues.coeff(i)), numext::real(m_eivalues.coeff(i))))
+<span class="lineNum">     328 </span>                :            :       matD.coeffRef(i,i) = numext::real(m_eivalues.coeff(i));
+<span class="lineNum">     329 </span>                :            :     else
+<span class="lineNum">     330 </span>                :            :     {
+<span class="lineNum">     331 </span>                :            :       matD.template block&lt;2,2&gt;(i,i) &lt;&lt;  numext::real(m_eivalues.coeff(i)), numext::imag(m_eivalues.coeff(i)),
+<span class="lineNum">     332 </span>                :            :                                        -numext::imag(m_eivalues.coeff(i)), numext::real(m_eivalues.coeff(i));
+<span class="lineNum">     333 </span>                :            :       ++i;
+<span class="lineNum">     334 </span>                :            :     }
+<span class="lineNum">     335 </span>                :            :   }
+<span class="lineNum">     336 </span>                :            :   return matD;
+<span class="lineNum">     337 </span>                :            : }
+<a name="338"><span class="lineNum">     338 </span>                :            : </a>
+<span class="lineNum">     339 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 : typename EigenSolver&lt;MatrixType&gt;::EigenvectorsType EigenSolver&lt;MatrixType&gt;::eigenvectors() const</span>
+<span class="lineNum">     341 </span>                :            : {
+<span class="lineNum">     342 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   eigen_assert(m_isInitialized &amp;&amp; &quot;EigenSolver is not initialized.&quot;);</span>
+<span class="lineNum">     343 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   eigen_assert(m_eigenvectorsOk &amp;&amp; &quot;The eigenvectors have not been computed together with the eigenvalues.&quot;);</span>
+<span class="lineNum">     344 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   Index n = m_eivec.cols();</span>
+<span class="lineNum">     345 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   EigenvectorsType matV(n,n);</span>
+<span class="lineNum">     346 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (Index j=0; j&lt;n; ++j)</span>
+<span class="lineNum">     347 </span>                :            :   {
+<span class="lineNum">     348 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (internal::isMuchSmallerThan(numext::imag(m_eivalues.coeff(j)), numext::real(m_eivalues.coeff(j))) || j+1==n)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>][<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span><span class="branchNoExec" title="Branch 27 was not executed"> # </span><span class="branchNoExec" title="Branch 28 was not executed"> # </span> 
+<span class="lineNum">         </span>   <span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span><span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>]
+<span class="lineNum">     349 </span>                :            :     {
+<span class="lineNum">     350 </span>                :            :       // we have a real eigen value
+<span class="lineNum">     351 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       matV.col(j) = m_eivec.col(j).template cast&lt;ComplexScalar&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     352 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       matV.col(j).normalize();</span>
+<span class="lineNum">     353 </span>                :            :     }
+<span class="lineNum">     354 </span>                :            :     else
+<span class="lineNum">     355 </span>                :            :     {
+<span class="lineNum">     356 </span>                :            :       // we have a pair of complex eigen values
+<span class="lineNum">     357 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for (Index i=0; i&lt;n; ++i)</span>
+<span class="lineNum">     358 </span>                :            :       {
+<span class="lineNum">     359 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         matV.coeffRef(i,j)   = ComplexScalar(m_eivec.coeff(i,j),  m_eivec.coeff(i,j+1));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     360 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         matV.coeffRef(i,j+1) = ComplexScalar(m_eivec.coeff(i,j), -m_eivec.coeff(i,j+1));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     361 </span>                :            :       }
+<span class="lineNum">     362 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       matV.col(j).normalize();</span>
+<span class="lineNum">     363 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       matV.col(j+1).normalize();</span>
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :       ++j;</span>
+<span class="lineNum">     365 </span>                :            :     }
+<span class="lineNum">     366 </span>                :            :   }
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :   return matV;</span>
+<span class="lineNum">     368 </span>                :            : }
+<span class="lineNum">     369 </span>                :            : 
+<a name="370"><span class="lineNum">     370 </span>                :            : template&lt;typename MatrixType&gt;</a>
+<span class="lineNum">     371 </span>                :            : EigenSolver&lt;MatrixType&gt;&amp; 
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 : EigenSolver&lt;MatrixType&gt;::compute(const MatrixType&amp; matrix, bool computeEigenvectors)</span>
+<span class="lineNum">     373 </span>                :            : {
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :   check_template_parameters();</span>
+<span class="lineNum">     375 </span>                :            :   
+<span class="lineNum">     376 </span>                :            :   using std::sqrt;
+<span class="lineNum">     377 </span>                :            :   using std::abs;
+<span class="lineNum">     378 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   eigen_assert(matrix.cols() == matrix.rows());</span>
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>                :            :   // Reduce to real Schur form.
+<span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :   m_realSchur.compute(matrix, computeEigenvectors);</span>
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (m_realSchur.info() == Success)</span>
+<span class="lineNum">     384 </span>                :            :   {
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :     m_matT = m_realSchur.matrixT();</span>
+<span class="lineNum">     386 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (computeEigenvectors)</span>
+<span class="lineNum">     387 </span>                :<span class="lineNoCov">          0 :       m_eivec = m_realSchur.matrixU();</span>
+<span class="lineNum">     388 </span>                :            :   
+<span class="lineNum">     389 </span>                :            :     // Compute eigenvalues from matT
+<span class="lineNum">     390 </span>                :<span class="lineNoCov">          0 :     m_eivalues.resize(matrix.cols());</span>
+<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :     Index i = 0;</span>
+<span class="lineNum">     392 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     while (i &lt; matrix.cols()) </span>
+<span class="lineNum">     393 </span>                :            :     {
+<span class="lineNum">     394 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (i == matrix.cols() - 1 || m_matT.coeff(i+1, i) == Scalar(0)) </span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     395 </span>                :            :       {
+<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :         m_eivalues.coeffRef(i) = m_matT.coeff(i, i);</span>
+<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :         ++i;</span>
+<span class="lineNum">     398 </span>                :            :       }
+<span class="lineNum">     399 </span>                :            :       else
+<span class="lineNum">     400 </span>                :            :       {
+<span class="lineNum">     401 </span>                :<span class="lineNoCov">          0 :         Scalar p = Scalar(0.5) * (m_matT.coeff(i, i) - m_matT.coeff(i+1, i+1));</span>
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :         Scalar z = sqrt(abs(p * p + m_matT.coeff(i+1, i) * m_matT.coeff(i, i+1)));</span>
+<span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :         m_eivalues.coeffRef(i)   = ComplexScalar(m_matT.coeff(i+1, i+1) + p, z);</span>
+<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :         m_eivalues.coeffRef(i+1) = ComplexScalar(m_matT.coeff(i+1, i+1) + p, -z);</span>
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :         i += 2;</span>
+<span class="lineNum">     406 </span>                :            :       }
+<span class="lineNum">     407 </span>                :            :     }
+<span class="lineNum">     408 </span>                :            :     
+<span class="lineNum">     409 </span>                :            :     // Compute eigenvectors.
+<span class="lineNum">     410 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (computeEigenvectors)</span>
+<span class="lineNum">     411 </span>                :<span class="lineNoCov">          0 :       doComputeEigenvectors();</span>
+<span class="lineNum">     412 </span>                :            :   }
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :<span class="lineNoCov">          0 :   m_isInitialized = true;</span>
+<span class="lineNum">     415 </span>                :<span class="lineNoCov">          0 :   m_eigenvectorsOk = computeEigenvectors;</span>
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :<span class="lineNoCov">          0 :   return *this;</span>
+<span class="lineNum">     418 </span>                :            : }
+<span class="lineNum">     419 </span>                :            : 
+<a name="420"><span class="lineNum">     420 </span>                :            : // Complex scalar division.</a>
+<span class="lineNum">     421 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     422 </span>                :<span class="lineNoCov">          0 : std::complex&lt;Scalar&gt; cdiv(const Scalar&amp; xr, const Scalar&amp; xi, const Scalar&amp; yr, const Scalar&amp; yi)</span>
+<span class="lineNum">     423 </span>                :            : {
+<span class="lineNum">     424 </span>                :            :   using std::abs;
+<span class="lineNum">     425 </span>                :            :   Scalar r,d;
+<span class="lineNum">     426 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (abs(yr) &gt; abs(yi))</span>
+<span class="lineNum">     427 </span>                :            :   {
+<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :       r = yi/yr;</span>
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :       d = yr + r*yi;</span>
+<span class="lineNum">     430 </span>                :<span class="lineNoCov">          0 :       return std::complex&lt;Scalar&gt;((xr + r*xi)/d, (xi - r*xr)/d);</span>
+<span class="lineNum">     431 </span>                :            :   }
+<span class="lineNum">     432 </span>                :            :   else
+<span class="lineNum">     433 </span>                :            :   {
+<span class="lineNum">     434 </span>                :<span class="lineNoCov">          0 :       r = yr/yi;</span>
+<span class="lineNum">     435 </span>                :<span class="lineNoCov">          0 :       d = yi + r*yr;</span>
+<span class="lineNum">     436 </span>                :<span class="lineNoCov">          0 :       return std::complex&lt;Scalar&gt;((r*xr + xi)/d, (r*xi - xr)/d);</span>
+<span class="lineNum">     437 </span>                :            :   }
+<span class="lineNum">     438 </span>                :            : }
+<span class="lineNum">     439 </span>                :            : 
+<a name="440"><span class="lineNum">     440 </span>                :            : </a>
+<span class="lineNum">     441 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     442 </span>                :<span class="lineNoCov">          0 : void EigenSolver&lt;MatrixType&gt;::doComputeEigenvectors()</span>
+<span class="lineNum">     443 </span>                :            : {
+<span class="lineNum">     444 </span>                :            :   using std::abs;
+<span class="lineNum">     445 </span>                :<span class="lineNoCov">          0 :   const Index size = m_eivec.cols();</span>
+<span class="lineNum">     446 </span>                :<span class="lineNoCov">          0 :   const Scalar eps = NumTraits&lt;Scalar&gt;::epsilon();</span>
+<span class="lineNum">     447 </span>                :            : 
+<span class="lineNum">     448 </span>                :            :   // inefficient! this is already computed in RealSchur
+<span class="lineNum">     449 </span>                :<span class="lineNoCov">          0 :   Scalar norm(0);</span>
+<span class="lineNum">     450 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (Index j = 0; j &lt; size; ++j)</span>
+<span class="lineNum">     451 </span>                :            :   {
+<span class="lineNum">     452 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     norm += m_matT.row(j).segment((std::max)(j-1,Index(0)), size-(std::max)(j-1,Index(0))).cwiseAbs().sum();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     453 </span>                :            :   }
+<span class="lineNum">     454 </span>                :            :   
+<span class="lineNum">     455 </span>                :            :   // Backsubstitute to find vectors of upper triangular form
+<span class="lineNum">     456 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (norm == 0.0)</span>
+<span class="lineNum">     457 </span>                :            :   {
+<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     459 </span>                :            :   }
+<span class="lineNum">     460 </span>                :            : 
+<span class="lineNum">     461 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (Index n = size-1; n &gt;= 0; n--)</span>
+<span class="lineNum">     462 </span>                :            :   {
+<span class="lineNum">     463 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     Scalar p = m_eivalues.coeff(n).real();</span>
+<span class="lineNum">     464 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     Scalar q = m_eivalues.coeff(n).imag();</span>
+<span class="lineNum">     465 </span>                :            : 
+<span class="lineNum">     466 </span>                :            :     // Scalar vector
+<span class="lineNum">     467 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (q == Scalar(0))</span>
+<span class="lineNum">     468 </span>                :            :     {
+<span class="lineNum">     469 </span>                :<span class="lineNoCov">          0 :       Scalar lastr(0), lastw(0);</span>
+<span class="lineNum">     470 </span>                :<span class="lineNoCov">          0 :       Index l = n;</span>
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       m_matT.coeffRef(n,n) = 1.0;</span>
+<span class="lineNum">     473 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for (Index i = n-1; i &gt;= 0; i--)</span>
+<span class="lineNum">     474 </span>                :            :       {
+<span class="lineNum">     475 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Scalar w = m_matT.coeff(i,i) - p;</span>
+<span class="lineNum">     476 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Scalar r = m_matT.row(i).segment(l,n-l+1).dot(m_matT.col(n).segment(l, n-l+1));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     477 </span>                :            : 
+<span class="lineNum">     478 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (m_eivalues.coeff(i).imag() &lt; 0.0)</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     479 </span>                :            :         {
+<span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :           lastw = w;</span>
+<span class="lineNum">     481 </span>                :<span class="lineNoCov">          0 :           lastr = r;</span>
+<span class="lineNum">     482 </span>                :            :         }
+<span class="lineNum">     483 </span>                :            :         else
+<span class="lineNum">     484 </span>                :            :         {
+<span class="lineNum">     485 </span>                :<span class="lineNoCov">          0 :           l = i;</span>
+<span class="lineNum">     486 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if (m_eivalues.coeff(i).imag() == 0.0)</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     487 </span>                :            :           {
+<span class="lineNum">     488 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (w != 0.0)</span>
+<span class="lineNum">     489 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               m_matT.coeffRef(i,n) = -r / w;</span>
+<span class="lineNum">     490 </span>                :            :             else
+<span class="lineNum">     491 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               m_matT.coeffRef(i,n) = -r / (eps * norm);</span>
+<span class="lineNum">     492 </span>                :            :           }
+<span class="lineNum">     493 </span>                :            :           else // Solve real equations
+<span class="lineNum">     494 </span>                :            :           {
+<span class="lineNum">     495 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Scalar x = m_matT.coeff(i,i+1);</span>
+<span class="lineNum">     496 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Scalar y = m_matT.coeff(i+1,i);</span>
+<span class="lineNum">     497 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Scalar denom = (m_eivalues.coeff(i).real() - p) * (m_eivalues.coeff(i).real() - p) + m_eivalues.coeff(i).imag() * m_eivalues.coeff(i).imag();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     498 </span>                :<span class="lineNoCov">          0 :             Scalar t = (x * lastr - lastw * r) / denom;</span>
+<span class="lineNum">     499 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             m_matT.coeffRef(i,n) = t;</span>
+<span class="lineNum">     500 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (abs(x) &gt; abs(lastw))</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     501 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               m_matT.coeffRef(i+1,n) = (-r - w * t) / x;</span>
+<span class="lineNum">     502 </span>                :            :             else
+<span class="lineNum">     503 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               m_matT.coeffRef(i+1,n) = (-lastr - y * t) / lastw;</span>
+<span class="lineNum">     504 </span>                :            :           }
+<span class="lineNum">     505 </span>                :            : 
+<span class="lineNum">     506 </span>                :            :           // Overflow control
+<span class="lineNum">     507 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           Scalar t = abs(m_matT.coeff(i,n));</span>
+<span class="lineNum">     508 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if ((eps * t) * t &gt; Scalar(1))</span>
+<span class="lineNum">     509 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             m_matT.col(n).tail(size-i) /= t;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     510 </span>                :            :         }
+<span class="lineNum">     511 </span>                :            :       }
+<span class="lineNum">     512 </span>                :            :     }
+<span class="lineNum">     513 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else if (q &lt; Scalar(0) &amp;&amp; n &gt; 0) // Complex vector</span>
+<span class="lineNum">     514 </span>                :            :     {
+<span class="lineNum">     515 </span>                :<span class="lineNoCov">          0 :       Scalar lastra(0), lastsa(0), lastw(0);</span>
+<span class="lineNum">     516 </span>                :<span class="lineNoCov">          0 :       Index l = n-1;</span>
+<span class="lineNum">     517 </span>                :            : 
+<span class="lineNum">     518 </span>                :            :       // Last vector component imaginary so matrix is triangular
+<span class="lineNum">     519 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (abs(m_matT.coeff(n,n-1)) &gt; abs(m_matT.coeff(n-1,n)))</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">     520 </span>                :            :       {
+<span class="lineNum">     521 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         m_matT.coeffRef(n-1,n-1) = q / m_matT.coeff(n,n-1);</span>
+<span class="lineNum">     522 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         m_matT.coeffRef(n-1,n) = -(m_matT.coeff(n,n) - p) / m_matT.coeff(n,n-1);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     523 </span>                :            :       }
+<span class="lineNum">     524 </span>                :            :       else
+<span class="lineNum">     525 </span>                :            :       {
+<span class="lineNum">     526 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         std::complex&lt;Scalar&gt; cc = cdiv&lt;Scalar&gt;(0.0,-m_matT.coeff(n-1,n),m_matT.coeff(n-1,n-1)-p,q);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     527 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         m_matT.coeffRef(n-1,n-1) = numext::real(cc);</span>
+<span class="lineNum">     528 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         m_matT.coeffRef(n-1,n) = numext::imag(cc);</span>
+<span class="lineNum">     529 </span>                :            :       }
+<span class="lineNum">     530 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       m_matT.coeffRef(n,n-1) = 0.0;</span>
+<span class="lineNum">     531 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       m_matT.coeffRef(n,n) = 1.0;</span>
+<span class="lineNum">     532 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for (Index i = n-2; i &gt;= 0; i--)</span>
+<span class="lineNum">     533 </span>                :            :       {
+<span class="lineNum">     534 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Scalar ra = m_matT.row(i).segment(l, n-l+1).dot(m_matT.col(n-1).segment(l, n-l+1));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     535 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Scalar sa = m_matT.row(i).segment(l, n-l+1).dot(m_matT.col(n).segment(l, n-l+1));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     536 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Scalar w = m_matT.coeff(i,i) - p;</span>
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (m_eivalues.coeff(i).imag() &lt; 0.0)</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     539 </span>                :            :         {
+<span class="lineNum">     540 </span>                :<span class="lineNoCov">          0 :           lastw = w;</span>
+<span class="lineNum">     541 </span>                :<span class="lineNoCov">          0 :           lastra = ra;</span>
+<span class="lineNum">     542 </span>                :<span class="lineNoCov">          0 :           lastsa = sa;</span>
+<span class="lineNum">     543 </span>                :            :         }
+<span class="lineNum">     544 </span>                :            :         else
+<span class="lineNum">     545 </span>                :            :         {
+<span class="lineNum">     546 </span>                :<span class="lineNoCov">          0 :           l = i;</span>
+<span class="lineNum">     547 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if (m_eivalues.coeff(i).imag() == RealScalar(0))</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     548 </span>                :            :           {
+<span class="lineNum">     549 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             std::complex&lt;Scalar&gt; cc = cdiv(-ra,-sa,w,q);</span>
+<span class="lineNum">     550 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             m_matT.coeffRef(i,n-1) = numext::real(cc);</span>
+<span class="lineNum">     551 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             m_matT.coeffRef(i,n) = numext::imag(cc);</span>
+<span class="lineNum">     552 </span>                :            :           }
+<span class="lineNum">     553 </span>                :            :           else
+<span class="lineNum">     554 </span>                :            :           {
+<span class="lineNum">     555 </span>                :            :             // Solve complex equations
+<span class="lineNum">     556 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Scalar x = m_matT.coeff(i,i+1);</span>
+<span class="lineNum">     557 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Scalar y = m_matT.coeff(i+1,i);</span>
+<span class="lineNum">     558 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Scalar vr = (m_eivalues.coeff(i).real() - p) * (m_eivalues.coeff(i).real() - p) + m_eivalues.coeff(i).imag() * m_eivalues.coeff(i).imag() - q * q;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     559 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Scalar vi = (m_eivalues.coeff(i).real() - p) * Scalar(2) * q;</span>
+<span class="lineNum">     560 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if ((vr == 0.0) &amp;&amp; (vi == 0.0))</span>
+<span class="lineNum">     561 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               vr = eps * norm * (abs(w) + abs(q) + abs(x) + abs(y) + abs(lastw));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     562 </span>                :            : 
+<span class="lineNum">     563 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             std::complex&lt;Scalar&gt; cc = cdiv(x*lastra-lastw*ra+q*sa,x*lastsa-lastw*sa-q*ra,vr,vi);</span>
+<span class="lineNum">     564 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             m_matT.coeffRef(i,n-1) = numext::real(cc);</span>
+<span class="lineNum">     565 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             m_matT.coeffRef(i,n) = numext::imag(cc);</span>
+<span class="lineNum">     566 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (abs(x) &gt; (abs(lastw) + abs(q)))</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">     567 </span>                :            :             {
+<span class="lineNum">     568 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               m_matT.coeffRef(i+1,n-1) = (-ra - w * m_matT.coeff(i,n-1) + q * m_matT.coeff(i,n)) / x;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     569 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               m_matT.coeffRef(i+1,n) = (-sa - w * m_matT.coeff(i,n) - q * m_matT.coeff(i,n-1)) / x;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     570 </span>                :            :             }
+<span class="lineNum">     571 </span>                :            :             else
+<span class="lineNum">     572 </span>                :            :             {
+<span class="lineNum">     573 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               cc = cdiv(-lastra-y*m_matT.coeff(i,n-1),-lastsa-y*m_matT.coeff(i,n),lastw,q);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     574 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               m_matT.coeffRef(i+1,n-1) = numext::real(cc);</span>
+<span class="lineNum">     575 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               m_matT.coeffRef(i+1,n) = numext::imag(cc);</span>
+<span class="lineNum">     576 </span>                :            :             }
+<span class="lineNum">     577 </span>                :            :           }
+<span class="lineNum">     578 </span>                :            : 
+<span class="lineNum">     579 </span>                :            :           // Overflow control
+<span class="lineNum">     580 </span>                :            :           using std::max;
+<span class="lineNum">     581 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           Scalar t = (max)(abs(m_matT.coeff(i,n-1)),abs(m_matT.coeff(i,n)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     582 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if ((eps * t) * t &gt; Scalar(1))</span>
+<span class="lineNum">     583 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             m_matT.block(i, n-1, size-i, 2) /= t;</span>
+<span class="lineNum">     584 </span>                :            : 
+<span class="lineNum">     585 </span>                :            :         }
+<span class="lineNum">     586 </span>                :            :       }
+<span class="lineNum">     587 </span>                :            :       
+<span class="lineNum">     588 </span>                :            :       // We handled a pair of complex conjugate eigenvalues, so need to skip them both
+<span class="lineNum">     589 </span>                :<span class="lineNoCov">          0 :       n--;</span>
+<span class="lineNum">     590 </span>                :            :     }
+<span class="lineNum">     591 </span>                :            :     else
+<span class="lineNum">     592 </span>                :            :     {
+<span class="lineNum">     593 </span>                :<span class="lineNoCov">          0 :       eigen_assert(0 &amp;&amp; &quot;Internal bug in EigenSolver&quot;); // this should not happen</span>
+<span class="lineNum">     594 </span>                :            :     }
+<span class="lineNum">     595 </span>                :            :   }
+<span class="lineNum">     596 </span>                :            : 
+<span class="lineNum">     597 </span>                :            :   // Back transformation to get eigenvectors of original matrix
+<span class="lineNum">     598 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (Index j = size-1; j &gt;= 0; j--)</span>
+<span class="lineNum">     599 </span>                :            :   {
+<span class="lineNum">     600 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     m_tmp.noalias() = m_eivec.leftCols(j+1) * m_matT.col(j).segment(0, j+1);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     601 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     m_eivec.col(j) = m_tmp;</span>
+<span class="lineNum">     602 </span>                :            :   }
+<span class="lineNum">     603 </span>                :            : }
+<span class="lineNum">     604 </span>                :            : 
+<span class="lineNum">     605 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     606 </span>                :            : 
+<span class="lineNum">     607 </span>                :            : #endif // EIGEN_EIGENSOLVER_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

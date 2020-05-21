@@ -1,0 +1,545 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/localization/msf/local_integ/localization_integ_impl.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/localization/msf/local_integ</a> - localization_integ_impl.cc<span style="font-size: 80%;"> (source / <a href="localization_integ_impl.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">200</td>
+            <td class="headerCovTableEntryLo">5.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryLo">19.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">342</td>
+            <td class="headerCovTableEntryLo">5.6 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;modules/localization/msf/local_integ/localization_integ_impl.h&quot;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      20 </span>                :            : #include &quot;modules/common/time/timer.h&quot;
+<span class="lineNum">      21 </span>                :            : #include &quot;modules/localization/msf/common/util/frame_transform.h&quot;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : namespace apollo {
+<span class="lineNum">      24 </span>                :            : namespace localization {
+<span class="lineNum">      25 </span>                :            : namespace msf {
+<span class="lineNum">      26 </span>                :            : 
+<a name="27"><span class="lineNum">      27 </span>                :            : using common::Status;</a>
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :<span class="lineCov">          1 : LocalizationIntegImpl::LocalizationIntegImpl()</span>
+<span class="lineNum">      30 </span>                :<span class="lineNoCov">          0 :     : republish_process_(new MeasureRepublishProcess()),</span>
+<span class="lineNum">      31 </span>                :<span class="lineNoCov">          0 :       integ_process_(new LocalizationIntegProcess()),</span>
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :       gnss_process_(new LocalizationGnssProcess()),</span>
+<span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 :       lidar_process_(new LocalizationLidarProcess()),</span>
+<span class="lineNum">      34 </span>                :            :       is_use_gnss_bestpose_(true),
+<span class="lineNum">      35 </span>                :            :       imu_altitude_from_lidar_localization_(0.0),
+<span class="lineNum">      36 </span>                :            :       imu_altitude_from_lidar_localization_available_(false),
+<span class="lineNum">      37 </span>                :            :       enable_lidar_localization_(true),
+<span class="lineNum">      38 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          2 :       gnss_antenna_extrinsic_(Eigen::Affine3d::Identity()) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>][<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 18 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 21 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 22 was not taken"> - </span><span class="branchCov" title="Branch 24 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 25 was not taken"> - </span>]
+<span class="lineNum">      39 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::LocalizationIntegImpl&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<a name="40"><span class="lineNum">      40 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :<span class="lineCov">          2 : LocalizationIntegImpl::~LocalizationIntegImpl() {</span>
+<span class="lineNum">      43 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   delete republish_process_;</span>
+<span class="lineNum">      44 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   delete lidar_process_;</span>
+<span class="lineNum">      45 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   delete gnss_process_;</span>
+<span class="lineNum">      46 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   delete integ_process_;</span>
+<a name="47"><span class="lineNum">      47 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 : Status LocalizationIntegImpl::Init(const LocalizationIntegParam&amp; params) {</span>
+<span class="lineNum">      50 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::Init&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :   enable_lidar_localization_ = params.enable_lidar_localization;</span>
+<span class="lineNum">      53 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (params.enable_lidar_localization) {</span>
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :     auto state = lidar_process_-&gt;Init(params);</span>
+<span class="lineNum">      55 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!state.ok()) {</span>
+<span class="lineNum">      56 </span>                :            :       return state;
+<span class="lineNum">      57 </span>                :            :     }
+<span class="lineNum">      58 </span>                :            :   }
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :   auto state = republish_process_-&gt;Init(params);</span>
+<span class="lineNum">      61 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!state.ok()) {</span>
+<span class="lineNum">      62 </span>                :            :     return state;
+<span class="lineNum">      63 </span>                :            :   }
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   state = integ_process_-&gt;Init(params);</span>
+<span class="lineNum">      66 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!state.ok()) {</span>
+<span class="lineNum">      67 </span>                :            :     return state;
+<span class="lineNum">      68 </span>                :            :   }
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (params.gnss_mode == static_cast&lt;int&gt;(GnssMode::SELF)) {</span>
+<span class="lineNum">      71 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     state = gnss_process_-&gt;Init(params);</span>
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :     is_use_gnss_bestpose_ = false;</span>
+<span class="lineNum">      73 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!state.ok()) {</span>
+<span class="lineNum">      74 </span>                :            :       return state;
+<span class="lineNum">      75 </span>                :            :     }
+<span class="lineNum">      76 </span>                :            :   } else {
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :     is_use_gnss_bestpose_ = true;</span>
+<span class="lineNum">      78 </span>                :            :   }
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (params.is_using_raw_gnsspos) {</span>
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :     gnss_antenna_extrinsic_.translation()(0) =</span>
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :         params.imu_to_ant_offset.offset_x;</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :     gnss_antenna_extrinsic_.translation()(1) =</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :         params.imu_to_ant_offset.offset_y;</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :     gnss_antenna_extrinsic_.translation()(2) =</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :         params.imu_to_ant_offset.offset_z;</span>
+<span class="lineNum">      87 </span>                :            :   } else {
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :     gnss_antenna_extrinsic_ = Eigen::Affine3d::Identity();</span>
+<span class="lineNum">      89 </span>                :            :   }
+<span class="lineNum">      90 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;gnss and imu lever arm: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">      91 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; gnss_antenna_extrinsic_.translation()(0) &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">      92 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; gnss_antenna_extrinsic_.translation()(1) &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :         &lt;&lt; gnss_antenna_extrinsic_.translation()(2);</span>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   expert_.Init(params);</span>
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   return Status::OK();</span>
+<a name="98"><span class="lineNum">      98 </span>                :            : }</a>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::PcdProcess(const LidarFrame&amp; lidar_frame) {</span>
+<span class="lineNum">     101 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::PcdProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :   PcdProcessImpl(lidar_frame);</span>
+<a name="104"><span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::PcdProcessImpl(const LidarFrame&amp; pcd_data) {</span>
+<span class="lineNum">     107 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::PcdProcessImpl&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            :   // lidar -&gt; republish -&gt; integ
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :   lidar_process_-&gt;PcdProcess(pcd_data);</span>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :   int state = 0;</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :   LocalizationEstimate lidar_localization;</span>
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   state = lidar_process_-&gt;GetResult(&amp;lidar_localization);</span>
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   expert_.AddLidarLocalization(lidar_localization);</span>
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :            :   MeasureData lidar_measure;
+<span class="lineNum">     120 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (state == 2) {  // only state OK republish lidar msg</span>
+<span class="lineNum">     121 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     republish_process_-&gt;LidarLocalProcess(lidar_localization, &amp;lidar_measure);</span>
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     integ_process_-&gt;MeasureDataProcess(lidar_measure);</span>
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :            :     imu_altitude_from_lidar_localization_ =
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :         lidar_localization.pose().position().z();</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :     imu_altitude_from_lidar_localization_available_ = true;</span>
+<span class="lineNum">     127 </span>                :            :   }
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   lastest_lidar_localization_ =</span>
+<span class="lineNum">     130 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       LocalizationResult(LocalizationMeasureState(state), lidar_localization);</span>
+<a name="131"><span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::RawImuProcessRfu(const ImuData&amp; imu_data) {</span>
+<span class="lineNum">     134 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::RawImuProcessRfu&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :   ImuProcessImpl(imu_data);</span>
+<a name="137"><span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::ImuProcessImpl(const ImuData&amp; imu_data) {</span>
+<span class="lineNum">     140 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::ImuProcessImpl&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            :   // imu -&gt; lidar
+<span class="lineNum">     143 </span>                :            :   // imu -&gt; integ -&gt; republish -&gt; lidar -&gt; publish
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :            :   // start_time = boost::posix_time::microsec_clock::local_time();
+<span class="lineNum">     146 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (enable_lidar_localization_) {</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :     lidar_process_-&gt;RawImuProcess(imu_data);</span>
+<span class="lineNum">     148 </span>                :            :   }
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :   integ_process_-&gt;RawImuProcess(imu_data);</span>
+<span class="lineNum">     150 </span>                :            : 
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :   expert_.AddImu(imu_data);</span>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :            :   // integ
+<span class="lineNum">     154 </span>                :            :   IntegState state;
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :   LocalizationEstimate integ_localization;</span>
+<span class="lineNum">     156 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   integ_process_-&gt;GetResult(&amp;state, &amp;integ_localization);</span>
+<span class="lineNum">     157 </span>                :            :   ImuData corrected_imu;
+<span class="lineNum">     158 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   integ_process_-&gt;GetCorrectedImu(&amp;corrected_imu);</span>
+<span class="lineNum">     159 </span>                :            :   InertialParameter earth_param;
+<span class="lineNum">     160 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   integ_process_-&gt;GetEarthParameter(&amp;earth_param);</span>
+<span class="lineNum">     161 </span>                :            :   // check msf running status and set msf_status in integ_localization
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :            :   LocalizationIntegStatus integ_status;
+<span class="lineNum">     164 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   expert_.AddFusionLocalization(integ_localization);</span>
+<span class="lineNum">     165 </span>                :            :   expert_.GetFusionStatus(integ_localization.mutable_msf_status(),
+<span class="lineNum">     166 </span>                :            :                           integ_localization.mutable_sensor_status(),
+<span class="lineNum">     167 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                           &amp;integ_status);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   apollo::localization::Pose* posepb_loc = integ_localization.mutable_pose();</span>
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (imu_altitude_from_lidar_localization_available_) {</span>
+<span class="lineNum">     172 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     apollo::common::PointENU* position = posepb_loc-&gt;mutable_position();</span>
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :     position-&gt;set_z(imu_altitude_from_lidar_localization_);</span>
+<span class="lineNum">     174 </span>                :            :   }
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :            :   // set linear acceleration
+<span class="lineNum">     177 </span>                :            :   Eigen::Vector3d orig_acceleration(corrected_imu.fb[0], corrected_imu.fb[1],
+<span class="lineNum">     178 </span>                :            :                                     corrected_imu.fb[2]);
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :   const apollo::common::Quaternion&amp; orientation =</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :       integ_localization.pose().orientation();</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :   Eigen::Quaternion&lt;double&gt; quaternion(orientation.qw(), orientation.qx(),</span>
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :                                        orientation.qy(), orientation.qz());</span>
+<span class="lineNum">     183 </span>                :            :   Eigen::Vector3d vec_acceleration =
+<span class="lineNum">     184 </span>                :            :       static_cast&lt;Eigen::Vector3d&gt;(quaternion * orig_acceleration);
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :            :   // Remove gravity.
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :   vec_acceleration(2) -= earth_param.g;</span>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            :   apollo::common::Point3D* linear_acceleration =
+<span class="lineNum">     190 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       posepb_loc-&gt;mutable_linear_acceleration();</span>
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :   linear_acceleration-&gt;set_x(vec_acceleration(0));</span>
+<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :   linear_acceleration-&gt;set_y(vec_acceleration(1));</span>
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :   linear_acceleration-&gt;set_z(vec_acceleration(2));</span>
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :            :   Eigen::Vector3d vec_acceleration_vrf =
+<span class="lineNum">     196 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       quaternion.inverse() * vec_acceleration;</span>
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>                :            :   apollo::common::Point3D* linear_acceleration_vrf =
+<span class="lineNum">     199 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       posepb_loc-&gt;mutable_linear_acceleration_vrf();</span>
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :   linear_acceleration_vrf-&gt;set_x(vec_acceleration_vrf(0));</span>
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :   linear_acceleration_vrf-&gt;set_y(vec_acceleration_vrf(1));</span>
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :   linear_acceleration_vrf-&gt;set_z(vec_acceleration_vrf(2));</span>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :            :   // set angular velocity
+<span class="lineNum">     205 </span>                :            :   Eigen::Vector3d orig_angular_velocity(
+<span class="lineNum">     206 </span>                :            :       corrected_imu.wibb[0], corrected_imu.wibb[1], corrected_imu.wibb[2]);
+<span class="lineNum">     207 </span>                :            :   Eigen::Vector3d vec_angular_velocity = static_cast&lt;Eigen::Vector3d&gt;(
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :       quaternion.toRotationMatrix() * orig_angular_velocity);</span>
+<span class="lineNum">     209 </span>                :            :   apollo::common::Point3D* angular_velocity =
+<span class="lineNum">     210 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       posepb_loc-&gt;mutable_angular_velocity();</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :   angular_velocity-&gt;set_x(vec_angular_velocity(0));</span>
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :   angular_velocity-&gt;set_y(vec_angular_velocity(1));</span>
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :   angular_velocity-&gt;set_z(vec_angular_velocity(2));</span>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :            :   apollo::common::Point3D* angular_velocity_vrf =
+<span class="lineNum">     216 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       posepb_loc-&gt;mutable_angular_velocity_vrf();</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :   angular_velocity_vrf-&gt;set_x(corrected_imu.wibb[0]);</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :   angular_velocity_vrf-&gt;set_y(corrected_imu.wibb[1]);</span>
+<span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :   angular_velocity_vrf-&gt;set_z(corrected_imu.wibb[2]);</span>
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   lastest_integ_localization_ =</span>
+<span class="lineNum">     222 </span>                :            :       LocalizationResult(LocalizationMeasureState(static_cast&lt;int&gt;(state)),
+<span class="lineNum">     223 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                          integ_localization, integ_status);</span>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :            :   InsPva integ_sins_pva;
+<span class="lineNum">     226 </span>                :            :   double covariance[9][9];
+<span class="lineNum">     227 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   integ_process_-&gt;GetResult(&amp;state, &amp;integ_sins_pva, covariance);</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :            :   // update republish
+<span class="lineNum">     230 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   republish_process_-&gt;IntegPvaProcess(integ_sins_pva);</span>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (state != IntegState::NOT_INIT) {</span>
+<span class="lineNum">     233 </span>                :            :     // pass result of integration localization to lidar process module
+<span class="lineNum">     234 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (enable_lidar_localization_ &amp;&amp; state != IntegState::NOT_STABLE) {</span>
+<span class="lineNum">     235 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       lidar_process_-&gt;IntegPvaProcess(integ_sins_pva);</span>
+<span class="lineNum">     236 </span>                :            :     }
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!is_use_gnss_bestpose_) {</span>
+<span class="lineNum">     239 </span>                :            :       // pass localization result to gnss process module
+<span class="lineNum">     240 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       gnss_process_-&gt;IntegSinsPvaProcess(integ_sins_pva, covariance);</span>
+<span class="lineNum">     241 </span>                :            :     }
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :   }</span>
+<a name="243"><span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::RawObservationProcess(</span>
+<span class="lineNum">     246 </span>                :            :     const drivers::gnss::EpochObservation&amp; raw_obs_msg) {
+<span class="lineNum">     247 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::RawObservationProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     248 </span>                :            : 
+<span class="lineNum">     249 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (is_use_gnss_bestpose_) {</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     251 </span>                :            :   }
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :   RawObservationProcessImpl(raw_obs_msg);</span>
+<a name="254"><span class="lineNum">     254 </span>                :            : }</a>
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::RawEphemerisProcess(</span>
+<span class="lineNum">     257 </span>                :            :     const drivers::gnss::GnssEphemeris&amp; gnss_orbit_msg) {
+<span class="lineNum">     258 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::RawEphemerisProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (is_use_gnss_bestpose_) {</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     262 </span>                :            :   }
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :<span class="lineNoCov">          0 :   RawEphemerisProcessImpl(gnss_orbit_msg);</span>
+<a name="265"><span class="lineNum">     265 </span>                :            : }</a>
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::GnssBestPoseProcess(</span>
+<span class="lineNum">     268 </span>                :            :     const drivers::gnss::GnssBestPose&amp; bestgnsspos_msg) {
+<span class="lineNum">     269 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::GnssBestPoseProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     270 </span>                :            : 
+<span class="lineNum">     271 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!is_use_gnss_bestpose_) {</span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     273 </span>                :            :   }
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :   GnssBestPoseProcessImpl(bestgnsspos_msg);</span>
+<a name="276"><span class="lineNum">     276 </span>                :            : }</a>
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::RawObservationProcessImpl(</span>
+<span class="lineNum">     279 </span>                :            :     const drivers::gnss::EpochObservation&amp; raw_obs_msg) {
+<span class="lineNum">     280 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::RawObservationProcessImpl&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :   gnss_process_-&gt;RawObservationProcess(raw_obs_msg);</span>
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>                :            :   MeasureData gnss_measure;
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :   LocalizationMeasureState state = gnss_process_-&gt;GetResult(&amp;gnss_measure);</span>
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :            :   MeasureData measure;
+<span class="lineNum">     288 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (state == LocalizationMeasureState::OK ||</span>
+<span class="lineNum">     289 </span>                :            :       state == LocalizationMeasureState::VALID) {
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :     republish_process_-&gt;GnssLocalProcess(gnss_measure, &amp;measure);</span>
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :     integ_process_-&gt;MeasureDataProcess(measure);</span>
+<span class="lineNum">     292 </span>                :            :   }
+<span class="lineNum">     293 </span>                :            : 
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :   LocalizationEstimate gnss_localization;</span>
+<span class="lineNum">     295 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   TransferGnssMeasureToLocalization(measure, &amp;gnss_localization);</span>
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   lastest_gnss_localization_ = LocalizationResult(state, gnss_localization);</span>
+<a name="298"><span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::RawEphemerisProcessImpl(</span>
+<span class="lineNum">     301 </span>                :            :     const drivers::gnss::GnssEphemeris&amp; gnss_orbit_msg) {
+<span class="lineNum">     302 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::RawEphemerisProcessImpl&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :   gnss_process_-&gt;RawEphemerisProcess(gnss_orbit_msg);</span>
+<a name="305"><span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     306 </span>                :            : 
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::GnssBestPoseProcessImpl(</span>
+<span class="lineNum">     308 </span>                :            :     const drivers::gnss::GnssBestPose&amp; bestgnsspos_msg) {
+<span class="lineNum">     309 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::GnssBestPoseProcessImpl&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :            :   MeasureData measure;
+<span class="lineNum">     312 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (republish_process_-&gt;NovatelBestgnssposProcess(bestgnsspos_msg,</span>
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :                                                     &amp;measure)) {</span>
+<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :     integ_process_-&gt;MeasureDataProcess(measure);</span>
+<span class="lineNum">     315 </span>                :            : 
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :     expert_.AddGnssBestPose(bestgnsspos_msg, measure);</span>
+<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :     LocalizationEstimate gnss_localization;</span>
+<span class="lineNum">     318 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     TransferGnssMeasureToLocalization(measure, &amp;gnss_localization);</span>
+<span class="lineNum">     319 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     expert_.GetGnssStatus(gnss_localization.mutable_msf_status());</span>
+<span class="lineNum">     320 </span>                :            : 
+<span class="lineNum">     321 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     lastest_gnss_localization_ =</span>
+<span class="lineNum">     322 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         LocalizationResult(LocalizationMeasureState::OK, gnss_localization);</span>
+<span class="lineNum">     323 </span>                :            :   }
+<a name="324"><span class="lineNum">     324 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::GnssHeadingProcess(</span>
+<span class="lineNum">     327 </span>                :            :     const drivers::gnss::Heading&amp; gnssheading_msg) {
+<span class="lineNum">     328 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::GnssHeadingProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 :   GnssHeadingProcessImpl(gnssheading_msg);</span>
+<a name="331"><span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::GnssHeadingProcessImpl(</span>
+<span class="lineNum">     334 </span>                :            :     const drivers::gnss::Heading&amp; gnssheading_msg) {
+<span class="lineNum">     335 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::GnssHeadingProcessImpl&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     336 </span>                :            : 
+<span class="lineNum">     337 </span>                :            :   MeasureData measure;
+<span class="lineNum">     338 </span>                :<span class="lineNoCov">          0 :   int heading_status = 0;</span>
+<span class="lineNum">     339 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (republish_process_-&gt;GnssHeadingProcess(gnssheading_msg, &amp;measure,</span>
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 :                                              &amp;heading_status)) {</span>
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :     integ_process_-&gt;MeasureDataProcess(measure);</span>
+<span class="lineNum">     342 </span>                :            :   }
+<a name="343"><span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 : void LocalizationIntegImpl::TransferGnssMeasureToLocalization(</span>
+<span class="lineNum">     346 </span>                :            :     const MeasureData&amp; measure, LocalizationEstimate* localization) {
+<span class="lineNum">     347 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::TransferGnssMeasureToLocalization&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(localization);</span>
+<span class="lineNum">     350 </span>                :            : 
+<span class="lineNum">     351 </span>                :<span class="lineNoCov">          0 :   apollo::common::Header* headerpb = localization-&gt;mutable_header();</span>
+<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :   apollo::localization::Pose* posepb = localization-&gt;mutable_pose();</span>
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :   double timestamp = measure.time;</span>
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :   localization-&gt;set_measurement_time(timestamp);</span>
+<span class="lineNum">     356 </span>                :            :   headerpb-&gt;set_timestamp_sec(timestamp);
+<span class="lineNum">     357 </span>                :            : 
+<span class="lineNum">     358 </span>                :            :   UTMCoor utm_xy;
+<span class="lineNum">     359 </span>                :            :   FrameTransform::LatlonToUtmXY(measure.gnss_pos.longitude,
+<span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :                                 measure.gnss_pos.latitude, &amp;utm_xy);</span>
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :   apollo::common::PointENU* position = posepb-&gt;mutable_position();</span>
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :   position-&gt;set_x(utm_xy.x);</span>
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :   position-&gt;set_y(utm_xy.y);</span>
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :   position-&gt;set_z(measure.gnss_pos.height);</span>
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :   apollo::common::Quaternion* quaternion = posepb-&gt;mutable_orientation();</span>
+<span class="lineNum">     368 </span>                :            :   quaternion-&gt;set_qx(0.0);
+<span class="lineNum">     369 </span>                :            :   quaternion-&gt;set_qy(0.0);
+<span class="lineNum">     370 </span>                :            :   quaternion-&gt;set_qz(0.0);
+<span class="lineNum">     371 </span>                :            :   quaternion-&gt;set_qw(1.0);
+<span class="lineNum">     372 </span>                :            : 
+<span class="lineNum">     373 </span>                :            :   apollo::localization::Uncertainty* uncertainty =
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :       localization-&gt;mutable_uncertainty();</span>
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :            :   apollo::common::Point3D* position_std_dev =
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 :       uncertainty-&gt;mutable_position_std_dev();</span>
+<span class="lineNum">     378 </span>                :            :   position_std_dev-&gt;set_x(-1.0);
+<span class="lineNum">     379 </span>                :            :   position_std_dev-&gt;set_y(-1.0);
+<span class="lineNum">     380 </span>                :            :   position_std_dev-&gt;set_z(-1.0);
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (measure.is_have_variance) {</span>
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :     position_std_dev-&gt;set_x(measure.variance[0][0]);</span>
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :     position_std_dev-&gt;set_y(measure.variance[1][1]);</span>
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :     position_std_dev-&gt;set_z(measure.variance[2][2]);</span>
+<span class="lineNum">     386 </span>                :            :   }
+<span class="lineNum">     387 </span>                :            : 
+<span class="lineNum">     388 </span>                :            :   apollo::common::Point3D* orientation_std_dev =
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :       uncertainty-&gt;mutable_orientation_std_dev();</span>
+<span class="lineNum">     390 </span>                :            :   orientation_std_dev-&gt;set_x(-1.0);
+<span class="lineNum">     391 </span>                :            :   orientation_std_dev-&gt;set_y(-1.0);
+<span class="lineNum">     392 </span>                :            :   orientation_std_dev-&gt;set_z(-1.0);
+<a name="393"><span class="lineNum">     393 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     394 </span>                :            : 
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 : const LocalizationResult&amp; LocalizationIntegImpl::GetLastestLidarLocalization()</span>
+<span class="lineNum">     396 </span>                :            :     const {
+<span class="lineNum">     397 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::GetLastestLidarLocalization&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :   return lastest_lidar_localization_;</span>
+<a name="400"><span class="lineNum">     400 </span>                :            : }</a>
+<span class="lineNum">     401 </span>                :            : 
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 : const LocalizationResult&amp; LocalizationIntegImpl::GetLastestIntegLocalization()</span>
+<span class="lineNum">     403 </span>                :            :     const {
+<span class="lineNum">     404 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::GetLastestIntegLocalization&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     405 </span>                :            : 
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :   return lastest_integ_localization_;</span>
+<a name="407"><span class="lineNum">     407 </span>                :            : }</a>
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 : const LocalizationResult&amp; LocalizationIntegImpl::GetLastestGnssLocalization()</span>
+<span class="lineNum">     410 </span>                :            :     const {
+<span class="lineNum">     411 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationIntegImpl::GetLastestGnssLocalization&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :   return lastest_gnss_localization_;</span>
+<span class="lineNum">     414 </span>                :            : }
+<span class="lineNum">     415 </span>                :            : 
+<a name="416"><span class="lineNum">     416 </span>                :            : }  // namespace msf</a>
+<span class="lineNum">     417 </span>                :            : }  // namespace localization
+<span class="lineNum">     418 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

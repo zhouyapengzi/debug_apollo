@@ -1,0 +1,388 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/perception/camera/test/camera_lib_obstacle_postprocessor_location_refiner_test.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/perception/camera/test</a> - camera_lib_obstacle_postprocessor_location_refiner_test.cc<span style="font-size: 80%;"> (source / <a href="camera_lib_obstacle_postprocessor_location_refiner_test.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">129</td>
+            <td class="headerCovTableEntry">135</td>
+            <td class="headerCovTableEntryHi">95.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">229</td>
+            <td class="headerCovTableEntry">558</td>
+            <td class="headerCovTableEntryLo">41.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the License);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an AS IS BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : #include &lt;fstream&gt;
+<span class="lineNum">      17 </span>                :            : #include &quot;gtest/gtest.h&quot;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      20 </span>                :            : #include &quot;modules/perception/camera/lib/calibration_service/online_calibration_service/online_calibration_service.h&quot;  // NOLINT
+<span class="lineNum">      21 </span>                :            : #include &quot;modules/perception/camera/lib/obstacle/postprocessor/location_refiner/location_refiner_obstacle_postprocessor.h&quot;  // NOLINT
+<span class="lineNum">      22 </span>                :            : #include &quot;modules/perception/common/io/io_util.h&quot;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : namespace apollo {
+<span class="lineNum">      25 </span>                :            : namespace perception {
+<a name="26"><span class="lineNum">      26 </span>                :            : namespace camera {</a>
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :<span class="lineCov">          1 : static bool load_camera_k_mat_and_ground_pitch_height(</span>
+<span class="lineNum">      29 </span>                :            :     const std::string &amp;fname, float k_mat[9], int *image_width,
+<span class="lineNum">      30 </span>                :            :     int *image_height, float *camera_pitch, float *camera_height) {
+<span class="lineNum">      31 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :   if (image_width == nullptr || image_height == nullptr ||</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">      32 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :       camera_pitch == nullptr || camera_height == nullptr) {</span>
+<span class="lineNum">      33 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;Null pointer input for loading this file:  &quot; &lt;&lt; fname;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>]
+<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">      35 </span>                :            :   }
+<span class="lineNum">      36 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   std::fstream fin(fname);</span>
+<span class="lineNum">      37 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span>]:<span class="lineCov">          1 :   if (!fin.is_open()) {</span>
+<span class="lineNum">      38 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;Fail to load the camera k matrix: &quot; &lt;&lt; fname;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>]
+<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">      40 </span>                :            :   }
+<span class="lineNum">      41 </span>                :<span class="lineCov">          1 :   float wh_flt[2] = {0};</span>
+<span class="lineNum">      42 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   fin &gt;&gt; wh_flt[0] &gt;&gt; wh_flt[1];</span>
+<span class="lineNum">      43 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   *image_width = common::IRound(wh_flt[0]);</span>
+<span class="lineNum">      44 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   *image_height = common::IRound(wh_flt[1]);</span>
+<span class="lineNum">      45 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   fin &gt;&gt; k_mat[0] &gt;&gt; k_mat[1] &gt;&gt; k_mat[2] &gt;&gt; k_mat[3] &gt;&gt; k_mat[4] &gt;&gt; k_mat[5] &gt;&gt;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">      46 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :       k_mat[6] &gt;&gt; k_mat[7] &gt;&gt; k_mat[8];</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">      47 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   fin &gt;&gt; camera_pitch[0] &gt;&gt; camera_height[0];</span>
+<span class="lineNum">      48 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   fin.close();</span>
+<span class="lineNum">      49 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   AINFO &lt;&lt; &quot;cx: &quot; &lt;&lt; k_mat[2];</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>][<span class="branchCov" title="Branch 23 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 24 was not taken"> - </span>]
+<span class="lineNum">      50 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   AINFO &lt;&lt; &quot;cy: &quot; &lt;&lt; k_mat[5];</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>][<span class="branchCov" title="Branch 23 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 24 was not taken"> - </span>]
+<span class="lineNum">      51 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   AINFO &lt;&lt; &quot;pitch: &quot; &lt;&lt; camera_pitch[0];</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>][<span class="branchCov" title="Branch 23 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 24 was not taken"> - </span>]
+<span class="lineNum">      52 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   AINFO &lt;&lt; &quot;height: &quot; &lt;&lt; camera_height[0];</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>][<span class="branchCov" title="Branch 23 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 24 was not taken"> - </span>]
+<span class="lineNum">      53 </span>                :<span class="lineCov">          1 :   return true;</span>
+<a name="54"><span class="lineNum">      54 </span>                :            : }</a>
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>        [<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">     261603 : struct ObjectInfo {</span>
+<span class="lineNum">      57 </span>                :            :   std::string type = &quot;&quot;;
+<span class="lineNum">      58 </span>                :            :   float truncated = 0.0f;
+<span class="lineNum">      59 </span>                :            :   int occluded = 0;
+<span class="lineNum">      60 </span>                :            :   float alpha = 0.0f;
+<span class="lineNum">      61 </span>                :            :   float bbox[4] = {0};
+<span class="lineNum">      62 </span>                :            :   float size_hwl[3] = {0};
+<span class="lineNum">      63 </span>                :            :   float location[3] = {0};
+<span class="lineNum">      64 </span>                :            :   float rotation_y = 0.0f;
+<span class="lineNum">      65 </span>                :            :   float score = 1.0f;
+<a name="66"><span class="lineNum">      66 </span>                :            : };</a>
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :<span class="lineCov">          1 : static bool load_label_from_file(const std::string &amp;filename,</span>
+<span class="lineNum">      69 </span>                :            :                                  std::vector&lt;ObjectInfo&gt; *labels) {
+<span class="lineNum">      70 </span>                :<span class="lineCov">          1 :   labels-&gt;clear();</span>
+<span class="lineNum">      71 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   std::fstream fin(filename);</span>
+<span class="lineNum">      72 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span>]:<span class="lineCov">          1 :   if (!fin.is_open()) {</span>
+<span class="lineNum">      73 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;Fail to open the lab file: &quot; &lt;&lt; filename &lt;&lt; std::endl;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 26 was not executed"> # </span><span class="branchNoExec" title="Branch 27 was not executed"> # </span>]
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">      75 </span>                :            :   }
+<span class="lineNum">      76 </span>                :<span class="lineCov">          2 :   ObjectInfo label_in;</span>
+<span class="lineNum">      77 </span>[<span class="branchCov" title="Branch 1 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      65268 :   while (fin &gt;&gt; label_in.type &gt;&gt; label_in.truncated &gt;&gt; label_in.occluded &gt;&gt;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 9 was taken 32633 times"> + </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span>]
+<span class="lineNum">      78 </span>[<span class="branchCov" title="Branch 1 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      32634 :          label_in.alpha &gt;&gt; label_in.bbox[0] &gt;&gt; label_in.bbox[1] &gt;&gt;</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">      79 </span>[<span class="branchCov" title="Branch 1 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      32634 :          label_in.bbox[2] &gt;&gt; label_in.bbox[3] &gt;&gt; label_in.size_hwl[0] &gt;&gt;</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">      80 </span>[<span class="branchCov" title="Branch 1 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      32634 :          label_in.size_hwl[1] &gt;&gt; label_in.size_hwl[2] &gt;&gt; label_in.location[0] &gt;&gt;</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">      81 </span>[<span class="branchCov" title="Branch 1 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      32634 :          label_in.location[1] &gt;&gt; label_in.location[2] &gt;&gt; label_in.rotation_y &gt;&gt;</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">      82 </span>[<span class="branchCov" title="Branch 1 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      32634 :          label_in.score) {</span>
+<span class="lineNum">      83 </span>        [<span class="branchCov" title="Branch 1 was taken 32633 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">      32633 :     labels-&gt;push_back(label_in);</span>
+<span class="lineNum">      84 </span>                :            :   }
+<span class="lineNum">      85 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   fin.close();</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 :   return true;</span>
+<a name="87"><span class="lineNum">      87 </span>                :            : }</a>
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]:<span class="lineCov">          8 : TEST(LocationRefinedObstaclePostProcessorTestOnlineCalibration,</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>][<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 26 was not taken"> - </span><span class="branchCov" title="Branch 27 was taken 1 time"> + </span>]
+<span class="lineNum">      90 </span>                :            :      location_refiner_obstacle_postprocessor_test_onlinecalibration) {
+<span class="lineNum">      91 </span>                :            :   std::string fname_k_mat =
+<span class="lineNum">      92 </span>                :            :       &quot;/apollo/modules/perception/testdata/&quot;
+<span class="lineNum">      93 </span>                :            :       &quot;camera/lib/obstacle/postprocessor/location_refiner/&quot;
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :       &quot;params/k_mat.txt&quot;;</span>
+<span class="lineNum">      95 </span>                :            :   std::string fname_detection =
+<span class="lineNum">      96 </span>                :            :       &quot;/apollo/modules/perception/testdata/&quot;
+<span class="lineNum">      97 </span>                :            :       &quot;camera/lib/obstacle/postprocessor/location_refiner/&quot;
+<span class="lineNum">      98 </span>        [<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          2 :       &quot;data/detection.txt&quot;;</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">          1 :   float k_mat[9] = {0};</span>
+<span class="lineNum">     100 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   std::vector&lt;ObjectInfo&gt; detections = {};</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">          1 :   int width = 0;</span>
+<span class="lineNum">     102 </span>                :<span class="lineCov">          1 :   int height = 0;</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :   float camera_pitch = 0.0f;</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :   float camera_height = 0.0f;</span>
+<span class="lineNum">     105 </span>                :            :   load_camera_k_mat_and_ground_pitch_height(fname_k_mat, k_mat, &amp;width, &amp;height,
+<span class="lineNum">     106 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :                                             &amp;camera_pitch, &amp;camera_height);</span>
+<span class="lineNum">     107 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   load_label_from_file(fname_detection, &amp;detections);</span>
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   CameraFrame frame;</span>
+<span class="lineNum">     110 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   DataProvider data_provider;</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">          1 :   frame.data_provider = &amp;data_provider;</span>
+<span class="lineNum">     112 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if (frame.track_feature_blob == nullptr) {</span>
+<span class="lineNum">     113 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :     frame.track_feature_blob.reset(new base::Blob&lt;float&gt;());</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     114 </span>                :            :   }
+<span class="lineNum">     115 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   DataProvider::InitOptions dp_init_options;</span>
+<span class="lineNum">     116 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   dp_init_options.sensor_name = &quot;front_12mm&quot;;</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">          1 :   dp_init_options.image_height = height;</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">          1 :   dp_init_options.image_width = width;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">          1 :   dp_init_options.device_id = 0;</span>
+<span class="lineNum">     120 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   frame.data_provider-&gt;Init(dp_init_options);</span>
+<span class="lineNum">     121 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          4 :   for (size_t i = 0; i &lt; 3; i++) {</span>
+<span class="lineNum">     122 </span>                :<span class="lineCov">          3 :     size_t i3 = i * 3;</span>
+<span class="lineNum">     123 </span>        [<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         12 :     for (size_t j = 0; j &lt; 3; j++) {</span>
+<span class="lineNum">     124 </span>        [<span class="branchCov" title="Branch 1 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          9 :       frame.camera_k_matrix(i, j) = k_mat[i3 + j];</span>
+<span class="lineNum">     125 </span>                :            :     }
+<span class="lineNum">     126 </span>                :            :   }
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :<span class="lineCov">          1 :   ObstaclePostprocessorOptions postprocessor_options;</span>
+<span class="lineNum">     129 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   ObstaclePostprocessorInitOptions postprocessor_init_options;</span>
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :            :   // postprocessor
+<span class="lineNum">     132 </span>                :            :   BaseObstaclePostprocessor *postprocessor =
+<span class="lineNum">     133 </span>                :            :       BaseObstaclePostprocessorRegisterer::GetInstanceByName(
+<span class="lineNum">     134 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :           &quot;LocationRefinerObstaclePostprocessor&quot;);</span>
+<span class="lineNum">     135 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   EXPECT_FALSE(postprocessor-&gt;Init(postprocessor_init_options));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     136 </span>                :            :   postprocessor_init_options.root_dir =
+<span class="lineNum">     137 </span>                :            :       &quot;/apollo/modules/perception/testdata/&quot;
+<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       &quot;camera/lib/obstacle/postprocessor/location_refiner/&quot;;</span>
+<span class="lineNum">     139 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   postprocessor_init_options.conf_file = &quot;config.pt&quot;;</span>
+<span class="lineNum">     140 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   EXPECT_TRUE(postprocessor-&gt;Init(postprocessor_init_options));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     141 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   EXPECT_TRUE(postprocessor-&gt;Process(postprocessor_options, &amp;frame));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 32 was not executed"> # </span><span class="branchNoExec" title="Branch 33 was not executed"> # </span>]
+<span class="lineNum">     142 </span>                :            :   //  frame.detected_objects.push_back(nullptr);
+<span class="lineNum">     143 </span>                :            :   //  EXPECT_FALSE(postprocessor-&gt;Process(postprocessor_options, &amp;frame));
+<span class="lineNum">     144 </span>                :            :   //  frame.detected_objects.clear();
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>[<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]:<span class="lineCov">          5 :   std::vector&lt;std::string&gt; candidate_type_list = {&quot;car&quot;, &quot;van&quot;, &quot;truck&quot;, &quot;bus&quot;};</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>][<span class="branchCov" title="Branch 15 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 18 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>][<span class="branchCov" title="Branch 20 was taken 4 times"> + </span><span class="branchCov" title="Branch 21 was taken 1 time"> + </span>]
+<span class="lineNum">     147 </span>[<span class="branchCov" title="Branch 3 was taken 32633 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 32633 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">      32634 :   for (auto &amp;obj : detections) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 32634 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 32633 times"> + </span><span class="branchCov" title="Branch 12 was taken 1 time"> + </span>]
+<span class="lineNum">     148 </span>[<span class="branchCov" title="Branch 1 was taken 32633 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 11027 times"> + </span><span class="branchCov" title="Branch 4 was taken 21606 times"> + </span>]:<span class="lineCov">      32633 :     if (std::find(candidate_type_list.begin(), candidate_type_list.end(),</span>
+<span class="lineNum">     149 </span>        [<span class="branchCov" title="Branch 4 was taken 32633 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      32633 :                   obj.type) == candidate_type_list.end()) {</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">      23281 :       continue;</span>
+<span class="lineNum">     151 </span>[<span class="branchCov" title="Branch 0 was taken 9354 times"> + </span><span class="branchCov" title="Branch 1 was taken 12252 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 9352 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">      21606 :     } else if (obj.size_hwl[0] &lt; 1.0f || obj.bbox[2] &lt; obj.bbox[0] + 1.0f ||</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 9352 times"> + </span>]
+<span class="lineNum">     152 </span>                :<span class="lineCov">       9352 :                obj.bbox[3] &lt; obj.bbox[1] + 1.0f) {</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">      12254 :       continue;</span>
+<span class="lineNum">     154 </span>                :            :     }
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>[<span class="branchCov" title="Branch 1 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       9352 :     base::ObjectPtr detected_obj(new base::Object);</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     157 </span>                :<span class="lineCov">       9352 :     detected_obj-&gt;camera_supplement.box.xmin = obj.bbox[0];</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">       9352 :     detected_obj-&gt;camera_supplement.box.ymin = obj.bbox[1];</span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">       9352 :     detected_obj-&gt;camera_supplement.box.xmax = obj.bbox[2];</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">       9352 :     detected_obj-&gt;camera_supplement.box.ymax = obj.bbox[3];</span>
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>        [<span class="branchCov" title="Branch 2 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       9352 :     detected_obj-&gt;size(2) = obj.size_hwl[0];</span>
+<span class="lineNum">     163 </span>        [<span class="branchCov" title="Branch 2 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       9352 :     detected_obj-&gt;size(1) = obj.size_hwl[1];</span>
+<span class="lineNum">     164 </span>        [<span class="branchCov" title="Branch 2 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       9352 :     detected_obj-&gt;size(0) = obj.size_hwl[2];</span>
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>        [<span class="branchCov" title="Branch 2 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       9352 :     detected_obj-&gt;camera_supplement.local_center(0) = obj.location[0];</span>
+<span class="lineNum">     167 </span>        [<span class="branchCov" title="Branch 2 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       9352 :     detected_obj-&gt;camera_supplement.local_center(1) = obj.location[1];</span>
+<span class="lineNum">     168 </span>        [<span class="branchCov" title="Branch 2 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       9352 :     detected_obj-&gt;camera_supplement.local_center(2) = obj.location[2];</span>
+<span class="lineNum">     169 </span>        [<span class="branchCov" title="Branch 2 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       9352 :     detected_obj-&gt;camera_supplement.local_center(1) -= obj.size_hwl[0] / 2;</span>
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :<span class="lineCov">       9352 :     float box_cent_x = (obj.bbox[0] + obj.bbox[2]) / 2;</span>
+<span class="lineNum">     172 </span>        [<span class="branchCov" title="Branch 1 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       9352 :     Eigen::Vector3f image_point_low_center(box_cent_x, obj.bbox[3], 1);</span>
+<span class="lineNum">     173 </span>                :            :     Eigen::Vector3f point_in_camera =
+<span class="lineNum">     174 </span>                :            :         static_cast&lt;Eigen::Matrix&lt;float, 3, 1, 0, 3, 1&gt;&gt;(
+<span class="lineNum">     175 </span>[<span class="branchCov" title="Branch 1 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       9352 :             frame.camera_k_matrix.inverse() * image_point_low_center);</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     176 </span>                :            :     float theta_ray =
+<span class="lineNum">     177 </span>[<span class="branchCov" title="Branch 1 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       9352 :         static_cast&lt;float&gt;(atan2(point_in_camera.x(), point_in_camera.z()));</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">       9352 :     detected_obj-&gt;camera_supplement.alpha = theta_ray - obj.rotation_y;</span>
+<span class="lineNum">     179 </span>        [<span class="branchCov" title="Branch 1 was taken 9352 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       9352 :     frame.detected_objects.push_back(detected_obj);</span>
+<span class="lineNum">     180 </span>                :<span class="lineCov">       9352 :   }</span>
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   AINFO &lt;&lt; camera_pitch &lt;&lt; &quot;, &quot; &lt;&lt; camera_height;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>][<span class="branchCov" title="Branch 23 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 24 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 26 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 27 was not taken"> - </span>]
+<span class="lineNum">     183 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   OnlineCalibrationService online_calib_service;</span>
+<span class="lineNum">     184 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   CalibrationServiceInitOptions options;</span>
+<span class="lineNum">     185 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   Eigen::Matrix3f intrinsic;</span>
+<span class="lineNum">     186 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :   intrinsic &lt;&lt; k_mat[0], k_mat[1], k_mat[2], k_mat[3], k_mat[4], k_mat[5],</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     187 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :       k_mat[6], k_mat[7], k_mat[8];</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     188 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   std::map&lt;std::string, Eigen::Matrix3f&gt; name_intrinsic_map;</span>
+<span class="lineNum">     189 </span>                :            :   name_intrinsic_map.insert(
+<span class="lineNum">     190 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :       std::pair&lt;std::string, Eigen::Matrix3f&gt;(&quot;front_12mm&quot;, intrinsic));</span>
+<span class="lineNum">     191 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   CalibrationServiceInitOptions calibration_service_init_options;</span>
+<span class="lineNum">     192 </span>                :            :   calibration_service_init_options.calibrator_working_sensor_name =
+<span class="lineNum">     193 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       &quot;front_12mm&quot;;</span>
+<span class="lineNum">     194 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   calibration_service_init_options.name_intrinsic_map = name_intrinsic_map;</span>
+<span class="lineNum">     195 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   calibration_service_init_options.calibrator_method = &quot;LaneLineCalibrator&quot;;</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">          1 :   calibration_service_init_options.image_height = 1080;</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :   calibration_service_init_options.image_width = 1920;</span>
+<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   online_calib_service.Init(calibration_service_init_options);</span>
+<span class="lineNum">     199 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   std::map&lt;std::string, float&gt; name_camera_ground_height_map;</span>
+<span class="lineNum">     200 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   std::map&lt;std::string, float&gt; name_camera_pitch_angle_diff_map;</span>
+<span class="lineNum">     201 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   name_camera_ground_height_map[&quot;front_12mm&quot;] = camera_height;</span>
+<span class="lineNum">     202 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   name_camera_pitch_angle_diff_map[&quot;front_12mm&quot;] = 0;</span>
+<span class="lineNum">     203 </span>                :            :   online_calib_service.SetCameraHeightAndPitch(name_camera_ground_height_map,
+<span class="lineNum">     204 </span>                :            :                                                name_camera_pitch_angle_diff_map,
+<span class="lineNum">     205 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :                                                camera_pitch);</span>
+<span class="lineNum">     206 </span>                :            :   frame.calibration_service =
+<span class="lineNum">     207 </span>                :<span class="lineCov">          1 :       dynamic_cast&lt;BaseCalibrationService *&gt;(&amp;online_calib_service);</span>
+<span class="lineNum">     208 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   EXPECT_TRUE(postprocessor-&gt;Process(postprocessor_options, &amp;frame));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   frame.calibration_service-&gt;BuildIndex();</span>
+<span class="lineNum">     211 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          1 :   AINFO &lt;&lt; &quot;number of objects: &quot; &lt;&lt; frame.detected_objects.size();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 21 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 22 was not taken"> - </span>][<span class="branchCov" title="Branch 24 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 25 was not taken"> - </span>]
+<span class="lineNum">     212 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   EXPECT_TRUE(postprocessor-&gt;Process(postprocessor_options, &amp;frame));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>                :            :   // corner cases
+<span class="lineNum">     215 </span>                :<span class="lineCov">          1 :   postprocessor_options.do_refinement_with_calibration_service = false;</span>
+<span class="lineNum">     216 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   EXPECT_TRUE(postprocessor-&gt;Process(postprocessor_options, &amp;frame));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     217 </span>                :<span class="lineCov">          1 :   postprocessor_options.do_refinement_with_calibration_service = true;</span>
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :   frame.calibration_service = nullptr;</span>
+<span class="lineNum">     219 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   EXPECT_TRUE(postprocessor-&gt;Process(postprocessor_options, &amp;frame));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :   postprocessor_options.do_refinement_with_calibration_service = false;</span>
+<span class="lineNum">     221 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   EXPECT_TRUE(postprocessor-&gt;Process(postprocessor_options, &amp;frame));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :   delete postprocessor;</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     225 </span>                :            : 
+<a name="226"><span class="lineNum">     226 </span>                :            : }  // namespace camera</a>
+<span class="lineNum">     227 </span>                :            : }  // namespace perception
+<span class="lineNum">     228 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

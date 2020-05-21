@@ -1,0 +1,573 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Jacobi/Jacobi.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Jacobi</a> - Jacobi.h<span style="font-size: 80%;"> (source / <a href="Jacobi.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">110</td>
+            <td class="headerCovTableEntry">138</td>
+            <td class="headerCovTableEntryMed">79.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntry">55</td>
+            <td class="headerCovTableEntryLo">72.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">207</td>
+            <td class="headerCovTableEntry">460</td>
+            <td class="headerCovTableEntryLo">45.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2009 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       5 </span>                :            : // Copyright (C) 2009 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       6 </span>                :            : //
+<span class="lineNum">       7 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       8 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       9 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : #ifndef EIGEN_JACOBI_H
+<span class="lineNum">      12 </span>                :            : #define EIGEN_JACOBI_H
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : namespace Eigen { 
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : /** \ingroup Jacobi_Module
+<span class="lineNum">      17 </span>                :            :   * \jacobi_module
+<span class="lineNum">      18 </span>                :            :   * \class JacobiRotation
+<span class="lineNum">      19 </span>                :            :   * \brief Rotation given by a cosine-sine pair.
+<span class="lineNum">      20 </span>                :            :   *
+<span class="lineNum">      21 </span>                :            :   * This class represents a Jacobi or Givens rotation.
+<span class="lineNum">      22 </span>                :            :   * This is a 2D rotation in the plane \c J of angle \f$ \theta \f$ defined by
+<span class="lineNum">      23 </span>                :            :   * its cosine \c c and sine \c s as follow:
+<span class="lineNum">      24 </span>                :            :   * \f$ J = \left ( \begin{array}{cc} c &amp; \overline s \\ -s  &amp; \overline c \end{array} \right ) \f$
+<span class="lineNum">      25 </span>                :            :   *
+<span class="lineNum">      26 </span>                :            :   * You can apply the respective counter-clockwise rotation to a column vector \c v by
+<span class="lineNum">      27 </span>                :            :   * applying its adjoint on the left: \f$ v = J^* v \f$ that translates to the following Eigen code:
+<span class="lineNum">      28 </span>                :            :   * \code
+<span class="lineNum">      29 </span>                :            :   * v.applyOnTheLeft(J.adjoint());
+<span class="lineNum">      30 </span>                :            :   * \endcode
+<span class="lineNum">      31 </span>                :            :   *
+<span class="lineNum">      32 </span>                :            :   * \sa MatrixBase::applyOnTheLeft(), MatrixBase::applyOnTheRight()
+<span class="lineNum">      33 </span>                :            :   */
+<span class="lineNum">      34 </span>                :            : template&lt;typename Scalar&gt; class JacobiRotation
+<span class="lineNum">      35 </span>                :            : {
+<span class="lineNum">      36 </span>                :            :   public:
+<span class="lineNum">      37 </span>                :            :     typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<a name="38"><span class="lineNum">      38 </span>                :            : </a>
+<span class="lineNum">      39 </span>                :            :     /** Default constructor without any initialization. */
+<span class="lineNum">      40 </span>                :<span class="lineCov">    2572432 :     JacobiRotation() {}</span>
+<a name="41"><span class="lineNum">      41 </span>                :            : </a>
+<span class="lineNum">      42 </span>                :            :     /** Construct a planar rotation from a cosine-sine pair (\a c, \c s). */
+<a name="43"><span class="lineNum">      43 </span>                :<span class="lineCov">    2573566 :     JacobiRotation(const Scalar&amp; c, const Scalar&amp; s) : m_c(c), m_s(s) {}</span></a>
+<a name="44"><span class="lineNum">      44 </span>                :            : </a>
+<a name="45"><span class="lineNum">      45 </span>                :<span class="lineCov">   38945560 :     Scalar&amp; c() { return m_c; }</span></a>
+<a name="46"><span class="lineNum">      46 </span>                :<span class="lineCov">    5146376 :     Scalar c() const { return m_c; }</span></a>
+<span class="lineNum">      47 </span>                :<span class="lineCov">   38945560 :     Scalar&amp; s() { return m_s; }</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">    5146376 :     Scalar s() const { return m_s; }</span>
+<a name="49"><span class="lineNum">      49 </span>                :            : </a>
+<span class="lineNum">      50 </span>                :            :     /** Concatenates two planar rotation */
+<span class="lineNum">      51 </span>                :<span class="lineCov">        378 :     JacobiRotation operator*(const JacobiRotation&amp; other)</span>
+<span class="lineNum">      52 </span>                :            :     {
+<span class="lineNum">      53 </span>                :            :       using numext::conj;
+<span class="lineNum">      54 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :       return JacobiRotation(m_c * other.m_c - conj(m_s) * other.m_s,</span>
+<span class="lineNum">      55 </span>[<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 7 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]:<span class="lineCov">        756 :                             conj(m_c * conj(other.m_s) + conj(m_s) * conj(other.m_c)));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">      56 </span>                :            :     }
+<a name="57"><span class="lineNum">      57 </span>                :            : </a>
+<span class="lineNum">      58 </span>                :            :     /** Returns the transposed transformation */
+<span class="lineNum">      59 </span>[<span class="branchCov" title="Branch 2 was taken 2571338 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 1850 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">    2573188 :     JacobiRotation transpose() const { using numext::conj; return JacobiRotation(m_c, -conj(m_s)); }</span>
+<a name="60"><span class="lineNum">      60 </span>                :            : </a>
+<span class="lineNum">      61 </span>                :            :     /** Returns the adjoint transformation */
+<span class="lineNum">      62 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     JacobiRotation adjoint() const { using numext::conj; return JacobiRotation(conj(m_c), -m_s); }</span>
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            :     template&lt;typename Derived&gt;
+<span class="lineNum">      65 </span>                :            :     bool makeJacobi(const MatrixBase&lt;Derived&gt;&amp;, typename Derived::Index p, typename Derived::Index q);
+<span class="lineNum">      66 </span>                :            :     bool makeJacobi(const RealScalar&amp; x, const Scalar&amp; y, const RealScalar&amp; z);
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :            :     void makeGivens(const Scalar&amp; p, const Scalar&amp; q, Scalar* z=0);
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :            :   protected:
+<span class="lineNum">      71 </span>                :            :     void makeGivens(const Scalar&amp; p, const Scalar&amp; q, Scalar* z, internal::true_type);
+<span class="lineNum">      72 </span>                :            :     void makeGivens(const Scalar&amp; p, const Scalar&amp; q, Scalar* z, internal::false_type);
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            :     Scalar m_c, m_s;
+<span class="lineNum">      75 </span>                :            : };
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :            : /** Makes \c *this as a Jacobi rotation \a J such that applying \a J on both the right and left sides of the selfadjoint 2x2 matrix
+<span class="lineNum">      78 </span>                :            :   * \f$ B = \left ( \begin{array}{cc} x &amp; y \\ \overline y &amp; z \end{array} \right )\f$ yields a diagonal matrix \f$ A = J^* B J \f$
+<span class="lineNum">      79 </span>                :            :   *
+<span class="lineNum">      80 </span>                :            :   * \sa MatrixBase::makeJacobi(const MatrixBase&lt;Derived&gt;&amp;, Index, Index), MatrixBase::applyOnTheLeft(), MatrixBase::applyOnTheRight()
+<a name="81"><span class="lineNum">      81 </span>                :            :   */</a>
+<span class="lineNum">      82 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">      83 </span>                :<span class="lineCov">        378 : bool JacobiRotation&lt;Scalar&gt;::makeJacobi(const RealScalar&amp; x, const Scalar&amp; y, const RealScalar&amp; z)</span>
+<span class="lineNum">      84 </span>                :            : {
+<span class="lineNum">      85 </span>                :            :   using std::sqrt;
+<span class="lineNum">      86 </span>                :            :   using std::abs;
+<span class="lineNum">      87 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">      88 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 370 times"> + </span>]:<span class="lineCov">        378 :   if(y == Scalar(0))</span>
+<span class="lineNum">      89 </span>                :            :   {
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :     m_c = Scalar(1);</span>
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :     m_s = Scalar(0);</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">      93 </span>                :            :   }
+<span class="lineNum">      94 </span>                :            :   else
+<span class="lineNum">      95 </span>                :            :   {
+<span class="lineNum">      96 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :     RealScalar tau = (x-z)/(RealScalar(2)*abs(y));</span>
+<span class="lineNum">      97 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :     RealScalar w = sqrt(numext::abs2(tau) + RealScalar(1));</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">      98 </span>                :            :     RealScalar t;
+<span class="lineNum">      99 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 195 times"> + </span><span class="branchCov" title="Branch 3 was taken 175 times"> + </span>]:<span class="lineCov">        378 :     if(tau&gt;RealScalar(0))</span>
+<span class="lineNum">     100 </span>                :            :     {
+<span class="lineNum">     101 </span>                :<span class="lineCov">        197 :       t = RealScalar(1) / (tau + w);</span>
+<span class="lineNum">     102 </span>                :            :     }
+<span class="lineNum">     103 </span>                :            :     else
+<span class="lineNum">     104 </span>                :            :     {
+<span class="lineNum">     105 </span>                :<span class="lineCov">        181 :       t = RealScalar(1) / (tau - w);</span>
+<span class="lineNum">     106 </span>                :            :     }
+<span class="lineNum">     107 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 195 times"> + </span><span class="branchCov" title="Branch 3 was taken 175 times"> + </span>]:<span class="lineCov">        378 :     RealScalar sign_t = t &gt; RealScalar(0) ? RealScalar(1) : RealScalar(-1);</span>
+<span class="lineNum">     108 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :     RealScalar n = RealScalar(1) / sqrt(numext::abs2(t)+RealScalar(1));</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     109 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :     m_s = - sign_t * (numext::conj(y) / abs(y)) * abs(t) * n;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     110 </span>                :<span class="lineCov">        378 :     m_c = n;</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">        378 :     return true;</span>
+<span class="lineNum">     112 </span>                :            :   }
+<span class="lineNum">     113 </span>                :            : }
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            : /** Makes \c *this as a Jacobi rotation \c J such that applying \a J on both the right and left sides of the 2x2 selfadjoint matrix
+<span class="lineNum">     116 </span>                :            :   * \f$ B = \left ( \begin{array}{cc} \text{this}_{pp} &amp; \text{this}_{pq} \\ (\text{this}_{pq})^* &amp; \text{this}_{qq} \end{array} \right )\f$ yields
+<span class="lineNum">     117 </span>                :            :   * a diagonal matrix \f$ A = J^* B J \f$
+<span class="lineNum">     118 </span>                :            :   *
+<span class="lineNum">     119 </span>                :            :   * Example: \include Jacobi_makeJacobi.cpp
+<span class="lineNum">     120 </span>                :            :   * Output: \verbinclude Jacobi_makeJacobi.out
+<span class="lineNum">     121 </span>                :            :   *
+<span class="lineNum">     122 </span>                :            :   * \sa JacobiRotation::makeJacobi(RealScalar, Scalar, RealScalar), MatrixBase::applyOnTheLeft(), MatrixBase::applyOnTheRight()
+<span class="lineNum">     123 </span>                :            :   */
+<a name="124"><span class="lineNum">     124 </span>                :            : template&lt;typename Scalar&gt;</a>
+<span class="lineNum">     125 </span>                :            : template&lt;typename Derived&gt;
+<span class="lineNum">     126 </span>                :<span class="lineCov">        378 : inline bool JacobiRotation&lt;Scalar&gt;::makeJacobi(const MatrixBase&lt;Derived&gt;&amp; m, typename Derived::Index p, typename Derived::Index q)</span>
+<span class="lineNum">     127 </span>                :            : {
+<span class="lineNum">     128 </span>[<span class="branchCov" title="Branch 3 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">        378 :   return makeJacobi(numext::real(m.coeff(p,p)), m.coeff(p,q), numext::real(m.coeff(q,q)));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 17 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>][<span class="branchCov" title="Branch 20 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 23 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 24 was not taken"> - </span>][<span class="branchCov" title="Branch 26 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 27 was not taken"> - </span>]
+<span class="lineNum">     129 </span>                :            : }
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :            : /** Makes \c *this as a Givens rotation \c G such that applying \f$ G^* \f$ to the left of the vector
+<span class="lineNum">     132 </span>                :            :   * \f$ V = \left ( \begin{array}{c} p \\ q \end{array} \right )\f$ yields:
+<span class="lineNum">     133 </span>                :            :   * \f$ G^* V = \left ( \begin{array}{c} r \\ 0 \end{array} \right )\f$.
+<span class="lineNum">     134 </span>                :            :   *
+<span class="lineNum">     135 </span>                :            :   * The value of \a z is returned if \a z is not null (the default is null).
+<span class="lineNum">     136 </span>                :            :   * Also note that G is built such that the cosine is always real.
+<span class="lineNum">     137 </span>                :            :   *
+<span class="lineNum">     138 </span>                :            :   * Example: \include Jacobi_makeGivens.cpp
+<span class="lineNum">     139 </span>                :            :   * Output: \verbinclude Jacobi_makeGivens.out
+<span class="lineNum">     140 </span>                :            :   *
+<span class="lineNum">     141 </span>                :            :   * This function implements the continuous Givens rotation generation algorithm
+<span class="lineNum">     142 </span>                :            :   * found in Anderson (2000), Discontinuous Plane Rotations and the Symmetric Eigenvalue Problem.
+<span class="lineNum">     143 </span>                :            :   * LAPACK Working Note 150, University of Tennessee, UT-CS-00-454, December 4, 2000.
+<span class="lineNum">     144 </span>                :            :   *
+<span class="lineNum">     145 </span>                :            :   * \sa MatrixBase::applyOnTheLeft(), MatrixBase::applyOnTheRight()
+<a name="146"><span class="lineNum">     146 </span>                :            :   */</a>
+<span class="lineNum">     147 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     148 </span>                :<span class="lineCov">    2571298 : void JacobiRotation&lt;Scalar&gt;::makeGivens(const Scalar&amp; p, const Scalar&amp; q, Scalar* z)</span>
+<span class="lineNum">     149 </span>                :            : {
+<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    2571298 :   makeGivens(p, q, z, typename internal::conditional&lt;NumTraits&lt;Scalar&gt;::IsComplex, internal::true_type, internal::false_type&gt;::type());</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">    2571298 : }</span>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            : // specialization for complexes
+<span class="lineNum">     155 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     156 </span>                :            : void JacobiRotation&lt;Scalar&gt;::makeGivens(const Scalar&amp; p, const Scalar&amp; q, Scalar* r, internal::true_type)
+<span class="lineNum">     157 </span>                :            : {
+<span class="lineNum">     158 </span>                :            :   using std::sqrt;
+<span class="lineNum">     159 </span>                :            :   using std::abs;
+<span class="lineNum">     160 </span>                :            :   using numext::conj;
+<span class="lineNum">     161 </span>                :            :   
+<span class="lineNum">     162 </span>                :            :   if(q==Scalar(0))
+<span class="lineNum">     163 </span>                :            :   {
+<span class="lineNum">     164 </span>                :            :     m_c = numext::real(p)&lt;0 ? Scalar(-1) : Scalar(1);
+<span class="lineNum">     165 </span>                :            :     m_s = 0;
+<span class="lineNum">     166 </span>                :            :     if(r) *r = m_c * p;
+<span class="lineNum">     167 </span>                :            :   }
+<span class="lineNum">     168 </span>                :            :   else if(p==Scalar(0))
+<span class="lineNum">     169 </span>                :            :   {
+<span class="lineNum">     170 </span>                :            :     m_c = 0;
+<span class="lineNum">     171 </span>                :            :     m_s = -q/abs(q);
+<span class="lineNum">     172 </span>                :            :     if(r) *r = abs(q);
+<span class="lineNum">     173 </span>                :            :   }
+<span class="lineNum">     174 </span>                :            :   else
+<span class="lineNum">     175 </span>                :            :   {
+<span class="lineNum">     176 </span>                :            :     RealScalar p1 = numext::norm1(p);
+<span class="lineNum">     177 </span>                :            :     RealScalar q1 = numext::norm1(q);
+<span class="lineNum">     178 </span>                :            :     if(p1&gt;=q1)
+<span class="lineNum">     179 </span>                :            :     {
+<span class="lineNum">     180 </span>                :            :       Scalar ps = p / p1;
+<span class="lineNum">     181 </span>                :            :       RealScalar p2 = numext::abs2(ps);
+<span class="lineNum">     182 </span>                :            :       Scalar qs = q / p1;
+<span class="lineNum">     183 </span>                :            :       RealScalar q2 = numext::abs2(qs);
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :            :       RealScalar u = sqrt(RealScalar(1) + q2/p2);
+<span class="lineNum">     186 </span>                :            :       if(numext::real(p)&lt;RealScalar(0))
+<span class="lineNum">     187 </span>                :            :         u = -u;
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            :       m_c = Scalar(1)/u;
+<span class="lineNum">     190 </span>                :            :       m_s = -qs*conj(ps)*(m_c/p2);
+<span class="lineNum">     191 </span>                :            :       if(r) *r = p * u;
+<span class="lineNum">     192 </span>                :            :     }
+<span class="lineNum">     193 </span>                :            :     else
+<span class="lineNum">     194 </span>                :            :     {
+<span class="lineNum">     195 </span>                :            :       Scalar ps = p / q1;
+<span class="lineNum">     196 </span>                :            :       RealScalar p2 = numext::abs2(ps);
+<span class="lineNum">     197 </span>                :            :       Scalar qs = q / q1;
+<span class="lineNum">     198 </span>                :            :       RealScalar q2 = numext::abs2(qs);
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :            :       RealScalar u = q1 * sqrt(p2 + q2);
+<span class="lineNum">     201 </span>                :            :       if(numext::real(p)&lt;RealScalar(0))
+<span class="lineNum">     202 </span>                :            :         u = -u;
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :            :       p1 = abs(p);
+<span class="lineNum">     205 </span>                :            :       ps = p/p1;
+<span class="lineNum">     206 </span>                :            :       m_c = p1/u;
+<span class="lineNum">     207 </span>                :            :       m_s = -conj(ps) * (q/u);
+<span class="lineNum">     208 </span>                :            :       if(r) *r = ps * u;
+<span class="lineNum">     209 </span>                :            :     }
+<span class="lineNum">     210 </span>                :            :   }
+<span class="lineNum">     211 </span>                :            : }
+<span class="lineNum">     212 </span>                :            : 
+<a name="213"><span class="lineNum">     213 </span>                :            : // specialization for reals</a>
+<span class="lineNum">     214 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     215 </span>                :<span class="lineCov">    2571298 : void JacobiRotation&lt;Scalar&gt;::makeGivens(const Scalar&amp; p, const Scalar&amp; q, Scalar* r, internal::false_type)</span>
+<span class="lineNum">     216 </span>                :            : {
+<span class="lineNum">     217 </span>                :            :   using std::sqrt;
+<span class="lineNum">     218 </span>                :            :   using std::abs;
+<span class="lineNum">     219 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span>]:<span class="lineCov">    2571298 :   if(q==Scalar(0))</span>
+<span class="lineNum">     220 </span>                :            :   {
+<span class="lineNum">     221 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     m_c = p&lt;Scalar(0) ? Scalar(-1) : Scalar(1);</span>
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :     m_s = Scalar(0);</span>
+<span class="lineNum">     223 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(r) *r = abs(p);</span>
+<span class="lineNum">     224 </span>                :            :   }
+<span class="lineNum">     225 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2571296 times"> + </span>]:<span class="lineCov">    2571298 :   else if(p==Scalar(0))</span>
+<span class="lineNum">     226 </span>                :            :   {
+<span class="lineNum">     227 </span>                :<span class="lineCov">          2 :     m_c = Scalar(0);</span>
+<span class="lineNum">     228 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     m_s = q&lt;Scalar(0) ? Scalar(1) : Scalar(-1);</span>
+<span class="lineNum">     229 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if(r) *r = abs(q);</span>
+<span class="lineNum">     230 </span>                :            :   }
+<span class="lineNum">     231 </span>        [<span class="branchCov" title="Branch 2 was taken 2455774 times"> + </span><span class="branchCov" title="Branch 3 was taken 115522 times"> + </span>]:<span class="lineCov">    2571296 :   else if(abs(p) &gt; abs(q))</span>
+<span class="lineNum">     232 </span>                :            :   {
+<span class="lineNum">     233 </span>                :<span class="lineCov">    2455774 :     Scalar t = q/p;</span>
+<span class="lineNum">     234 </span>[<span class="branchCov" title="Branch 1 was taken 2455774 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2455774 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2455774 :     Scalar u = sqrt(Scalar(1) + numext::abs2(t));</span>
+<span class="lineNum">     235 </span>        [<span class="branchCov" title="Branch 0 was taken 1068088 times"> + </span><span class="branchCov" title="Branch 1 was taken 1387686 times"> + </span>]:<span class="lineCov">    2455774 :     if(p&lt;Scalar(0))</span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">    1068088 :       u = -u;</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">    2455774 :     m_c = Scalar(1)/u;</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">    2455774 :     m_s = -t * m_c;</span>
+<span class="lineNum">     239 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2455774 times"> + </span>]:<span class="lineCov">    2455774 :     if(r) *r = p * u;</span>
+<span class="lineNum">     240 </span>                :            :   }
+<span class="lineNum">     241 </span>                :            :   else
+<span class="lineNum">     242 </span>                :            :   {
+<span class="lineNum">     243 </span>                :<span class="lineCov">     115522 :     Scalar t = p/q;</span>
+<span class="lineNum">     244 </span>[<span class="branchCov" title="Branch 1 was taken 115522 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 115522 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     115522 :     Scalar u = sqrt(Scalar(1) + numext::abs2(t));</span>
+<span class="lineNum">     245 </span>        [<span class="branchCov" title="Branch 0 was taken 15828 times"> + </span><span class="branchCov" title="Branch 1 was taken 99694 times"> + </span>]:<span class="lineCov">     115522 :     if(q&lt;Scalar(0))</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">      15828 :       u = -u;</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">     115522 :     m_s = -Scalar(1)/u;</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">     115522 :     m_c = -t * m_s;</span>
+<span class="lineNum">     249 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 115522 times"> + </span>]:<span class="lineCov">     115522 :     if(r) *r = q * u;</span>
+<span class="lineNum">     250 </span>                :            :   }
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :<span class="lineCov">    2571298 : }</span>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>                :            : /****************************************************************************************
+<span class="lineNum">     255 </span>                :            : *   Implementation of MatrixBase methods
+<span class="lineNum">     256 </span>                :            : ****************************************************************************************/
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>                :            : /** \jacobi_module
+<span class="lineNum">     259 </span>                :            :   * Applies the clock wise 2D rotation \a j to the set of 2D vectors of cordinates \a x and \a y:
+<span class="lineNum">     260 </span>                :            :   * \f$ \left ( \begin{array}{cc} x \\ y \end{array} \right )  =  J \left ( \begin{array}{cc} x \\ y \end{array} \right ) \f$
+<span class="lineNum">     261 </span>                :            :   *
+<span class="lineNum">     262 </span>                :            :   * \sa MatrixBase::applyOnTheLeft(), MatrixBase::applyOnTheRight()
+<span class="lineNum">     263 </span>                :            :   */
+<span class="lineNum">     264 </span>                :            : namespace internal {
+<span class="lineNum">     265 </span>                :            : template&lt;typename VectorX, typename VectorY, typename OtherScalar&gt;
+<span class="lineNum">     266 </span>                :            : void apply_rotation_in_the_plane(VectorX&amp; _x, VectorY&amp; _y, const JacobiRotation&lt;OtherScalar&gt;&amp; j);
+<span class="lineNum">     267 </span>                :            : }
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>                :            : /** \jacobi_module
+<span class="lineNum">     270 </span>                :            :   * Applies the rotation in the plane \a j to the rows \a p and \a q of \c *this, i.e., it computes B = J * B,
+<span class="lineNum">     271 </span>                :            :   * with \f$ B = \left ( \begin{array}{cc} \text{*this.row}(p) \\ \text{*this.row}(q) \end{array} \right ) \f$.
+<span class="lineNum">     272 </span>                :            :   *
+<span class="lineNum">     273 </span>                :            :   * \sa class JacobiRotation, MatrixBase::applyOnTheRight(), internal::apply_rotation_in_the_plane()
+<span class="lineNum">     274 </span>                :            :   */
+<a name="275"><span class="lineNum">     275 </span>                :            : template&lt;typename Derived&gt;</a>
+<span class="lineNum">     276 </span>                :            : template&lt;typename OtherScalar&gt;
+<span class="lineNum">     277 </span>                :<span class="lineCov">        756 : inline void MatrixBase&lt;Derived&gt;::applyOnTheLeft(Index p, Index q, const JacobiRotation&lt;OtherScalar&gt;&amp; j)</span>
+<span class="lineNum">     278 </span>                :            : {
+<span class="lineNum">     279 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        756 :   RowXpr x(this-&gt;row(p));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     280 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        756 :   RowXpr y(this-&gt;row(q));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     281 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        756 :   internal::apply_rotation_in_the_plane(x, y, j);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     282 </span>                :<span class="lineCov">        756 : }</span>
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>                :            : /** \ingroup Jacobi_Module
+<span class="lineNum">     285 </span>                :            :   * Applies the rotation in the plane \a j to the columns \a p and \a q of \c *this, i.e., it computes B = B * J
+<span class="lineNum">     286 </span>                :            :   * with \f$ B = \left ( \begin{array}{cc} \text{*this.col}(p) &amp; \text{*this.col}(q) \end{array} \right ) \f$.
+<span class="lineNum">     287 </span>                :            :   *
+<span class="lineNum">     288 </span>                :            :   * \sa class JacobiRotation, MatrixBase::applyOnTheLeft(), internal::apply_rotation_in_the_plane()
+<span class="lineNum">     289 </span>                :            :   */
+<a name="290"><span class="lineNum">     290 </span>                :            : template&lt;typename Derived&gt;</a>
+<span class="lineNum">     291 </span>                :            : template&lt;typename OtherScalar&gt;
+<span class="lineNum">     292 </span>                :<span class="lineCov">    2572432 : inline void MatrixBase&lt;Derived&gt;::applyOnTheRight(Index p, Index q, const JacobiRotation&lt;OtherScalar&gt;&amp; j)</span>
+<span class="lineNum">     293 </span>                :            : {
+<span class="lineNum">     294 </span>[<span class="branchCov" title="Branch 1 was taken 2571322 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2572432 :   ColXpr x(this-&gt;col(p));</span>
+<span class="lineNum">     295 </span>[<span class="branchCov" title="Branch 1 was taken 2571322 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2572432 :   ColXpr y(this-&gt;col(q));</span>
+<span class="lineNum">     296 </span>[<span class="branchCov" title="Branch 1 was taken 2571322 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2571322 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2572432 :   internal::apply_rotation_in_the_plane(x, y, j.transpose());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     297 </span>                :<span class="lineCov">    2572432 : }</span>
+<span class="lineNum">     298 </span>                :            : 
+<a name="299"><span class="lineNum">     299 </span>                :            : namespace internal {</a>
+<span class="lineNum">     300 </span>                :            : template&lt;typename VectorX, typename VectorY, typename OtherScalar&gt;
+<span class="lineNum">     301 </span>                :<span class="lineCov">    2573188 : void /*EIGEN_DONT_INLINE*/ apply_rotation_in_the_plane(VectorX&amp; _x, VectorY&amp; _y, const JacobiRotation&lt;OtherScalar&gt;&amp; j)</span>
+<span class="lineNum">     302 </span>                :            : {
+<span class="lineNum">     303 </span>                :            :   typedef typename VectorX::Index Index;
+<span class="lineNum">     304 </span>                :            :   typedef typename VectorX::Scalar Scalar;
+<span class="lineNum">     305 </span>                :            :   enum { PacketSize = packet_traits&lt;Scalar&gt;::size };
+<span class="lineNum">     306 </span>                :            :   typedef typename packet_traits&lt;Scalar&gt;::type Packet;
+<span class="lineNum">     307 </span>[<span class="branchCov" title="Branch 1 was taken 2571314 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2571314 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2573188 :   eigen_assert(_x.size() == _y.size());</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 2571314 times"> + </span>][<span class="branchCov" title="Branch 10 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchNoCov" title="Branch 15 was not taken"> - </span><span class="branchCov" title="Branch 16 was taken 16 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 24 was not taken"> - </span><span class="branchCov" title="Branch 25 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 28 was taken 374 times"> + </span><span class="branchNoCov" title="Branch 29 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 31 was taken 374 times"> + </span><span class="branchNoCov" title="Branch 32 was not taken"> - </span>][<span class="branchNoCov" title="Branch 33 was not taken"> - </span><span class="branchCov" title="Branch 34 was taken 374 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 37 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 38 was not taken"> - </span>][<span class="branchCov" title="Branch 40 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 41 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 42 was not taken"> - </span><span class="branchCov" title="Branch 43 was taken 1110 times"> + </span>][<span class="branchCov" title="Branch 46 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 47 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 49 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 50 was not taken"> - </span>][<span class="branchNoCov" title="Branch 51 was not taken"> - </span><span class="branchCov" title="Branch 52 was taken 370 times"> + </span>]
+<span class="lineNum">     308 </span>[<span class="branchCov" title="Branch 1 was taken 2571314 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2573188 :   Index size = _x.size();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 374 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     309 </span>[<span class="branchCov" title="Branch 1 was taken 2571314 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2573188 :   Index incrx = _x.innerStride();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 374 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     310 </span>[<span class="branchCov" title="Branch 1 was taken 2571314 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2573188 :   Index incry = _y.innerStride();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 374 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>[<span class="branchCov" title="Branch 1 was taken 2571314 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2573188 :   Scalar* EIGEN_RESTRICT x = &amp;_x.coeffRef(0);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 374 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     313 </span>[<span class="branchCov" title="Branch 1 was taken 2571314 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2573188 :   Scalar* EIGEN_RESTRICT y = &amp;_y.coeffRef(0);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 374 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     314 </span>                :            :   
+<span class="lineNum">     315 </span>[<span class="branchCov" title="Branch 1 was taken 2571314 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2573188 :   OtherScalar c = j.c();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 374 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     316 </span>[<span class="branchCov" title="Branch 1 was taken 2571314 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2573188 :   OtherScalar s = j.s();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 374 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     317 </span>[<span class="branchCov" title="Branch 0 was taken 173919 times"> + </span><span class="branchCov" title="Branch 1 was taken 2397395 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 173918 times"> + </span>]:<span class="lineCov">    2573188 :   if (c==OtherScalar(1) &amp;&amp; s==OtherScalar(0))</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchCov" title="Branch 5 was taken 14 times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 8 was not taken"> - </span><span class="branchCov" title="Branch 9 was taken 4 times"> + </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 91 times"> + </span><span class="branchCov" title="Branch 13 was taken 283 times"> + </span>][<span class="branchCov" title="Branch 14 was taken 4 times"> + </span><span class="branchCov" title="Branch 15 was taken 87 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 166 times"> + </span><span class="branchCov" title="Branch 17 was taken 944 times"> + </span>][<span class="branchNoCov" title="Branch 18 was not taken"> - </span><span class="branchCov" title="Branch 19 was taken 166 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken 30 times"> + </span><span class="branchCov" title="Branch 21 was taken 340 times"> + </span>][<span class="branchNoCov" title="Branch 22 was not taken"> - </span><span class="branchCov" title="Branch 23 was taken 30 times"> + </span>]
+<span class="lineNum">     318 </span>                :<span class="lineCov">    2575073 :     return;</span>
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>                :            :   /*** dynamic-size vectorized paths ***/
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>[<span class="branchCov" title="Branch 0 was taken 2571298 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 2571298 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">    2571298 :   if(VectorX::SizeAtCompileTime == Dynamic &amp;&amp;</span>
+<span class="lineNum">     323 </span>                :            :     (VectorX::Flags &amp; VectorY::Flags &amp; PacketAccessBit) &amp;&amp;
+<span class="lineNum">     324 </span>                :            :     ((incrx==1 &amp;&amp; incry==1) || PacketSize == 1))
+<span class="lineNum">     325 </span>                :            :   {
+<span class="lineNum">     326 </span>                :            :     // both vectors are sequentially stored in memory =&gt; vectorization
+<span class="lineNum">     327 </span>                :            :     enum { Peeling = 2 };
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>        [<span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    2571298 :     Index alignedStart = internal::first_aligned(y, size);</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">    2571298 :     Index alignedEnd = alignedStart + ((size-alignedStart)/PacketSize)*PacketSize;</span>
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>        [<span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    2571298 :     const Packet pc = pset1&lt;Packet&gt;(c);</span>
+<span class="lineNum">     333 </span>        [<span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    2571298 :     const Packet ps = pset1&lt;Packet&gt;(s);</span>
+<span class="lineNum">     334 </span>                :            :     conj_helper&lt;Packet,Packet,NumTraits&lt;Scalar&gt;::IsComplex,false&gt; pcj;
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>        [<span class="branchCov" title="Branch 0 was taken 4017646 times"> + </span><span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span>]:<span class="lineCov">    6588944 :     for(Index i=0; i&lt;alignedStart; ++i)</span>
+<span class="lineNum">     337 </span>                :            :     {
+<span class="lineNum">     338 </span>                :<span class="lineCov">    4017646 :       Scalar xi = x[i];</span>
+<span class="lineNum">     339 </span>                :<span class="lineCov">    4017646 :       Scalar yi = y[i];</span>
+<span class="lineNum">     340 </span>        [<span class="branchCov" title="Branch 1 was taken 4017646 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    4017646 :       x[i] =  c * xi + numext::conj(s) * yi;</span>
+<span class="lineNum">     341 </span>        [<span class="branchCov" title="Branch 1 was taken 4017646 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    4017646 :       y[i] = -s * xi + numext::conj(c) * yi;</span>
+<span class="lineNum">     342 </span>                :            :     }
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :<span class="lineCov">    2571298 :     Scalar* EIGEN_RESTRICT px = x + alignedStart;</span>
+<span class="lineNum">     345 </span>                :<span class="lineCov">    2571298 :     Scalar* EIGEN_RESTRICT py = y + alignedStart;</span>
+<span class="lineNum">     346 </span>                :            : 
+<span class="lineNum">     347 </span>[<span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 2571298 times"> + </span>]:<span class="lineCov">    2571298 :     if(internal::first_aligned(x, size)==alignedStart)</span>
+<span class="lineNum">     348 </span>                :            :     {
+<span class="lineNum">     349 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(Index i=alignedStart; i&lt;alignedEnd; i+=PacketSize)</span>
+<span class="lineNum">     350 </span>                :            :       {
+<span class="lineNum">     351 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Packet xi = pload&lt;Packet&gt;(px);</span>
+<span class="lineNum">     352 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Packet yi = pload&lt;Packet&gt;(py);</span>
+<span class="lineNum">     353 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         pstore(px, padd(pmul(pc,xi),pcj.pmul(ps,yi)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     354 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         pstore(py, psub(pcj.pmul(pc,yi),pmul(ps,xi)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :         px += PacketSize;</span>
+<span class="lineNum">     356 </span>                :<span class="lineNoCov">          0 :         py += PacketSize;</span>
+<span class="lineNum">     357 </span>                :            :       }
+<span class="lineNum">     358 </span>                :            :     }
+<span class="lineNum">     359 </span>                :            :     else
+<span class="lineNum">     360 </span>                :            :     {
+<span class="lineNum">     361 </span>                :<span class="lineCov">    2571298 :       Index peelingEnd = alignedStart + ((size-alignedStart)/(Peeling*PacketSize))*(Peeling*PacketSize);</span>
+<span class="lineNum">     362 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span>]:<span class="lineCov">    2571298 :       for(Index i=alignedStart; i&lt;peelingEnd; i+=Peeling*PacketSize)</span>
+<span class="lineNum">     363 </span>                :            :       {
+<span class="lineNum">     364 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Packet xi   = ploadu&lt;Packet&gt;(px);</span>
+<span class="lineNum">     365 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Packet xi1  = ploadu&lt;Packet&gt;(px+PacketSize);</span>
+<span class="lineNum">     366 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Packet yi   = pload &lt;Packet&gt;(py);</span>
+<span class="lineNum">     367 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Packet yi1  = pload &lt;Packet&gt;(py+PacketSize);</span>
+<span class="lineNum">     368 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         pstoreu(px, padd(pmul(pc,xi),pcj.pmul(ps,yi)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     369 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         pstoreu(px+PacketSize, padd(pmul(pc,xi1),pcj.pmul(ps,yi1)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     370 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         pstore (py, psub(pcj.pmul(pc,yi),pmul(ps,xi)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     371 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         pstore (py+PacketSize, psub(pcj.pmul(pc,yi1),pmul(ps,xi1)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :         px += Peeling*PacketSize;</span>
+<span class="lineNum">     373 </span>                :<span class="lineNoCov">          0 :         py += Peeling*PacketSize;</span>
+<span class="lineNum">     374 </span>                :            :       }
+<span class="lineNum">     375 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span>]:<span class="lineCov">    2571298 :       if(alignedEnd!=peelingEnd)</span>
+<span class="lineNum">     376 </span>                :            :       {
+<span class="lineNum">     377 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Packet xi = ploadu&lt;Packet&gt;(x+peelingEnd);</span>
+<span class="lineNum">     378 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Packet yi = pload &lt;Packet&gt;(y+peelingEnd);</span>
+<span class="lineNum">     379 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         pstoreu(x+peelingEnd, padd(pmul(pc,xi),pcj.pmul(ps,yi)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     380 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         pstore (y+peelingEnd, psub(pcj.pmul(pc,yi),pmul(ps,xi)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     381 </span>                :            :       }
+<span class="lineNum">     382 </span>                :            :     }
+<span class="lineNum">     383 </span>                :            : 
+<span class="lineNum">     384 </span>        [<span class="branchCov" title="Branch 0 was taken 2987298 times"> + </span><span class="branchCov" title="Branch 1 was taken 2571298 times"> + </span>]:<span class="lineCov">    5558596 :     for(Index i=alignedEnd; i&lt;size; ++i)</span>
+<span class="lineNum">     385 </span>                :            :     {
+<span class="lineNum">     386 </span>                :<span class="lineCov">    2987298 :       Scalar xi = x[i];</span>
+<span class="lineNum">     387 </span>                :<span class="lineCov">    2987298 :       Scalar yi = y[i];</span>
+<span class="lineNum">     388 </span>        [<span class="branchCov" title="Branch 1 was taken 2987298 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    2987298 :       x[i] =  c * xi + numext::conj(s) * yi;</span>
+<span class="lineNum">     389 </span>        [<span class="branchCov" title="Branch 1 was taken 2987298 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    2987298 :       y[i] = -s * xi + numext::conj(c) * yi;</span>
+<span class="lineNum">     390 </span>                :<span class="lineCov">    2571298 :     }</span>
+<span class="lineNum">     391 </span>                :            :   }
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>                :            :   /*** fixed-size vectorized path ***/
+<span class="lineNum">     394 </span>                :            :   else if(VectorX::SizeAtCompileTime != Dynamic &amp;&amp;
+<span class="lineNum">     395 </span>                :            :           (VectorX::Flags &amp; VectorY::Flags &amp; PacketAccessBit) &amp;&amp;
+<span class="lineNum">     396 </span>                :            :           (VectorX::Flags &amp; VectorY::Flags &amp; AlignedBit))
+<span class="lineNum">     397 </span>                :            :   {
+<span class="lineNum">     398 </span>        [<span class="branchCov" title="Branch 1 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       1110 :     const Packet pc = pset1&lt;Packet&gt;(c);</span>
+<span class="lineNum">     399 </span>        [<span class="branchCov" title="Branch 1 was taken 1110 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       1110 :     const Packet ps = pset1&lt;Packet&gt;(s);</span>
+<span class="lineNum">     400 </span>                :            :     conj_helper&lt;Packet,Packet,NumTraits&lt;Scalar&gt;::IsComplex,false&gt; pcj;
+<span class="lineNum">     401 </span>                :<span class="lineCov">       1110 :     Scalar* EIGEN_RESTRICT px = x;</span>
+<span class="lineNum">     402 </span>                :<span class="lineCov">       1110 :     Scalar* EIGEN_RESTRICT py = y;</span>
+<span class="lineNum">     403 </span>        [<span class="branchCov" title="Branch 0 was taken 3330 times"> + </span><span class="branchCov" title="Branch 1 was taken 1110 times"> + </span>]:<span class="lineCov">       4440 :     for(Index i=0; i&lt;size; i+=PacketSize)</span>
+<span class="lineNum">     404 </span>                :            :     {
+<span class="lineNum">     405 </span>        [<span class="branchCov" title="Branch 1 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       3330 :       Packet xi = pload&lt;Packet&gt;(px);</span>
+<span class="lineNum">     406 </span>        [<span class="branchCov" title="Branch 1 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       3330 :       Packet yi = pload&lt;Packet&gt;(py);</span>
+<span class="lineNum">     407 </span>[<span class="branchCov" title="Branch 1 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       3330 :       pstore(px, padd(pmul(pc,xi),pcj.pmul(ps,yi)));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     408 </span>[<span class="branchCov" title="Branch 1 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       3330 :       pstore(py, psub(pcj.pmul(pc,yi),pmul(ps,xi)));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 3330 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     409 </span>                :<span class="lineCov">       3330 :       px += PacketSize;</span>
+<span class="lineNum">     410 </span>                :<span class="lineCov">       3330 :       py += PacketSize;</span>
+<span class="lineNum">     411 </span>                :            :     }
+<span class="lineNum">     412 </span>                :            :   }
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :            :   /*** non-vectorized path ***/
+<span class="lineNum">     415 </span>                :            :   else
+<span class="lineNum">     416 </span>                :            :   {
+<span class="lineNum">     417 </span>[<span class="branchCov" title="Branch 0 was taken 66 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 56 times"> + </span><span class="branchCov" title="Branch 3 was taken 16 times"> + </span>]:<span class="lineCov">    2575167 :     for(Index i=0; i&lt;size; ++i)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 12 times"> + </span><span class="branchCov" title="Branch 5 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 740 times"> + </span><span class="branchCov" title="Branch 7 was taken 370 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 2220 times"> + </span><span class="branchCov" title="Branch 9 was taken 370 times"> + </span>]
+<span class="lineNum">     418 </span>                :            :     {
+<span class="lineNum">     419 </span>                :<span class="lineCov">       3094 :       Scalar xi = *x;</span>
+<span class="lineNum">     420 </span>                :<span class="lineCov">       3094 :       Scalar yi = *y;</span>
+<span class="lineNum">     421 </span>[<span class="branchCov" title="Branch 1 was taken 66 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 56 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       3094 :       *x =  c * xi + numext::conj(s) * yi;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 740 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 13 was taken 2220 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     422 </span>[<span class="branchCov" title="Branch 1 was taken 66 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 56 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       3094 :       *y = -s * xi + numext::conj(c) * yi;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 740 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 13 was taken 2220 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     423 </span>                :<span class="lineCov">       3094 :       x += incrx;</span>
+<span class="lineNum">     424 </span>                :<span class="lineCov">       3094 :       y += incry;</span>
+<span class="lineNum">     425 </span>                :            :     }
+<span class="lineNum">     426 </span>                :            :   }
+<span class="lineNum">     427 </span>                :            : }
+<span class="lineNum">     428 </span>                :            : 
+<span class="lineNum">     429 </span>                :            : } // end namespace internal
+<span class="lineNum">     430 </span>                :            : 
+<span class="lineNum">     431 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :            : #endif // EIGEN_JACOBI_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

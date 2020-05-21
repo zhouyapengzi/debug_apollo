@@ -1,0 +1,259 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/planning/open_space/trajectory_smoother/dual_variable_warm_start_ipopt_qp_interface.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/planning/open_space/trajectory_smoother</a> - dual_variable_warm_start_ipopt_qp_interface.h<span style="font-size: 80%;"> (source / <a href="dual_variable_warm_start_ipopt_qp_interface.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /*
+<span class="lineNum">      18 </span>                :            :  * @file
+<span class="lineNum">      19 </span>                :            :  */
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #pragma once
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &lt;limits&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : #include &quot;Eigen/Dense&quot;
+<span class="lineNum">      27 </span>                :            : #include &quot;IpTNLP.hpp&quot;
+<span class="lineNum">      28 </span>                :            : #include &quot;IpTypes.hpp&quot;
+<span class="lineNum">      29 </span>                :            : #include &quot;adolc/adolc.h&quot;
+<span class="lineNum">      30 </span>                :            : #include &quot;adolc/adolc_sparse.h&quot;
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : #include &quot;modules/common/configs/proto/vehicle_config.pb.h&quot;
+<span class="lineNum">      33 </span>                :            : #include &quot;modules/common/configs/vehicle_config_helper.h&quot;
+<span class="lineNum">      34 </span>                :            : #include &quot;modules/planning/proto/planner_open_space_config.pb.h&quot;
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : // #define tag_f 1
+<span class="lineNum">      37 </span>                :            : // #define tag_g 2
+<span class="lineNum">      38 </span>                :            : #define tag_L 3
+<span class="lineNum">      39 </span>                :            : // #define HPOFF
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : namespace apollo {
+<span class="lineNum">      42 </span>                :            : namespace planning {
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : class DualVariableWarmStartIPOPTQPInterface : public Ipopt::TNLP {
+<span class="lineNum">      45 </span>                :            :  public:
+<span class="lineNum">      46 </span>                :            :   explicit DualVariableWarmStartIPOPTQPInterface(
+<span class="lineNum">      47 </span>                :            :       size_t horizon, double ts, const Eigen::MatrixXd&amp; ego,
+<span class="lineNum">      48 </span>                :            :       const Eigen::MatrixXi&amp; obstacles_edges_num, const size_t obstacles_num,
+<span class="lineNum">      49 </span>                :            :       const Eigen::MatrixXd&amp; obstacles_A, const Eigen::MatrixXd&amp; obstacles_b,
+<span class="lineNum">      50 </span>                :            :       const Eigen::MatrixXd&amp; xWS,
+<a name="51"><span class="lineNum">      51 </span>                :            :       const PlannerOpenSpaceConfig&amp; planner_open_space_config);</a>
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>        [<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]:<span class="lineNoCov">          0 :   virtual ~DualVariableWarmStartIPOPTQPInterface() = default;</span>
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            :   void get_optimization_results(Eigen::MatrixXd* l_warm_up,
+<span class="lineNum">      56 </span>                :            :                                 Eigen::MatrixXd* n_warm_up) const;
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            :   void check_solution(const Eigen::MatrixXd&amp; l_warm_up,
+<span class="lineNum">      59 </span>                :            :                       const Eigen::MatrixXd&amp; n_warm_up);
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            :   /** Method to return some info about the nlp */
+<span class="lineNum">      62 </span>                :            :   bool get_nlp_info(int&amp; n, int&amp; m, int&amp; nnz_jac_g, int&amp; nnz_h_lag,
+<span class="lineNum">      63 </span>                :            :                     IndexStyleEnum&amp; index_style) override;
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            :   /** Method to return the bounds for my problem */
+<span class="lineNum">      66 </span>                :            :   bool get_bounds_info(int n, double* x_l, double* x_u, int m, double* g_l,
+<span class="lineNum">      67 </span>                :            :                        double* g_u) override;
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            :   /** Method to return the starting point for the algorithm */
+<span class="lineNum">      70 </span>                :            :   bool get_starting_point(int n, bool init_x, double* x, bool init_z,
+<span class="lineNum">      71 </span>                :            :                           double* z_L, double* z_U, int m, bool init_lambda,
+<span class="lineNum">      72 </span>                :            :                           double* lambda) override;
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            :   /** Method to return the objective value */
+<span class="lineNum">      75 </span>                :            :   bool eval_f(int n, const double* x, bool new_x, double&amp; obj_value) override;
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :            :   /** Method to return the gradient of the objective */
+<span class="lineNum">      78 </span>                :            :   bool eval_grad_f(int n, const double* x, bool new_x, double* grad_f) override;
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            :   /** Method to return the constraint residuals */
+<span class="lineNum">      81 </span>                :            :   bool eval_g(int n, const double* x, bool new_x, int m, double* g) override;
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            :   /** Method to return:
+<span class="lineNum">      84 </span>                :            :    *   1) The structure of the jacobian (if &quot;values&quot; is nullptr)
+<span class="lineNum">      85 </span>                :            :    *   2) The values of the jacobian (if &quot;values&quot; is not nullptr)
+<span class="lineNum">      86 </span>                :            :    */
+<span class="lineNum">      87 </span>                :            :   bool eval_jac_g(int n, const double* x, bool new_x, int m, int nele_jac,
+<span class="lineNum">      88 </span>                :            :                   int* iRow, int* jCol, double* values) override;
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :            :   /** Method to return:
+<span class="lineNum">      91 </span>                :            :    *   1) The structure of the hessian of the lagrangian (if &quot;values&quot; is
+<span class="lineNum">      92 </span>                :            :    * nullptr) 2) The values of the hessian of the lagrangian (if &quot;values&quot; is not
+<span class="lineNum">      93 </span>                :            :    * nullptr)
+<span class="lineNum">      94 </span>                :            :    */
+<span class="lineNum">      95 </span>                :            :   bool eval_h(int n, const double* x, bool new_x, double obj_factor, int m,
+<span class="lineNum">      96 </span>                :            :               const double* lambda, bool new_lambda, int nele_hess, int* iRow,
+<span class="lineNum">      97 </span>                :            :               int* jCol, double* values) override;
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :            :   /** @name Solution Methods */
+<span class="lineNum">     100 </span>                :            :   /** This method is called when the algorithm is complete so the TNLP can
+<span class="lineNum">     101 </span>                :            :    * store/write the solution */
+<span class="lineNum">     102 </span>                :            :   void finalize_solution(Ipopt::SolverReturn status, int n, const double* x,
+<span class="lineNum">     103 </span>                :            :                          const double* z_L, const double* z_U, int m,
+<span class="lineNum">     104 </span>                :            :                          const double* g, const double* lambda,
+<span class="lineNum">     105 </span>                :            :                          double obj_value, const Ipopt::IpoptData* ip_data,
+<span class="lineNum">     106 </span>                :            :                          Ipopt::IpoptCalculatedQuantities* ip_cq) override;
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :            :   //***************    start ADOL-C part ***********************************
+<span class="lineNum">     109 </span>                :            :   /** Template to return the objective value */
+<span class="lineNum">     110 </span>                :            :   template &lt;class T&gt;
+<span class="lineNum">     111 </span>                :            :   bool eval_obj(int n, const T* x, T* obj_value);
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>                :            :   /** Template to compute constraints */
+<span class="lineNum">     114 </span>                :            :   template &lt;class T&gt;
+<span class="lineNum">     115 </span>                :            :   bool eval_constraints(int n, const T* x, int m, T* g);
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>                :            :   /** Method to generate the required tapes */
+<span class="lineNum">     118 </span>                :            :   void generate_tapes(int n, int m, int* nnz_h_lag);
+<span class="lineNum">     119 </span>                :            :   //***************    end   ADOL-C part ***********************************
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :            :  private:
+<span class="lineNum">     122 </span>                :            :   int num_of_variables_;
+<span class="lineNum">     123 </span>                :            :   int num_of_constraints_;
+<span class="lineNum">     124 </span>                :            :   int horizon_;
+<span class="lineNum">     125 </span>                :            :   double ts_;
+<span class="lineNum">     126 </span>                :            :   Eigen::MatrixXd ego_;
+<span class="lineNum">     127 </span>                :            :   int lambda_horizon_ = 0;
+<span class="lineNum">     128 </span>                :            :   int miu_horizon_ = 0;
+<span class="lineNum">     129 </span>                :            :   int dual_formulation_horizon_ = 0;
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :            :   Eigen::MatrixXd l_warm_up_;
+<span class="lineNum">     132 </span>                :            :   Eigen::MatrixXd n_warm_up_;
+<span class="lineNum">     133 </span>                :            :   double wheelbase_;
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            :   double w_ev_;
+<span class="lineNum">     136 </span>                :            :   double l_ev_;
+<span class="lineNum">     137 </span>                :            :   std::vector&lt;double&gt; g_;
+<span class="lineNum">     138 </span>                :            :   double offset_;
+<span class="lineNum">     139 </span>                :            :   Eigen::MatrixXi obstacles_edges_num_;
+<span class="lineNum">     140 </span>                :            :   int obstacles_num_;
+<span class="lineNum">     141 </span>                :            :   int obstacles_edges_sum_;
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :            :   // lagrangian l start index
+<span class="lineNum">     144 </span>                :            :   int l_start_index_ = 0;
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            :   // lagrangian n start index
+<span class="lineNum">     147 </span>                :            :   int n_start_index_ = 0;
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :            :   // lagrangian d start index
+<span class="lineNum">     150 </span>                :            :   int d_start_index_ = 0;
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :            :   // obstacles_A
+<span class="lineNum">     153 </span>                :            :   Eigen::MatrixXd obstacles_A_;
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :            :   // obstacles_b
+<span class="lineNum">     156 </span>                :            :   Eigen::MatrixXd obstacles_b_;
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :            :   // states of warm up stage
+<span class="lineNum">     159 </span>                :            :   Eigen::MatrixXd xWS_;
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :            :   double min_safety_distance_;
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :            :   //***************    start ADOL-C part ***********************************
+<span class="lineNum">     164 </span>                :            :   double* obj_lam;
+<span class="lineNum">     165 </span>                :            :   unsigned int* rind_L; /* row indices    */
+<span class="lineNum">     166 </span>                :            :   unsigned int* cind_L; /* column indices */
+<span class="lineNum">     167 </span>                :            :   double* hessval;      /* values */
+<span class="lineNum">     168 </span>                :            :   int nnz_L;
+<span class="lineNum">     169 </span>                :            :   int options_L[4];
+<span class="lineNum">     170 </span>                :            :   //***************    end   ADOL-C part ***********************************
+<span class="lineNum">     171 </span>                :            : };
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :            : }  // namespace planning
+<span class="lineNum">     174 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

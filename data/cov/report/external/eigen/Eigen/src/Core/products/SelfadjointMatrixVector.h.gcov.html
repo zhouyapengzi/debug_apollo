@@ -1,0 +1,383 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Core/products/SelfadjointMatrixVector.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Core/products</a> - SelfadjointMatrixVector.h<span style="font-size: 80%;"> (source / <a href="SelfadjointMatrixVector.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntryLo">39.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntry">182</td>
+            <td class="headerCovTableEntryLo">25.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2008-2009 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       5 </span>                :            : //
+<span class="lineNum">       6 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       7 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       8 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            : #ifndef EIGEN_SELFADJOINT_MATRIX_VECTOR_H
+<span class="lineNum">      11 </span>                :            : #define EIGEN_SELFADJOINT_MATRIX_VECTOR_H
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : namespace Eigen { 
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : namespace internal {
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /* Optimized selfadjoint matrix * vector product:
+<span class="lineNum">      18 </span>                :            :  * This algorithm processes 2 columns at onces that allows to both reduce
+<span class="lineNum">      19 </span>                :            :  * the number of load/stores of the result by a factor 2 and to reduce
+<span class="lineNum">      20 </span>                :            :  * the instruction dependency.
+<span class="lineNum">      21 </span>                :            :  */
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : template&lt;typename Scalar, typename Index, int StorageOrder, int UpLo, bool ConjugateLhs, bool ConjugateRhs, int Version=Specialized&gt;
+<span class="lineNum">      24 </span>                :            : struct selfadjoint_matrix_vector_product;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : template&lt;typename Scalar, typename Index, int StorageOrder, int UpLo, bool ConjugateLhs, bool ConjugateRhs, int Version&gt;
+<span class="lineNum">      27 </span>                :            : struct selfadjoint_matrix_vector_product
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : {
+<span class="lineNum">      30 </span>                :            : static EIGEN_DONT_INLINE void run(
+<span class="lineNum">      31 </span>                :            :   Index size,
+<span class="lineNum">      32 </span>                :            :   const Scalar*  lhs, Index lhsStride,
+<span class="lineNum">      33 </span>                :            :   const Scalar* _rhs, Index rhsIncr,
+<span class="lineNum">      34 </span>                :            :   Scalar* res,
+<span class="lineNum">      35 </span>                :            :   Scalar alpha);
+<span class="lineNum">      36 </span>                :            : };
+<a name="37"><span class="lineNum">      37 </span>                :            : </a>
+<span class="lineNum">      38 </span>                :            : template&lt;typename Scalar, typename Index, int StorageOrder, int UpLo, bool ConjugateLhs, bool ConjugateRhs, int Version&gt;
+<span class="lineNum">      39 </span>                :<span class="lineCov">     708950 : EIGEN_DONT_INLINE void selfadjoint_matrix_vector_product&lt;Scalar,Index,StorageOrder,UpLo,ConjugateLhs,ConjugateRhs,Version&gt;::run(</span>
+<span class="lineNum">      40 </span>                :            :   Index size,
+<span class="lineNum">      41 </span>                :            :   const Scalar*  lhs, Index lhsStride,
+<span class="lineNum">      42 </span>                :            :   const Scalar* _rhs, Index rhsIncr,
+<span class="lineNum">      43 </span>                :            :   Scalar* res,
+<span class="lineNum">      44 </span>                :            :   Scalar alpha)
+<span class="lineNum">      45 </span>                :            : {
+<span class="lineNum">      46 </span>                :            :   typedef typename packet_traits&lt;Scalar&gt;::type Packet;
+<span class="lineNum">      47 </span>                :<span class="lineCov">     708950 :   const Index PacketSize = sizeof(Packet)/sizeof(Scalar);</span>
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            :   enum {
+<span class="lineNum">      50 </span>                :            :     IsRowMajor = StorageOrder==RowMajor ? 1 : 0,
+<span class="lineNum">      51 </span>                :            :     IsLower = UpLo == Lower ? 1 : 0,
+<span class="lineNum">      52 </span>                :            :     FirstTriangular = IsRowMajor == IsLower
+<span class="lineNum">      53 </span>                :            :   };
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            :   conj_helper&lt;Scalar,Scalar,NumTraits&lt;Scalar&gt;::IsComplex &amp;&amp; EIGEN_LOGICAL_XOR(ConjugateLhs,  IsRowMajor), ConjugateRhs&gt; cj0;
+<span class="lineNum">      56 </span>                :            :   conj_helper&lt;Scalar,Scalar,NumTraits&lt;Scalar&gt;::IsComplex &amp;&amp; EIGEN_LOGICAL_XOR(ConjugateLhs, !IsRowMajor), ConjugateRhs&gt; cj1;
+<span class="lineNum">      57 </span>                :            :   conj_helper&lt;Scalar,Scalar,NumTraits&lt;Scalar&gt;::IsComplex, ConjugateRhs&gt; cjd;
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            :   conj_helper&lt;Packet,Packet,NumTraits&lt;Scalar&gt;::IsComplex &amp;&amp; EIGEN_LOGICAL_XOR(ConjugateLhs,  IsRowMajor), ConjugateRhs&gt; pcj0;
+<span class="lineNum">      60 </span>                :            :   conj_helper&lt;Packet,Packet,NumTraits&lt;Scalar&gt;::IsComplex &amp;&amp; EIGEN_LOGICAL_XOR(ConjugateLhs, !IsRowMajor), ConjugateRhs&gt; pcj1;
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :<span class="lineCov">     708950 :   Scalar cjAlpha = ConjugateRhs ? numext::conj(alpha) : alpha;</span>
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            :   // FIXME this copy is now handled outside product_selfadjoint_vector, so it could probably be removed.
+<span class="lineNum">      65 </span>                :            :   // if the rhs is not sequentially stored in memory we copy it to a temporary buffer,
+<span class="lineNum">      66 </span>                :            :   // this is because we need to extract packets
+<span class="lineNum">      67 </span>[<span class="branchCov" title="Branch 0 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">     708950 :   ei_declare_aligned_stack_constructed_variable(Scalar,rhs,size,rhsIncr==1 ? const_cast&lt;Scalar*&gt;(_rhs) : 0);  </span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchCov" title="Branch 11 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 13 was not taken"> - </span><span class="branchCov" title="Branch 14 was taken 708950 times"> + </span>][<span class="branchCov" title="Branch 16 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">      68 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 708950 times"> + </span>]:<span class="lineCov">     708950 :   if (rhsIncr!=1)</span>
+<span class="lineNum">      69 </span>                :            :   {
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :     const Scalar* it = _rhs;</span>
+<span class="lineNum">      71 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (Index i=0; i&lt;size; ++i, it+=rhsIncr)</span>
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :       rhs[i] = *it;</span>
+<span class="lineNum">      73 </span>                :            :   }
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   Index bound = (std::max)(Index(0),size-8) &amp; 0xfffffffe;</span>
+<span class="lineNum">      76 </span>                :            :   if (FirstTriangular)
+<span class="lineNum">      77 </span>                :            :     bound = size - bound;
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 708950 times"> + </span>]:<span class="lineCov">     708950 :   for (Index j=FirstTriangular ? bound : 0;</span>
+<span class="lineNum">      80 </span>                :            :        j&lt;(FirstTriangular ? size : bound);j+=2)
+<span class="lineNum">      81 </span>                :            :   {
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :     const Scalar* EIGEN_RESTRICT A0 = lhs + j*lhsStride;</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :     const Scalar* EIGEN_RESTRICT A1 = lhs + (j+1)*lhsStride;</span>
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :     Scalar t0 = cjAlpha * rhs[j];</span>
+<span class="lineNum">      86 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     Packet ptmp0 = pset1&lt;Packet&gt;(t0);</span>
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :     Scalar t1 = cjAlpha * rhs[j+1];</span>
+<span class="lineNum">      88 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     Packet ptmp1 = pset1&lt;Packet&gt;(t1);</span>
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :     Scalar t2(0);</span>
+<span class="lineNum">      91 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     Packet ptmp2 = pset1&lt;Packet&gt;(t2);</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :     Scalar t3(0);</span>
+<span class="lineNum">      93 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     Packet ptmp3 = pset1&lt;Packet&gt;(t3);</span>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :     size_t starti = FirstTriangular ? 0 : j+2;</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :     size_t endi   = FirstTriangular ? j : size;</span>
+<span class="lineNum">      97 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     size_t alignedStart = (starti) + internal::first_aligned(&amp;res[starti], endi-starti);</span>
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :     size_t alignedEnd = alignedStart + ((endi-alignedStart)/(PacketSize))*(PacketSize);</span>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :     // TODO make sure this product is a real * complex and that the rhs is properly conjugated if needed
+<span class="lineNum">     101 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     res[j]   += cjd.pmul(numext::real(A0[j]), t0);</span>
+<span class="lineNum">     102 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     res[j+1] += cjd.pmul(numext::real(A1[j+1]), t1);</span>
+<span class="lineNum">     103 </span>                :            :     if(FirstTriangular)
+<span class="lineNum">     104 </span>                :            :     {
+<span class="lineNum">     105 </span>                :            :       res[j]   += cj0.pmul(A1[j],   t1);
+<span class="lineNum">     106 </span>                :            :       t3       += cj1.pmul(A1[j],   rhs[j]);
+<span class="lineNum">     107 </span>                :            :     }
+<span class="lineNum">     108 </span>                :            :     else
+<span class="lineNum">     109 </span>                :            :     {
+<span class="lineNum">     110 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       res[j+1] += cj0.pmul(A0[j+1],t0);</span>
+<span class="lineNum">     111 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       t2 += cj1.pmul(A0[j+1], rhs[j+1]);</span>
+<span class="lineNum">     112 </span>                :            :     }
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (size_t i=starti; i&lt;alignedStart; ++i)</span>
+<span class="lineNum">     115 </span>                :            :     {
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :       res[i] += t0 * A0[i] + t1 * A1[i];</span>
+<span class="lineNum">     117 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       t2 += numext::conj(A0[i]) * rhs[i];</span>
+<span class="lineNum">     118 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       t3 += numext::conj(A1[i]) * rhs[i];</span>
+<span class="lineNum">     119 </span>                :            :     }
+<span class="lineNum">     120 </span>                :            :     // Yes this an optimization for gcc 4.3 and 4.4 (=&gt; huge speed up)
+<span class="lineNum">     121 </span>                :            :     // gcc 4.2 does this optimization automatically.
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :     const Scalar* EIGEN_RESTRICT a0It  = A0  + alignedStart;</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :     const Scalar* EIGEN_RESTRICT a1It  = A1  + alignedStart;</span>
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :     const Scalar* EIGEN_RESTRICT rhsIt = rhs + alignedStart;</span>
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :           Scalar* EIGEN_RESTRICT resIt = res + alignedStart;</span>
+<span class="lineNum">     126 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (size_t i=alignedStart; i&lt;alignedEnd; i+=PacketSize)</span>
+<span class="lineNum">     127 </span>                :            :     {
+<span class="lineNum">     128 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       Packet A0i = ploadu&lt;Packet&gt;(a0It);  a0It  += PacketSize;</span>
+<span class="lineNum">     129 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       Packet A1i = ploadu&lt;Packet&gt;(a1It);  a1It  += PacketSize;</span>
+<span class="lineNum">     130 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       Packet Bi  = ploadu&lt;Packet&gt;(rhsIt); rhsIt += PacketSize; // FIXME should be aligned in most cases</span>
+<span class="lineNum">     131 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       Packet Xi  = pload &lt;Packet&gt;(resIt);</span>
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       Xi    = pcj0.pmadd(A0i,ptmp0, pcj0.pmadd(A1i,ptmp1,Xi));</span>
+<span class="lineNum">     134 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       ptmp2 = pcj1.pmadd(A0i,  Bi, ptmp2);</span>
+<span class="lineNum">     135 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       ptmp3 = pcj1.pmadd(A1i,  Bi, ptmp3);</span>
+<span class="lineNum">     136 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       pstore(resIt,Xi); resIt += PacketSize;</span>
+<span class="lineNum">     137 </span>                :            :     }
+<span class="lineNum">     138 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (size_t i=alignedEnd; i&lt;endi; i++)</span>
+<span class="lineNum">     139 </span>                :            :     {
+<span class="lineNum">     140 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       res[i] += cj0.pmul(A0[i], t0) + cj0.pmul(A1[i],t1);</span>
+<span class="lineNum">     141 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       t2 += cj1.pmul(A0[i], rhs[i]);</span>
+<span class="lineNum">     142 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       t3 += cj1.pmul(A1[i], rhs[i]);</span>
+<span class="lineNum">     143 </span>                :            :     }
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     res[j]   += alpha * (t2 + predux(ptmp2));</span>
+<span class="lineNum">     146 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     res[j+1] += alpha * (t3 + predux(ptmp3));</span>
+<span class="lineNum">     147 </span>                :            :   }
+<span class="lineNum">     148 </span>        [<span class="branchCov" title="Branch 0 was taken 708950 times"> + </span><span class="branchCov" title="Branch 1 was taken 708950 times"> + </span>]:<span class="lineCov">    1417900 :   for (Index j=FirstTriangular ? 0 : bound;j&lt;(FirstTriangular ? bound : size);j++)</span>
+<span class="lineNum">     149 </span>                :            :   {
+<span class="lineNum">     150 </span>                :<span class="lineCov">     708950 :     const Scalar* EIGEN_RESTRICT A0 = lhs + j*lhsStride;</span>
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :<span class="lineCov">     708950 :     Scalar t1 = cjAlpha * rhs[j];</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">     708950 :     Scalar t2(0);</span>
+<span class="lineNum">     154 </span>                :            :     // TODO make sure this product is a real * complex and that the rhs is properly conjugated if needed
+<span class="lineNum">     155 </span>[<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     708950 :     res[j] += cjd.pmul(numext::real(A0[j]), t1);</span>
+<span class="lineNum">     156 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 708950 times"> + </span>]:<span class="lineCov">     708950 :     for (Index i=FirstTriangular ? 0 : j+1; i&lt;(FirstTriangular ? j : size); i++)</span>
+<span class="lineNum">     157 </span>                :            :     {
+<span class="lineNum">     158 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       res[i] += cj0.pmul(A0[i], t1);</span>
+<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       t2 += cj1.pmul(A0[i], rhs[i]);</span>
+<span class="lineNum">     160 </span>                :            :     }
+<span class="lineNum">     161 </span>                :<span class="lineCov">     708950 :     res[j] += alpha * t2;</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">     708950 :   }</span>
+<span class="lineNum">     163 </span>                :<span class="lineCov">     708950 : }</span>
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            : } // end namespace internal 
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>                :            : /***************************************************************************
+<span class="lineNum">     168 </span>                :            : * Wrapper to product_selfadjoint_vector
+<span class="lineNum">     169 </span>                :            : ***************************************************************************/
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            : namespace internal {
+<span class="lineNum">     172 </span>                :            : template&lt;typename Lhs, int LhsMode, typename Rhs&gt;
+<span class="lineNum">     173 </span>                :            : struct traits&lt;SelfadjointProductMatrix&lt;Lhs,LhsMode,false,Rhs,0,true&gt; &gt;
+<span class="lineNum">     174 </span>                :            :   : traits&lt;ProductBase&lt;SelfadjointProductMatrix&lt;Lhs,LhsMode,false,Rhs,0,true&gt;, Lhs, Rhs&gt; &gt;
+<span class="lineNum">     175 </span>                :            : {};
+<span class="lineNum">     176 </span>                :            : }
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :            : template&lt;typename Lhs, int LhsMode, typename Rhs&gt;
+<span class="lineNum">     179 </span>                :            : struct SelfadjointProductMatrix&lt;Lhs,LhsMode,false,Rhs,0,true&gt;
+<span class="lineNum">     180 </span>                :            :   : public ProductBase&lt;SelfadjointProductMatrix&lt;Lhs,LhsMode,false,Rhs,0,true&gt;, Lhs, Rhs &gt;
+<span class="lineNum">     181 </span>                :            : {
+<span class="lineNum">     182 </span>                :            :   EIGEN_PRODUCT_PUBLIC_INTERFACE(SelfadjointProductMatrix)
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :            :   enum {
+<span class="lineNum">     185 </span>                :            :     LhsUpLo = LhsMode&amp;(Upper|Lower)
+<a name="186"><span class="lineNum">     186 </span>                :            :   };</a>
+<span class="lineNum">     187 </span>                :            : 
+<a name="188"><span class="lineNum">     188 </span>                :<span class="lineCov">    1417900 :   SelfadjointProductMatrix(const Lhs&amp; lhs, const Rhs&amp; rhs) : Base(lhs,rhs) {}</span></a>
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :<span class="lineCov">     708950 :   template&lt;typename Dest&gt; void scaleAndAddTo(Dest&amp; dest, const Scalar&amp; alpha) const</span>
+<span class="lineNum">     191 </span>                :            :   {
+<span class="lineNum">     192 </span>                :            :     typedef typename Dest::Scalar ResScalar;
+<span class="lineNum">     193 </span>                :            :     typedef typename Base::RhsScalar RhsScalar;
+<span class="lineNum">     194 </span>                :            :     typedef Map&lt;Matrix&lt;ResScalar,Dynamic,1&gt;, Aligned&gt; MappedDest;
+<span class="lineNum">     195 </span>                :            :     
+<span class="lineNum">     196 </span>[<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     708950 :     eigen_assert(dest.rows()==m_lhs.rows() &amp;&amp; dest.cols()==m_rhs.cols());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 9 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>][<span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken 708950 times"> + </span>]
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :     typename internal::add_const_on_value_type&lt;ActualLhsType&gt;::type lhs = LhsBlasTraits::extract(m_lhs);</span>
+<span class="lineNum">     199 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :     typename internal::add_const_on_value_type&lt;ActualRhsType&gt;::type rhs = RhsBlasTraits::extract(m_rhs);</span>
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :     Scalar actualAlpha = alpha * LhsBlasTraits::extractScalarFactor(m_lhs)</span>
+<span class="lineNum">     202 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :                                * RhsBlasTraits::extractScalarFactor(m_rhs);</span>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :            :     enum {
+<span class="lineNum">     205 </span>                :            :       EvalToDest = (Dest::InnerStrideAtCompileTime==1),
+<span class="lineNum">     206 </span>                :            :       UseRhs = (_ActualRhsType::InnerStrideAtCompileTime==1)
+<span class="lineNum">     207 </span>                :            :     };
+<span class="lineNum">     208 </span>                :            :     
+<span class="lineNum">     209 </span>                :            :     internal::gemv_static_vector_if&lt;ResScalar,Dest::SizeAtCompileTime,Dest::MaxSizeAtCompileTime,!EvalToDest&gt; static_dest;
+<span class="lineNum">     210 </span>                :            :     internal::gemv_static_vector_if&lt;RhsScalar,_ActualRhsType::SizeAtCompileTime,_ActualRhsType::MaxSizeAtCompileTime,!UseRhs&gt; static_rhs;
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>[<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    1417900 :     ei_declare_aligned_stack_constructed_variable(ResScalar,actualDestPtr,dest.size(),</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 9 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>][<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchCov" title="Branch 26 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 27 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 29 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 30 was not taken"> - </span>][<span class="branchCov" title="Branch 32 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 33 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 34 was not taken"> - </span><span class="branchCov" title="Branch 35 was taken 708950 times"> + </span>][<span class="branchCov" title="Branch 37 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 38 was not taken"> - </span>]
+<span class="lineNum">     213 </span>                :            :                                                   EvalToDest ? dest.data() : static_dest.data());
+<span class="lineNum">     214 </span>                :            :                                                   
+<span class="lineNum">     215 </span>[<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    2126850 :     ei_declare_aligned_stack_constructed_variable(RhsScalar,actualRhsPtr,rhs.size(),</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 9 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>][<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchCov" title="Branch 26 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 27 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 29 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 30 was not taken"> - </span>][<span class="branchCov" title="Branch 32 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 33 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 34 was not taken"> - </span><span class="branchCov" title="Branch 35 was taken 708950 times"> + </span>][<span class="branchCov" title="Branch 37 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 38 was not taken"> - </span>]
+<span class="lineNum">     216 </span>                :            :         UseRhs ? const_cast&lt;RhsScalar*&gt;(rhs.data()) : static_rhs.data());
+<span class="lineNum">     217 </span>                :            :     
+<span class="lineNum">     218 </span>                :            :     if(!EvalToDest)
+<span class="lineNum">     219 </span>                :            :     {
+<span class="lineNum">     220 </span>                :            :       #ifdef EIGEN_DENSE_STORAGE_CTOR_PLUGIN
+<span class="lineNum">     221 </span>                :            :       int size = dest.size();
+<span class="lineNum">     222 </span>                :            :       EIGEN_DENSE_STORAGE_CTOR_PLUGIN
+<span class="lineNum">     223 </span>                :            :       #endif
+<span class="lineNum">     224 </span>                :            :       MappedDest(actualDestPtr, dest.size()) = dest;
+<span class="lineNum">     225 </span>                :            :     }
+<span class="lineNum">     226 </span>                :            :       
+<span class="lineNum">     227 </span>                :            :     if(!UseRhs)
+<span class="lineNum">     228 </span>                :            :     {
+<span class="lineNum">     229 </span>                :            :       #ifdef EIGEN_DENSE_STORAGE_CTOR_PLUGIN
+<span class="lineNum">     230 </span>                :            :       int size = rhs.size();
+<span class="lineNum">     231 </span>                :            :       EIGEN_DENSE_STORAGE_CTOR_PLUGIN
+<span class="lineNum">     232 </span>                :            :       #endif
+<span class="lineNum">     233 </span>                :            :       Map&lt;typename _ActualRhsType::PlainObject&gt;(actualRhsPtr, rhs.size()) = rhs;
+<span class="lineNum">     234 </span>                :            :     }
+<span class="lineNum">     235 </span>                :            :       
+<span class="lineNum">     236 </span>                :            :       
+<span class="lineNum">     237 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :     internal::selfadjoint_matrix_vector_product&lt;Scalar, Index, (internal::traits&lt;_ActualLhsType&gt;::Flags&amp;RowMajorBit) ? RowMajor : ColMajor, int(LhsUpLo), bool(LhsBlasTraits::NeedToConjugate), bool(RhsBlasTraits::NeedToConjugate)&gt;::run</span>
+<span class="lineNum">     238 </span>                :            :       (
+<span class="lineNum">     239 </span>                :            :         lhs.rows(),                             // size
+<span class="lineNum">     240 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :         &amp;lhs.coeffRef(0,0),  lhs.outerStride(), // lhs info</span>
+<span class="lineNum">     241 </span>                :            :         actualRhsPtr, 1,                        // rhs info
+<span class="lineNum">     242 </span>                :            :         actualDestPtr,                          // result info
+<span class="lineNum">     243 </span>                :            :         actualAlpha                             // scale factor
+<span class="lineNum">     244 </span>[<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    1417900 :       );</span>
+<span class="lineNum">     245 </span>                :            :     
+<span class="lineNum">     246 </span>                :            :     if(!EvalToDest)
+<span class="lineNum">     247 </span>                :<span class="lineCov">     708950 :       dest = MappedDest(actualDestPtr, dest.size());</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">     708950 :   }</span>
+<span class="lineNum">     249 </span>                :            : };
+<span class="lineNum">     250 </span>                :            : 
+<span class="lineNum">     251 </span>                :            : namespace internal {
+<span class="lineNum">     252 </span>                :            : template&lt;typename Lhs, typename Rhs, int RhsMode&gt;
+<span class="lineNum">     253 </span>                :            : struct traits&lt;SelfadjointProductMatrix&lt;Lhs,0,true,Rhs,RhsMode,false&gt; &gt;
+<span class="lineNum">     254 </span>                :            :   : traits&lt;ProductBase&lt;SelfadjointProductMatrix&lt;Lhs,0,true,Rhs,RhsMode,false&gt;, Lhs, Rhs&gt; &gt;
+<span class="lineNum">     255 </span>                :            : {};
+<span class="lineNum">     256 </span>                :            : }
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>                :            : template&lt;typename Lhs, typename Rhs, int RhsMode&gt;
+<span class="lineNum">     259 </span>                :            : struct SelfadjointProductMatrix&lt;Lhs,0,true,Rhs,RhsMode,false&gt;
+<span class="lineNum">     260 </span>                :            :   : public ProductBase&lt;SelfadjointProductMatrix&lt;Lhs,0,true,Rhs,RhsMode,false&gt;, Lhs, Rhs &gt;
+<span class="lineNum">     261 </span>                :            : {
+<span class="lineNum">     262 </span>                :            :   EIGEN_PRODUCT_PUBLIC_INTERFACE(SelfadjointProductMatrix)
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :            :   enum {
+<span class="lineNum">     265 </span>                :            :     RhsUpLo = RhsMode&amp;(Upper|Lower)
+<span class="lineNum">     266 </span>                :            :   };
+<span class="lineNum">     267 </span>                :            : 
+<span class="lineNum">     268 </span>                :            :   SelfadjointProductMatrix(const Lhs&amp; lhs, const Rhs&amp; rhs) : Base(lhs,rhs) {}
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :            :   template&lt;typename Dest&gt; void scaleAndAddTo(Dest&amp; dest, const Scalar&amp; alpha) const
+<span class="lineNum">     271 </span>                :            :   {
+<span class="lineNum">     272 </span>                :            :     // let's simply transpose the product
+<span class="lineNum">     273 </span>                :            :     Transpose&lt;Dest&gt; destT(dest);
+<span class="lineNum">     274 </span>                :            :     SelfadjointProductMatrix&lt;Transpose&lt;const Rhs&gt;, int(RhsUpLo)==Upper ? Lower : Upper, false,
+<span class="lineNum">     275 </span>                :            :                              Transpose&lt;const Lhs&gt;, 0, true&gt;(m_rhs.transpose(), m_lhs.transpose()).scaleAndAddTo(destT, alpha);
+<span class="lineNum">     276 </span>                :            :   }
+<span class="lineNum">     277 </span>                :            : };
+<span class="lineNum">     278 </span>                :            : 
+<span class="lineNum">     279 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :            : #endif // EIGEN_SELFADJOINT_MATRIX_VECTOR_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

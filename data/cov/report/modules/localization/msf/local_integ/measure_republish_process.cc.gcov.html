@@ -1,0 +1,982 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/localization/msf/local_integ/measure_republish_process.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/localization/msf/local_integ</a> - measure_republish_process.cc<span style="font-size: 80%;"> (source / <a href="measure_republish_process.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">465</td>
+            <td class="headerCovTableEntryLo">1.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">23.5 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">1024</td>
+            <td class="headerCovTableEntryLo">0.8 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;modules/localization/msf/local_integ/measure_republish_process.h&quot;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &lt;fstream&gt;
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      22 </span>                :            : #include &quot;modules/common/math/euler_angles_zxy.h&quot;
+<span class="lineNum">      23 </span>                :            : #include &quot;modules/common/time/time_util.h&quot;
+<span class="lineNum">      24 </span>                :            : #include &quot;modules/localization/msf/common/util/math_util.h&quot;
+<span class="lineNum">      25 </span>                :            : #include &quot;modules/localization/msf/common/util/time_conversion.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;yaml-cpp/yaml.h&quot;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : namespace apollo {
+<span class="lineNum">      29 </span>                :            : namespace localization {
+<span class="lineNum">      30 </span>                :            : namespace msf {
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : using common::Status;
+<span class="lineNum">      33 </span>                :            : using common::time::TimeUtil;
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :<span class="lineCov">          1 : MeasureRepublishProcess::MeasureRepublishProcess()</span>
+<span class="lineNum">      36 </span>                :            :     : pre_bestgnsspose_(),
+<span class="lineNum">      37 </span>                :            :       pre_bestgnsspose_valid_(false),
+<span class="lineNum">      38 </span>                :            :       send_init_bestgnsspose_(false),
+<span class="lineNum">      39 </span>                :            :       pva_buffer_size_(150),
+<span class="lineNum">      40 </span>                :            :       local_utm_zone_id_(50),
+<span class="lineNum">      41 </span>                :            :       is_trans_gpstime_to_utctime_(true),
+<span class="lineNum">      42 </span>                :            :       map_height_time_(0.0),
+<span class="lineNum">      43 </span>                :<span class="lineCov">          1 :       gnss_mode_(GnssMode::NOVATEL) {</span>
+<span class="lineNum">      44 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::MeasureRepublishProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">      45 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">      46 </span>                :            : 
+<a name="47"><span class="lineNum">      47 </span>                :<span class="lineCov">          1 : MeasureRepublishProcess::~MeasureRepublishProcess() {}</span></a>
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 : Status MeasureRepublishProcess::Init(const LocalizationIntegParam&amp; params) {</span>
+<span class="lineNum">      50 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::Init&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :   local_utm_zone_id_ = params.utm_zone_id;</span>
+<span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 :   is_trans_gpstime_to_utctime_ = params.is_trans_gpstime_to_utctime;</span>
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :   gnss_mode_ = GnssMode(params.gnss_mode);</span>
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :   pva_buffer_size_ = 150;</span>
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :   map_height_time_ = 0.0;</span>
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :   novatel_heading_time_ = 0.0;</span>
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :   std::ifstream imu_ant_fin(params.ant_imu_leverarm_file.c_str());</span>
+<span class="lineNum">      63 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;the ant_imu_leverarm file: &quot; &lt;&lt; params.ant_imu_leverarm_file.c_str()</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">      64 </span>                :            :         &lt;&lt; std::endl;
+<span class="lineNum">      65 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (imu_ant_fin) {</span>
+<span class="lineNum">      66 </span>                :            :     bool success = LoadImuGnssAntennaExtrinsic(params.ant_imu_leverarm_file,
+<span class="lineNum">      67 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                                &amp;imu_gnssant_extrinsic_);</span>
+<span class="lineNum">      68 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!success) {</span>
+<span class="lineNum">      69 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AERROR &lt;&lt; &quot;IntegratedLocalization: Fail to access the lever arm &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">      70 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 &quot;between imu and gnss extrinsic file: &quot;</span>
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :              &lt;&lt; params.ant_imu_leverarm_file;</span>
+<span class="lineNum">      72 </span>                :            :     }
+<span class="lineNum">      73 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;gnss and imu lever arm in vehicle frame: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">      74 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; &quot; &quot; &lt;&lt; imu_gnssant_extrinsic_.ant_num &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">      75 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_1.translation()[0] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">      76 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_1.translation()[1] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">      77 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_1.translation()[2] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">      78 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_2.translation()[0] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">      79 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_2.translation()[1] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_2.translation()[2];</span>
+<span class="lineNum">      81 </span>                :            :   } else {
+<span class="lineNum">      82 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;the ant_imu_leverarm_file does not existence!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">      83 </span>                :            :   }
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            :   double vehicle_to_imu_quatern[4] = {
+<span class="lineNum">      86 </span>                :            :       params.vehicle_to_imu_quatern.w, params.vehicle_to_imu_quatern.x,
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :       params.vehicle_to_imu_quatern.y, params.vehicle_to_imu_quatern.z};</span>
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :   double dcm[3][3] = {0.0};</span>
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :   math::QuaternionToDcm(&amp;vehicle_to_imu_quatern[0], dcm);</span>
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :   double lever_arm_x = imu_gnssant_extrinsic_.transform_1.translation()[0];</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :   double lever_arm_y = imu_gnssant_extrinsic_.transform_1.translation()[1];</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :   double lever_arm_z = imu_gnssant_extrinsic_.transform_1.translation()[2];</span>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :   imu_gnssant_extrinsic_.transform_1.translation()[0] =</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :       dcm[0][0] * lever_arm_x + dcm[0][1] * lever_arm_y +</span>
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :       dcm[0][2] * lever_arm_z;</span>
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :   imu_gnssant_extrinsic_.transform_1.translation()[1] =</span>
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :       dcm[1][0] * lever_arm_x + dcm[1][1] * lever_arm_y +</span>
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :       dcm[1][2] * lever_arm_z;</span>
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :   imu_gnssant_extrinsic_.transform_1.translation()[2] =</span>
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :       dcm[2][0] * lever_arm_x + dcm[2][1] * lever_arm_y +</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :       dcm[2][2] * lever_arm_z;</span>
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :   lever_arm_x = imu_gnssant_extrinsic_.transform_2.translation()[0];</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :   lever_arm_y = imu_gnssant_extrinsic_.transform_2.translation()[1];</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :   lever_arm_z = imu_gnssant_extrinsic_.transform_2.translation()[2];</span>
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :   imu_gnssant_extrinsic_.transform_2.translation()[0] =</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :       dcm[0][0] * lever_arm_x + dcm[0][1] * lever_arm_y +</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :       dcm[0][2] * lever_arm_z;</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :   imu_gnssant_extrinsic_.transform_2.translation()[1] =</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :       dcm[1][0] * lever_arm_x + dcm[1][1] * lever_arm_y +</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :       dcm[1][2] * lever_arm_z;</span>
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :   imu_gnssant_extrinsic_.transform_2.translation()[2] =</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :       dcm[2][0] * lever_arm_x + dcm[2][1] * lever_arm_y +</span>
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :       dcm[2][2] * lever_arm_z;</span>
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;gnss and imu lever arm in imu frame: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     120 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; &quot; &quot; &lt;&lt; imu_gnssant_extrinsic_.ant_num &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     121 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; imu_gnssant_extrinsic_.transform_1.translation()[0] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; imu_gnssant_extrinsic_.transform_1.translation()[1] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">     123 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; imu_gnssant_extrinsic_.transform_1.translation()[2] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">     124 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; imu_gnssant_extrinsic_.transform_2.translation()[0] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">     125 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; imu_gnssant_extrinsic_.transform_2.translation()[1] &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :         &lt;&lt; imu_gnssant_extrinsic_.transform_2.translation()[2];</span>
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :   is_using_novatel_heading_ = params.is_using_novatel_heading;</span>
+<span class="lineNum">     129 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (imu_gnssant_extrinsic_.ant_num == 1) {</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :     is_using_novatel_heading_ = false;</span>
+<span class="lineNum">     131 </span>                :            :   }
+<span class="lineNum">     132 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   return Status::OK();</span>
+<a name="133"><span class="lineNum">     133 </span>                :            : }</a>
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 : bool MeasureRepublishProcess::NovatelBestgnssposProcess(</span>
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :     const GnssBestPose&amp; bestgnsspos_msg, MeasureData* measure) {</span>
+<span class="lineNum">     137 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::NovatelBestgnssposProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_mode_ != GnssMode::NOVATEL) {</span>
+<span class="lineNum">     140 </span>                :            :     return false;
+<span class="lineNum">     141 </span>                :            :   }
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(measure);</span>
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!CheckBestgnssposeStatus(bestgnsspos_msg)) {</span>
+<span class="lineNum">     145 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AWARN &lt;&lt; &quot;Discard a bestgnsspose msg. &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     146 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; &quot;The status of this msg is not OK.&quot;;</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     148 </span>                :            :   }
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            :   // check sins status
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :   bool is_sins_align = IsSinsAlign();</span>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :            :   // If sins is align, we only need measure of xyz from bestgnsspos.
+<span class="lineNum">     154 </span>                :            :   // If sins is not align, in order to init sins, we need
+<span class="lineNum">     155 </span>                :            :   // (1) send an initial measure of xyz; (2) send measure of xyz and velocity.
+<span class="lineNum">     156 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (is_sins_align) {</span>
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :     TransferXYZFromBestgnsspose(bestgnsspos_msg, measure);</span>
+<span class="lineNum">     158 </span>                :            :   } else {
+<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!CheckBestgnssPoseXYStd(bestgnsspos_msg)) {</span>
+<span class="lineNum">     160 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AWARN &lt;&lt; &quot;Discard a bestgnsspose msg for large std.&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :       return false;</span>
+<span class="lineNum">     162 </span>                :            :     }
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!send_init_bestgnsspose_) {</span>
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :       TransferFirstMeasureFromBestgnsspose(bestgnsspos_msg, measure);</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :       send_init_bestgnsspose_ = true;</span>
+<span class="lineNum">     167 </span>                :            :     } else {
+<span class="lineNum">     168 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (!CalculateVelFromBestgnsspose(bestgnsspos_msg, measure)) {</span>
+<span class="lineNum">     169 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :         AINFO &lt;&lt; &quot;Waiting calculate velocity successfully...&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     171 </span>                :            :       }
+<span class="lineNum">     172 </span>                :            :     }
+<span class="lineNum">     173 </span>                :            :   }
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ADEBUG &lt;&lt; std::setprecision(16)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>][<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">     176 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;MeasureDataRepublish Debug Log: bestgnsspos msg: &quot;</span>
+<span class="lineNum">     177 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[time:&quot; &lt;&lt; measure-&gt;time &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     178 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[x:&quot; &lt;&lt; measure-&gt;gnss_pos.longitude * RAD_TO_DEG &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     179 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[y:&quot; &lt;&lt; measure-&gt;gnss_pos.latitude * RAD_TO_DEG &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     180 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[z:&quot; &lt;&lt; measure-&gt;gnss_pos.height &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     181 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[std_x:&quot; &lt;&lt; bestgnsspos_msg.longitude_std_dev() &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     182 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[std_y:&quot; &lt;&lt; bestgnsspos_msg.latitude_std_dev() &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     183 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[std_z:&quot; &lt;&lt; bestgnsspos_msg.height_std_dev() &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     184 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[position_type:&quot; &lt;&lt; bestgnsspos_msg.sol_type() &lt;&lt; &quot;]&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :            :   return true;
+<a name="187"><span class="lineNum">     187 </span>                :            : }</a>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineNoCov">          0 : void MeasureRepublishProcess::GnssLocalProcess(</span>
+<span class="lineNum">     190 </span>                :            :     const MeasureData&amp; gnss_local_msg, MeasureData* measure) {
+<span class="lineNum">     191 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::GnssLocalProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_mode_ != GnssMode::SELF) {</span>
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     195 </span>                :            :   }
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(measure);</span>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :   MeasureData measure_data = gnss_local_msg;</span>
+<span class="lineNum">     200 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (is_trans_gpstime_to_utctime_) {</span>
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :     measure_data.time = TimeUtil::Gps2unix(measure_data.time);</span>
+<span class="lineNum">     202 </span>                :            :   }
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;the gnss velocity: &quot; &lt;&lt; measure_data.gnss_vel.ve &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">     205 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; measure_data.gnss_vel.vn &lt;&lt; &quot; &quot; &lt;&lt; measure_data.gnss_vel.vu;</span>
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :   measure_data.gnss_att.pitch = 0.0;</span>
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :   measure_data.gnss_att.roll = 0.0;</span>
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :   Eigen::Vector3d pos_xyz = Eigen::Vector3d::Zero();</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :   pos_xyz[0] = measure_data.gnss_pos.longitude;</span>
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :   pos_xyz[1] = measure_data.gnss_pos.latitude;</span>
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :   pos_xyz[2] = measure_data.gnss_pos.height;</span>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :   Eigen::Vector3d pos_blh = Eigen::Vector3d::Zero();</span>
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :   apollo::localization::msf::FrameTransform::XYZToBlh(pos_xyz, &amp;pos_blh);</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :   measure_data.gnss_pos.longitude = pos_blh[0];</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :   measure_data.gnss_pos.latitude = pos_blh[1];</span>
+<span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :   measure_data.gnss_pos.height = pos_blh[2];</span>
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 :   double ve_std = std::sqrt(measure_data.variance[3][3]);</span>
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :   double vn_std = std::sqrt(measure_data.variance[4][4]);</span>
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :   double vu_std = std::sqrt(measure_data.variance[5][5]);</span>
+<span class="lineNum">     224 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;the gnss velocity std: &quot; &lt;&lt; ve_std &lt;&lt; &quot; &quot; &lt;&lt; vn_std &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">     225 </span>                :            :         &lt;&lt; vu_std;
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :   bool is_sins_align = IsSinsAlign();</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (is_sins_align) {</span>
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :     measure_data.measure_type = MeasureType::GNSS_POS_ONLY;</span>
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :     height_mutex_.lock();</span>
+<span class="lineNum">     232 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ((measure_data.time - 1.0 &lt; map_height_time_)) {</span>
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :       measure_data.measure_type = MeasureType::GNSS_POS_XY;</span>
+<span class="lineNum">     234 </span>                :            :     }
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :     height_mutex_.unlock();</span>
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :     measure_data.is_have_variance = true;</span>
+<span class="lineNum">     237 </span>                :            :   } else {
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :     measure_data.measure_type = MeasureType::GNSS_POS_VEL;</span>
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :     measure_data.is_have_variance = false;</span>
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :            :     static bool is_sent_init_pos = false;
+<span class="lineNum">     242 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!is_sent_init_pos) {</span>
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :       is_sent_init_pos = true;</span>
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :       measure_data.gnss_vel.ve = 0.0;</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :       measure_data.gnss_vel.vn = 0.0;</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :       measure_data.gnss_vel.vu = 0.0;</span>
+<span class="lineNum">     247 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AINFO &lt;&lt; &quot;send sins init position using rtk-gnss position!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :       *measure = measure_data;</span>
+<span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">     250 </span>                :            :     }
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :            :     static int position_good_counter = 0;
+<span class="lineNum">     253 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (position_good_counter &lt; 10) {</span>
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :       ++position_good_counter;</span>
+<span class="lineNum">     255 </span>                :<span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">     256 </span>                :            :     }
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (gnss_local_msg.measure_type != MeasureType::GNSS_POS_VEL &amp;&amp;</span>
+<span class="lineNum">     259 </span>                :            :         gnss_local_msg.measure_type != MeasureType::ENU_VEL_ONLY) {
+<span class="lineNum">     260 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AERROR &lt;&lt; &quot;gnss does not have velocity,&quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     261 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :              &lt;&lt; &quot;the gnss velocity std: &quot; &lt;&lt; ve_std &lt;&lt; &quot; &quot; &lt;&lt; vn_std &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     262 </span>                :            :              &lt;&lt; vu_std;
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">     264 </span>                :            :     }
+<span class="lineNum">     265 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!gnss_local_msg.is_have_variance) {</span>
+<span class="lineNum">     266 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AERROR &lt;&lt; &quot;gnss velocity does not have velocity variance!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     267 </span>                :<span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">     268 </span>                :            :     } else {
+<span class="lineNum">     269 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if ((ve_std &gt; 0.1) || (vn_std &gt; 0.1)) {</span>
+<span class="lineNum">     270 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :         AWARN &lt;&lt; &quot;gnss velocity variance is large: &quot; &lt;&lt; ve_std &lt;&lt; &quot; &quot; &lt;&lt; vn_std;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     272 </span>                :            :       }
+<span class="lineNum">     273 </span>                :            :     }
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :            :     static double pre_yaw_from_vel = 0.0;
+<span class="lineNum">     276 </span>                :            :     static double pre_measure_time = 0.0;
+<span class="lineNum">     277 </span>                :            :     double yaw_from_vel =
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :         atan2(measure_data.gnss_vel.ve, measure_data.gnss_vel.vn);</span>
+<span class="lineNum">     279 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (pre_measure_time &lt; 0.1) {</span>
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :       pre_measure_time = measure_data.time;</span>
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :       pre_yaw_from_vel = yaw_from_vel;</span>
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :       return;</span>
+<span class="lineNum">     283 </span>                :            :     } else {
+<span class="lineNum">     284 </span>                :            :       static constexpr double rad_round = 2 * M_PI;
+<span class="lineNum">     285 </span>                :            :       static constexpr double rad_pi = M_PI;
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :       double delta_yaw = yaw_from_vel - pre_yaw_from_vel;</span>
+<span class="lineNum">     288 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (delta_yaw &gt; rad_pi) {</span>
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :         delta_yaw = delta_yaw - rad_round;</span>
+<span class="lineNum">     290 </span>                :            :       }
+<span class="lineNum">     291 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (delta_yaw &lt; -rad_pi) {</span>
+<span class="lineNum">     292 </span>                :<span class="lineNoCov">          0 :         delta_yaw = delta_yaw + rad_round;</span>
+<span class="lineNum">     293 </span>                :            :       }
+<span class="lineNum">     294 </span>                :            : 
+<span class="lineNum">     295 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AINFO &lt;&lt; &quot;yaw from position difference: &quot; &lt;&lt; yaw_from_vel * RAD_TO_DEG;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :       double delta_time = measure_data.time - pre_measure_time;</span>
+<span class="lineNum">     297 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (delta_time &lt; 1.0e-10) {</span>
+<span class="lineNum">     298 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :         AINFO &lt;&lt; &quot;the delta time is too small: &quot; &lt;&lt; delta_time;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     299 </span>                :            :       }
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :       double yaw_incr = delta_yaw / delta_time;</span>
+<span class="lineNum">     301 </span>                :            :       // 0.0872rad = 5deg
+<span class="lineNum">     302 </span>                :            :       static constexpr double rad_5deg = 5 * DEG_TO_RAD;
+<span class="lineNum">     303 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if ((yaw_incr &gt; rad_5deg) || (yaw_incr &lt; -rad_5deg)) {</span>
+<span class="lineNum">     304 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :         AWARN &lt;&lt; &quot;yaw velocity is large! pre, &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     305 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               &lt;&lt; &quot;cur yaw from vel and velocity: &quot;</span>
+<span class="lineNum">     306 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               &lt;&lt; pre_yaw_from_vel * RAD_TO_DEG &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">     307 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               &lt;&lt; yaw_from_vel * RAD_TO_DEG &lt;&lt; &quot; &quot; &lt;&lt; yaw_incr * RAD_TO_DEG;</span>
+<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :         pre_measure_time = measure_data.time;</span>
+<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :         pre_yaw_from_vel = yaw_from_vel;</span>
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     311 </span>                :            :       }
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :       pre_measure_time = measure_data.time;</span>
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :       pre_yaw_from_vel = yaw_from_vel;</span>
+<span class="lineNum">     314 </span>                :            :     }
+<span class="lineNum">     315 </span>                :            :   }
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :   *measure = measure_data;</span>
+<span class="lineNum">     317 </span>                :            : 
+<span class="lineNum">     318 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ADEBUG &lt;&lt; std::setprecision(16)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>][<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">     319 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;MeasureDataRepublish Debug Log: rtkgnss msg: &quot;</span>
+<span class="lineNum">     320 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[time:&quot; &lt;&lt; measure_data.time &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     321 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[x:&quot; &lt;&lt; measure_data.gnss_pos.longitude * RAD_TO_DEG &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     322 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[y:&quot; &lt;&lt; measure_data.gnss_pos.latitude * RAD_TO_DEG &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     323 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[z:&quot; &lt;&lt; measure_data.gnss_pos.height &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     324 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[std_x:&quot; &lt;&lt; measure_data.variance[0][0] &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     325 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[std_y:&quot; &lt;&lt; measure_data.variance[1][1] &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     326 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[std_z:&quot; &lt;&lt; measure_data.variance[2][2] &lt;&lt; &quot;]&quot;;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     327 </span>                :            : }
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 : void MeasureRepublishProcess::IntegPvaProcess(const InsPva&amp; inspva_msg) {</span>
+<span class="lineNum">     330 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::IntegPvaProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :   const InsPva&amp; integ_pva = inspva_msg;</span>
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :<span class="lineNoCov">          0 :   std::lock_guard&lt;std::mutex&gt; lock(integ_pva_mutex_);</span>
+<span class="lineNum">     335 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (integ_pva_list_.size() &lt; pva_buffer_size_) {</span>
+<span class="lineNum">     336 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     integ_pva_list_.push_back(integ_pva);</span>
+<span class="lineNum">     337 </span>                :            :   } else {
+<span class="lineNum">     338 </span>                :<span class="lineNoCov">          0 :     integ_pva_list_.pop_front();</span>
+<span class="lineNum">     339 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     integ_pva_list_.push_back(integ_pva);</span>
+<span class="lineNum">     340 </span>                :            :   }
+<a name="341"><span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     342 </span>                :            : 
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 : bool MeasureRepublishProcess::LidarLocalProcess(</span>
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :     const LocalizationEstimate&amp; lidar_local_msg, MeasureData* measure) {</span>
+<span class="lineNum">     345 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::LidarLocalProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     346 </span>                :            : 
+<span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(measure);</span>
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :            :   MeasureData measure_data;
+<span class="lineNum">     350 </span>                :<span class="lineNoCov">          0 :   measure_data.time = lidar_local_msg.measurement_time();</span>
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :            :   apollo::localization::msf::WGS84Corr temp_wgs;
+<span class="lineNum">     353 </span>                :            :   apollo::localization::msf::FrameTransform::UtmXYToLatlon(
+<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :       lidar_local_msg.pose().position().x(),</span>
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :       lidar_local_msg.pose().position().y(), local_utm_zone_id_, false,</span>
+<span class="lineNum">     356 </span>                :<span class="lineNoCov">          0 :       &amp;temp_wgs);</span>
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :   measure_data.gnss_pos.longitude = temp_wgs.log;</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :   measure_data.gnss_pos.latitude = temp_wgs.lat;</span>
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :   measure_data.gnss_pos.height = lidar_local_msg.pose().position().z();</span>
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :   Eigen::Quaterniond temp_quat(lidar_local_msg.pose().orientation().qw(),</span>
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :                                lidar_local_msg.pose().orientation().qx(),</span>
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :                                lidar_local_msg.pose().orientation().qy(),</span>
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :                                lidar_local_msg.pose().orientation().qz());</span>
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>                :            :   common::math::EulerAnglesZXYd euler(temp_quat.w(), temp_quat.x(),
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :                                       temp_quat.y(), temp_quat.z());</span>
+<span class="lineNum">     368 </span>                :            : 
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :   height_mutex_.lock();</span>
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :   Eigen::Vector3d trans(lidar_local_msg.pose().position().x(),</span>
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :                         lidar_local_msg.pose().position().y(),</span>
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :                         lidar_local_msg.pose().position().z());</span>
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :   map_height_time_ = measure_data.time;</span>
+<span class="lineNum">     375 </span>                :<span class="lineNoCov">          0 :   height_mutex_.unlock();</span>
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 :   measure_data.gnss_att.yaw = euler.yaw();</span>
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :   measure_data.measure_type = MeasureType::POINT_CLOUD_POS;</span>
+<span class="lineNum">     379 </span>                :<span class="lineNoCov">          0 :   measure_data.frame_type = FrameType::UTM;</span>
+<span class="lineNum">     380 </span>                :            : 
+<span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :   measure_data.is_have_variance = true;</span>
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :   double longitude_var = lidar_local_msg.uncertainty().position_std_dev().x();</span>
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :   double latitude_var = lidar_local_msg.uncertainty().position_std_dev().y();</span>
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :   double yaw_var = lidar_local_msg.uncertainty().orientation_std_dev().z();</span>
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>                :            :   static constexpr double height_var = 0.03 * 0.03;
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :   measure_data.variance[0][0] = longitude_var;</span>
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :   measure_data.variance[1][1] = latitude_var;</span>
+<span class="lineNum">     390 </span>                :<span class="lineNoCov">          0 :   measure_data.variance[2][2] = height_var;</span>
+<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :   measure_data.variance[8][8] = yaw_var;</span>
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>                :<span class="lineNoCov">          0 :   *measure = measure_data;</span>
+<span class="lineNum">     394 </span>                :            : 
+<span class="lineNum">     395 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ADEBUG &lt;&lt; std::setprecision(16)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>][<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">     396 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;MeasureDataRepublish Debug Log: lidarLocal msg: &quot;</span>
+<span class="lineNum">     397 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[time:&quot; &lt;&lt; measure_data.time &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     398 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[x:&quot; &lt;&lt; measure_data.gnss_pos.longitude * RAD_TO_DEG &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     399 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[y:&quot; &lt;&lt; measure_data.gnss_pos.latitude * RAD_TO_DEG &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     400 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[z:&quot; &lt;&lt; measure_data.gnss_pos.height &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     401 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[yaw:&quot; &lt;&lt; measure_data.gnss_att.yaw * RAD_TO_DEG &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     402 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[std_x:&quot; &lt;&lt; std::sqrt(longitude_var) &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     403 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[std_y:&quot; &lt;&lt; std::sqrt(latitude_var) &lt;&lt; &quot;]&quot;</span>
+<span class="lineNum">     404 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;[std_z:&quot; &lt;&lt; std::sqrt(height_var) &lt;&lt; &quot;]&quot;;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     405 </span>                :            : 
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :   return true;</span>
+<a name="407"><span class="lineNum">     407 </span>                :            : }</a>
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 : bool MeasureRepublishProcess::IsSinsAlign() {</span>
+<span class="lineNum">     410 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::IsSinsAlign&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     411 </span>                :            : 
+<span class="lineNum">     412 </span>                :<span class="lineNoCov">          0 :   std::lock_guard&lt;std::mutex&gt; lock(integ_pva_mutex_);</span>
+<span class="lineNum">     413 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   return !integ_pva_list_.empty() &amp;&amp; integ_pva_list_.back().init_and_alignment;</span>
+<a name="414"><span class="lineNum">     414 </span>                :            : }</a>
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 : void MeasureRepublishProcess::TransferXYZFromBestgnsspose(</span>
+<span class="lineNum">     417 </span>                :<span class="lineNoCov">          0 :     const GnssBestPose&amp; bestgnsspos_msg, MeasureData* measure) {</span>
+<span class="lineNum">     418 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::TransferXYZFromBestgnsspose&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     419 </span>                :            : 
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(measure);</span>
+<span class="lineNum">     421 </span>                :            : 
+<span class="lineNum">     422 </span>                :<span class="lineNoCov">          0 :   measure-&gt;time = bestgnsspos_msg.measurement_time();</span>
+<span class="lineNum">     423 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (is_trans_gpstime_to_utctime_) {</span>
+<span class="lineNum">     424 </span>                :<span class="lineNoCov">          0 :     measure-&gt;time = TimeUtil::Gps2unix(measure-&gt;time);</span>
+<span class="lineNum">     425 </span>                :            :   }
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :<span class="lineNoCov">          0 :   measure-&gt;gnss_pos.longitude = bestgnsspos_msg.longitude() * DEG_TO_RAD;</span>
+<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :   measure-&gt;gnss_pos.latitude = bestgnsspos_msg.latitude() * DEG_TO_RAD;</span>
+<span class="lineNum">     429 </span>                :            :   measure-&gt;gnss_pos.height =
+<span class="lineNum">     430 </span>                :<span class="lineNoCov">          0 :       bestgnsspos_msg.height_msl() + bestgnsspos_msg.undulation();</span>
+<span class="lineNum">     431 </span>                :            : 
+<span class="lineNum">     432 </span>                :            :   measure-&gt;variance[0][0] =
+<span class="lineNum">     433 </span>                :<span class="lineNoCov">          0 :       bestgnsspos_msg.longitude_std_dev() * bestgnsspos_msg.longitude_std_dev();</span>
+<span class="lineNum">     434 </span>                :            :   measure-&gt;variance[1][1] =
+<span class="lineNum">     435 </span>                :<span class="lineNoCov">          0 :       bestgnsspos_msg.latitude_std_dev() * bestgnsspos_msg.latitude_std_dev();</span>
+<span class="lineNum">     436 </span>                :            :   measure-&gt;variance[2][2] =
+<span class="lineNum">     437 </span>                :<span class="lineNoCov">          0 :       bestgnsspos_msg.height_std_dev() * bestgnsspos_msg.height_std_dev();</span>
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :<span class="lineNoCov">          0 :   measure-&gt;measure_type = MeasureType::GNSS_POS_ONLY;</span>
+<span class="lineNum">     440 </span>                :<span class="lineNoCov">          0 :   measure-&gt;frame_type = FrameType::ENU;</span>
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :   height_mutex_.lock();</span>
+<span class="lineNum">     442 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if ((measure-&gt;time - 1.0 &lt; map_height_time_)) {</span>
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :     measure-&gt;measure_type = MeasureType::GNSS_POS_XY;</span>
+<span class="lineNum">     444 </span>                :            :   }
+<span class="lineNum">     445 </span>                :<span class="lineNoCov">          0 :   height_mutex_.unlock();</span>
+<span class="lineNum">     446 </span>                :<span class="lineNoCov">          0 :   measure-&gt;is_have_variance = true;</span>
+<a name="447"><span class="lineNum">     447 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     448 </span>                :            : 
+<span class="lineNum">     449 </span>                :<span class="lineNoCov">          0 : void MeasureRepublishProcess::TransferFirstMeasureFromBestgnsspose(</span>
+<span class="lineNum">     450 </span>                :            :     const GnssBestPose&amp; bestgnsspos_msg, MeasureData* measure) {
+<span class="lineNum">     451 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::TransferFirstMeasureFromBestgnsspose&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     452 </span>                :            : 
+<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(measure);</span>
+<span class="lineNum">     454 </span>                :            : 
+<span class="lineNum">     455 </span>                :<span class="lineNoCov">          0 :   TransferXYZFromBestgnsspose(bestgnsspos_msg, measure);</span>
+<span class="lineNum">     456 </span>                :            : 
+<span class="lineNum">     457 </span>                :<span class="lineNoCov">          0 :   measure-&gt;measure_type = MeasureType::GNSS_POS_VEL;</span>
+<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 :   measure-&gt;frame_type = FrameType::ENU;</span>
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :   measure-&gt;is_have_variance = false;</span>
+<span class="lineNum">     460 </span>                :            : 
+<span class="lineNum">     461 </span>                :<span class="lineNoCov">          0 :   measure-&gt;gnss_vel.ve = 0.0;</span>
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :   measure-&gt;gnss_vel.vn = 0.0;</span>
+<span class="lineNum">     463 </span>                :<span class="lineNoCov">          0 :   measure-&gt;gnss_vel.vu = 0.0;</span>
+<span class="lineNum">     464 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;Novatel bestgnsspose publish: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     465 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; &quot;send sins init position using novatel bestgnsspos!&quot;;</span>
+<a name="466"><span class="lineNum">     466 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 : bool MeasureRepublishProcess::CalculateVelFromBestgnsspose(</span>
+<span class="lineNum">     469 </span>                :            :     const GnssBestPose&amp; bestgnsspos_msg, MeasureData* measure) {
+<span class="lineNum">     470 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::CalculateVelFromBestgnsspose&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(measure);</span>
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :   TransferXYZFromBestgnsspose(bestgnsspos_msg, measure);</span>
+<span class="lineNum">     475 </span>                :            : 
+<span class="lineNum">     476 </span>                :<span class="lineNoCov">          0 :   measure-&gt;measure_type = MeasureType::GNSS_POS_VEL;</span>
+<span class="lineNum">     477 </span>                :<span class="lineNoCov">          0 :   measure-&gt;frame_type = FrameType::ENU;</span>
+<span class="lineNum">     478 </span>                :<span class="lineNoCov">          0 :   measure-&gt;is_have_variance = false;</span>
+<span class="lineNum">     479 </span>                :            : 
+<span class="lineNum">     480 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!pre_bestgnsspose_valid_) {</span>
+<span class="lineNum">     481 </span>                :<span class="lineNoCov">          0 :     pre_bestgnsspose_valid_ = true;</span>
+<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :     pre_bestgnsspose_ = *measure;</span>
+<span class="lineNum">     483 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     484 </span>                :            :   }
+<span class="lineNum">     485 </span>                :            : 
+<span class="lineNum">     486 </span>                :            :   static int position_good_counter = 0;
+<span class="lineNum">     487 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (position_good_counter &lt; BESTPOSE_GOOD_COUNT) {</span>
+<span class="lineNum">     488 </span>                :<span class="lineNoCov">          0 :     ++position_good_counter;</span>
+<span class="lineNum">     489 </span>                :<span class="lineNoCov">          0 :     pre_bestgnsspose_ = *measure;</span>
+<span class="lineNum">     490 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     491 </span>                :            :   }
+<span class="lineNum">     492 </span>                :            : 
+<span class="lineNum">     493 </span>                :<span class="lineNoCov">          0 :   const double re = 6378137.0;</span>
+<span class="lineNum">     494 </span>                :<span class="lineNoCov">          0 :   const double e = 0.0033528;</span>
+<span class="lineNum">     495 </span>                :            :   double temp_sin_lati_2 =
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :       sin(measure-&gt;gnss_pos.latitude) * sin(measure-&gt;gnss_pos.latitude);</span>
+<span class="lineNum">     497 </span>                :<span class="lineNoCov">          0 :   double rn = re / (1 - e * temp_sin_lati_2);</span>
+<span class="lineNum">     498 </span>                :<span class="lineNoCov">          0 :   double rm = re / (1 + 2.0 * e - 3.0 * e * temp_sin_lati_2);</span>
+<span class="lineNum">     499 </span>                :            : 
+<span class="lineNum">     500 </span>                :<span class="lineNoCov">          0 :   double inv_time = 1.0 / (measure-&gt;time - pre_bestgnsspose_.time);</span>
+<span class="lineNum">     501 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (measure-&gt;time - pre_bestgnsspose_.time &gt; BESTPOSE_TIME_MAX_INTERVAL) {</span>
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 :     pre_bestgnsspose_ = *measure;</span>
+<span class="lineNum">     503 </span>                :<span class="lineNoCov">          0 :     position_good_counter = 0;</span>
+<span class="lineNum">     504 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     505 </span>                :            :   }
+<span class="lineNum">     506 </span>                :            :   measure-&gt;gnss_vel.ve =
+<span class="lineNum">     507 </span>                :<span class="lineNoCov">          0 :       (measure-&gt;gnss_pos.longitude - pre_bestgnsspose_.gnss_pos.longitude) *</span>
+<span class="lineNum">     508 </span>                :<span class="lineNoCov">          0 :       rn * inv_time * cos(measure-&gt;gnss_pos.latitude);</span>
+<span class="lineNum">     509 </span>                :            :   measure-&gt;gnss_vel.vn =
+<span class="lineNum">     510 </span>                :<span class="lineNoCov">          0 :       (measure-&gt;gnss_pos.latitude - pre_bestgnsspose_.gnss_pos.latitude) * rm *</span>
+<span class="lineNum">     511 </span>                :<span class="lineNoCov">          0 :       inv_time;</span>
+<span class="lineNum">     512 </span>                :            :   measure-&gt;gnss_vel.vu =
+<span class="lineNum">     513 </span>                :<span class="lineNoCov">          0 :       (measure-&gt;gnss_pos.height - pre_bestgnsspose_.gnss_pos.height) * inv_time;</span>
+<span class="lineNum">     514 </span>                :            : 
+<span class="lineNum">     515 </span>                :<span class="lineNoCov">          0 :   pre_bestgnsspose_ = *measure;</span>
+<span class="lineNum">     516 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;novatel bestgnsspos velocity: &quot; &lt;&lt; measure-&gt;gnss_vel.ve &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">     517 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; measure-&gt;gnss_vel.vn &lt;&lt; &quot; &quot; &lt;&lt; measure-&gt;gnss_vel.vu;</span>
+<span class="lineNum">     518 </span>                :            : 
+<span class="lineNum">     519 </span>                :            :   static double pre_yaw_from_vel = 0.0;
+<span class="lineNum">     520 </span>                :<span class="lineNoCov">          0 :   double yaw_from_vel = atan2(measure-&gt;gnss_vel.ve, measure-&gt;gnss_vel.vn);</span>
+<span class="lineNum">     521 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!pre_yaw_from_vel) {</span>
+<span class="lineNum">     522 </span>                :<span class="lineNoCov">          0 :     pre_yaw_from_vel = yaw_from_vel;</span>
+<span class="lineNum">     523 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     524 </span>                :            :   } else {
+<span class="lineNum">     525 </span>                :            :     static constexpr double rad_round = 2 * M_PI;
+<span class="lineNum">     526 </span>                :            :     static constexpr double rad_pi = M_PI;
+<span class="lineNum">     527 </span>                :            : 
+<span class="lineNum">     528 </span>                :<span class="lineNoCov">          0 :     double delta_yaw = yaw_from_vel - pre_yaw_from_vel;</span>
+<span class="lineNum">     529 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (delta_yaw &gt; rad_pi) {</span>
+<span class="lineNum">     530 </span>                :<span class="lineNoCov">          0 :       delta_yaw = delta_yaw - rad_round;</span>
+<span class="lineNum">     531 </span>                :            :     }
+<span class="lineNum">     532 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (delta_yaw &lt; -rad_pi) {</span>
+<span class="lineNum">     533 </span>                :<span class="lineNoCov">          0 :       delta_yaw = delta_yaw + rad_round;</span>
+<span class="lineNum">     534 </span>                :            :     }
+<span class="lineNum">     535 </span>                :            : 
+<span class="lineNum">     536 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;yaw calculated from position difference: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     537 </span>                :<span class="lineNoCov">          0 :           &lt;&lt; yaw_from_vel * RAD_TO_DEG;</span>
+<span class="lineNum">     538 </span>                :            :     static constexpr double rad_5deg = 5 * DEG_TO_RAD;
+<span class="lineNum">     539 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (delta_yaw &gt; rad_5deg || delta_yaw &lt; -rad_5deg) {</span>
+<span class="lineNum">     540 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AWARN &lt;&lt; &quot;novatel bestgnsspos delta yaw is large! &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     541 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             &lt;&lt; &quot;pre, cur yaw from vel and delta: &quot;</span>
+<span class="lineNum">     542 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             &lt;&lt; pre_yaw_from_vel * RAD_TO_DEG &lt;&lt; &quot; &quot; &lt;&lt; yaw_from_vel * RAD_TO_DEG</span>
+<span class="lineNum">     543 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             &lt;&lt; &quot; &quot; &lt;&lt; delta_yaw * RAD_TO_DEG;</span>
+<span class="lineNum">     544 </span>                :<span class="lineNoCov">          0 :       pre_yaw_from_vel = yaw_from_vel;</span>
+<span class="lineNum">     545 </span>                :<span class="lineNoCov">          0 :       return false;</span>
+<span class="lineNum">     546 </span>                :            :     }
+<span class="lineNum">     547 </span>                :<span class="lineNoCov">          0 :     pre_yaw_from_vel = yaw_from_vel;</span>
+<span class="lineNum">     548 </span>                :            :   }
+<span class="lineNum">     549 </span>                :            : 
+<span class="lineNum">     550 </span>                :<span class="lineNoCov">          0 :   return true;</span>
+<a name="551"><span class="lineNum">     551 </span>                :            : }</a>
+<span class="lineNum">     552 </span>                :            : 
+<span class="lineNum">     553 </span>                :<span class="lineNoCov">          0 : bool MeasureRepublishProcess::GnssHeadingProcess(</span>
+<span class="lineNum">     554 </span>                :<span class="lineNoCov">          0 :     const drivers::gnss::Heading&amp; heading_msg, MeasureData* measure_data,</span>
+<span class="lineNum">     555 </span>                :            :     int* status) {
+<span class="lineNum">     556 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::GnssHeadingProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     557 </span>                :            : 
+<span class="lineNum">     558 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if ((imu_gnssant_extrinsic_.ant_num == 1)) {</span>
+<span class="lineNum">     559 </span>                :            :     return false;
+<span class="lineNum">     560 </span>                :            :   }
+<span class="lineNum">     561 </span>                :<span class="lineNoCov">          0 :   int solution_status = heading_msg.solution_status();</span>
+<span class="lineNum">     562 </span>                :<span class="lineNoCov">          0 :   int position_type = heading_msg.position_type();</span>
+<span class="lineNum">     563 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;the heading solution_status and position_type: &quot; &lt;&lt; solution_status</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">     564 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; &quot; &quot; &lt;&lt; position_type;</span>
+<span class="lineNum">     565 </span>                :            : 
+<span class="lineNum">     566 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (solution_status != 0) {</span>
+<span class="lineNum">     567 </span>                :<span class="lineNoCov">          0 :     *status = 93;</span>
+<span class="lineNum">     568 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;the heading's solution_status is not computed: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     569 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; solution_status;</span>
+<span class="lineNum">     570 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     571 </span>                :            :   }
+<span class="lineNum">     572 </span>                :<span class="lineNoCov">          0 :   *status = position_type;</span>
+<span class="lineNum">     573 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if ((position_type == 0) || (position_type == 1)) {</span>
+<span class="lineNum">     574 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;the heading's solution_type is invalid or fixed: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     575 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; position_type;</span>
+<span class="lineNum">     576 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     577 </span>                :            :   }
+<span class="lineNum">     578 </span>                :<span class="lineNoCov">          0 :   measure_data-&gt;time = heading_msg.measurement_time();</span>
+<span class="lineNum">     579 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (is_trans_gpstime_to_utctime_) {</span>
+<span class="lineNum">     580 </span>                :<span class="lineNoCov">          0 :     measure_data-&gt;time = GpsToUnixSeconds(measure_data-&gt;time);</span>
+<span class="lineNum">     581 </span>                :            :   }
+<span class="lineNum">     582 </span>                :            : 
+<span class="lineNum">     583 </span>                :<span class="lineNoCov">          0 :   novatel_heading_mutex_.lock();</span>
+<span class="lineNum">     584 </span>                :<span class="lineNoCov">          0 :   novatel_heading_time_ = measure_data-&gt;time;</span>
+<span class="lineNum">     585 </span>                :<span class="lineNoCov">          0 :   novatel_heading_mutex_.unlock();</span>
+<span class="lineNum">     586 </span>                :            : 
+<span class="lineNum">     587 </span>                :<span class="lineNoCov">          0 :   double delta_time_between_height = 0.0;</span>
+<span class="lineNum">     588 </span>                :<span class="lineNoCov">          0 :   height_mutex_.lock();</span>
+<span class="lineNum">     589 </span>                :<span class="lineNoCov">          0 :   delta_time_between_height = measure_data-&gt;time - map_height_time_;</span>
+<span class="lineNum">     590 </span>                :<span class="lineNoCov">          0 :   height_mutex_.unlock();</span>
+<span class="lineNum">     591 </span>                :            : 
+<span class="lineNum">     592 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (delta_time_between_height &lt; 1.0) {</span>
+<span class="lineNum">     593 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;the heading time and delta time: &quot; &lt;&lt; std::setprecision(15)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     594 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; measure_data-&gt;time &lt;&lt; &quot; &quot; &lt;&lt; delta_time_between_height;</span>
+<span class="lineNum">     595 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     596 </span>                :            :   }
+<span class="lineNum">     597 </span>                :            : 
+<span class="lineNum">     598 </span>                :<span class="lineNoCov">          0 :   integ_pva_mutex_.lock();</span>
+<span class="lineNum">     599 </span>                :            :   bool is_sins_align =
+<span class="lineNum">     600 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       integ_pva_list_.back().init_and_alignment &amp;&amp; (integ_pva_list_.size() &gt; 1);</span>
+<span class="lineNum">     601 </span>                :<span class="lineNoCov">          0 :   integ_pva_mutex_.unlock();</span>
+<span class="lineNum">     602 </span>                :            : 
+<span class="lineNum">     603 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (is_sins_align) {</span>
+<span class="lineNum">     604 </span>                :            :     static double pre_publish_time = 0.0;
+<span class="lineNum">     605 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (measure_data-&gt;time - pre_publish_time &lt; 0.5) {</span>
+<span class="lineNum">     606 </span>                :            :       return false;
+<span class="lineNum">     607 </span>                :            :     }
+<span class="lineNum">     608 </span>                :<span class="lineNoCov">          0 :     pre_publish_time = measure_data-&gt;time;</span>
+<span class="lineNum">     609 </span>                :            :   }
+<span class="lineNum">     610 </span>                :<span class="lineNoCov">          0 :   double gnss_yaw = heading_msg.heading();</span>
+<span class="lineNum">     611 </span>                :<span class="lineNoCov">          0 :   double heading_std = heading_msg.heading_std_dev();</span>
+<span class="lineNum">     612 </span>                :            : 
+<span class="lineNum">     613 </span>                :            :   static double imu_ant_yaw_angle = 0.0;
+<span class="lineNum">     614 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (imu_ant_yaw_angle == 0.0) {</span>
+<span class="lineNum">     615 </span>                :            :     imu_ant_yaw_angle =
+<span class="lineNum">     616 </span>                :<span class="lineNoCov">          0 :         -atan2(imu_gnssant_extrinsic_.transform_2.translation()[0] -</span>
+<span class="lineNum">     617 </span>                :<span class="lineNoCov">          0 :                    imu_gnssant_extrinsic_.transform_1.translation()[0],</span>
+<span class="lineNum">     618 </span>                :<span class="lineNoCov">          0 :                imu_gnssant_extrinsic_.transform_2.translation()[1] -</span>
+<span class="lineNum">     619 </span>                :<span class="lineNoCov">          0 :                    imu_gnssant_extrinsic_.transform_1.translation()[1]) *</span>
+<span class="lineNum">     620 </span>                :<span class="lineNoCov">          0 :         57.295779513082323;</span>
+<span class="lineNum">     621 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;imu_gnssant_extrinsic_: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     622 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_2.translation()[0] &lt;&lt; &quot;, &quot;</span>
+<span class="lineNum">     623 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_1.translation()[0] &lt;&lt; &quot;, &quot;</span>
+<span class="lineNum">     624 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_2.translation()[1] &lt;&lt; &quot;, &quot;</span>
+<span class="lineNum">     625 </span>                :<span class="lineNoCov">          0 :           &lt;&lt; imu_gnssant_extrinsic_.transform_2.translation()[1];</span>
+<span class="lineNum">     626 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;the yaw between double ant yaw and vehicle: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     627 </span>                :<span class="lineNoCov">          0 :           &lt;&lt; imu_ant_yaw_angle;</span>
+<span class="lineNum">     628 </span>                :            :   }
+<span class="lineNum">     629 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;novatel heading is: &quot; &lt;&lt; std::setprecision(15) &lt;&lt; measure_data-&gt;time</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     630 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; &quot; &quot; &lt;&lt; std::setprecision(6) &lt;&lt; gnss_yaw;</span>
+<span class="lineNum">     631 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_yaw &gt; 180) {</span>
+<span class="lineNum">     632 </span>                :            :     // the novatel yaw angle is 0-360deg
+<span class="lineNum">     633 </span>                :<span class="lineNoCov">          0 :     gnss_yaw -= 360.0;</span>
+<span class="lineNum">     634 </span>                :            :   }
+<span class="lineNum">     635 </span>                :<span class="lineNoCov">          0 :   gnss_yaw += imu_ant_yaw_angle;</span>
+<span class="lineNum">     636 </span>                :            : 
+<span class="lineNum">     637 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_yaw &gt; 180) {</span>
+<span class="lineNum">     638 </span>                :<span class="lineNoCov">          0 :     gnss_yaw -= 360.0;</span>
+<span class="lineNum">     639 </span>                :            :   }
+<span class="lineNum">     640 </span>                :<span class="lineNoCov">          0 :   measure_data-&gt;measure_type = MeasureType::GNSS_DOUBLE_ANT_YAW;</span>
+<span class="lineNum">     641 </span>                :<span class="lineNoCov">          0 :   measure_data-&gt;is_have_variance = true;</span>
+<span class="lineNum">     642 </span>                :            :   // 3.046174197867086e-04 = (pi / 180)^2
+<span class="lineNum">     643 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;the novatel heading std: &quot; &lt;&lt; std::setprecision(15)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     644 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; measure_data-&gt;time &lt;&lt; &quot; &quot; &lt;&lt; heading_std;</span>
+<span class="lineNum">     645 </span>                :            :   measure_data-&gt;variance[8][8] =
+<span class="lineNum">     646 </span>                :<span class="lineNoCov">          0 :       heading_std * heading_std * 3.046174197867086e-04;</span>
+<span class="lineNum">     647 </span>                :<span class="lineNoCov">          0 :   measure_data-&gt;gnss_att.yaw = -gnss_yaw * 0.017453292519943;</span>
+<span class="lineNum">     648 </span>                :            : 
+<span class="lineNum">     649 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;measure data heading is: &quot; &lt;&lt; std::setprecision(15)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     650 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; measure_data-&gt;time &lt;&lt; &quot; &quot; &lt;&lt; std::setprecision(6)</span>
+<span class="lineNum">     651 </span>                :<span class="lineNoCov">          0 :         &lt;&lt; measure_data-&gt;gnss_att.yaw;</span>
+<span class="lineNum">     652 </span>                :            : 
+<span class="lineNum">     653 </span>                :<span class="lineNoCov">          0 :   return true;</span>
+<a name="654"><span class="lineNum">     654 </span>                :            : }</a>
+<span class="lineNum">     655 </span>                :            : 
+<span class="lineNum">     656 </span>                :<span class="lineNoCov">          0 : bool MeasureRepublishProcess::LoadImuGnssAntennaExtrinsic(</span>
+<span class="lineNum">     657 </span>                :            :     std::string file_path, VehicleGnssAntExtrinsic* extrinsic) const {
+<span class="lineNum">     658 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::LoadImuGnssAntennaExtrinsic&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     659 </span>                :            : 
+<span class="lineNum">     660 </span>                :<span class="lineNoCov">          0 :   YAML::Node confige = YAML::LoadFile(file_path);</span>
+<span class="lineNum">     661 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (confige[&quot;leverarm&quot;]) {</span>
+<span class="lineNum">     662 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (confige[&quot;leverarm&quot;][&quot;primary&quot;][&quot;offset&quot;]) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">     663 </span>                :<span class="lineNoCov">          0 :       extrinsic-&gt;transform_1.translation()[0] =</span>
+<span class="lineNum">     664 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           confige[&quot;leverarm&quot;][&quot;primary&quot;][&quot;offset&quot;][&quot;x&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     665 </span>                :<span class="lineNoCov">          0 :       extrinsic-&gt;transform_1.translation()[1] =</span>
+<span class="lineNum">     666 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           confige[&quot;leverarm&quot;][&quot;primary&quot;][&quot;offset&quot;][&quot;y&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     667 </span>                :<span class="lineNoCov">          0 :       extrinsic-&gt;transform_1.translation()[2] =</span>
+<span class="lineNum">     668 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           confige[&quot;leverarm&quot;][&quot;primary&quot;][&quot;offset&quot;][&quot;z&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     669 </span>                :            :     } else {
+<span class="lineNum">     670 </span>                :            :       return false;
+<span class="lineNum">     671 </span>                :            :     }
+<span class="lineNum">     672 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (confige[&quot;leverarm&quot;][&quot;secondary&quot;][&quot;offset&quot;]) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">     673 </span>                :<span class="lineNoCov">          0 :       extrinsic-&gt;transform_2.translation()[0] =</span>
+<span class="lineNum">     674 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           confige[&quot;leverarm&quot;][&quot;secondary&quot;][&quot;offset&quot;][&quot;x&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     675 </span>                :<span class="lineNoCov">          0 :       extrinsic-&gt;transform_2.translation()[1] =</span>
+<span class="lineNum">     676 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           confige[&quot;leverarm&quot;][&quot;secondary&quot;][&quot;offset&quot;][&quot;y&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     677 </span>                :<span class="lineNoCov">          0 :       extrinsic-&gt;transform_2.translation()[2] =</span>
+<span class="lineNum">     678 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           confige[&quot;leverarm&quot;][&quot;secondary&quot;][&quot;offset&quot;][&quot;z&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     679 </span>                :<span class="lineNoCov">          0 :       extrinsic-&gt;ant_num = 2;</span>
+<span class="lineNum">     680 </span>                :            : 
+<span class="lineNum">     681 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (confige[&quot;leverarm&quot;][&quot;secondary&quot;][&quot;rotation&quot;]) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">     682 </span>                :            :         double qx =
+<span class="lineNum">     683 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             confige[&quot;leverarm&quot;][&quot;secondary&quot;][&quot;rotation&quot;][&quot;x&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     684 </span>                :            :         double qy =
+<span class="lineNum">     685 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             confige[&quot;leverarm&quot;][&quot;secondary&quot;][&quot;rotation&quot;][&quot;y&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     686 </span>                :            :         double qz =
+<span class="lineNum">     687 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             confige[&quot;leverarm&quot;][&quot;secondary&quot;][&quot;rotation&quot;][&quot;z&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     688 </span>                :            :         double qw =
+<span class="lineNum">     689 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             confige[&quot;leverarm&quot;][&quot;secondary&quot;][&quot;rotation&quot;][&quot;w&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     690 </span>                :<span class="lineNoCov">          0 :         extrinsic-&gt;transform_1.linear() =</span>
+<span class="lineNum">     691 </span>                :            :             Eigen::Quaterniond(qw, qx, qy, qz).toRotationMatrix();
+<span class="lineNum">     692 </span>                :            :       } else {
+<span class="lineNum">     693 </span>                :<span class="lineNoCov">          0 :         double yaw = atan2(extrinsic-&gt;transform_2.translation()[0] -</span>
+<span class="lineNum">     694 </span>                :<span class="lineNoCov">          0 :                                extrinsic-&gt;transform_1.translation()[0],</span>
+<span class="lineNum">     695 </span>                :<span class="lineNoCov">          0 :                            extrinsic-&gt;transform_2.translation()[1] -</span>
+<span class="lineNum">     696 </span>                :<span class="lineNoCov">          0 :                                extrinsic-&gt;transform_1.translation()[1]);</span>
+<span class="lineNum">     697 </span>                :<span class="lineNoCov">          0 :         double quat[4] = {0.0};</span>
+<span class="lineNum">     698 </span>                :<span class="lineNoCov">          0 :         math::EulerToQuaternion(0.0, 0.0, yaw, quat);</span>
+<span class="lineNum">     699 </span>                :<span class="lineNoCov">          0 :         extrinsic-&gt;transform_1.linear() =</span>
+<span class="lineNum">     700 </span>                :            :             Eigen::Quaterniond(quat[0], quat[1], quat[2], quat[3])
+<span class="lineNum">     701 </span>                :            :                 .toRotationMatrix();
+<span class="lineNum">     702 </span>                :            :       }
+<span class="lineNum">     703 </span>                :            :       return true;
+<span class="lineNum">     704 </span>                :            :     } else {
+<span class="lineNum">     705 </span>                :<span class="lineNoCov">          0 :       extrinsic-&gt;ant_num = 1;</span>
+<span class="lineNum">     706 </span>                :<span class="lineNoCov">          0 :       return true;</span>
+<span class="lineNum">     707 </span>                :            :     }
+<span class="lineNum">     708 </span>                :            :   }
+<span class="lineNum">     709 </span>                :            :   return false;
+<a name="710"><span class="lineNum">     710 </span>                :            : }</a>
+<span class="lineNum">     711 </span>                :            : 
+<span class="lineNum">     712 </span>                :<span class="lineNoCov">          0 : bool MeasureRepublishProcess::CheckBestgnssPoseXYStd(</span>
+<span class="lineNum">     713 </span>                :<span class="lineNoCov">          0 :     const GnssBestPose&amp; bestgnsspos_msg) {</span>
+<span class="lineNum">     714 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::CheckBestgnssPoseXYStd&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     715 </span>                :            : 
+<span class="lineNum">     716 </span>                :            :   // check the standard deviation of xy
+<span class="lineNum">     717 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if ((bestgnsspos_msg.longitude_std_dev() &gt; GNSS_XY_STD_THRESHOLD) ||</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     718 </span>                :<span class="lineNoCov">          0 :       (bestgnsspos_msg.latitude_std_dev() &gt; GNSS_XY_STD_THRESHOLD)) {</span>
+<span class="lineNum">     719 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AWARN &lt;&lt; &quot;the position std is large: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     720 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; bestgnsspos_msg.longitude_std_dev() &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">     721 </span>                :<span class="lineNoCov">          0 :           &lt;&lt; bestgnsspos_msg.latitude_std_dev();</span>
+<span class="lineNum">     722 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     723 </span>                :            :   }
+<span class="lineNum">     724 </span>                :            :   return true;
+<a name="725"><span class="lineNum">     725 </span>                :            : }</a>
+<span class="lineNum">     726 </span>                :            : 
+<span class="lineNum">     727 </span>                :<span class="lineNoCov">          0 : bool MeasureRepublishProcess::CheckBestgnssposeStatus(</span>
+<span class="lineNum">     728 </span>                :<span class="lineNoCov">          0 :     const GnssBestPose&amp; bestgnsspos_msg) {</span>
+<span class="lineNum">     729 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: MeasureRepublishProcess::CheckBestgnssposeStatus&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     730 </span>                :            : 
+<span class="lineNum">     731 </span>                :<span class="lineNoCov">          0 :   int gnss_solution_status = static_cast&lt;int&gt;(bestgnsspos_msg.sol_status());</span>
+<span class="lineNum">     732 </span>                :<span class="lineNoCov">          0 :   int gnss_position_type = static_cast&lt;int&gt;(bestgnsspos_msg.sol_type());</span>
+<span class="lineNum">     733 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; &quot;the gnss solution_status and position_type: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     734 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &lt;&lt; gnss_solution_status &lt;&lt; &quot; &quot; &lt;&lt; gnss_position_type;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     735 </span>                :            : 
+<span class="lineNum">     736 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_solution_status != 0) {</span>
+<span class="lineNum">     737 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;novatel gnsspos's solution_status is not computed: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     738 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; gnss_solution_status;</span>
+<span class="lineNum">     739 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     740 </span>                :            :   }
+<span class="lineNum">     741 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_position_type == 0 || gnss_position_type == 1 ||</span>
+<span class="lineNum">     742 </span>                :            :       gnss_position_type == 2) {
+<span class="lineNum">     743 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;novatel gnsspos's solution_type is invalid &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     744 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; &quot;or xy fixed or height fixed: &quot; &lt;&lt; gnss_position_type;</span>
+<span class="lineNum">     745 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     746 </span>                :            :   }
+<span class="lineNum">     747 </span>                :            : 
+<span class="lineNum">     748 </span>                :            :   return true;
+<span class="lineNum">     749 </span>                :            : }
+<span class="lineNum">     750 </span>                :            : 
+<a name="751"><span class="lineNum">     751 </span>                :            : }  // namespace msf</a>
+<span class="lineNum">     752 </span>                :            : }  // namespace localization
+<span class="lineNum">     753 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

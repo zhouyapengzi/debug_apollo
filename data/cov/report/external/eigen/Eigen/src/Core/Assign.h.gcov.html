@@ -1,0 +1,852 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Core/Assign.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Core</a> - Assign.h<span style="font-size: 80%;"> (source / <a href="Assign.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">120</td>
+            <td class="headerCovTableEntry">120</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2590</td>
+            <td class="headerCovTableEntry">4509</td>
+            <td class="headerCovTableEntryLo">57.4 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">335</td>
+            <td class="headerCovTableEntry">774</td>
+            <td class="headerCovTableEntryLo">43.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2007 Michael Olbrich &lt;michael.olbrich@gmx.net&gt;
+<span class="lineNum">       5 </span>                :            : // Copyright (C) 2006-2010 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       6 </span>                :            : // Copyright (C) 2008 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       7 </span>                :            : //
+<span class="lineNum">       8 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       9 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">      10 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">      11 </span>                :            : 
+<span class="lineNum">      12 </span>                :            : #ifndef EIGEN_ASSIGN_H
+<span class="lineNum">      13 </span>                :            : #define EIGEN_ASSIGN_H
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : namespace Eigen {
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : namespace internal {
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : /***************************************************************************
+<span class="lineNum">      20 </span>                :            : * Part 1 : the logic deciding a strategy for traversal and unrolling       *
+<span class="lineNum">      21 </span>                :            : ***************************************************************************/
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : template &lt;typename Derived, typename OtherDerived&gt;
+<span class="lineNum">      24 </span>                :            : struct assign_traits
+<span class="lineNum">      25 </span>                :            : {
+<span class="lineNum">      26 </span>                :            : public:
+<span class="lineNum">      27 </span>                :            :   enum {
+<span class="lineNum">      28 </span>                :            :     DstIsAligned = Derived::Flags &amp; AlignedBit,
+<span class="lineNum">      29 </span>                :            :     DstHasDirectAccess = Derived::Flags &amp; DirectAccessBit,
+<span class="lineNum">      30 </span>                :            :     SrcIsAligned = OtherDerived::Flags &amp; AlignedBit,
+<span class="lineNum">      31 </span>                :            :     JointAlignment = bool(DstIsAligned) &amp;&amp; bool(SrcIsAligned) ? Aligned : Unaligned
+<span class="lineNum">      32 </span>                :            :   };
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : private:
+<span class="lineNum">      35 </span>                :            :   enum {
+<span class="lineNum">      36 </span>                :            :     InnerSize = int(Derived::IsVectorAtCompileTime) ? int(Derived::SizeAtCompileTime)
+<span class="lineNum">      37 </span>                :            :               : int(Derived::Flags)&amp;RowMajorBit ? int(Derived::ColsAtCompileTime)
+<span class="lineNum">      38 </span>                :            :               : int(Derived::RowsAtCompileTime),
+<span class="lineNum">      39 </span>                :            :     InnerMaxSize = int(Derived::IsVectorAtCompileTime) ? int(Derived::MaxSizeAtCompileTime)
+<span class="lineNum">      40 </span>                :            :               : int(Derived::Flags)&amp;RowMajorBit ? int(Derived::MaxColsAtCompileTime)
+<span class="lineNum">      41 </span>                :            :               : int(Derived::MaxRowsAtCompileTime),
+<span class="lineNum">      42 </span>                :            :     MaxSizeAtCompileTime = Derived::SizeAtCompileTime,
+<span class="lineNum">      43 </span>                :            :     PacketSize = packet_traits&lt;typename Derived::Scalar&gt;::size
+<span class="lineNum">      44 </span>                :            :   };
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            :   enum {
+<span class="lineNum">      47 </span>                :            :     StorageOrdersAgree = (int(Derived::IsRowMajor) == int(OtherDerived::IsRowMajor)),
+<span class="lineNum">      48 </span>                :            :     MightVectorize = StorageOrdersAgree
+<span class="lineNum">      49 </span>                :            :                   &amp;&amp; (int(Derived::Flags) &amp; int(OtherDerived::Flags) &amp; ActualPacketAccessBit),
+<span class="lineNum">      50 </span>                :            :     MayInnerVectorize  = MightVectorize &amp;&amp; int(InnerSize)!=Dynamic &amp;&amp; int(InnerSize)%int(PacketSize)==0
+<span class="lineNum">      51 </span>                :            :                        &amp;&amp; int(DstIsAligned) &amp;&amp; int(SrcIsAligned),
+<span class="lineNum">      52 </span>                :            :     MayLinearize = StorageOrdersAgree &amp;&amp; (int(Derived::Flags) &amp; int(OtherDerived::Flags) &amp; LinearAccessBit),
+<span class="lineNum">      53 </span>                :            :     MayLinearVectorize = MightVectorize &amp;&amp; MayLinearize &amp;&amp; DstHasDirectAccess
+<span class="lineNum">      54 </span>                :            :                        &amp;&amp; (DstIsAligned || MaxSizeAtCompileTime == Dynamic),
+<span class="lineNum">      55 </span>                :            :       /* If the destination isn't aligned, we have to do runtime checks and we don't unroll,
+<span class="lineNum">      56 </span>                :            :          so it's only good for large enough sizes. */
+<span class="lineNum">      57 </span>                :            :     MaySliceVectorize  = MightVectorize &amp;&amp; DstHasDirectAccess
+<span class="lineNum">      58 </span>                :            :                        &amp;&amp; (int(InnerMaxSize)==Dynamic || int(InnerMaxSize)&gt;=3*PacketSize)
+<span class="lineNum">      59 </span>                :            :       /* slice vectorization can be slow, so we only want it if the slices are big, which is
+<span class="lineNum">      60 </span>                :            :          indicated by InnerMaxSize rather than InnerSize, think of the case of a dynamic block
+<span class="lineNum">      61 </span>                :            :          in a fixed-size matrix */
+<span class="lineNum">      62 </span>                :            :   };
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : public:
+<span class="lineNum">      65 </span>                :            :   enum {
+<span class="lineNum">      66 </span>                :            :     Traversal = int(MayInnerVectorize)  ? int(InnerVectorizedTraversal)
+<span class="lineNum">      67 </span>                :            :               : int(MayLinearVectorize) ? int(LinearVectorizedTraversal)
+<span class="lineNum">      68 </span>                :            :               : int(MaySliceVectorize)  ? int(SliceVectorizedTraversal)
+<span class="lineNum">      69 </span>                :            :               : int(MayLinearize)       ? int(LinearTraversal)
+<span class="lineNum">      70 </span>                :            :                                         : int(DefaultTraversal),
+<span class="lineNum">      71 </span>                :            :     Vectorized = int(Traversal) == InnerVectorizedTraversal
+<span class="lineNum">      72 </span>                :            :               || int(Traversal) == LinearVectorizedTraversal
+<span class="lineNum">      73 </span>                :            :               || int(Traversal) == SliceVectorizedTraversal
+<span class="lineNum">      74 </span>                :            :   };
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : private:
+<span class="lineNum">      77 </span>                :            :   enum {
+<span class="lineNum">      78 </span>                :            :     UnrollingLimit      = EIGEN_UNROLLING_LIMIT * (Vectorized ? int(PacketSize) : 1),
+<span class="lineNum">      79 </span>                :            :     MayUnrollCompletely = int(Derived::SizeAtCompileTime) != Dynamic
+<span class="lineNum">      80 </span>                :            :                        &amp;&amp; int(OtherDerived::CoeffReadCost) != Dynamic
+<span class="lineNum">      81 </span>                :            :                        &amp;&amp; int(Derived::SizeAtCompileTime) * int(OtherDerived::CoeffReadCost) &lt;= int(UnrollingLimit),
+<span class="lineNum">      82 </span>                :            :     MayUnrollInner      = int(InnerSize) != Dynamic
+<span class="lineNum">      83 </span>                :            :                        &amp;&amp; int(OtherDerived::CoeffReadCost) != Dynamic
+<span class="lineNum">      84 </span>                :            :                        &amp;&amp; int(InnerSize) * int(OtherDerived::CoeffReadCost) &lt;= int(UnrollingLimit)
+<span class="lineNum">      85 </span>                :            :   };
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            : public:
+<span class="lineNum">      88 </span>                :            :   enum {
+<span class="lineNum">      89 </span>                :            :     Unrolling = (int(Traversal) == int(InnerVectorizedTraversal) || int(Traversal) == int(DefaultTraversal))
+<span class="lineNum">      90 </span>                :            :                 ? (
+<span class="lineNum">      91 </span>                :            :                     int(MayUnrollCompletely) ? int(CompleteUnrolling)
+<span class="lineNum">      92 </span>                :            :                   : int(MayUnrollInner)      ? int(InnerUnrolling)
+<span class="lineNum">      93 </span>                :            :                                              : int(NoUnrolling)
+<span class="lineNum">      94 </span>                :            :                   )
+<span class="lineNum">      95 </span>                :            :               : int(Traversal) == int(LinearVectorizedTraversal)
+<span class="lineNum">      96 </span>                :            :                 ? ( bool(MayUnrollCompletely) &amp;&amp; bool(DstIsAligned) ? int(CompleteUnrolling) : int(NoUnrolling) )
+<span class="lineNum">      97 </span>                :            :               : int(Traversal) == int(LinearTraversal)
+<span class="lineNum">      98 </span>                :            :                 ? ( bool(MayUnrollCompletely) ? int(CompleteUnrolling) : int(NoUnrolling) )
+<span class="lineNum">      99 </span>                :            :               : int(NoUnrolling)
+<span class="lineNum">     100 </span>                :            :   };
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            : #ifdef EIGEN_DEBUG_ASSIGN
+<span class="lineNum">     103 </span>                :            :   static void debug()
+<span class="lineNum">     104 </span>                :            :   {
+<span class="lineNum">     105 </span>                :            :     EIGEN_DEBUG_VAR(DstIsAligned)
+<span class="lineNum">     106 </span>                :            :     EIGEN_DEBUG_VAR(SrcIsAligned)
+<span class="lineNum">     107 </span>                :            :     EIGEN_DEBUG_VAR(JointAlignment)
+<span class="lineNum">     108 </span>                :            :     EIGEN_DEBUG_VAR(InnerSize)
+<span class="lineNum">     109 </span>                :            :     EIGEN_DEBUG_VAR(InnerMaxSize)
+<span class="lineNum">     110 </span>                :            :     EIGEN_DEBUG_VAR(PacketSize)
+<span class="lineNum">     111 </span>                :            :     EIGEN_DEBUG_VAR(StorageOrdersAgree)
+<span class="lineNum">     112 </span>                :            :     EIGEN_DEBUG_VAR(MightVectorize)
+<span class="lineNum">     113 </span>                :            :     EIGEN_DEBUG_VAR(MayLinearize)
+<span class="lineNum">     114 </span>                :            :     EIGEN_DEBUG_VAR(MayInnerVectorize)
+<span class="lineNum">     115 </span>                :            :     EIGEN_DEBUG_VAR(MayLinearVectorize)
+<span class="lineNum">     116 </span>                :            :     EIGEN_DEBUG_VAR(MaySliceVectorize)
+<span class="lineNum">     117 </span>                :            :     EIGEN_DEBUG_VAR(Traversal)
+<span class="lineNum">     118 </span>                :            :     EIGEN_DEBUG_VAR(UnrollingLimit)
+<span class="lineNum">     119 </span>                :            :     EIGEN_DEBUG_VAR(MayUnrollCompletely)
+<span class="lineNum">     120 </span>                :            :     EIGEN_DEBUG_VAR(MayUnrollInner)
+<span class="lineNum">     121 </span>                :            :     EIGEN_DEBUG_VAR(Unrolling)
+<span class="lineNum">     122 </span>                :            :   }
+<span class="lineNum">     123 </span>                :            : #endif
+<span class="lineNum">     124 </span>                :            : };
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :            : /***************************************************************************
+<span class="lineNum">     127 </span>                :            : * Part 2 : meta-unrollers
+<span class="lineNum">     128 </span>                :            : ***************************************************************************/
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            : /************************
+<span class="lineNum">     131 </span>                :            : *** Default traversal ***
+<span class="lineNum">     132 </span>                :            : ************************/
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :            : template&lt;typename Derived1, typename Derived2, int Index, int Stop&gt;
+<span class="lineNum">     135 </span>                :            : struct assign_DefaultTraversal_CompleteUnrolling
+<span class="lineNum">     136 </span>                :            : {
+<span class="lineNum">     137 </span>                :            :   enum {
+<span class="lineNum">     138 </span>                :            :     outer = Index / Derived1::InnerSizeAtCompileTime,
+<span class="lineNum">     139 </span>                :            :     inner = Index % Derived1::InnerSizeAtCompileTime
+<a name="140"><span class="lineNum">     140 </span>                :            :   };</a>
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :<span class="lineCov">   72104288 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     143 </span>                :            :   {
+<span class="lineNum">     144 </span>                :<span class="lineCov">   72104416 :     dst.copyCoeffByOuterInner(outer, inner, src);</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">   72104304 :     assign_DefaultTraversal_CompleteUnrolling&lt;Derived1, Derived2, Index+1, Stop&gt;::run(dst, src);</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">   72104288 :   }</span>
+<span class="lineNum">     147 </span>                :            : };
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :            : template&lt;typename Derived1, typename Derived2, int Stop&gt;
+<a name="150"><span class="lineNum">     150 </span>                :            : struct assign_DefaultTraversal_CompleteUnrolling&lt;Derived1, Derived2, Stop, Stop&gt;</a>
+<span class="lineNum">     151 </span>                :            : {
+<span class="lineNum">     152 </span>                :<span class="lineCov">   19538176 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;, const Derived2 &amp;) {}</span>
+<span class="lineNum">     153 </span>                :            : };
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :            : template&lt;typename Derived1, typename Derived2, int Index, int Stop&gt;
+<a name="156"><span class="lineNum">     156 </span>                :            : struct assign_DefaultTraversal_InnerUnrolling</a>
+<span class="lineNum">     157 </span>                :            : {
+<span class="lineNum">     158 </span>                :<span class="lineCov">        100 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src, typename Derived1::Index outer)</span>
+<span class="lineNum">     159 </span>                :            :   {
+<span class="lineNum">     160 </span>                :<span class="lineCov">        100 :     dst.copyCoeffByOuterInner(outer, Index, src);</span>
+<span class="lineNum">     161 </span>                :<span class="lineCov">        100 :     assign_DefaultTraversal_InnerUnrolling&lt;Derived1, Derived2, Index+1, Stop&gt;::run(dst, src, outer);</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">        100 :   }</span>
+<span class="lineNum">     163 </span>                :            : };
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            : template&lt;typename Derived1, typename Derived2, int Stop&gt;
+<a name="166"><span class="lineNum">     166 </span>                :            : struct assign_DefaultTraversal_InnerUnrolling&lt;Derived1, Derived2, Stop, Stop&gt;</a>
+<span class="lineNum">     167 </span>                :            : {
+<span class="lineNum">     168 </span>                :<span class="lineCov">         20 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;, const Derived2 &amp;, typename Derived1::Index) {}</span>
+<span class="lineNum">     169 </span>                :            : };
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            : /***********************
+<span class="lineNum">     172 </span>                :            : *** Linear traversal ***
+<span class="lineNum">     173 </span>                :            : ***********************/
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            : template&lt;typename Derived1, typename Derived2, int Index, int Stop&gt;
+<a name="176"><span class="lineNum">     176 </span>                :            : struct assign_LinearTraversal_CompleteUnrolling</a>
+<span class="lineNum">     177 </span>                :            : {
+<span class="lineNum">     178 </span>                :<span class="lineCov">   69235577 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     179 </span>                :            :   {
+<span class="lineNum">     180 </span>                :<span class="lineCov">   69235577 :     dst.copyCoeff(Index, src);</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">   69235581 :     assign_LinearTraversal_CompleteUnrolling&lt;Derived1, Derived2, Index+1, Stop&gt;::run(dst, src);</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">   69235577 :   }</span>
+<span class="lineNum">     183 </span>                :            : };
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :            : template&lt;typename Derived1, typename Derived2, int Stop&gt;
+<a name="186"><span class="lineNum">     186 </span>                :            : struct assign_LinearTraversal_CompleteUnrolling&lt;Derived1, Derived2, Stop, Stop&gt;</a>
+<span class="lineNum">     187 </span>                :            : {
+<span class="lineNum">     188 </span>                :<span class="lineCov">   18044509 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;, const Derived2 &amp;) {}</span>
+<span class="lineNum">     189 </span>                :            : };
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>                :            : /**************************
+<span class="lineNum">     192 </span>                :            : *** Inner vectorization ***
+<span class="lineNum">     193 </span>                :            : **************************/
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :            : template&lt;typename Derived1, typename Derived2, int Index, int Stop&gt;
+<span class="lineNum">     196 </span>                :            : struct assign_innervec_CompleteUnrolling
+<span class="lineNum">     197 </span>                :            : {
+<span class="lineNum">     198 </span>                :            :   enum {
+<span class="lineNum">     199 </span>                :            :     outer = Index / Derived1::InnerSizeAtCompileTime,
+<span class="lineNum">     200 </span>                :            :     inner = Index % Derived1::InnerSizeAtCompileTime,
+<span class="lineNum">     201 </span>                :            :     JointAlignment = assign_traits&lt;Derived1,Derived2&gt;::JointAlignment
+<a name="202"><span class="lineNum">     202 </span>                :            :   };</a>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :<span class="lineCov">    2273736 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     205 </span>                :            :   {
+<span class="lineNum">     206 </span>                :<span class="lineCov">    2273737 :     dst.template copyPacketByOuterInner&lt;Derived2, Aligned, JointAlignment&gt;(outer, inner, src);</span>
+<span class="lineNum">     207 </span>                :<span class="lineCov">    2273737 :     assign_innervec_CompleteUnrolling&lt;Derived1, Derived2,</span>
+<span class="lineNum">     208 </span>                :            :       Index+packet_traits&lt;typename Derived1::Scalar&gt;::size, Stop&gt;::run(dst, src);
+<span class="lineNum">     209 </span>                :<span class="lineCov">    2273736 :   }</span>
+<span class="lineNum">     210 </span>                :            : };
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :            : template&lt;typename Derived1, typename Derived2, int Stop&gt;
+<a name="213"><span class="lineNum">     213 </span>                :            : struct assign_innervec_CompleteUnrolling&lt;Derived1, Derived2, Stop, Stop&gt;</a>
+<span class="lineNum">     214 </span>                :            : {
+<span class="lineNum">     215 </span>                :<span class="lineCov">    1711597 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;, const Derived2 &amp;) {}</span>
+<span class="lineNum">     216 </span>                :            : };
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :            : template&lt;typename Derived1, typename Derived2, int Index, int Stop&gt;
+<a name="219"><span class="lineNum">     219 </span>                :            : struct assign_innervec_InnerUnrolling</a>
+<span class="lineNum">     220 </span>                :            : {
+<span class="lineNum">     221 </span>                :<span class="lineCov">      41416 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src, typename Derived1::Index outer)</span>
+<span class="lineNum">     222 </span>                :            :   {
+<span class="lineNum">     223 </span>                :<span class="lineCov">      41416 :     dst.template copyPacketByOuterInner&lt;Derived2, Aligned, Aligned&gt;(outer, Index, src);</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">      41416 :     assign_innervec_InnerUnrolling&lt;Derived1, Derived2,</span>
+<span class="lineNum">     225 </span>                :            :       Index+packet_traits&lt;typename Derived1::Scalar&gt;::size, Stop&gt;::run(dst, src, outer);
+<span class="lineNum">     226 </span>                :<span class="lineCov">      41416 :   }</span>
+<span class="lineNum">     227 </span>                :            : };
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :            : template&lt;typename Derived1, typename Derived2, int Stop&gt;
+<a name="230"><span class="lineNum">     230 </span>                :            : struct assign_innervec_InnerUnrolling&lt;Derived1, Derived2, Stop, Stop&gt;</a>
+<span class="lineNum">     231 </span>                :            : {
+<span class="lineNum">     232 </span>                :<span class="lineCov">      20708 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;, const Derived2 &amp;, typename Derived1::Index) {}</span>
+<span class="lineNum">     233 </span>                :            : };
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :            : /***************************************************************************
+<span class="lineNum">     236 </span>                :            : * Part 3 : implementation of all cases
+<span class="lineNum">     237 </span>                :            : ***************************************************************************/
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>                :            : template&lt;typename Derived1, typename Derived2,
+<span class="lineNum">     240 </span>                :            :          int Traversal = assign_traits&lt;Derived1, Derived2&gt;::Traversal,
+<span class="lineNum">     241 </span>                :            :          int Unrolling = assign_traits&lt;Derived1, Derived2&gt;::Unrolling,
+<span class="lineNum">     242 </span>                :            :          int Version = Specialized&gt;
+<span class="lineNum">     243 </span>                :            : struct assign_impl;
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :            : /************************
+<span class="lineNum">     246 </span>                :            : *** Default traversal ***
+<span class="lineNum">     247 </span>                :            : ************************/
+<span class="lineNum">     248 </span>                :            : 
+<span class="lineNum">     249 </span>                :            : template&lt;typename Derived1, typename Derived2, int Unrolling, int Version&gt;
+<span class="lineNum">     250 </span>                :            : struct assign_impl&lt;Derived1, Derived2, InvalidTraversal, Unrolling, Version&gt;
+<span class="lineNum">     251 </span>                :            : {
+<span class="lineNum">     252 </span>                :            :   static inline void run(Derived1 &amp;, const Derived2 &amp;) { }
+<span class="lineNum">     253 </span>                :            : };
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<span class="lineNum">     256 </span>                :            : struct assign_impl&lt;Derived1, Derived2, DefaultTraversal, NoUnrolling, Version&gt;
+<a name="257"><span class="lineNum">     257 </span>                :            : {</a>
+<span class="lineNum">     258 </span>                :            :   typedef typename Derived1::Index Index;
+<span class="lineNum">     259 </span>                :<span class="lineCov">     709146 :   static inline void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     260 </span>                :            :   {
+<span class="lineNum">     261 </span>                :<span class="lineCov">     709146 :     const Index innerSize = dst.innerSize();</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">     709146 :     const Index outerSize = dst.outerSize();</span>
+<span class="lineNum">     263 </span>[<span class="branchCov" title="Branch 0 was taken 600 times"> + </span><span class="branchCov" title="Branch 1 was taken 153 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 78 times"> + </span><span class="branchCov" title="Branch 3 was taken 42 times"> + </span>]:<span class="lineCov">    1418786 :     for(Index outer = 0; outer &lt; outerSize; ++outer)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 708962 times"> + </span><span class="branchCov" title="Branch 5 was taken 708951 times"> + </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     264 </span>[<span class="branchCov" title="Branch 0 was taken 2802 times"> + </span><span class="branchCov" title="Branch 1 was taken 600 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 263 times"> + </span><span class="branchCov" title="Branch 3 was taken 78 times"> + </span>]:<span class="lineCov">    1421799 :       for(Index inner = 0; inner &lt; innerSize; ++inner)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 709094 times"> + </span><span class="branchCov" title="Branch 5 was taken 708962 times"> + </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     265 </span>                :<span class="lineCov">     712159 :         dst.copyCoeffByOuterInner(outer, inner, src);</span>
+<span class="lineNum">     266 </span>                :<span class="lineCov">     709146 :   }</span>
+<span class="lineNum">     267 </span>                :            : };
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<a name="270"><span class="lineNum">     270 </span>                :            : struct assign_impl&lt;Derived1, Derived2, DefaultTraversal, CompleteUnrolling, Version&gt;</a>
+<span class="lineNum">     271 </span>                :            : {
+<span class="lineNum">     272 </span>                :<span class="lineCov">   18827174 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     273 </span>                :            :   {
+<span class="lineNum">     274 </span>                :<span class="lineCov">   18827175 :     assign_DefaultTraversal_CompleteUnrolling&lt;Derived1, Derived2, 0, Derived1::SizeAtCompileTime&gt;</span>
+<span class="lineNum">     275 </span>                :            :       ::run(dst, src);
+<span class="lineNum">     276 </span>                :<span class="lineCov">   18827174 :   }</span>
+<span class="lineNum">     277 </span>                :            : };
+<span class="lineNum">     278 </span>                :            : 
+<span class="lineNum">     279 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<span class="lineNum">     280 </span>                :            : struct assign_impl&lt;Derived1, Derived2, DefaultTraversal, InnerUnrolling, Version&gt;
+<a name="281"><span class="lineNum">     281 </span>                :            : {</a>
+<span class="lineNum">     282 </span>                :            :   typedef typename Derived1::Index Index;
+<span class="lineNum">     283 </span>                :<span class="lineCov">          4 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     284 </span>                :            :   {
+<span class="lineNum">     285 </span>                :<span class="lineCov">          4 :     const Index outerSize = dst.outerSize();</span>
+<span class="lineNum">     286 </span>[<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 10 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">         24 :     for(Index outer = 0; outer &lt; outerSize; ++outer)</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     287 </span>                :<span class="lineCov">         20 :       assign_DefaultTraversal_InnerUnrolling&lt;Derived1, Derived2, 0, Derived1::InnerSizeAtCompileTime&gt;</span>
+<span class="lineNum">     288 </span>                :            :         ::run(dst, src, outer);
+<span class="lineNum">     289 </span>                :<span class="lineCov">          4 :   }</span>
+<span class="lineNum">     290 </span>                :            : };
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :            : /***********************
+<span class="lineNum">     293 </span>                :            : *** Linear traversal ***
+<span class="lineNum">     294 </span>                :            : ***********************/
+<span class="lineNum">     295 </span>                :            : 
+<span class="lineNum">     296 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<span class="lineNum">     297 </span>                :            : struct assign_impl&lt;Derived1, Derived2, LinearTraversal, NoUnrolling, Version&gt;
+<a name="298"><span class="lineNum">     298 </span>                :            : {</a>
+<span class="lineNum">     299 </span>                :            :   typedef typename Derived1::Index Index;
+<span class="lineNum">     300 </span>                :<span class="lineCov">    4254960 :   static inline void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     301 </span>                :            :   {
+<span class="lineNum">     302 </span>                :<span class="lineCov">    4254960 :     const Index size = dst.size();</span>
+<span class="lineNum">     303 </span>[<span class="branchCov" title="Branch 0 was taken 3336 times"> + </span><span class="branchCov" title="Branch 1 was taken 1186 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 122 times"> + </span><span class="branchCov" title="Branch 3 was taken 50 times"> + </span>]:<span class="lineCov">    7803242 :     for(Index i = 0; i &lt; size; ++i)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 20 times"> + </span><span class="branchCov" title="Branch 5 was taken 8 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 20 times"> + </span><span class="branchCov" title="Branch 7 was taken 8 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 10 times"> + </span><span class="branchCov" title="Branch 9 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 10 was taken 24 times"> + </span><span class="branchCov" title="Branch 11 was taken 6 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 1417900 times"> + </span><span class="branchCov" title="Branch 13 was taken 1417900 times"> + </span>][<span class="branchCov" title="Branch 14 was taken 708950 times"> + </span><span class="branchCov" title="Branch 15 was taken 708950 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 708950 times"> + </span><span class="branchCov" title="Branch 17 was taken 708950 times"> + </span>][<span class="branchNoCov" title="Branch 18 was not taken"> - </span><span class="branchCov" title="Branch 19 was taken 708950 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchCov" title="Branch 22 was taken 708950 times"> + </span><span class="branchCov" title="Branch 23 was taken 708950 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>]
+<span class="lineNum">     304 </span>                :<span class="lineCov">    3548282 :       dst.copyCoeff(i, src);</span>
+<span class="lineNum">     305 </span>                :<span class="lineCov">    4254960 :   }</span>
+<span class="lineNum">     306 </span>                :            : };
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<a name="309"><span class="lineNum">     309 </span>                :            : struct assign_impl&lt;Derived1, Derived2, LinearTraversal, CompleteUnrolling, Version&gt;</a>
+<span class="lineNum">     310 </span>                :            : {
+<span class="lineNum">     311 </span>                :<span class="lineCov">   18044509 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     312 </span>                :            :   {
+<span class="lineNum">     313 </span>                :<span class="lineCov">   18044509 :     assign_LinearTraversal_CompleteUnrolling&lt;Derived1, Derived2, 0, Derived1::SizeAtCompileTime&gt;</span>
+<span class="lineNum">     314 </span>                :            :       ::run(dst, src);
+<span class="lineNum">     315 </span>                :<span class="lineCov">   18044509 :   }</span>
+<span class="lineNum">     316 </span>                :            : };
+<span class="lineNum">     317 </span>                :            : 
+<span class="lineNum">     318 </span>                :            : /**************************
+<span class="lineNum">     319 </span>                :            : *** Inner vectorization ***
+<span class="lineNum">     320 </span>                :            : **************************/
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<span class="lineNum">     323 </span>                :            : struct assign_impl&lt;Derived1, Derived2, InnerVectorizedTraversal, NoUnrolling, Version&gt;
+<a name="324"><span class="lineNum">     324 </span>                :            : {</a>
+<span class="lineNum">     325 </span>                :            :   typedef typename Derived1::Index Index;
+<span class="lineNum">     326 </span>                :<span class="lineCov">          7 :   static inline void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     327 </span>                :            :   {
+<span class="lineNum">     328 </span>                :<span class="lineCov">          7 :     const Index innerSize = dst.innerSize();</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">          7 :     const Index outerSize = dst.outerSize();</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">          7 :     const Index packetSize = packet_traits&lt;typename Derived1::Scalar&gt;::size;</span>
+<span class="lineNum">     331 </span>        [<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">         14 :     for(Index outer = 0; outer &lt; outerSize; ++outer)</span>
+<span class="lineNum">     332 </span>        [<span class="branchCov" title="Branch 0 was taken 21 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">         28 :       for(Index inner = 0; inner &lt; innerSize; inner+=packetSize)</span>
+<span class="lineNum">     333 </span>                :<span class="lineCov">         21 :         dst.template copyPacketByOuterInner&lt;Derived2, Aligned, Aligned&gt;(outer, inner, src);</span>
+<span class="lineNum">     334 </span>                :<span class="lineCov">          7 :   }</span>
+<span class="lineNum">     335 </span>                :            : };
+<span class="lineNum">     336 </span>                :            : 
+<span class="lineNum">     337 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<a name="338"><span class="lineNum">     338 </span>                :            : struct assign_impl&lt;Derived1, Derived2, InnerVectorizedTraversal, CompleteUnrolling, Version&gt;</a>
+<span class="lineNum">     339 </span>                :            : {
+<span class="lineNum">     340 </span>                :<span class="lineCov">    1000595 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     341 </span>                :            :   {
+<span class="lineNum">     342 </span>                :<span class="lineCov">    1000595 :     assign_innervec_CompleteUnrolling&lt;Derived1, Derived2, 0, Derived1::SizeAtCompileTime&gt;</span>
+<span class="lineNum">     343 </span>                :            :       ::run(dst, src);
+<span class="lineNum">     344 </span>                :<span class="lineCov">    1000595 :   }</span>
+<span class="lineNum">     345 </span>                :            : };
+<span class="lineNum">     346 </span>                :            : 
+<span class="lineNum">     347 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<span class="lineNum">     348 </span>                :            : struct assign_impl&lt;Derived1, Derived2, InnerVectorizedTraversal, InnerUnrolling, Version&gt;
+<a name="349"><span class="lineNum">     349 </span>                :            : {</a>
+<span class="lineNum">     350 </span>                :            :   typedef typename Derived1::Index Index;
+<span class="lineNum">     351 </span>                :<span class="lineCov">       5177 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     352 </span>                :            :   {
+<span class="lineNum">     353 </span>                :<span class="lineCov">       5177 :     const Index outerSize = dst.outerSize();</span>
+<span class="lineNum">     354 </span>[<span class="branchCov" title="Branch 0 was taken 6768 times"> + </span><span class="branchCov" title="Branch 1 was taken 1692 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 13940 times"> + </span><span class="branchCov" title="Branch 3 was taken 3485 times"> + </span>]:<span class="lineCov">      25885 :     for(Index outer = 0; outer &lt; outerSize; ++outer)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     355 </span>                :<span class="lineCov">      20708 :       assign_innervec_InnerUnrolling&lt;Derived1, Derived2, 0, Derived1::InnerSizeAtCompileTime&gt;</span>
+<span class="lineNum">     356 </span>                :            :         ::run(dst, src, outer);
+<span class="lineNum">     357 </span>                :<span class="lineCov">       5177 :   }</span>
+<span class="lineNum">     358 </span>                :            : };
+<span class="lineNum">     359 </span>                :            : 
+<span class="lineNum">     360 </span>                :            : /***************************
+<span class="lineNum">     361 </span>                :            : *** Linear vectorization ***
+<span class="lineNum">     362 </span>                :            : ***************************/
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>                :            : template &lt;bool IsAligned = false&gt;
+<span class="lineNum">     365 </span>                :            : struct unaligned_assign_impl
+<a name="366"><span class="lineNum">     366 </span>                :            : {</a>
+<span class="lineNum">     367 </span>                :            :   template &lt;typename Derived, typename OtherDerived&gt;
+<span class="lineNum">     368 </span>                :<span class="lineCov">     153012 :   static EIGEN_STRONG_INLINE void run(const Derived&amp;, OtherDerived&amp;, typename Derived::Index, typename Derived::Index) {}</span>
+<span class="lineNum">     369 </span>                :            : };
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>                :            : template &lt;&gt;
+<span class="lineNum">     372 </span>                :            : struct unaligned_assign_impl&lt;false&gt;
+<span class="lineNum">     373 </span>                :            : {
+<span class="lineNum">     374 </span>                :            :   // MSVC must not inline this functions. If it does, it fails to optimize the
+<span class="lineNum">     375 </span>                :            :   // packet access path.
+<span class="lineNum">     376 </span>                :            : #ifdef _MSC_VER
+<span class="lineNum">     377 </span>                :            :   template &lt;typename Derived, typename OtherDerived&gt;
+<span class="lineNum">     378 </span>                :            :   static EIGEN_DONT_INLINE void run(const Derived&amp; src, OtherDerived&amp; dst, typename Derived::Index start, typename Derived::Index end)
+<a name="379"><span class="lineNum">     379 </span>                :            : #else</a>
+<span class="lineNum">     380 </span>                :            :   template &lt;typename Derived, typename OtherDerived&gt;
+<span class="lineNum">     381 </span>                :<span class="lineCov">     332842 :   static EIGEN_STRONG_INLINE void run(const Derived&amp; src, OtherDerived&amp; dst, typename Derived::Index start, typename Derived::Index end)</span>
+<span class="lineNum">     382 </span>                :            : #endif
+<span class="lineNum">     383 </span>                :            :   {
+<span class="lineNum">     384 </span>[<span class="branchCov" title="Branch 0 was taken 35364 times"> + </span><span class="branchCov" title="Branch 1 was taken 177139 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 2068 times"> + </span><span class="branchCov" title="Branch 3 was taken 5774 times"> + </span>]:<span class="lineCov">     412358 :     for (typename Derived::Index index = start; index &lt; end; ++index)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 1786 times"> + </span><span class="branchCov" title="Branch 5 was taken 6410 times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 1795 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1768 times"> + </span><span class="branchCov" title="Branch 9 was taken 3578 times"> + </span>][<span class="branchCov" title="Branch 10 was taken 1756 times"> + </span><span class="branchCov" title="Branch 11 was taken 5311 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 17368 times"> + </span><span class="branchCov" title="Branch 13 was taken 30537 times"> + </span>][<span class="branchCov" title="Branch 14 was taken 17354 times"> + </span><span class="branchCov" title="Branch 15 was taken 43809 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 1942 times"> + </span><span class="branchCov" title="Branch 17 was taken 58291 times"> + </span>][<span class="branchCov" title="Branch 18 was taken 20 times"> + </span><span class="branchCov" title="Branch 19 was taken 34 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken 2 times"> + </span><span class="branchCov" title="Branch 21 was taken 10 times"> + </span>][<span class="branchCov" title="Branch 22 was taken 38 times"> + </span><span class="branchCov" title="Branch 23 was taken 64 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 24 was taken 12 times"> + </span><span class="branchCov" title="Branch 25 was taken 18 times"> + </span>][<span class="branchCov" title="Branch 26 was taken 2 times"> + </span><span class="branchCov" title="Branch 27 was taken 8 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 28 was taken 2 times"> + </span><span class="branchCov" title="Branch 29 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 30 was taken 2 times"> + </span><span class="branchCov" title="Branch 31 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 32 was not taken"> - </span><span class="branchCov" title="Branch 33 was taken 4 times"> + </span>][<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 36 was taken 16 times"> + </span><span class="branchCov" title="Branch 37 was taken 20 times"> + </span>][<span class="branchCov" title="Branch 38 was taken 6 times"> + </span><span class="branchCov" title="Branch 39 was taken 12 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 40 was taken 6 times"> + </span><span class="branchCov" title="Branch 41 was taken 14 times"> + </span>][<span class="branchCov" title="Branch 42 was taken 4 times"> + </span><span class="branchCov" title="Branch 43 was taken 10 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 44 was not executed"> # </span><span class="branchNoExec" title="Branch 45 was not executed"> # </span>][<span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 48 was not executed"> # </span><span class="branchNoExec" title="Branch 49 was not executed"> # </span>][<span class="branchNoExec" title="Branch 50 was not executed"> # </span><span class="branchNoExec" title="Branch 51 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 52 was not executed"> # </span><span class="branchNoExec" title="Branch 53 was not executed"> # </span>][<span class="branchNoExec" title="Branch 54 was not executed"> # </span><span class="branchNoExec" title="Branch 55 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 56 was not executed"> # </span><span class="branchNoExec" title="Branch 57 was not executed"> # </span>][<span class="branchNoExec" title="Branch 58 was not executed"> # </span><span class="branchNoExec" title="Branch 59 was not executed"> # </span>]
+<span class="lineNum">     385 </span>                :<span class="lineCov">      79516 :       dst.copyCoeff(index, src);</span>
+<span class="lineNum">     386 </span>                :<span class="lineCov">     332842 :   }</span>
+<span class="lineNum">     387 </span>                :            : };
+<span class="lineNum">     388 </span>                :            : 
+<span class="lineNum">     389 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<span class="lineNum">     390 </span>                :            : struct assign_impl&lt;Derived1, Derived2, LinearVectorizedTraversal, NoUnrolling, Version&gt;
+<a name="391"><span class="lineNum">     391 </span>                :            : {</a>
+<span class="lineNum">     392 </span>                :            :   typedef typename Derived1::Index Index;
+<span class="lineNum">     393 </span>                :<span class="lineCov">     242927 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     394 </span>                :            :   {
+<span class="lineNum">     395 </span>                :<span class="lineCov">     242927 :     const Index size = dst.size();</span>
+<span class="lineNum">     396 </span>                :            :     typedef packet_traits&lt;typename Derived1::Scalar&gt; PacketTraits;
+<span class="lineNum">     397 </span>                :            :     enum {
+<span class="lineNum">     398 </span>                :            :       packetSize = PacketTraits::size,
+<span class="lineNum">     399 </span>                :            :       dstAlignment = PacketTraits::AlignedOnScalar ? Aligned : int(assign_traits&lt;Derived1,Derived2&gt;::DstIsAligned) ,
+<span class="lineNum">     400 </span>                :            :       srcAlignment = assign_traits&lt;Derived1,Derived2&gt;::JointAlignment
+<span class="lineNum">     401 </span>                :            :     };
+<span class="lineNum">     402 </span>                :            :     const Index alignedStart = assign_traits&lt;Derived1,Derived2&gt;::DstIsAligned ? 0
+<span class="lineNum">     403 </span>                :<span class="lineCov">      99478 :                              : internal::first_aligned(&amp;dst.coeffRef(0), size);</span>
+<span class="lineNum">     404 </span>                :<span class="lineCov">     242927 :     const Index alignedEnd = alignedStart + ((size-alignedStart)/packetSize)*packetSize;</span>
+<span class="lineNum">     405 </span>                :            : 
+<span class="lineNum">     406 </span>                :<span class="lineCov">     242927 :     unaligned_assign_impl&lt;assign_traits&lt;Derived1,Derived2&gt;::DstIsAligned!=0&gt;::run(src,dst,0,alignedStart);</span>
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>[<span class="branchCov" title="Branch 0 was taken 203429 times"> + </span><span class="branchCov" title="Branch 1 was taken 90263 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 16731 times"> + </span><span class="branchCov" title="Branch 3 was taken 5507 times"> + </span>]:<span class="lineCov">     807493 :     for(Index index = alignedStart; index &lt; alignedEnd; index += packetSize)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 8243 times"> + </span><span class="branchCov" title="Branch 5 was taken 6408 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 1866 times"> + </span><span class="branchCov" title="Branch 7 was taken 1795 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 4527 times"> + </span><span class="branchCov" title="Branch 9 was taken 3578 times"> + </span>][<span class="branchCov" title="Branch 10 was taken 10778 times"> + </span><span class="branchCov" title="Branch 11 was taken 2657 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 140515 times"> + </span><span class="branchCov" title="Branch 13 was taken 30521 times"> + </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 65507 times"> + </span><span class="branchCov" title="Branch 15 was taken 43803 times"> + </span>][<span class="branchCov" title="Branch 16 was taken 111822 times"> + </span><span class="branchCov" title="Branch 17 was taken 58271 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 18 was taken 9 times"> + </span><span class="branchCov" title="Branch 19 was taken 18 times"> + </span>][<span class="branchCov" title="Branch 20 was taken 26 times"> + </span><span class="branchCov" title="Branch 21 was taken 6 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 22 was taken 596 times"> + </span><span class="branchCov" title="Branch 23 was taken 46 times"> + </span>][<span class="branchCov" title="Branch 24 was taken 5 times"> + </span><span class="branchCov" title="Branch 25 was taken 10 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 26 was taken 32 times"> + </span><span class="branchCov" title="Branch 27 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 28 was taken 4 times"> + </span><span class="branchCov" title="Branch 29 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 30 was taken 4 times"> + </span><span class="branchCov" title="Branch 31 was taken 2 times"> + </span>][<span class="branchNoCov" title="Branch 32 was not taken"> - </span><span class="branchCov" title="Branch 33 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>][<span class="branchCov" title="Branch 36 was taken 204 times"> + </span><span class="branchCov" title="Branch 37 was taken 12 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 38 was taken 6 times"> + </span><span class="branchCov" title="Branch 39 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 40 was taken 56 times"> + </span><span class="branchCov" title="Branch 41 was taken 8 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 42 was taken 206 times"> + </span><span class="branchCov" title="Branch 43 was taken 6 times"> + </span>][<span class="branchNoExec" title="Branch 44 was not executed"> # </span><span class="branchNoExec" title="Branch 45 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>][<span class="branchNoExec" title="Branch 48 was not executed"> # </span><span class="branchNoExec" title="Branch 49 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 50 was not executed"> # </span><span class="branchNoExec" title="Branch 51 was not executed"> # </span>][<span class="branchNoExec" title="Branch 52 was not executed"> # </span><span class="branchNoExec" title="Branch 53 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 54 was not executed"> # </span><span class="branchNoExec" title="Branch 55 was not executed"> # </span>][<span class="branchNoExec" title="Branch 56 was not executed"> # </span><span class="branchNoExec" title="Branch 57 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 58 was not executed"> # </span><span class="branchNoExec" title="Branch 59 was not executed"> # </span>]
+<span class="lineNum">     409 </span>                :            :     {
+<span class="lineNum">     410 </span>                :<span class="lineCov">     564566 :       dst.template copyPacket&lt;Derived2, dstAlignment, srcAlignment&gt;(index, src);</span>
+<span class="lineNum">     411 </span>                :            :     }
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>                :<span class="lineCov">     242927 :     unaligned_assign_impl&lt;&gt;::run(src,dst,alignedEnd,size);</span>
+<span class="lineNum">     414 </span>                :<span class="lineCov">     242927 :   }</span>
+<span class="lineNum">     415 </span>                :            : };
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<span class="lineNum">     418 </span>                :            : struct assign_impl&lt;Derived1, Derived2, LinearVectorizedTraversal, CompleteUnrolling, Version&gt;
+<a name="419"><span class="lineNum">     419 </span>                :            : {</a>
+<span class="lineNum">     420 </span>                :            :   typedef typename Derived1::Index Index;
+<span class="lineNum">     421 </span>                :<span class="lineCov">     711002 :   static EIGEN_STRONG_INLINE void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     422 </span>                :            :   {
+<span class="lineNum">     423 </span>                :            :     enum { size = Derived1::SizeAtCompileTime,
+<span class="lineNum">     424 </span>                :            :            packetSize = packet_traits&lt;typename Derived1::Scalar&gt;::size,
+<span class="lineNum">     425 </span>                :            :            alignedSize = (size/packetSize)*packetSize };
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :<span class="lineCov">     711002 :     assign_innervec_CompleteUnrolling&lt;Derived1, Derived2, 0, alignedSize&gt;::run(dst, src);</span>
+<span class="lineNum">     428 </span>                :<span class="lineCov">     711003 :     assign_DefaultTraversal_CompleteUnrolling&lt;Derived1, Derived2, alignedSize, size&gt;::run(dst, src);</span>
+<span class="lineNum">     429 </span>                :<span class="lineCov">     711002 :   }</span>
+<span class="lineNum">     430 </span>                :            : };
+<span class="lineNum">     431 </span>                :            : 
+<span class="lineNum">     432 </span>                :            : /**************************
+<span class="lineNum">     433 </span>                :            : *** Slice vectorization ***
+<span class="lineNum">     434 </span>                :            : ***************************/
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>                :            : template&lt;typename Derived1, typename Derived2, int Version&gt;
+<span class="lineNum">     437 </span>                :            : struct assign_impl&lt;Derived1, Derived2, SliceVectorizedTraversal, NoUnrolling, Version&gt;
+<a name="438"><span class="lineNum">     438 </span>                :            : {</a>
+<span class="lineNum">     439 </span>                :            :   typedef typename Derived1::Index Index;
+<span class="lineNum">     440 </span>                :<span class="lineCov">        185 :   static inline void run(Derived1 &amp;dst, const Derived2 &amp;src)</span>
+<span class="lineNum">     441 </span>                :            :   {
+<span class="lineNum">     442 </span>                :            :     typedef typename Derived1::Scalar Scalar;
+<span class="lineNum">     443 </span>                :            :     typedef packet_traits&lt;Scalar&gt; PacketTraits;
+<span class="lineNum">     444 </span>                :            :     enum {
+<span class="lineNum">     445 </span>                :            :       packetSize = PacketTraits::size,
+<span class="lineNum">     446 </span>                :            :       alignable = PacketTraits::AlignedOnScalar,
+<span class="lineNum">     447 </span>                :            :       dstIsAligned = assign_traits&lt;Derived1,Derived2&gt;::DstIsAligned,
+<span class="lineNum">     448 </span>                :            :       dstAlignment = alignable ? Aligned : int(dstIsAligned),
+<span class="lineNum">     449 </span>                :            :       srcAlignment = assign_traits&lt;Derived1,Derived2&gt;::JointAlignment
+<span class="lineNum">     450 </span>                :            :     };
+<span class="lineNum">     451 </span>[<span class="branchCov" title="Branch 1 was taken 94 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        185 :     const Scalar *dst_ptr = &amp;dst.coeffRef(0,0);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchCov" title="Branch 4 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchCov" title="Branch 7 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 10 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     452 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 129 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 24 times"> + </span>]:<span class="lineCov">        178 :     if((!bool(dstIsAligned)) &amp;&amp; (size_t(dst_ptr) % sizeof(Scalar))&gt;0)</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 23 times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     453 </span>                :            :     {
+<span class="lineNum">     454 </span>                :            :       // the pointer is not aligend-on scalar, so alignment is not possible
+<span class="lineNum">     455 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">        185 :       return assign_impl&lt;Derived1,Derived2,DefaultTraversal,NoUnrolling&gt;::run(dst, src);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>][<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     456 </span>                :            :     }
+<span class="lineNum">     457 </span>                :<span class="lineCov">        185 :     const Index packetAlignedMask = packetSize - 1;</span>
+<span class="lineNum">     458 </span>[<span class="branchCov" title="Branch 1 was taken 94 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 59 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        185 :     const Index innerSize = dst.innerSize();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 23 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     459 </span>[<span class="branchCov" title="Branch 1 was taken 94 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 59 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        185 :     const Index outerSize = dst.outerSize();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 23 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     460 </span>[<span class="branchCov" title="Branch 1 was taken 94 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 59 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        185 :     const Index alignedStep = alignable ? (packetSize - dst.outerStride() % packetSize) &amp; packetAlignedMask : 0;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 23 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     461 </span>[<span class="branchCov" title="Branch 1 was taken 129 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        178 :     Index alignedStart = ((!alignable) || bool(dstIsAligned)) ? 0 : internal::first_aligned(dst_ptr, innerSize);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 23 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     462 </span>                :            : 
+<span class="lineNum">     463 </span>[<span class="branchCov" title="Branch 0 was taken 2235 times"> + </span><span class="branchCov" title="Branch 1 was taken 94 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 132 times"> + </span><span class="branchCov" title="Branch 3 was taken 59 times"> + </span>]:<span class="lineCov">       2582 :     for(Index outer = 0; outer &lt; outerSize; ++outer)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 9 times"> + </span><span class="branchCov" title="Branch 5 was taken 9 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 21 times"> + </span><span class="branchCov" title="Branch 7 was taken 23 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     464 </span>                :            :     {
+<span class="lineNum">     465 </span>                :<span class="lineCov">       2397 :       const Index alignedEnd = alignedStart + ((innerSize-alignedStart) &amp; ~packetAlignedMask);</span>
+<span class="lineNum">     466 </span>                :            :       // do the non-vectorizable part of the assignment
+<span class="lineNum">     467 </span>[<span class="branchCov" title="Branch 0 was taken 613 times"> + </span><span class="branchCov" title="Branch 1 was taken 2235 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 132 times"> + </span>]:<span class="lineCov">       3010 :       for(Index inner = 0; inner&lt;alignedStart ; ++inner)</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 9 times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 21 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     468 </span>[<span class="branchCov" title="Branch 1 was taken 613 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">        613 :         dst.copyCoeffByOuterInner(outer, inner, src);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     469 </span>                :            : 
+<span class="lineNum">     470 </span>                :            :       // do the vectorizable part of the assignment
+<span class="lineNum">     471 </span>[<span class="branchCov" title="Branch 0 was taken 33181 times"> + </span><span class="branchCov" title="Branch 1 was taken 2235 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 390 times"> + </span><span class="branchCov" title="Branch 3 was taken 132 times"> + </span>]:<span class="lineCov">      36052 :       for(Index inner = alignedStart; inner&lt;alignedEnd; inner+=packetSize)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 21 times"> + </span><span class="branchCov" title="Branch 5 was taken 9 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 63 times"> + </span><span class="branchCov" title="Branch 7 was taken 21 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     472 </span>[<span class="branchCov" title="Branch 1 was taken 33181 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 390 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      33655 :         dst.template copyPacketByOuterInner&lt;Derived2, dstAlignment, Unaligned&gt;(outer, inner, src);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 63 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :            :       // do the non-vectorizable part of the assignment
+<span class="lineNum">     475 </span>[<span class="branchCov" title="Branch 0 was taken 621 times"> + </span><span class="branchCov" title="Branch 1 was taken 2235 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 132 times"> + </span>]:<span class="lineCov">       3020 :       for(Index inner = alignedEnd; inner&lt;innerSize ; ++inner)</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 9 times"> + </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 21 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     476 </span>[<span class="branchCov" title="Branch 1 was taken 621 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        623 :         dst.copyCoeffByOuterInner(outer, inner, src);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     477 </span>                :            : 
+<span class="lineNum">     478 </span>[<span class="branchCov" title="Branch 1 was taken 2235 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 132 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       2397 :       alignedStart = std::min&lt;Index&gt;((alignedStart+alignedStep)%packetSize, innerSize);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     479 </span>                :            :     }
+<span class="lineNum">     480 </span>                :            :   }
+<span class="lineNum">     481 </span>                :            : };
+<span class="lineNum">     482 </span>                :            : 
+<span class="lineNum">     483 </span>                :            : } // end namespace internal
+<span class="lineNum">     484 </span>                :            : 
+<span class="lineNum">     485 </span>                :            : /***************************************************************************
+<span class="lineNum">     486 </span>                :            : * Part 4 : implementation of DenseBase methods
+<span class="lineNum">     487 </span>                :            : ***************************************************************************/
+<span class="lineNum">     488 </span>                :            : 
+<a name="489"><span class="lineNum">     489 </span>                :            : template&lt;typename Derived&gt;</a>
+<span class="lineNum">     490 </span>                :            : template&lt;typename OtherDerived&gt;
+<span class="lineNum">     491 </span>                :<span class="lineCov">   38598560 : EIGEN_STRONG_INLINE Derived&amp; DenseBase&lt;Derived&gt;</span>
+<span class="lineNum">     492 </span>                :            :   ::lazyAssign(const DenseBase&lt;OtherDerived&gt;&amp; other)
+<span class="lineNum">     493 </span>                :            : {
+<span class="lineNum">     494 </span>                :            :   enum{
+<span class="lineNum">     495 </span>                :            :     SameType = internal::is_same&lt;typename Derived::Scalar,typename OtherDerived::Scalar&gt;::value
+<span class="lineNum">     496 </span>                :            :   };
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>                :            :   EIGEN_STATIC_ASSERT_LVALUE(Derived)
+<span class="lineNum">     499 </span>                :            :   EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Derived,OtherDerived)
+<span class="lineNum">     500 </span>                :            :   EIGEN_STATIC_ASSERT(SameType,YOU_MIXED_DIFFERENT_NUMERIC_TYPES__YOU_NEED_TO_USE_THE_CAST_METHOD_OF_MATRIXBASE_TO_CAST_NUMERIC_TYPES_EXPLICITLY)
+<span class="lineNum">     501 </span>                :            : 
+<span class="lineNum">     502 </span>                :            : #ifdef EIGEN_DEBUG_ASSIGN
+<span class="lineNum">     503 </span>                :            :   internal::assign_traits&lt;Derived, OtherDerived&gt;::debug();
+<span class="lineNum">     504 </span>                :            : #endif
+<span class="lineNum">     505 </span>[<span class="branchCov" title="Branch 2 was taken 1579792 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 1579792 times"> + </span>]:<span class="lineCov">   38598604 :   eigen_assert(rows() == other.rows() &amp;&amp; cols() == other.cols());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 11 was taken 929265 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>][<span class="branchNoCov" title="Branch 15 was not taken"> - </span><span class="branchCov" title="Branch 16 was taken 929265 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken 606820 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>][<span class="branchNoCov" title="Branch 24 was not taken"> - </span><span class="branchCov" title="Branch 25 was taken 606820 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 29 was taken 2871607 times"> + </span><span class="branchNoCov" title="Branch 30 was not taken"> - </span>][<span class="branchNoCov" title="Branch 33 was not taken"> - </span><span class="branchCov" title="Branch 34 was taken 2871607 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 38 was taken 2177920 times"> + </span><span class="branchNoCov" title="Branch 39 was not taken"> - </span>][<span class="branchNoCov" title="Branch 42 was not taken"> - </span><span class="branchCov" title="Branch 43 was taken 2177920 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 47 was taken 538839 times"> + </span><span class="branchNoCov" title="Branch 48 was not taken"> - </span>][<span class="branchNoCov" title="Branch 51 was not taken"> - </span><span class="branchCov" title="Branch 52 was taken 538839 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 56 was taken 389623 times"> + </span><span class="branchNoCov" title="Branch 57 was not taken"> - </span>][<span class="branchNoCov" title="Branch 60 was not taken"> - </span><span class="branchCov" title="Branch 61 was taken 389623 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 65 was taken 1762622 times"> + </span><span class="branchNoCov" title="Branch 66 was not taken"> - </span>][<span class="branchNoCov" title="Branch 69 was not taken"> - </span><span class="branchCov" title="Branch 70 was taken 1762622 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 74 was taken 1687971 times"> + </span><span class="branchNoCov" title="Branch 75 was not taken"> - </span>][<span class="branchNoCov" title="Branch 78 was not taken"> - </span><span class="branchCov" title="Branch 79 was taken 1687971 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 83 was taken 1128692 times"> + </span><span class="branchNoCov" title="Branch 84 was not taken"> - </span>][<span class="branchNoCov" title="Branch 87 was not taken"> - </span><span class="branchCov" title="Branch 88 was taken 1128692 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 92 was taken 847016 times"> + </span><span class="branchNoCov" title="Branch 93 was not taken"> - </span>][<span class="branchNoCov" title="Branch 96 was not taken"> - </span><span class="branchCov" title="Branch 97 was taken 847016 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 101 was taken 7459930 times"> + </span><span class="branchNoCov" title="Branch 102 was not taken"> - </span>][<span class="branchNoCov" title="Branch 105 was not taken"> - </span><span class="branchCov" title="Branch 106 was taken 7459930 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 110 was taken 8720317 times"> + </span><span class="branchNoCov" title="Branch 111 was not taken"> - </span>][<span class="branchNoCov" title="Branch 114 was not taken"> - </span><span class="branchCov" title="Branch 115 was taken 8720317 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 119 was taken 196143 times"> + </span><span class="branchNoCov" title="Branch 120 was not taken"> - </span>][<span class="branchNoCov" title="Branch 123 was not taken"> - </span><span class="branchCov" title="Branch 124 was taken 196143 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 128 was taken 710038 times"> + </span><span class="branchNoCov" title="Branch 129 was not taken"> - </span>][<span class="branchNoCov" title="Branch 132 was not taken"> - </span><span class="branchCov" title="Branch 133 was taken 710038 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 137 was taken 33 times"> + </span><span class="branchNoCov" title="Branch 138 was not taken"> - </span>][<span class="branchNoCov" title="Branch 141 was not taken"> - </span><span class="branchCov" title="Branch 142 was taken 33 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 146 was taken 9350 times"> + </span><span class="branchNoCov" title="Branch 147 was not taken"> - </span>][<span class="branchNoCov" title="Branch 150 was not taken"> - </span><span class="branchCov" title="Branch 151 was taken 9350 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 155 was taken 912 times"> + </span><span class="branchNoCov" title="Branch 156 was not taken"> - </span>][<span class="branchNoCov" title="Branch 159 was not taken"> - </span><span class="branchCov" title="Branch 160 was taken 912 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 164 was taken 3642 times"> + </span><span class="branchNoCov" title="Branch 165 was not taken"> - </span>][<span class="branchNoCov" title="Branch 168 was not taken"> - </span><span class="branchCov" title="Branch 169 was taken 3642 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 173 was taken 2075 times"> + </span><span class="branchNoCov" title="Branch 174 was not taken"> - </span>][<span class="branchNoCov" title="Branch 177 was not taken"> - </span><span class="branchCov" title="Branch 178 was taken 2075 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 182 was taken 1820 times"> + </span><span class="branchNoCov" title="Branch 183 was not taken"> - </span>][<span class="branchNoCov" title="Branch 186 was not taken"> - </span><span class="branchCov" title="Branch 187 was taken 1820 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 191 was taken 2722 times"> + </span><span class="branchNoCov" title="Branch 192 was not taken"> - </span>][<span class="branchNoCov" title="Branch 195 was not taken"> - </span><span class="branchCov" title="Branch 196 was taken 2722 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 200 was taken 62462 times"> + </span><span class="branchNoCov" title="Branch 201 was not taken"> - </span>][<span class="branchNoCov" title="Branch 204 was not taken"> - </span><span class="branchCov" title="Branch 205 was taken 62462 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 209 was taken 3629 times"> + </span><span class="branchNoCov" title="Branch 210 was not taken"> - </span>][<span class="branchNoCov" title="Branch 213 was not taken"> - </span><span class="branchCov" title="Branch 214 was taken 3629 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 218 was taken 2077821 times"> + </span><span class="branchNoCov" title="Branch 219 was not taken"> - </span>][<span class="branchNoCov" title="Branch 222 was not taken"> - </span><span class="branchCov" title="Branch 223 was taken 2077821 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 227 was taken 158619 times"> + </span><span class="branchNoCov" title="Branch 228 was not taken"> - </span>][<span class="branchNoCov" title="Branch 231 was not taken"> - </span><span class="branchCov" title="Branch 232 was taken 158619 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 236 was taken 3658 times"> + </span><span class="branchNoCov" title="Branch 237 was not taken"> - </span>][<span class="branchNoCov" title="Branch 240 was not taken"> - </span><span class="branchCov" title="Branch 241 was taken 3658 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 245 was taken 2614 times"> + </span><span class="branchNoCov" title="Branch 246 was not taken"> - </span>][<span class="branchNoCov" title="Branch 249 was not taken"> - </span><span class="branchCov" title="Branch 250 was taken 2614 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 254 was taken 1737 times"> + </span><span class="branchNoCov" title="Branch 255 was not taken"> - </span>][<span class="branchNoCov" title="Branch 258 was not taken"> - </span><span class="branchCov" title="Branch 259 was taken 1737 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 263 was taken 854 times"> + </span><span class="branchNoCov" title="Branch 264 was not taken"> - </span>][<span class="branchNoCov" title="Branch 267 was not taken"> - </span><span class="branchCov" title="Branch 268 was taken 854 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 272 was taken 3623 times"> + </span><span class="branchNoCov" title="Branch 273 was not taken"> - </span>][<span class="branchNoCov" title="Branch 276 was not taken"> - </span><span class="branchCov" title="Branch 277 was taken 3623 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 281 was taken 7391 times"> + </span><span class="branchNoCov" title="Branch 282 was not taken"> - </span>][<span class="branchNoCov" title="Branch 285 was not taken"> - </span><span class="branchCov" title="Branch 286 was taken 7391 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 290 was taken 68056 times"> + </span><span class="branchNoCov" title="Branch 291 was not taken"> - </span>][<span class="branchNoCov" title="Branch 294 was not taken"> - </span><span class="branchCov" title="Branch 295 was taken 68056 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 299 was taken 455971 times"> + </span><span class="branchNoCov" title="Branch 300 was not taken"> - </span>][<span class="branchNoCov" title="Branch 303 was not taken"> - </span><span class="branchCov" title="Branch 304 was taken 455971 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 308 was taken 466723 times"> + </span><span class="branchNoCov" title="Branch 309 was not taken"> - </span>][<span class="branchNoCov" title="Branch 312 was not taken"> - </span><span class="branchCov" title="Branch 313 was taken 466723 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 317 was taken 1794 times"> + </span><span class="branchNoCov" title="Branch 318 was not taken"> - </span>][<span class="branchNoCov" title="Branch 321 was not taken"> - </span><span class="branchCov" title="Branch 322 was taken 1794 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 326 was taken 1795 times"> + </span><span class="branchNoCov" title="Branch 327 was not taken"> - </span>][<span class="branchNoCov" title="Branch 330 was not taken"> - </span><span class="branchCov" title="Branch 331 was taken 1795 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 335 was taken 1835 times"> + </span><span class="branchNoCov" title="Branch 336 was not taken"> - </span>][<span class="branchNoCov" title="Branch 339 was not taken"> - </span><span class="branchCov" title="Branch 340 was taken 1835 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 344 was taken 1794 times"> + </span><span class="branchNoCov" title="Branch 345 was not taken"> - </span>][<span class="branchNoCov" title="Branch 348 was not taken"> - </span><span class="branchCov" title="Branch 349 was taken 1794 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 353 was taken 3485 times"> + </span><span class="branchNoCov" title="Branch 354 was not taken"> - </span>][<span class="branchNoCov" title="Branch 357 was not taken"> - </span><span class="branchCov" title="Branch 358 was taken 3485 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 362 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 363 was not taken"> - </span>][<span class="branchNoCov" title="Branch 366 was not taken"> - </span><span class="branchCov" title="Branch 367 was taken 3 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 371 was taken 13560 times"> + </span><span class="branchNoCov" title="Branch 372 was not taken"> - </span>][<span class="branchNoCov" title="Branch 375 was not taken"> - </span><span class="branchCov" title="Branch 376 was taken 13560 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 380 was taken 1764747 times"> + </span><span class="branchNoCov" title="Branch 381 was not taken"> - </span>][<span class="branchNoCov" title="Branch 384 was not taken"> - </span><span class="branchCov" title="Branch 385 was taken 1764747 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 389 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 390 was not taken"> - </span>][<span class="branchNoCov" title="Branch 393 was not taken"> - </span><span class="branchCov" title="Branch 394 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 398 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 399 was not taken"> - </span>][<span class="branchNoCov" title="Branch 402 was not taken"> - </span><span class="branchCov" title="Branch 403 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 407 was taken 13560 times"> + </span><span class="branchNoCov" title="Branch 408 was not taken"> - </span>][<span class="branchNoCov" title="Branch 411 was not taken"> - </span><span class="branchCov" title="Branch 412 was taken 13560 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 416 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 417 was not taken"> - </span>][<span class="branchNoCov" title="Branch 420 was not taken"> - </span><span class="branchCov" title="Branch 421 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 425 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 426 was not taken"> - </span>][<span class="branchNoCov" title="Branch 429 was not taken"> - </span><span class="branchCov" title="Branch 430 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 434 was taken 41169 times"> + </span><span class="branchNoCov" title="Branch 435 was not taken"> - </span>][<span class="branchNoCov" title="Branch 438 was not taken"> - </span><span class="branchCov" title="Branch 439 was taken 41169 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 443 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 444 was not taken"> - </span>][<span class="branchNoCov" title="Branch 447 was not taken"> - </span><span class="branchCov" title="Branch 448 was taken 15 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 452 was taken 62 times"> + </span><span class="branchNoCov" title="Branch 453 was not taken"> - </span>][<span class="branchNoCov" title="Branch 456 was not taken"> - </span><span class="branchCov" title="Branch 457 was taken 62 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 461 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 462 was not taken"> - </span>][<span class="branchNoCov" title="Branch 465 was not taken"> - </span><span class="branchCov" title="Branch 466 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 470 was not executed"> # </span><span class="branchNoExec" title="Branch 471 was not executed"> # </span>][<span class="branchNoExec" title="Branch 474 was not executed"> # </span><span class="branchNoExec" title="Branch 475 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 479 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 480 was not taken"> - </span>][<span class="branchNoCov" title="Branch 483 was not taken"> - </span><span class="branchCov" title="Branch 484 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 488 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 489 was not taken"> - </span>][<span class="branchNoCov" title="Branch 492 was not taken"> - </span><span class="branchCov" title="Branch 493 was taken 18 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 497 was taken 74 times"> + </span><span class="branchNoCov" title="Branch 498 was not taken"> - </span>][<span class="branchNoCov" title="Branch 501 was not taken"> - </span><span class="branchCov" title="Branch 502 was taken 74 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 506 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 507 was not taken"> - </span>][<span class="branchNoCov" title="Branch 510 was not taken"> - </span><span class="branchCov" title="Branch 511 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 515 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 516 was not taken"> - </span>][<span class="branchNoCov" title="Branch 519 was not taken"> - </span><span class="branchCov" title="Branch 520 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 524 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 525 was not taken"> - </span>][<span class="branchNoCov" title="Branch 528 was not taken"> - </span><span class="branchCov" title="Branch 529 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 533 was taken 239586 times"> + </span><span class="branchNoCov" title="Branch 534 was not taken"> - </span>][<span class="branchNoCov" title="Branch 537 was not taken"> - </span><span class="branchCov" title="Branch 538 was taken 239586 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 542 was taken 1429645 times"> + </span><span class="branchNoCov" title="Branch 543 was not taken"> - </span>][<span class="branchNoCov" title="Branch 546 was not taken"> - </span><span class="branchCov" title="Branch 547 was taken 1429645 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 551 was taken 27051 times"> + </span><span class="branchNoCov" title="Branch 552 was not taken"> - </span>][<span class="branchNoCov" title="Branch 555 was not taken"> - </span><span class="branchCov" title="Branch 556 was taken 27051 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 560 was taken 40612 times"> + </span><span class="branchNoCov" title="Branch 561 was not taken"> - </span>][<span class="branchNoCov" title="Branch 564 was not taken"> - </span><span class="branchCov" title="Branch 565 was taken 40612 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 569 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 570 was not taken"> - </span>][<span class="branchNoCov" title="Branch 573 was not taken"> - </span><span class="branchCov" title="Branch 574 was taken 6 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 578 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 579 was not taken"> - </span>][<span class="branchNoCov" title="Branch 582 was not taken"> - </span><span class="branchCov" title="Branch 583 was taken 3 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 587 was taken 28395 times"> + </span><span class="branchNoCov" title="Branch 588 was not taken"> - </span>][<span class="branchNoCov" title="Branch 591 was not taken"> - </span><span class="branchCov" title="Branch 592 was taken 28395 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 596 was taken 11 times"> + </span><span class="branchNoCov" title="Branch 597 was not taken"> - </span>][<span class="branchNoCov" title="Branch 600 was not taken"> - </span><span class="branchCov" title="Branch 601 was taken 11 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 605 was taken 48978 times"> + </span><span class="branchNoCov" title="Branch 606 was not taken"> - </span>][<span class="branchNoCov" title="Branch 609 was not taken"> - </span><span class="branchCov" title="Branch 610 was taken 48978 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 614 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 615 was not taken"> - </span>][<span class="branchNoCov" title="Branch 618 was not taken"> - </span><span class="branchCov" title="Branch 619 was taken 42 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 623 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 624 was not taken"> - </span>][<span class="branchNoCov" title="Branch 627 was not taken"> - </span><span class="branchCov" title="Branch 628 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 632 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 633 was not taken"> - </span>][<span class="branchNoCov" title="Branch 636 was not taken"> - </span><span class="branchCov" title="Branch 637 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 641 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 642 was not taken"> - </span>][<span class="branchNoCov" title="Branch 645 was not taken"> - </span><span class="branchCov" title="Branch 646 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 650 was not executed"> # </span><span class="branchNoExec" title="Branch 651 was not executed"> # </span>][<span class="branchNoExec" title="Branch 654 was not executed"> # </span><span class="branchNoExec" title="Branch 655 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 659 was not executed"> # </span><span class="branchNoExec" title="Branch 660 was not executed"> # </span>][<span class="branchNoExec" title="Branch 663 was not executed"> # </span><span class="branchNoExec" title="Branch 664 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 668 was not executed"> # </span><span class="branchNoExec" title="Branch 669 was not executed"> # </span>][<span class="branchNoExec" title="Branch 672 was not executed"> # </span><span class="branchNoExec" title="Branch 673 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 677 was not executed"> # </span><span class="branchNoExec" title="Branch 678 was not executed"> # </span>][<span class="branchNoExec" title="Branch 681 was not executed"> # </span><span class="branchNoExec" title="Branch 682 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 686 was not executed"> # </span><span class="branchNoExec" title="Branch 687 was not executed"> # </span>][<span class="branchNoExec" title="Branch 690 was not executed"> # </span><span class="branchNoExec" title="Branch 691 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 695 was not executed"> # </span><span class="branchNoExec" title="Branch 696 was not executed"> # </span>][<span class="branchNoExec" title="Branch 699 was not executed"> # </span><span class="branchNoExec" title="Branch 700 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 704 was not executed"> # </span><span class="branchNoExec" title="Branch 705 was not executed"> # </span>][<span class="branchNoExec" title="Branch 708 was not executed"> # </span><span class="branchNoExec" title="Branch 709 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 713 was not executed"> # </span><span class="branchNoExec" title="Branch 714 was not executed"> # </span>][<span class="branchNoExec" title="Branch 717 was not executed"> # </span><span class="branchNoExec" title="Branch 718 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 722 was not executed"> # </span><span class="branchNoExec" title="Branch 723 was not executed"> # </span>][<span class="branchNoExec" title="Branch 726 was not executed"> # </span><span class="branchNoExec" title="Branch 727 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 731 was not executed"> # </span><span class="branchNoExec" title="Branch 732 was not executed"> # </span>][<span class="branchNoExec" title="Branch 735 was not executed"> # </span><span class="branchNoExec" title="Branch 736 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 740 was not executed"> # </span><span class="branchNoExec" title="Branch 741 was not executed"> # </span>][<span class="branchNoExec" title="Branch 744 was not executed"> # </span><span class="branchNoExec" title="Branch 745 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 749 was not executed"> # </span><span class="branchNoExec" title="Branch 750 was not executed"> # </span>][<span class="branchNoExec" title="Branch 753 was not executed"> # </span><span class="branchNoExec" title="Branch 754 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 758 was not executed"> # </span><span class="branchNoExec" title="Branch 759 was not executed"> # </span>][<span class="branchNoExec" title="Branch 762 was not executed"> # </span><span class="branchNoExec" title="Branch 763 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 767 was not executed"> # </span><span class="branchNoExec" title="Branch 768 was not executed"> # </span>][<span class="branchNoExec" title="Branch 771 was not executed"> # </span><span class="branchNoExec" title="Branch 772 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 776 was not executed"> # </span><span class="branchNoExec" title="Branch 777 was not executed"> # </span>][<span class="branchNoExec" title="Branch 780 was not executed"> # </span><span class="branchNoExec" title="Branch 781 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 785 was not executed"> # </span><span class="branchNoExec" title="Branch 786 was not executed"> # </span>][<span class="branchNoExec" title="Branch 789 was not executed"> # </span><span class="branchNoExec" title="Branch 790 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 794 was not executed"> # </span><span class="branchNoExec" title="Branch 795 was not executed"> # </span>][<span class="branchNoExec" title="Branch 798 was not executed"> # </span><span class="branchNoExec" title="Branch 799 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 803 was not executed"> # </span><span class="branchNoExec" title="Branch 804 was not executed"> # </span>][<span class="branchNoExec" title="Branch 807 was not executed"> # </span><span class="branchNoExec" title="Branch 808 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 812 was not executed"> # </span><span class="branchNoExec" title="Branch 813 was not executed"> # </span>][<span class="branchNoExec" title="Branch 816 was not executed"> # </span><span class="branchNoExec" title="Branch 817 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 821 was not executed"> # </span><span class="branchNoExec" title="Branch 822 was not executed"> # </span>][<span class="branchNoExec" title="Branch 825 was not executed"> # </span><span class="branchNoExec" title="Branch 826 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]
+<span class="lineNum">     506 </span>                :<span class="lineCov">   38598567 :   internal::assign_impl&lt;Derived, OtherDerived, int(SameType) ? int(internal::assign_traits&lt;Derived, OtherDerived&gt;::Traversal)</span>
+<span class="lineNum">     507 </span>                :<span class="lineCov">   38598573 :                                                        : int(InvalidTraversal)&gt;::run(derived(),other.derived());</span>
+<span class="lineNum">     508 </span>                :            : #ifndef EIGEN_NO_DEBUG
+<span class="lineNum">     509 </span>                :<span class="lineCov">   38598573 :   checkTransposeAliasing(other.derived());</span>
+<span class="lineNum">     510 </span>                :            : #endif
+<span class="lineNum">     511 </span>                :<span class="lineCov">   38598560 :   return derived();</span>
+<span class="lineNum">     512 </span>                :            : }
+<span class="lineNum">     513 </span>                :            : 
+<span class="lineNum">     514 </span>                :            : namespace internal {
+<span class="lineNum">     515 </span>                :            : 
+<span class="lineNum">     516 </span>                :            : template&lt;typename Derived, typename OtherDerived,
+<span class="lineNum">     517 </span>                :            :          bool EvalBeforeAssigning = (int(internal::traits&lt;OtherDerived&gt;::Flags) &amp; EvalBeforeAssigningBit) != 0,
+<span class="lineNum">     518 </span>                :            :          bool NeedToTranspose = ((int(Derived::RowsAtCompileTime) == 1 &amp;&amp; int(OtherDerived::ColsAtCompileTime) == 1)
+<span class="lineNum">     519 </span>                :            :                               |   // FIXME | instead of || to please GCC 4.4.0 stupid warning &quot;suggest parentheses around &amp;&amp;&quot;.
+<span class="lineNum">     520 </span>                :            :                                   // revert to || as soon as not needed anymore.
+<span class="lineNum">     521 </span>                :            :                                   (int(Derived::ColsAtCompileTime) == 1 &amp;&amp; int(OtherDerived::RowsAtCompileTime) == 1))
+<span class="lineNum">     522 </span>                :            :                               &amp;&amp; int(Derived::SizeAtCompileTime) != 1&gt;
+<span class="lineNum">     523 </span>                :            : struct assign_selector;
+<span class="lineNum">     524 </span>                :            : 
+<a name="525"><span class="lineNum">     525 </span>                :            : template&lt;typename Derived, typename OtherDerived&gt;</a>
+<span class="lineNum">     526 </span>                :            : struct assign_selector&lt;Derived,OtherDerived,false,false&gt; {
+<a name="527"><span class="lineNum">     527 </span>                :<span class="lineCov">   79933061 :   static EIGEN_STRONG_INLINE Derived&amp; run(Derived&amp; dst, const OtherDerived&amp; other) { return dst.lazyAssign(other.derived()); }</span></a>
+<span class="lineNum">     528 </span>                :            :   template&lt;typename ActualDerived, typename ActualOtherDerived&gt;
+<span class="lineNum">     529 </span>                :<span class="lineCov">    5171806 :   static EIGEN_STRONG_INLINE Derived&amp; evalTo(ActualDerived&amp; dst, const ActualOtherDerived&amp; other) { other.evalTo(dst); return dst; }</span>
+<span class="lineNum">     530 </span>                :            : };
+<a name="531"><span class="lineNum">     531 </span>                :            : template&lt;typename Derived, typename OtherDerived&gt;</a>
+<span class="lineNum">     532 </span>                :            : struct assign_selector&lt;Derived,OtherDerived,true,false&gt; {
+<span class="lineNum">     533 </span>[<span class="branchCov" title="Branch 2 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]:<span class="lineCov">         31 :   static EIGEN_STRONG_INLINE Derived&amp; run(Derived&amp; dst, const OtherDerived&amp; other) { return dst.lazyAssign(other.eval()); }</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     534 </span>                :            : };
+<a name="535"><span class="lineNum">     535 </span>                :            : template&lt;typename Derived, typename OtherDerived&gt;</a>
+<span class="lineNum">     536 </span>                :            : struct assign_selector&lt;Derived,OtherDerived,false,true&gt; {
+<span class="lineNum">     537 </span>[<span class="branchCov" title="Branch 2 was taken 792520 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineCov">     792520 :   static EIGEN_STRONG_INLINE Derived&amp; run(Derived&amp; dst, const OtherDerived&amp; other) { return dst.lazyAssign(other.transpose()); }</span>
+<span class="lineNum">     538 </span>                :            :   template&lt;typename ActualDerived, typename ActualOtherDerived&gt;
+<span class="lineNum">     539 </span>                :            :   static EIGEN_STRONG_INLINE Derived&amp; evalTo(ActualDerived&amp; dst, const ActualOtherDerived&amp; other) { Transpose&lt;ActualDerived&gt; dstTrans(dst); other.evalTo(dstTrans); return dst; }
+<span class="lineNum">     540 </span>                :            : };
+<span class="lineNum">     541 </span>                :            : template&lt;typename Derived, typename OtherDerived&gt;
+<span class="lineNum">     542 </span>                :            : struct assign_selector&lt;Derived,OtherDerived,true,true&gt; {
+<span class="lineNum">     543 </span>                :            :   static EIGEN_STRONG_INLINE Derived&amp; run(Derived&amp; dst, const OtherDerived&amp; other) { return dst.lazyAssign(other.transpose().eval()); }
+<span class="lineNum">     544 </span>                :            : };
+<span class="lineNum">     545 </span>                :            : 
+<span class="lineNum">     546 </span>                :            : } // end namespace internal
+<span class="lineNum">     547 </span>                :            : 
+<a name="548"><span class="lineNum">     548 </span>                :            : template&lt;typename Derived&gt;</a>
+<span class="lineNum">     549 </span>                :            : template&lt;typename OtherDerived&gt;
+<span class="lineNum">     550 </span>                :<span class="lineCov">         20 : EIGEN_STRONG_INLINE Derived&amp; DenseBase&lt;Derived&gt;::operator=(const DenseBase&lt;OtherDerived&gt;&amp; other)</span>
+<span class="lineNum">     551 </span>                :            : {
+<span class="lineNum">     552 </span>                :<span class="lineCov">         20 :   return internal::assign_selector&lt;Derived,OtherDerived&gt;::run(derived(), other.derived());</span>
+<span class="lineNum">     553 </span>                :            : }
+<span class="lineNum">     554 </span>                :            : 
+<span class="lineNum">     555 </span>                :            : template&lt;typename Derived&gt;
+<span class="lineNum">     556 </span>                :            : EIGEN_STRONG_INLINE Derived&amp; DenseBase&lt;Derived&gt;::operator=(const DenseBase&amp; other)
+<span class="lineNum">     557 </span>                :            : {
+<span class="lineNum">     558 </span>                :            :   return internal::assign_selector&lt;Derived,Derived&gt;::run(derived(), other.derived());
+<span class="lineNum">     559 </span>                :            : }
+<a name="560"><span class="lineNum">     560 </span>                :            : </a>
+<span class="lineNum">     561 </span>                :            : template&lt;typename Derived&gt;
+<span class="lineNum">     562 </span>                :<span class="lineCov">          4 : EIGEN_STRONG_INLINE Derived&amp; MatrixBase&lt;Derived&gt;::operator=(const MatrixBase&amp; other)</span>
+<span class="lineNum">     563 </span>                :            : {
+<span class="lineNum">     564 </span>                :<span class="lineCov">          4 :   return internal::assign_selector&lt;Derived,Derived&gt;::run(derived(), other.derived());</span>
+<span class="lineNum">     565 </span>                :            : }
+<span class="lineNum">     566 </span>                :            : 
+<a name="567"><span class="lineNum">     567 </span>                :            : template&lt;typename Derived&gt;</a>
+<span class="lineNum">     568 </span>                :            : template &lt;typename OtherDerived&gt;
+<span class="lineNum">     569 </span>                :<span class="lineCov">   11983748 : EIGEN_STRONG_INLINE Derived&amp; MatrixBase&lt;Derived&gt;::operator=(const DenseBase&lt;OtherDerived&gt;&amp; other)</span>
+<span class="lineNum">     570 </span>                :            : {
+<span class="lineNum">     571 </span>                :<span class="lineCov">   11983750 :   return internal::assign_selector&lt;Derived,OtherDerived&gt;::run(derived(), other.derived());</span>
+<span class="lineNum">     572 </span>                :            : }
+<span class="lineNum">     573 </span>                :            : 
+<a name="574"><span class="lineNum">     574 </span>                :            : template&lt;typename Derived&gt;</a>
+<span class="lineNum">     575 </span>                :            : template &lt;typename OtherDerived&gt;
+<span class="lineNum">     576 </span>                :<span class="lineCov">    2199240 : EIGEN_STRONG_INLINE Derived&amp; MatrixBase&lt;Derived&gt;::operator=(const EigenBase&lt;OtherDerived&gt;&amp; other)</span>
+<span class="lineNum">     577 </span>                :            : {
+<span class="lineNum">     578 </span>                :<span class="lineCov">    2199240 :   return internal::assign_selector&lt;Derived,OtherDerived,false&gt;::evalTo(derived(), other.derived());</span>
+<span class="lineNum">     579 </span>                :            : }
+<span class="lineNum">     580 </span>                :            : 
+<a name="581"><span class="lineNum">     581 </span>                :            : template&lt;typename Derived&gt;</a>
+<span class="lineNum">     582 </span>                :            : template&lt;typename OtherDerived&gt;
+<span class="lineNum">     583 </span>                :<span class="lineCov">     386663 : EIGEN_STRONG_INLINE Derived&amp; MatrixBase&lt;Derived&gt;::operator=(const ReturnByValue&lt;OtherDerived&gt;&amp; other)</span>
+<span class="lineNum">     584 </span>                :            : {
+<span class="lineNum">     585 </span>                :<span class="lineCov">     386663 :   return internal::assign_selector&lt;Derived,OtherDerived,false&gt;::evalTo(derived(), other.derived());</span>
+<span class="lineNum">     586 </span>                :            : }
+<span class="lineNum">     587 </span>                :            : 
+<span class="lineNum">     588 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     589 </span>                :            : 
+<span class="lineNum">     590 </span>                :            : #endif // EIGEN_ASSIGN_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

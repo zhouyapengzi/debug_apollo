@@ -1,0 +1,281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - cyber/logger/async_logger.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">cyber/logger</a> - async_logger.h<span style="font-size: 80%;"> (source / <a href="async_logger.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef CYBER_LOGGER_ASYNC_LOGGER_H_
+<span class="lineNum">      18 </span>                :            : #define CYBER_LOGGER_ASYNC_LOGGER_H_
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #include &lt;atomic&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;condition_variable&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;cstdint&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;ctime&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;deque&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;iostream&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;memory&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;mutex&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      29 </span>                :            : #include &lt;thread&gt;
+<span class="lineNum">      30 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      31 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :            : #include &quot;cyber/common/macros.h&quot;
+<span class="lineNum">      34 </span>                :            : #include &quot;glog/logging.h&quot;
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : namespace apollo {
+<span class="lineNum">      37 </span>                :            : namespace cyber {
+<span class="lineNum">      38 </span>                :            : namespace logger {
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : /**
+<span class="lineNum">      41 </span>                :            :  * @class AsyncLogger
+<span class="lineNum">      42 </span>                :            :  * @brief .
+<span class="lineNum">      43 </span>                :            :  * Wrapper for a glog Logger which asynchronously writes log messages.
+<span class="lineNum">      44 </span>                :            :  * This class starts a new thread responsible for forwarding the messages
+<span class="lineNum">      45 </span>                :            :  * to the logger, and performs double buffering. Writers append to the
+<span class="lineNum">      46 </span>                :            :  * current buffer and then wake up the logger thread. The logger swaps in
+<span class="lineNum">      47 </span>                :            :  * a new buffer and writes any accumulated messages to the wrapped
+<span class="lineNum">      48 </span>                :            :  * Logger.
+<span class="lineNum">      49 </span>                :            :  *
+<span class="lineNum">      50 </span>                :            :  * This double-buffering design dramatically improves performance, especially
+<span class="lineNum">      51 </span>                :            :  * for logging messages which require flushing the underlying file (i.e WARNING
+<span class="lineNum">      52 </span>                :            :  * and above for default). The flush can take a couple of milliseconds, and in
+<span class="lineNum">      53 </span>                :            :  * some cases can even block for hundreds of milliseconds or more. With the
+<span class="lineNum">      54 </span>                :            :  * double-buffered approach, threads can proceed with useful work while the IO
+<span class="lineNum">      55 </span>                :            :  * thread blocks.
+<span class="lineNum">      56 </span>                :            :  *
+<span class="lineNum">      57 </span>                :            :  * The semantics provided by this wrapper are slightly weaker than the default
+<span class="lineNum">      58 </span>                :            :  * glog semantics. By default, glog will immediately (synchronously) flush
+<span class="lineNum">      59 </span>                :            :  * WARNING
+<span class="lineNum">      60 </span>                :            :  * and above to the underlying file, whereas here we are deferring that flush to
+<span class="lineNum">      61 </span>                :            :  * a separate thread. This means that a crash just after a 'LOG_WARN' would
+<span class="lineNum">      62 </span>                :            :  * may be missing the message in the logs, but the perf benefit is probably
+<span class="lineNum">      63 </span>                :            :  * worth it. We do take care that a glog FATAL message flushes all buffered log
+<span class="lineNum">      64 </span>                :            :  * messages before exiting.
+<span class="lineNum">      65 </span>                :            :  *
+<span class="lineNum">      66 </span>                :            :  * @warning The logger limits the total amount of buffer space, so if the
+<span class="lineNum">      67 </span>                :            :  * underlying log blocks for too long, eventually the threads generating the log
+<span class="lineNum">      68 </span>                :            :  * messages will block as well. This prevents runaway memory usage.
+<span class="lineNum">      69 </span>                :            :  */
+<span class="lineNum">      70 </span>                :            : class AsyncLogger : public google::base::Logger {
+<span class="lineNum">      71 </span>                :            :  public:
+<span class="lineNum">      72 </span>                :            :   explicit AsyncLogger(google::base::Logger* wrapped);
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            :   ~AsyncLogger();
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            :   /**
+<span class="lineNum">      77 </span>                :            :    * @brief start the async logger
+<span class="lineNum">      78 </span>                :            :    */
+<span class="lineNum">      79 </span>                :            :   void Start();
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :   /**
+<span class="lineNum">      82 </span>                :            :    * @brief Stop the thread. Flush() and Write() must not be called after this.
+<span class="lineNum">      83 </span>                :            :    * NOTE: this is currently only used in tests: in real life, we enable async
+<span class="lineNum">      84 </span>                :            :    * logging once when the program starts and then never disable it.
+<span class="lineNum">      85 </span>                :            :    * REQUIRES: Start() must have been called.
+<span class="lineNum">      86 </span>                :            :    */
+<span class="lineNum">      87 </span>                :            :   void Stop();
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :            :   /**
+<span class="lineNum">      90 </span>                :            :    * @brief Write a message to the log. Start() must have been called.
+<span class="lineNum">      91 </span>                :            :    *
+<span class="lineNum">      92 </span>                :            :    * @param force_flush is set by the GLog library based on the configured
+<span class="lineNum">      93 </span>                :            :    * '--logbuflevel' flag.
+<span class="lineNum">      94 </span>                :            :    * Any messages logged at the configured level or higher result in
+<span class="lineNum">      95 </span>                :            :    * 'force_flush' being set to true, indicating that the message should be
+<span class="lineNum">      96 </span>                :            :    * immediately written to the log rather than buffered in memory.
+<span class="lineNum">      97 </span>                :            :    * @param timestamp is the time of write a message
+<span class="lineNum">      98 </span>                :            :    * @param message is the info to be written
+<span class="lineNum">      99 </span>                :            :    * @param message_len is the length of message
+<span class="lineNum">     100 </span>                :            :    */
+<span class="lineNum">     101 </span>                :            :   void Write(bool force_flush, time_t timestamp, const char* message,
+<span class="lineNum">     102 </span>                :            :              int message_len) override;
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>                :            :   /**
+<span class="lineNum">     105 </span>                :            :    * @brief Flush any buffered messages.
+<span class="lineNum">     106 </span>                :            :    */
+<span class="lineNum">     107 </span>                :            :   void Flush() override;
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            :   /**
+<span class="lineNum">     110 </span>                :            :    * @brief Get the current LOG file size.
+<span class="lineNum">     111 </span>                :            :    * The return value is an approximate value since some
+<span class="lineNum">     112 </span>                :            :    * logged data may not have been flushed to disk yet.
+<span class="lineNum">     113 </span>                :            :    *
+<span class="lineNum">     114 </span>                :            :    * @return the log file size
+<span class="lineNum">     115 </span>                :            :    */
+<span class="lineNum">     116 </span>                :            :   uint32_t LogSize() override;
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :            :   /**
+<span class="lineNum">     119 </span>                :            :    * @brief get the log thead
+<span class="lineNum">     120 </span>                :            :    *
+<a name="121"><span class="lineNum">     121 </span>                :            :    * @return the pointer of log thread</a>
+<span class="lineNum">     122 </span>                :            :    */
+<span class="lineNum">     123 </span>                :<span class="lineCov">          2 :   std::thread* LogThread() { return &amp;log_thread_; }</span>
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :            :  private:
+<span class="lineNum">     126 </span>                :            :   // A buffered message.
+<span class="lineNum">     127 </span>                :            :   //
+<span class="lineNum">     128 </span>                :            :   // TODO(todd): using std::string for buffered messages is convenient but not
+<span class="lineNum">     129 </span>                :            :   // as efficient as it could be. It's better to make the buffers just be
+<a name="130"><span class="lineNum">     130 </span>                :            :   // Arenas and allocate both the message data and Msg struct from them, forming</a>
+<span class="lineNum">     131 </span>                :            :   // a linked list.
+<span class="lineNum">     132 </span>                :<span class="lineCov">        150 :   struct Msg {</span>
+<span class="lineNum">     133 </span>                :            :     time_t ts;
+<span class="lineNum">     134 </span>                :            :     std::string message;
+<a name="135"><span class="lineNum">     135 </span>                :            :     int32_t level;</a>
+<span class="lineNum">     136 </span>                :            :     Msg() : ts(0), message(), level(google::INFO) {}
+<span class="lineNum">     137 </span>                :<span class="lineCov">         75 :     Msg(time_t ts, std::string&amp;&amp; message, int32_t level)</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">         75 :         : ts(ts), message(std::move(message)), level(level) {}</span>
+<span class="lineNum">     139 </span>                :            :     Msg(const Msg&amp; rsh) {
+<span class="lineNum">     140 </span>                :            :       ts = rsh.ts;
+<span class="lineNum">     141 </span>                :            :       message = rsh.message;
+<span class="lineNum">     142 </span>                :            :       level = rsh.level;
+<span class="lineNum">     143 </span>                :            :     }
+<span class="lineNum">     144 </span>                :            :     Msg(Msg&amp;&amp; rsh) {
+<span class="lineNum">     145 </span>                :            :       ts = rsh.ts;
+<span class="lineNum">     146 </span>                :            :       message = rsh.message;
+<span class="lineNum">     147 </span>                :            :       level = rsh.level;
+<span class="lineNum">     148 </span>                :            :     }
+<span class="lineNum">     149 </span>                :            :     Msg&amp; operator=(Msg&amp;&amp; rsh) {
+<span class="lineNum">     150 </span>                :            :       ts = rsh.ts;
+<span class="lineNum">     151 </span>                :            :       message = std::move(rsh.message);
+<span class="lineNum">     152 </span>                :            :       level = rsh.level;
+<span class="lineNum">     153 </span>                :            :       return *this;
+<span class="lineNum">     154 </span>                :            :     }
+<span class="lineNum">     155 </span>                :            :     Msg&amp; operator=(const Msg&amp; rsh) {
+<span class="lineNum">     156 </span>                :            :       ts = rsh.ts;
+<span class="lineNum">     157 </span>                :            :       message = rsh.message;
+<span class="lineNum">     158 </span>                :            :       level = rsh.level;
+<span class="lineNum">     159 </span>                :            :       return *this;
+<span class="lineNum">     160 </span>                :            :     }
+<span class="lineNum">     161 </span>                :            :   };
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :            :   void RunThread();
+<span class="lineNum">     164 </span>                :            :   void FlushBuffer(const std::unique_ptr&lt;std::deque&lt;Msg&gt;&gt;&amp; msg);
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>                :            :   google::base::Logger* const wrapped_;
+<span class="lineNum">     167 </span>                :            :   std::thread log_thread_;
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            :   // Count of how many times the writer thread has flushed the buffers.
+<span class="lineNum">     170 </span>                :            :   // 64 bits should be enough to never worry about overflow.
+<span class="lineNum">     171 </span>                :            :   std::atomic&lt;uint64_t&gt; flush_count_ = {0};
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :            :   // Count of how many times the writer thread has dropped the log messages.
+<span class="lineNum">     174 </span>                :            :   // 64 bits should be enough to never worry about overflow.
+<span class="lineNum">     175 </span>                :            :   uint64_t drop_count_ = 0;
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>                :            :   // The buffer to which application threads append new log messages.
+<span class="lineNum">     178 </span>                :            :   std::unique_ptr&lt;std::deque&lt;Msg&gt;&gt; active_buf_;
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :            :   // The buffer currently being flushed by the logger thread, cleared
+<span class="lineNum">     181 </span>                :            :   // after a successful flush.
+<span class="lineNum">     182 </span>                :            :   std::unique_ptr&lt;std::deque&lt;Msg&gt;&gt; flushing_buf_;
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :            :   // Trigger for the logger thread to stop.
+<span class="lineNum">     185 </span>                :            :   enum State { INITTED, RUNNING, STOPPED };
+<span class="lineNum">     186 </span>                :            :   std::atomic&lt;State&gt; state_ = {INITTED};
+<span class="lineNum">     187 </span>                :            :   std::atomic_flag flag_ = ATOMIC_FLAG_INIT;
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            :   DISALLOW_COPY_AND_ASSIGN(AsyncLogger);
+<span class="lineNum">     190 </span>                :            : };
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            : }  // namespace logger
+<span class="lineNum">     193 </span>                :            : }  // namespace cyber
+<span class="lineNum">     194 </span>                :            : }  // namespace apollo
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :            : #endif  // CYBER_LOGGER_ASYNC_LOGGER_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

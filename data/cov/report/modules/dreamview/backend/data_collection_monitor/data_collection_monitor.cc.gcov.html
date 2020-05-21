@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/dreamview/backend/data_collection_monitor/data_collection_monitor.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/dreamview/backend/data_collection_monitor</a> - data_collection_monitor.cc<span style="font-size: 80%;"> (source / <a href="data_collection_monitor.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">149</td>
+            <td class="headerCovTableEntry">164</td>
+            <td class="headerCovTableEntryHi">90.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryMed">88.2 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">222</td>
+            <td class="headerCovTableEntry">491</td>
+            <td class="headerCovTableEntryLo">45.2 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : #include &quot;cyber/common/log.h&quot;</a>
+<span class="lineNum">       2 </span>                :            : /******************************************************************************
+<span class="lineNum">       3 </span>                :            :  * Copyright 2019 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       4 </span>                :            :  *
+<span class="lineNum">       5 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       6 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       7 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">      10 </span>                :            :  *
+<span class="lineNum">      11 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      12 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      13 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      14 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      15 </span>                :            :  * limitations under the License.
+<span class="lineNum">      16 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : #include &quot;modules/dreamview/backend/data_collection_monitor/data_collection_monitor.h&quot;
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #include &quot;google/protobuf/descriptor.h&quot;
+<span class="lineNum">      21 </span>                :            : #include &quot;google/protobuf/message.h&quot;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &quot;cyber/common/file.h&quot;
+<span class="lineNum">      24 </span>                :            : #include &quot;modules/common/adapters/adapter_gflags.h&quot;
+<span class="lineNum">      25 </span>                :            : #include &quot;modules/common/configs/vehicle_config_helper.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;modules/dreamview/backend/common/dreamview_gflags.h&quot;
+<span class="lineNum">      27 </span>                :            : #include &quot;modules/dreamview/backend/hmi/vehicle_manager.h&quot;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : namespace apollo {
+<span class="lineNum">      30 </span>                :            : namespace dreamview {
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : using apollo::canbus::Chassis;
+<span class="lineNum">      33 </span>                :            : using apollo::common::VehicleConfigHelper;
+<span class="lineNum">      34 </span>                :            : using cyber::common::PathExists;
+<span class="lineNum">      35 </span>                :            : using google::protobuf::FieldDescriptor;
+<span class="lineNum">      36 </span>                :            : using Json = nlohmann::json;
+<span class="lineNum">      37 </span>                :            : namespace {
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            : /*
+<span class="lineNum">      40 </span>                :            :  * For simplicity, we are converting all supporting cpp types to float.
+<span class="lineNum">      41 </span>                :            :  * It is okay to lost precision since this conversion is used
+<a name="42"><span class="lineNum">      42 </span>                :            :  * for criteria comparison.</a>
+<span class="lineNum">      43 </span>                :            :  */
+<span class="lineNum">      44 </span>                :<span class="lineCov">         54 : bool GetProtobufFloatByFieldName(const google::protobuf::Message&amp; message,</span>
+<span class="lineNum">      45 </span>                :            :                                  const google::protobuf::Descriptor* descriptor,
+<span class="lineNum">      46 </span>                :            :                                  const google::protobuf::Reflection* reflection,
+<span class="lineNum">      47 </span>                :            :                                  const std::string&amp; field_name, float* value) {
+<span class="lineNum">      48 </span>[<span class="branchCov" title="Branch 2 was taken 54 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 54 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         54 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: GetProtobufFloatByFieldName&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 54 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 54 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 54 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 54 times"> + </span>]:<span class="lineCov">         54 :   if (!descriptor) {</span>
+<span class="lineNum">      51 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;Protobuf descriptor not found&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">      53 </span>                :            :   }
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :<span class="lineCov">         54 :   const auto* field_descriptor = descriptor-&gt;FindFieldByName(field_name);</span>
+<span class="lineNum">      56 </span>                :<span class="lineCov">         54 :   const auto cpp_type = field_descriptor-&gt;cpp_type();</span>
+<span class="lineNum">      57 </span>        [<span class="branchCov" title="Branch 0 was taken 33 times"> + </span><span class="branchCov" title="Branch 1 was taken 21 times"> + </span>]:<span class="lineCov">         54 :   if (cpp_type == FieldDescriptor::CppType::CPPTYPE_FLOAT) {</span>
+<span class="lineNum">      58 </span>                :<span class="lineCov">         33 :     *value = reflection-&gt;GetFloat(message, field_descriptor);</span>
+<span class="lineNum">      59 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 18 times"> + </span>]:<span class="lineCov">         21 :   } else if (cpp_type == FieldDescriptor::CppType::CPPTYPE_DOUBLE) {</span>
+<span class="lineNum">      60 </span>                :<span class="lineCov">          3 :     double value_in_double = reflection-&gt;GetDouble(message, field_descriptor);</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">          3 :     *value = static_cast&lt;float&gt;(value_in_double);</span>
+<span class="lineNum">      62 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         18 :   } else if (cpp_type == FieldDescriptor::CppType::CPPTYPE_ENUM) {</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">         18 :     int value_in_int = reflection-&gt;GetEnumValue(message, field_descriptor);</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">         18 :     *value = static_cast&lt;float&gt;(value_in_int);</span>
+<span class="lineNum">      65 </span>                :            :   } else {
+<span class="lineNum">      66 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; field_name &lt;&lt; &quot; has unsupported conversion type: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">      67 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &lt;&lt; field_descriptor-&gt;cpp_type();</span>
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">      69 </span>                :            :   }
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :<span class="lineCov">         54 :   return true;</span>
+<a name="72"><span class="lineNum">      72 </span>                :            : }</a>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineCov">         51 : bool IsCompliedWithCriterion(float actual_value,</span>
+<span class="lineNum">      75 </span>                :            :                              const ComparisonOperator&amp; comparison_operator,
+<span class="lineNum">      76 </span>                :            :                              float target_value) {
+<span class="lineNum">      77 </span>[<span class="branchCov" title="Branch 2 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         51 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: IsCompliedWithCriterion&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>  [<span class="branchCov" title="Branch 0 was taken 21 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchCov" title="Branch 2 was taken 9 times"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span> :<span class="lineCov">         51 :   switch (comparison_operator) {</span>
+<span class="lineNum">         </span>      <span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchCov" title="Branch 5 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]
+<span class="lineNum">      80 </span>                :            :     case ComparisonOperator::EQUAL:
+<span class="lineNum">      81 </span>                :<span class="lineCov">         21 :       return std::fabs(actual_value - target_value) &lt;</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">         21 :              common::math::kMathEpsilon;</span>
+<span class="lineNum">      83 </span>                :            :     case ComparisonOperator::GREATER_THAN:
+<span class="lineNum">      84 </span>                :<span class="lineCov">          6 :       return (actual_value &gt; target_value);</span>
+<span class="lineNum">      85 </span>                :            :     case ComparisonOperator::GREATER_THAN_OR_EQUAL:
+<span class="lineNum">      86 </span>                :<span class="lineCov">          9 :       return (actual_value &gt;= target_value);</span>
+<span class="lineNum">      87 </span>                :            :     case ComparisonOperator::LESS_THAN:
+<span class="lineNum">      88 </span>                :<span class="lineCov">          6 :       return (actual_value &lt; target_value);</span>
+<span class="lineNum">      89 </span>                :            :     case ComparisonOperator::LESS_THAN_OR_EQUAL:
+<span class="lineNum">      90 </span>                :<span class="lineCov">          6 :       return (actual_value &lt;= target_value);</span>
+<span class="lineNum">      91 </span>                :            :     case ComparisonOperator::NOT_EQUAL:
+<span class="lineNum">      92 </span>                :<span class="lineCov">          3 :       return (actual_value != target_value);</span>
+<span class="lineNum">      93 </span>                :            :     default:
+<span class="lineNum">      94 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AERROR &lt;&lt; &quot;Unsupported comparison operator found:&quot; &lt;&lt; comparison_operator;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">      95 </span>                :<span class="lineCov">         51 :       return false;</span>
+<span class="lineNum">      96 </span>                :            :   }
+<span class="lineNum">      97 </span>                :            : }
+<span class="lineNum">      98 </span>                :            : 
+<a name="99"><span class="lineNum">      99 </span>                :            : }  // namespace</a>
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :<span class="lineCov">          2 : DataCollectionMonitor::DataCollectionMonitor()</span>
+<span class="lineNum">     102 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          2 :     : node_(cyber::CreateNode(&quot;data_collection_monitor&quot;)) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 20 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>][<span class="branchCov" title="Branch 25 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 26 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 30 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 31 was not taken"> - </span>][<span class="branchCov" title="Branch 35 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 36 was not taken"> - </span>]
+<span class="lineNum">     103 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::DataCollectionMonitor&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   InitReaders();</span>
+<span class="lineNum">     106 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   LoadConfiguration();</span>
+<a name="107"><span class="lineNum">     107 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     108 </span>                :            : 
+<a name="109"><span class="lineNum">     109 </span>                :<span class="lineCov">          4 : DataCollectionMonitor::~DataCollectionMonitor() { Stop(); }</span></a>
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>                :<span class="lineCov">          2 : void DataCollectionMonitor::InitReaders() {</span>
+<span class="lineNum">     112 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          2 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::InitReaders&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<a name="113"><span class="lineNum">     113 </span>                :            : </a>
+<span class="lineNum">     114 </span>                :            :   node_-&gt;CreateReader&lt;Chassis&gt;(FLAGS_chassis_topic,
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :                                [this](const std::shared_ptr&lt;Chassis&gt;&amp; chassis) {</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :                                  this-&gt;OnChassis(chassis);</span>
+<span class="lineNum">     117 </span>        [<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          2 :                                });</span>
+<a name="118"><span class="lineNum">     118 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :<span class="lineCov">          4 : void DataCollectionMonitor::LoadConfiguration() {</span>
+<span class="lineNum">     121 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::LoadConfiguration&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :            :   const std::string&amp; vehicle_dir =
+<span class="lineNum">     124 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :       VehicleManager::Instance()-&gt;GetVehicleDataPath();</span>
+<span class="lineNum">     125 </span>                :            :   std::string data_collection_config_path =
+<span class="lineNum">     126 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :       vehicle_dir + &quot;/data_collection_table.pb.txt&quot;;</span>
+<span class="lineNum">     127 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 :   if (!PathExists(data_collection_config_path)) {</span>
+<span class="lineNum">     128 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          8 :     AWARN &lt;&lt; &quot;No corresponding data collection table file found in &quot;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     129 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :           &lt;&lt; vehicle_dir &lt;&lt; &quot;. Using default one instead.&quot;;</span>
+<span class="lineNum">     130 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     data_collection_config_path = FLAGS_default_data_collection_config_path;</span>
+<span class="lineNum">     131 </span>                :            :   }
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          8 :   CHECK(cyber::common::GetProtoFromFile(data_collection_config_path,</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 18 was not taken"> - </span><span class="branchCov" title="Branch 19 was taken 4 times"> + </span>][<span class="branchNoCov" title="Branch 20 was not taken"> - </span><span class="branchCov" title="Branch 21 was taken 4 times"> + </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">     134 </span>                :            :                                         &amp;data_collection_table_))
+<span class="lineNum">     135 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &lt;&lt; &quot;Unable to parse data collection configuration from file &quot;</span>
+<span class="lineNum">     136 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">          8 :       &lt;&lt; data_collection_config_path;</span>
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   ConstructCategories();</span>
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          4 :   ADEBUG &lt;&lt; &quot;Configuration loaded.&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 4 times"> + </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>][<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 27 was not executed"> # </span><span class="branchNoExec" title="Branch 28 was not executed"> # </span>][<span class="branchNoExec" title="Branch 30 was not executed"> # </span><span class="branchNoExec" title="Branch 31 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 33 was not executed"> # </span><span class="branchNoExec" title="Branch 34 was not executed"> # </span>][<span class="branchNoExec" title="Branch 36 was not executed"> # </span><span class="branchNoExec" title="Branch 37 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 38 was not taken"> - </span><span class="branchCov" title="Branch 39 was taken 4 times"> + </span>][<span class="branchNoCov" title="Branch 40 was not taken"> - </span><span class="branchCov" title="Branch 41 was taken 4 times"> + </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 44 was not executed"> # </span><span class="branchNoExec" title="Branch 45 was not executed"> # </span><span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>]
+<a name="141"><span class="lineNum">     141 </span>                :<span class="lineCov">          4 : }</span></a>
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :<span class="lineCov">          4 : void DataCollectionMonitor::ConstructCategories() {</span>
+<span class="lineNum">     144 </span>[<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          4 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::ConstructCategories&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineCov">          4 :   scenario_to_categories_.clear();</span>
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         12 :   for (const auto&amp; scenario_iter : data_collection_table_.scenario()) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 10 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span><span class="branchCov" title="Branch 13 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 8 times"> + </span><span class="branchCov" title="Branch 19 was taken 4 times"> + </span>]
+<span class="lineNum">     149 </span>                :<span class="lineCov">          8 :     const std::string&amp; scenario_name = scenario_iter.first;</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">          8 :     const Scenario&amp; scenario = scenario_iter.second;</span>
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>        [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          8 :     Category category;</span>
+<span class="lineNum">     153 </span>[<span class="branchCov" title="Branch 2 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          8 :     ConstructCategoriesHelper(scenario_name, scenario, 0, &quot;&quot;, category);</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">          8 :   }</span>
+<a name="155"><span class="lineNum">     155 </span>                :<span class="lineCov">          4 : }</span></a>
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :<span class="lineCov">         80 : void DataCollectionMonitor::ConstructCategoriesHelper(</span>
+<span class="lineNum">     158 </span>                :            :     const std::string&amp; scenario_name, const Scenario&amp; scenario, int feature_idx,
+<span class="lineNum">     159 </span>                :            :     std::string current_category_name, const Category&amp; current_category) {
+<span class="lineNum">     160 </span>[<span class="branchCov" title="Branch 2 was taken 80 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 80 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         80 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::ConstructCategoriesHelper&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 80 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 80 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 80 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>        [<span class="branchCov" title="Branch 1 was taken 60 times"> + </span><span class="branchCov" title="Branch 2 was taken 20 times"> + </span>]:<span class="lineCov">         80 :   if (feature_idx == scenario.feature_size()) {</span>
+<span class="lineNum">     163 </span>        [<span class="branchCov" title="Branch 1 was taken 60 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         60 :     scenario_to_categories_[scenario_name].insert(</span>
+<span class="lineNum">     164 </span>        [<span class="branchCov" title="Branch 2 was taken 60 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        120 :         {current_category_name, current_category});</span>
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>                :<span class="lineCov">         60 :     category_consecutive_frame_count_[scenario_name][current_category_name] =</span>
+<span class="lineNum">     167 </span>                :<span class="lineCov">         60 :         0.0;</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">         60 :     category_frame_count_[scenario_name][current_category_name] = 0.0;</span>
+<span class="lineNum">     169 </span>[<span class="branchCov" title="Branch 2 was taken 60 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 60 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         60 :     current_progress_json_[scenario_name][current_category_name] = 0.0;</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">         80 :     return;</span>
+<span class="lineNum">     171 </span>                :            :   }
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :<span class="lineCov">         20 :   const Feature&amp; feature = scenario.feature(feature_idx);</span>
+<span class="lineNum">     174 </span>[<span class="branchCov" title="Branch 1 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         92 :   for (const auto&amp; range : feature.range()) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 10 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span><span class="branchCov" title="Branch 13 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 92 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 72 times"> + </span><span class="branchCov" title="Branch 19 was taken 20 times"> + </span>]
+<span class="lineNum">     175 </span>        [<span class="branchCov" title="Branch 1 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         72 :     Category new_category(current_category);</span>
+<span class="lineNum">     176 </span>        [<span class="branchCov" title="Branch 1 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         72 :     new_category.push_back(range);</span>
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :            :     // set new category name by appending it with the current range name
+<span class="lineNum">     179 </span>        [<span class="branchCov" title="Branch 1 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        144 :     std::string new_category_name(current_category_name);</span>
+<span class="lineNum">     180 </span>        [<span class="branchCov" title="Branch 1 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         72 :     const std::string&amp; range_name = range.name();</span>
+<span class="lineNum">     181 </span>[<span class="branchCov" title="Branch 1 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         72 :     if (feature.range().size() &gt; 1 &amp;&amp; !range_name.empty()) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 68 times"> + </span><span class="branchCov" title="Branch 7 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 9 was taken 68 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 11 was taken 68 times"> + </span><span class="branchCov" title="Branch 12 was taken 4 times"> + </span>]
+<span class="lineNum">     182 </span>        [<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchCov" title="Branch 2 was taken 44 times"> + </span>]:<span class="lineCov">         68 :       if (!new_category_name.empty()) {</span>
+<span class="lineNum">     183 </span>        [<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         24 :         new_category_name += &quot;, &quot;;</span>
+<span class="lineNum">     184 </span>                :            :       }
+<span class="lineNum">     185 </span>        [<span class="branchCov" title="Branch 1 was taken 68 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         68 :       new_category_name += range_name;</span>
+<span class="lineNum">     186 </span>                :            :     }
+<span class="lineNum">     187 </span>                :            : 
+<span class="lineNum">     188 </span>                :            :     ConstructCategoriesHelper(scenario_name, scenario, feature_idx + 1,
+<span class="lineNum">     189 </span>[<span class="branchCov" title="Branch 1 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         72 :                               new_category_name, new_category);</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">         72 :   }</span>
+<a name="191"><span class="lineNum">     191 </span>                :            : }</a>
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :<span class="lineCov">          4 : void DataCollectionMonitor::Start() {</span>
+<span class="lineNum">     194 </span>[<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          4 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::Start&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :   if (!enabled_) {</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          2 :     category_consecutive_frame_count_.clear();</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          2 :     category_frame_count_.clear();</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">          2 :     current_progress_json_.clear();</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">          2 :     LoadConfiguration();</span>
+<span class="lineNum">     201 </span>                :            :   }
+<span class="lineNum">     202 </span>                :<span class="lineCov">          4 :   enabled_ = true;</span>
+<a name="203"><span class="lineNum">     203 </span>                :<span class="lineCov">          4 : }</span></a>
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :<span class="lineCov">          3 : void DataCollectionMonitor::Stop() {</span>
+<span class="lineNum">     206 </span>[<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          3 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::Stop&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<a name="207"><span class="lineNum">     207 </span>                :<span class="lineCov">          3 :  enabled_ = false; }</span></a>
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 : void DataCollectionMonitor::Restart() {</span>
+<span class="lineNum">     210 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::Restart&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :   Stop();</span>
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :   Start();</span>
+<a name="214"><span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :<span class="lineCov">          3 : void DataCollectionMonitor::OnChassis(const std::shared_ptr&lt;Chassis&gt;&amp; chassis) {</span>
+<span class="lineNum">     217 </span>[<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          3 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::OnChassis&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :   if (!enabled_) {</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          3 :     return;</span>
+<span class="lineNum">     221 </span>                :            :   }
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :<span class="lineCov">          3 :   const size_t frame_threshold = data_collection_table_.frame_threshold();</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          3 :   const auto total_frames = data_collection_table_.total_frames();</span>
+<span class="lineNum">     225 </span>[<span class="branchCov" title="Branch 3 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          9 :   for (const auto&amp; scenario_iter : scenario_to_categories_) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 6 times"> + </span><span class="branchCov" title="Branch 12 was taken 3 times"> + </span>]
+<span class="lineNum">     226 </span>                :<span class="lineCov">          6 :     const std::string&amp; scenario_name = scenario_iter.first;</span>
+<span class="lineNum">     227 </span>                :<span class="lineCov">          6 :     const auto&amp; categories = scenario_iter.second;</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>[<span class="branchCov" title="Branch 3 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         51 :     for (const auto&amp; category_iter : categories) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 45 times"> + </span><span class="branchCov" title="Branch 12 was taken 6 times"> + </span>]
+<span class="lineNum">     230 </span>                :<span class="lineCov">         45 :       const std::string&amp; category_name = category_iter.first;</span>
+<span class="lineNum">     231 </span>                :<span class="lineCov">         45 :       const Category&amp; category = category_iter.second;</span>
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            :       // This category is done, skip
+<span class="lineNum">     234 </span>[<span class="branchCov" title="Branch 1 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         45 :       if (category_frame_count_[scenario_name][category_name] &gt;= total_frames) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 45 times"> + </span>]
+<span class="lineNum">     235 </span>                :<span class="lineCov">         30 :         continue;</span>
+<span class="lineNum">     236 </span>                :            :       }
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>[<span class="branchCov" title="Branch 1 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 30 times"> + </span><span class="branchCov" title="Branch 4 was taken 15 times"> + </span>]:<span class="lineCov">         45 :       if (!IsCompliedWithCriteria(chassis, category)) {</span>
+<span class="lineNum">     239 </span>[<span class="branchCov" title="Branch 1 was taken 30 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 30 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         30 :         category_consecutive_frame_count_[scenario_name][category_name] = 0;</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">         30 :         continue;</span>
+<span class="lineNum">     241 </span>                :            :       }
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :            :       // Increment frame count only if consecutive count exceeds the threshold
+<span class="lineNum">     244 </span>                :            :       const size_t consecutive_count =
+<span class="lineNum">     245 </span>[<span class="branchCov" title="Branch 1 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         15 :           ++category_consecutive_frame_count_[scenario_name][category_name];</span>
+<span class="lineNum">     246 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         15 :       if (consecutive_count == frame_threshold) {</span>
+<span class="lineNum">     247 </span>[<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          5 :         category_frame_count_[scenario_name][category_name] +=</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">          5 :             consecutive_count;</span>
+<span class="lineNum">     249 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         10 :       } else if (consecutive_count &gt;= frame_threshold) {</span>
+<span class="lineNum">     250 </span>[<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          5 :         category_frame_count_[scenario_name][category_name] += 1;</span>
+<span class="lineNum">     251 </span>                :            :       }
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>                :            :       // Update category progress
+<span class="lineNum">     254 </span>                :            :       const double progress_percentage =
+<span class="lineNum">     255 </span>                :<span class="lineCov">         15 :           100.0 *</span>
+<span class="lineNum">     256 </span>                :            :           static_cast&lt;double&gt;(
+<span class="lineNum">     257 </span>[<span class="branchCov" title="Branch 1 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         15 :               category_frame_count_[scenario_name][category_name]) /</span>
+<span class="lineNum">     258 </span>                :<span class="lineCov">         15 :           static_cast&lt;double&gt;(total_frames);</span>
+<span class="lineNum">     259 </span>                :            :       {
+<span class="lineNum">     260 </span>        [<span class="branchCov" title="Branch 1 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         15 :         boost::unique_lock&lt;boost::shared_mutex&gt; writer_lock(mutex_);</span>
+<span class="lineNum">     261 </span>[<span class="branchCov" title="Branch 2 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         30 :         current_progress_json_[scenario_name][category_name] =</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">         30 :             progress_percentage;</span>
+<span class="lineNum">     263 </span>                :            :       }
+<span class="lineNum">     264 </span>                :            :     }
+<span class="lineNum">     265 </span>                :            :   }
+<a name="266"><span class="lineNum">     266 </span>                :            : }</a>
+<span class="lineNum">     267 </span>                :            : 
+<span class="lineNum">     268 </span>                :<span class="lineCov">         45 : bool DataCollectionMonitor::IsCompliedWithCriteria(</span>
+<span class="lineNum">     269 </span>                :            :     const std::shared_ptr&lt;Chassis&gt;&amp; chassis, const Category&amp; category) {
+<span class="lineNum">     270 </span>[<span class="branchCov" title="Branch 2 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         45 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::IsCompliedWithCriteria&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :<span class="lineCov">         45 :   const auto&amp; vehicle_param = VehicleConfigHelper::GetConfig().vehicle_param();</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">         45 :   const auto* vehicle_param_descriptor = vehicle_param.GetDescriptor();</span>
+<span class="lineNum">     274 </span>                :<span class="lineCov">         45 :   const auto* vehicle_param_reflection = vehicle_param.GetReflection();</span>
+<span class="lineNum">     275 </span>                :            : 
+<span class="lineNum">     276 </span>                :<span class="lineCov">         45 :   const auto* chassis_descriptor = chassis-&gt;GetDescriptor();</span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">         45 :   const auto* chassis_reflection = chassis-&gt;GetReflection();</span>
+<span class="lineNum">     278 </span>                :            : 
+<span class="lineNum">     279 </span>[<span class="branchCov" title="Branch 3 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         60 :   for (const auto&amp; range : category) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 60 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 45 times"> + </span><span class="branchCov" title="Branch 12 was taken 15 times"> + </span>]
+<span class="lineNum">     280 </span>[<span class="branchCov" title="Branch 1 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         66 :     for (const auto&amp; criterion : range.criterion()) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 66 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 18 was taken 51 times"> + </span><span class="branchCov" title="Branch 19 was taken 15 times"> + </span>]
+<span class="lineNum">     281 </span>                :            :       float target_value;
+<span class="lineNum">     282 </span>[<span class="branchCov" title="Branch 1 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 48 times"> + </span><span class="branchCov" title="Branch 4 was taken 3 times"> + </span>]:<span class="lineCov">         51 :       if (criterion.has_value()) {</span>
+<span class="lineNum">     283 </span>        [<span class="branchCov" title="Branch 1 was taken 48 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         48 :         target_value = criterion.value();</span>
+<span class="lineNum">     284 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :       } else if (!GetProtobufFloatByFieldName(</span>
+<span class="lineNum">     285 </span>                :            :                      vehicle_param, vehicle_param_descriptor,
+<span class="lineNum">     286 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          3 :                      vehicle_param_reflection, criterion.vehicle_config(),</span>
+<span class="lineNum">     287 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          3 :                      &amp;target_value)) {</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">         30 :         return false;</span>
+<span class="lineNum">     289 </span>                :            :       }
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :            :       float actual_value;
+<span class="lineNum">     292 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 51 times"> + </span>]:<span class="lineCov">        102 :       if (!GetProtobufFloatByFieldName(*chassis, chassis_descriptor,</span>
+<span class="lineNum">     293 </span>        [<span class="branchCov" title="Branch 1 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         51 :                                        chassis_reflection, criterion.field(),</span>
+<span class="lineNum">     294 </span>        [<span class="branchCov" title="Branch 1 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         51 :                                        &amp;actual_value)) {</span>
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     296 </span>                :            :       }
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 21 times"> + </span>]:<span class="lineCov">         51 :       if (!IsCompliedWithCriterion(</span>
+<span class="lineNum">     299 </span>[<span class="branchCov" title="Branch 1 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 51 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         51 :               actual_value, criterion.comparison_operator(), target_value)) {</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">         30 :         return false;</span>
+<span class="lineNum">     301 </span>                :            :       }
+<span class="lineNum">     302 </span>                :            :     }
+<span class="lineNum">     303 </span>                :            :   }
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>                :<span class="lineCov">         45 :   return true;</span>
+<a name="306"><span class="lineNum">     306 </span>                :            : }</a>
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :<span class="lineCov">          2 : nlohmann::json DataCollectionMonitor::GetProgressAsJson() {</span>
+<span class="lineNum">     309 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: DataCollectionMonitor::GetProgressAsJson&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   boost::unique_lock&lt;boost::shared_mutex&gt; reader_lock(mutex_);</span>
+<span class="lineNum">     312 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :   return current_progress_json_;</span>
+<span class="lineNum">     313 </span>                :            : }
+<a name="314"><span class="lineNum">     314 </span>                :            : </a>
+<span class="lineNum">     315 </span>                :            : }  // namespace dreamview
+<span class="lineNum">     316 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 9 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

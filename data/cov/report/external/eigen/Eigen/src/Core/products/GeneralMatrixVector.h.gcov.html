@@ -1,0 +1,749 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Core/products/GeneralMatrixVector.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Core/products</a> - GeneralMatrixVector.h<span style="font-size: 80%;"> (source / <a href="GeneralMatrixVector.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">97</td>
+            <td class="headerCovTableEntry">210</td>
+            <td class="headerCovTableEntryLo">46.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntry">838</td>
+            <td class="headerCovTableEntryLo">11.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2008-2009 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       5 </span>                :            : //
+<span class="lineNum">       6 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       7 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       8 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            : #ifndef EIGEN_GENERAL_MATRIX_VECTOR_H
+<span class="lineNum">      11 </span>                :            : #define EIGEN_GENERAL_MATRIX_VECTOR_H
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : namespace Eigen { 
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : namespace internal {
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /* Optimized col-major matrix * vector product:
+<span class="lineNum">      18 </span>                :            :  * This algorithm processes 4 columns at onces that allows to both reduce
+<span class="lineNum">      19 </span>                :            :  * the number of load/stores of the result by a factor 4 and to reduce
+<span class="lineNum">      20 </span>                :            :  * the instruction dependency. Moreover, we know that all bands have the
+<span class="lineNum">      21 </span>                :            :  * same alignment pattern.
+<span class="lineNum">      22 </span>                :            :  *
+<span class="lineNum">      23 </span>                :            :  * Mixing type logic: C += alpha * A * B
+<span class="lineNum">      24 </span>                :            :  *  |  A  |  B  |alpha| comments
+<span class="lineNum">      25 </span>                :            :  *  |real |cplx |cplx | no vectorization
+<span class="lineNum">      26 </span>                :            :  *  |real |cplx |real | alpha is converted to a cplx when calling the run function, no vectorization
+<span class="lineNum">      27 </span>                :            :  *  |cplx |real |cplx | invalid, the caller has to do tmp: = A * B; C += alpha*tmp
+<span class="lineNum">      28 </span>                :            :  *  |cplx |real |real | optimal case, vectorization possible via real-cplx mul
+<span class="lineNum">      29 </span>                :            :  */
+<span class="lineNum">      30 </span>                :            : template&lt;typename Index, typename LhsScalar, bool ConjugateLhs, typename RhsScalar, bool ConjugateRhs, int Version&gt;
+<span class="lineNum">      31 </span>                :            : struct general_matrix_vector_product&lt;Index,LhsScalar,ColMajor,ConjugateLhs,RhsScalar,ConjugateRhs,Version&gt;
+<span class="lineNum">      32 </span>                :            : {
+<span class="lineNum">      33 </span>                :            : typedef typename scalar_product_traits&lt;LhsScalar, RhsScalar&gt;::ReturnType ResScalar;
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : enum {
+<span class="lineNum">      36 </span>                :            :   Vectorizable = packet_traits&lt;LhsScalar&gt;::Vectorizable &amp;&amp; packet_traits&lt;RhsScalar&gt;::Vectorizable
+<span class="lineNum">      37 </span>                :            :               &amp;&amp; int(packet_traits&lt;LhsScalar&gt;::size)==int(packet_traits&lt;RhsScalar&gt;::size),
+<span class="lineNum">      38 </span>                :            :   LhsPacketSize = Vectorizable ? packet_traits&lt;LhsScalar&gt;::size : 1,
+<span class="lineNum">      39 </span>                :            :   RhsPacketSize = Vectorizable ? packet_traits&lt;RhsScalar&gt;::size : 1,
+<span class="lineNum">      40 </span>                :            :   ResPacketSize = Vectorizable ? packet_traits&lt;ResScalar&gt;::size : 1
+<span class="lineNum">      41 </span>                :            : };
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : typedef typename packet_traits&lt;LhsScalar&gt;::type  _LhsPacket;
+<span class="lineNum">      44 </span>                :            : typedef typename packet_traits&lt;RhsScalar&gt;::type  _RhsPacket;
+<span class="lineNum">      45 </span>                :            : typedef typename packet_traits&lt;ResScalar&gt;::type  _ResPacket;
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : typedef typename conditional&lt;Vectorizable,_LhsPacket,LhsScalar&gt;::type LhsPacket;
+<span class="lineNum">      48 </span>                :            : typedef typename conditional&lt;Vectorizable,_RhsPacket,RhsScalar&gt;::type RhsPacket;
+<span class="lineNum">      49 </span>                :            : typedef typename conditional&lt;Vectorizable,_ResPacket,ResScalar&gt;::type ResPacket;
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : EIGEN_DONT_INLINE static void run(
+<span class="lineNum">      52 </span>                :            :   Index rows, Index cols,
+<span class="lineNum">      53 </span>                :            :   const LhsScalar* lhs, Index lhsStride,
+<span class="lineNum">      54 </span>                :            :   const RhsScalar* rhs, Index rhsIncr,
+<span class="lineNum">      55 </span>                :            :   ResScalar* res, Index resIncr, RhsScalar alpha);
+<span class="lineNum">      56 </span>                :            : };
+<a name="57"><span class="lineNum">      57 </span>                :            : </a>
+<span class="lineNum">      58 </span>                :            : template&lt;typename Index, typename LhsScalar, bool ConjugateLhs, typename RhsScalar, bool ConjugateRhs, int Version&gt;
+<span class="lineNum">      59 </span>                :<span class="lineCov">         12 : EIGEN_DONT_INLINE void general_matrix_vector_product&lt;Index,LhsScalar,ColMajor,ConjugateLhs,RhsScalar,ConjugateRhs,Version&gt;::run(</span>
+<span class="lineNum">      60 </span>                :            :   Index rows, Index cols,
+<span class="lineNum">      61 </span>                :            :   const LhsScalar* lhs, Index lhsStride,
+<span class="lineNum">      62 </span>                :            :   const RhsScalar* rhs, Index rhsIncr,
+<span class="lineNum">      63 </span>                :            :   ResScalar* res, Index resIncr, RhsScalar alpha)
+<span class="lineNum">      64 </span>                :            : {
+<span class="lineNum">      65 </span>[<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         12 :   EIGEN_UNUSED_VARIABLE(resIncr)</span>
+<span class="lineNum">      66 </span>                :            :   eigen_internal_assert(resIncr==1);
+<span class="lineNum">      67 </span>                :            :   #ifdef _EIGEN_ACCUMULATE_PACKETS
+<span class="lineNum">      68 </span>                :            :   #error _EIGEN_ACCUMULATE_PACKETS has already been defined
+<span class="lineNum">      69 </span>                :            :   #endif
+<span class="lineNum">      70 </span>                :            :   #define _EIGEN_ACCUMULATE_PACKETS(A0,A13,A2) \
+<span class="lineNum">      71 </span>                :            :     pstore(&amp;res[j], \
+<span class="lineNum">      72 </span>                :            :       padd(pload&lt;ResPacket&gt;(&amp;res[j]), \
+<span class="lineNum">      73 </span>                :            :         padd( \
+<span class="lineNum">      74 </span>                :            :           padd(pcj.pmul(EIGEN_CAT(ploa , A0)&lt;LhsPacket&gt;(&amp;lhs0[j]),    ptmp0), \
+<span class="lineNum">      75 </span>                :            :                   pcj.pmul(EIGEN_CAT(ploa , A13)&lt;LhsPacket&gt;(&amp;lhs1[j]),   ptmp1)), \
+<span class="lineNum">      76 </span>                :            :           padd(pcj.pmul(EIGEN_CAT(ploa , A2)&lt;LhsPacket&gt;(&amp;lhs2[j]),    ptmp2), \
+<span class="lineNum">      77 </span>                :            :                   pcj.pmul(EIGEN_CAT(ploa , A13)&lt;LhsPacket&gt;(&amp;lhs3[j]),   ptmp3)) )))
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :            :   conj_helper&lt;LhsScalar,RhsScalar,ConjugateLhs,ConjugateRhs&gt; cj;
+<span class="lineNum">      80 </span>                :            :   conj_helper&lt;LhsPacket,RhsPacket,ConjugateLhs,ConjugateRhs&gt; pcj;
+<span class="lineNum">      81 </span>                :            :   if(ConjugateRhs)
+<span class="lineNum">      82 </span>                :            :     alpha = numext::conj(alpha);
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :            :   enum { AllAligned = 0, EvenAligned, FirstAligned, NoneAligned };
+<span class="lineNum">      85 </span>                :<span class="lineCov">         12 :   const Index columnsAtOnce = 4;</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">         12 :   const Index peels = 2;</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">         12 :   const Index LhsPacketAlignedMask = LhsPacketSize-1;</span>
+<span class="lineNum">      88 </span>                :<span class="lineCov">         12 :   const Index ResPacketAlignedMask = ResPacketSize-1;</span>
+<span class="lineNum">      89 </span>                :            : //  const Index PeelAlignedMask = ResPacketSize*peels-1;
+<span class="lineNum">      90 </span>                :<span class="lineCov">         12 :   const Index size = rows;</span>
+<span class="lineNum">      91 </span>                :            :   
+<span class="lineNum">      92 </span>                :            :   // How many coeffs of the result do we have to skip to be aligned.
+<span class="lineNum">      93 </span>                :            :   // Here we assume data are at least aligned on the base scalar type.
+<span class="lineNum">      94 </span>[<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         12 :   Index alignedStart = internal::first_aligned(res,size);</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">         12 :   Index alignedSize = ResPacketSize&gt;1 ? alignedStart + ((size-alignedStart) &amp; ~ResPacketAlignedMask) : 0;</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">         12 :   const Index peeledSize = alignedSize - RhsPacketSize*peels - RhsPacketSize + 1;</span>
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :<span class="lineCov">         12 :   const Index alignmentStep = LhsPacketSize&gt;1 ? (LhsPacketSize - lhsStride % LhsPacketSize) &amp; LhsPacketAlignedMask : 0;</span>
+<span class="lineNum">      99 </span>                :            :   Index alignmentPattern = alignmentStep==0 ? AllAligned
+<span class="lineNum">     100 </span>                :            :                        : alignmentStep==(LhsPacketSize/2) ? EvenAligned
+<span class="lineNum">     101 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         12 :                        : FirstAligned;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :            :   // we cannot assume the first element is aligned because of sub-matrices
+<span class="lineNum">     104 </span>[<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         12 :   const Index lhsAlignmentOffset = internal::first_aligned(lhs,size);</span>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :   // find how many columns do we have to skip to be aligned with the result (if possible)
+<span class="lineNum">     107 </span>                :<span class="lineCov">         12 :   Index skipColumns = 0;</span>
+<span class="lineNum">     108 </span>                :            :   // if the data cannot be aligned (TODO add some compile time tests when possible, e.g. for floats)
+<span class="lineNum">     109 </span>[<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 12 times"> + </span>]:<span class="lineCov">         12 :   if( (size_t(lhs)%sizeof(LhsScalar)) || (size_t(res)%sizeof(ResScalar)) )</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     110 </span>                :            :   {
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :     alignedSize = 0;</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :     alignedStart = 0;</span>
+<span class="lineNum">     113 </span>                :            :   }
+<span class="lineNum">     114 </span>                :            :   else if (LhsPacketSize&gt;1)
+<span class="lineNum">     115 </span>                :            :   {
+<span class="lineNum">     116 </span>                :            :     eigen_internal_assert(size_t(lhs+lhsAlignmentOffset)%sizeof(LhsPacket)==0 || size&lt;LhsPacketSize);
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>[<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 12 times"> + </span>]:<span class="lineCov">         12 :     while (skipColumns&lt;LhsPacketSize &amp;&amp;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     119 </span>                :            :           alignedStart != ((lhsAlignmentOffset + alignmentStep*skipColumns)%LhsPacketSize))
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :       ++skipColumns;</span>
+<span class="lineNum">     121 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         12 :     if (skipColumns==LhsPacketSize)</span>
+<span class="lineNum">     122 </span>                :            :     {
+<span class="lineNum">     123 </span>                :            :       // nothing can be aligned, no need to skip any column
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :       alignmentPattern = NoneAligned;</span>
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :       skipColumns = 0;</span>
+<span class="lineNum">     126 </span>                :            :     }
+<span class="lineNum">     127 </span>                :            :     else
+<span class="lineNum">     128 </span>                :            :     {
+<span class="lineNum">     129 </span>[<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         12 :       skipColumns = (std::min)(skipColumns,cols);</span>
+<span class="lineNum">     130 </span>                :            :       // note that the skiped columns are processed later.
+<span class="lineNum">     131 </span>                :            :     }
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            :     eigen_internal_assert(  (alignmentPattern==NoneAligned)
+<span class="lineNum">     134 </span>                :            :                       || (skipColumns + columnsAtOnce &gt;= cols)
+<span class="lineNum">     135 </span>                :            :                       || LhsPacketSize &gt; size
+<span class="lineNum">     136 </span>                :            :                       || (size_t(lhs+alignedStart+lhsStride*skipColumns)%sizeof(LhsPacket))==0);
+<span class="lineNum">     137 </span>                :            :   }
+<span class="lineNum">     138 </span>                :            :   else if(Vectorizable)
+<span class="lineNum">     139 </span>                :            :   {
+<span class="lineNum">     140 </span>                :            :     alignedStart = 0;
+<span class="lineNum">     141 </span>                :            :     alignedSize = size;
+<span class="lineNum">     142 </span>                :            :     alignmentPattern = AllAligned;
+<span class="lineNum">     143 </span>                :            :   }
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         12 :   Index offset1 = (FirstAligned &amp;&amp; alignmentStep==1?3:1);</span>
+<span class="lineNum">     146 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         12 :   Index offset3 = (FirstAligned &amp;&amp; alignmentStep==1?1:3);</span>
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :<span class="lineCov">         12 :   Index columnBound = ((cols-skipColumns)/columnsAtOnce)*columnsAtOnce + skipColumns;</span>
+<span class="lineNum">     149 </span>[<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         24 :   for (Index i=skipColumns; i&lt;columnBound; i+=columnsAtOnce)</span>
+<span class="lineNum">     150 </span>                :            :   {
+<span class="lineNum">     151 </span>[<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         12 :     RhsPacket ptmp0 = pset1&lt;RhsPacket&gt;(alpha*rhs[i*rhsIncr]),</span>
+<span class="lineNum">     152 </span>[<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         12 :               ptmp1 = pset1&lt;RhsPacket&gt;(alpha*rhs[(i+offset1)*rhsIncr]),</span>
+<span class="lineNum">     153 </span>[<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         12 :               ptmp2 = pset1&lt;RhsPacket&gt;(alpha*rhs[(i+2)*rhsIncr]),</span>
+<span class="lineNum">     154 </span>[<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         12 :               ptmp3 = pset1&lt;RhsPacket&gt;(alpha*rhs[(i+offset3)*rhsIncr]);</span>
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :            :     // this helps a lot generating better binary code
+<span class="lineNum">     157 </span>                :<span class="lineCov">         12 :     const LhsScalar *lhs0 = lhs + i*lhsStride,     *lhs1 = lhs + (i+offset1)*lhsStride,</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">         12 :                     *lhs2 = lhs + (i+2)*lhsStride, *lhs3 = lhs + (i+offset3)*lhsStride;</span>
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            :     if (Vectorizable)
+<span class="lineNum">     161 </span>                :            :     {
+<span class="lineNum">     162 </span>                :            :       /* explicit vectorization */
+<span class="lineNum">     163 </span>                :            :       // process initial unaligned coeffs
+<span class="lineNum">     164 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         12 :       for (Index j=0; j&lt;alignedStart; ++j)</span>
+<span class="lineNum">     165 </span>                :            :       {
+<span class="lineNum">     166 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         res[j] = cj.pmadd(lhs0[j], pfirst(ptmp0), res[j]);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     167 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         res[j] = cj.pmadd(lhs1[j], pfirst(ptmp1), res[j]);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     168 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         res[j] = cj.pmadd(lhs2[j], pfirst(ptmp2), res[j]);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     169 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         res[j] = cj.pmadd(lhs3[j], pfirst(ptmp3), res[j]);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     170 </span>                :            :       }
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>[<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         12 :       if (alignedSize&gt;alignedStart)</span>
+<span class="lineNum">     173 </span>                :            :       {
+<span class="lineNum">     174 </span>  [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         12 :         switch(alignmentPattern)</span>
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     175 </span>                :            :         {
+<span class="lineNum">     176 </span>                :            :           case AllAligned:
+<span class="lineNum">     177 </span>[<span class="branchCov" title="Branch 0 was taken 28 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         40 :             for (Index j = alignedStart; j&lt;alignedSize; j+=ResPacketSize)</span>
+<span class="lineNum">     178 </span>[<span class="branchCov" title="Branch 1 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         28 :               _EIGEN_ACCUMULATE_PACKETS(d,d,d);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 25 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 26 was not taken"> - </span>][<span class="branchCov" title="Branch 28 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 29 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 31 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 32 was not taken"> - </span>][<span class="branchCov" title="Branch 34 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 35 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 37 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 38 was not taken"> - </span>][<span class="branchCov" title="Branch 40 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 41 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>][<span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 49 was not executed"> # </span><span class="branchNoExec" title="Branch 50 was not executed"> # </span>][<span class="branchNoExec" title="Branch 52 was not executed"> # </span><span class="branchNoExec" title="Branch 53 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 55 was not executed"> # </span><span class="branchNoExec" title="Branch 56 was not executed"> # </span>][<span class="branchNoExec" title="Branch 58 was not executed"> # </span><span class="branchNoExec" title="Branch 59 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 61 was not executed"> # </span><span class="branchNoExec" title="Branch 62 was not executed"> # </span>][<span class="branchNoExec" title="Branch 64 was not executed"> # </span><span class="branchNoExec" title="Branch 65 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 67 was not executed"> # </span><span class="branchNoExec" title="Branch 68 was not executed"> # </span>][<span class="branchNoExec" title="Branch 70 was not executed"> # </span><span class="branchNoExec" title="Branch 71 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 73 was not executed"> # </span><span class="branchNoExec" title="Branch 74 was not executed"> # </span>][<span class="branchNoExec" title="Branch 76 was not executed"> # </span><span class="branchNoExec" title="Branch 77 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 79 was not executed"> # </span><span class="branchNoExec" title="Branch 80 was not executed"> # </span>][<span class="branchNoExec" title="Branch 82 was not executed"> # </span><span class="branchNoExec" title="Branch 83 was not executed"> # </span>]
+<span class="lineNum">     179 </span>                :<span class="lineCov">         12 :             break;</span>
+<span class="lineNum">     180 </span>                :            :           case EvenAligned:
+<span class="lineNum">     181 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             for (Index j = alignedStart; j&lt;alignedSize; j+=ResPacketSize)</span>
+<span class="lineNum">     182 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               _EIGEN_ACCUMULATE_PACKETS(d,du,d);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>][<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>][<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 37 was not executed"> # </span><span class="branchNoExec" title="Branch 38 was not executed"> # </span>][<span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>][<span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 49 was not executed"> # </span><span class="branchNoExec" title="Branch 50 was not executed"> # </span>][<span class="branchNoExec" title="Branch 52 was not executed"> # </span><span class="branchNoExec" title="Branch 53 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 55 was not executed"> # </span><span class="branchNoExec" title="Branch 56 was not executed"> # </span>][<span class="branchNoExec" title="Branch 58 was not executed"> # </span><span class="branchNoExec" title="Branch 59 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 61 was not executed"> # </span><span class="branchNoExec" title="Branch 62 was not executed"> # </span>][<span class="branchNoExec" title="Branch 64 was not executed"> # </span><span class="branchNoExec" title="Branch 65 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 67 was not executed"> # </span><span class="branchNoExec" title="Branch 68 was not executed"> # </span>][<span class="branchNoExec" title="Branch 70 was not executed"> # </span><span class="branchNoExec" title="Branch 71 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 73 was not executed"> # </span><span class="branchNoExec" title="Branch 74 was not executed"> # </span>][<span class="branchNoExec" title="Branch 76 was not executed"> # </span><span class="branchNoExec" title="Branch 77 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 79 was not executed"> # </span><span class="branchNoExec" title="Branch 80 was not executed"> # </span>][<span class="branchNoExec" title="Branch 82 was not executed"> # </span><span class="branchNoExec" title="Branch 83 was not executed"> # </span>]
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     184 </span>                :            :           case FirstAligned:
+<span class="lineNum">     185 </span>                :            :           {
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :             Index j = alignedStart;</span>
+<span class="lineNum">     187 </span>                :            :             if(peels&gt;1)
+<span class="lineNum">     188 </span>                :            :             {
+<span class="lineNum">     189 </span>                :            :               LhsPacket A00, A01, A02, A03, A10, A11, A12, A13;
+<span class="lineNum">     190 </span>                :            :               ResPacket T0, T1;
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               A01 = pload&lt;LhsPacket&gt;(&amp;lhs1[alignedStart-1]);</span>
+<span class="lineNum">     193 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               A02 = pload&lt;LhsPacket&gt;(&amp;lhs2[alignedStart-2]);</span>
+<span class="lineNum">     194 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               A03 = pload&lt;LhsPacket&gt;(&amp;lhs3[alignedStart-3]);</span>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :               for (; j&lt;peeledSize; j+=peels*ResPacketSize)</span>
+<span class="lineNum">     197 </span>                :            :               {
+<span class="lineNum">     198 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A11 = pload&lt;LhsPacket&gt;(&amp;lhs1[j-1+LhsPacketSize]);  palign&lt;1&gt;(A01,A11);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     199 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A12 = pload&lt;LhsPacket&gt;(&amp;lhs2[j-2+LhsPacketSize]);  palign&lt;2&gt;(A02,A12);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     200 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A13 = pload&lt;LhsPacket&gt;(&amp;lhs3[j-3+LhsPacketSize]);  palign&lt;3&gt;(A03,A13);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A00 = pload&lt;LhsPacket&gt;(&amp;lhs0[j]);</span>
+<span class="lineNum">     203 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A10 = pload&lt;LhsPacket&gt;(&amp;lhs0[j+LhsPacketSize]);</span>
+<span class="lineNum">     204 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 T0  = pcj.pmadd(A00, ptmp0, pload&lt;ResPacket&gt;(&amp;res[j]));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     205 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 T1  = pcj.pmadd(A10, ptmp0, pload&lt;ResPacket&gt;(&amp;res[j+ResPacketSize]));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 T0  = pcj.pmadd(A01, ptmp1, T0);</span>
+<span class="lineNum">     208 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A01 = pload&lt;LhsPacket&gt;(&amp;lhs1[j-1+2*LhsPacketSize]);  palign&lt;1&gt;(A11,A01);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     209 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 T0  = pcj.pmadd(A02, ptmp2, T0);</span>
+<span class="lineNum">     210 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A02 = pload&lt;LhsPacket&gt;(&amp;lhs2[j-2+2*LhsPacketSize]);  palign&lt;2&gt;(A12,A02);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     211 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 T0  = pcj.pmadd(A03, ptmp3, T0);</span>
+<span class="lineNum">     212 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 pstore(&amp;res[j],T0);</span>
+<span class="lineNum">     213 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A03 = pload&lt;LhsPacket&gt;(&amp;lhs3[j-3+2*LhsPacketSize]);  palign&lt;3&gt;(A13,A03);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     214 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 T1  = pcj.pmadd(A11, ptmp1, T1);</span>
+<span class="lineNum">     215 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 T1  = pcj.pmadd(A12, ptmp2, T1);</span>
+<span class="lineNum">     216 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 T1  = pcj.pmadd(A13, ptmp3, T1);</span>
+<span class="lineNum">     217 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 pstore(&amp;res[j+ResPacketSize],T1);</span>
+<span class="lineNum">     218 </span>                :            :               }
+<span class="lineNum">     219 </span>                :            :             }
+<span class="lineNum">     220 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             for (; j&lt;alignedSize; j+=ResPacketSize)</span>
+<span class="lineNum">     221 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               _EIGEN_ACCUMULATE_PACKETS(d,du,du);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>][<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>][<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 37 was not executed"> # </span><span class="branchNoExec" title="Branch 38 was not executed"> # </span>][<span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>][<span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 49 was not executed"> # </span><span class="branchNoExec" title="Branch 50 was not executed"> # </span>][<span class="branchNoExec" title="Branch 52 was not executed"> # </span><span class="branchNoExec" title="Branch 53 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 55 was not executed"> # </span><span class="branchNoExec" title="Branch 56 was not executed"> # </span>][<span class="branchNoExec" title="Branch 58 was not executed"> # </span><span class="branchNoExec" title="Branch 59 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 61 was not executed"> # </span><span class="branchNoExec" title="Branch 62 was not executed"> # </span>][<span class="branchNoExec" title="Branch 64 was not executed"> # </span><span class="branchNoExec" title="Branch 65 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 67 was not executed"> # </span><span class="branchNoExec" title="Branch 68 was not executed"> # </span>][<span class="branchNoExec" title="Branch 70 was not executed"> # </span><span class="branchNoExec" title="Branch 71 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 73 was not executed"> # </span><span class="branchNoExec" title="Branch 74 was not executed"> # </span>][<span class="branchNoExec" title="Branch 76 was not executed"> # </span><span class="branchNoExec" title="Branch 77 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 79 was not executed"> # </span><span class="branchNoExec" title="Branch 80 was not executed"> # </span>][<span class="branchNoExec" title="Branch 82 was not executed"> # </span><span class="branchNoExec" title="Branch 83 was not executed"> # </span>]
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     223 </span>                :            :           }
+<span class="lineNum">     224 </span>                :            :           default:
+<span class="lineNum">     225 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             for (Index j = alignedStart; j&lt;alignedSize; j+=ResPacketSize)</span>
+<span class="lineNum">     226 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               _EIGEN_ACCUMULATE_PACKETS(du,du,du);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>][<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>][<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 37 was not executed"> # </span><span class="branchNoExec" title="Branch 38 was not executed"> # </span>][<span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>][<span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 49 was not executed"> # </span><span class="branchNoExec" title="Branch 50 was not executed"> # </span>][<span class="branchNoExec" title="Branch 52 was not executed"> # </span><span class="branchNoExec" title="Branch 53 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 55 was not executed"> # </span><span class="branchNoExec" title="Branch 56 was not executed"> # </span>][<span class="branchNoExec" title="Branch 58 was not executed"> # </span><span class="branchNoExec" title="Branch 59 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 61 was not executed"> # </span><span class="branchNoExec" title="Branch 62 was not executed"> # </span>][<span class="branchNoExec" title="Branch 64 was not executed"> # </span><span class="branchNoExec" title="Branch 65 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 67 was not executed"> # </span><span class="branchNoExec" title="Branch 68 was not executed"> # </span>][<span class="branchNoExec" title="Branch 70 was not executed"> # </span><span class="branchNoExec" title="Branch 71 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 73 was not executed"> # </span><span class="branchNoExec" title="Branch 74 was not executed"> # </span>][<span class="branchNoExec" title="Branch 76 was not executed"> # </span><span class="branchNoExec" title="Branch 77 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 79 was not executed"> # </span><span class="branchNoExec" title="Branch 80 was not executed"> # </span>][<span class="branchNoExec" title="Branch 82 was not executed"> # </span><span class="branchNoExec" title="Branch 83 was not executed"> # </span>]
+<span class="lineNum">     227 </span>                :<span class="lineCov">         12 :             break;</span>
+<span class="lineNum">     228 </span>                :            :         }
+<span class="lineNum">     229 </span>                :            :       }
+<span class="lineNum">     230 </span>                :            :     } // end explicit vectorization
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :            :     /* process remaining coeffs (or all if there is no explicit vectorization) */
+<span class="lineNum">     233 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         12 :     for (Index j=alignedSize; j&lt;size; ++j)</span>
+<span class="lineNum">     234 </span>                :            :     {
+<span class="lineNum">     235 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       res[j] = cj.pmadd(lhs0[j], pfirst(ptmp0), res[j]);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     236 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       res[j] = cj.pmadd(lhs1[j], pfirst(ptmp1), res[j]);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     237 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       res[j] = cj.pmadd(lhs2[j], pfirst(ptmp2), res[j]);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     238 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       res[j] = cj.pmadd(lhs3[j], pfirst(ptmp3), res[j]);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     239 </span>                :            :     }
+<span class="lineNum">     240 </span>                :            :   }
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>                :            :   // process remaining first and last columns (at most columnsAtOnce-1)
+<span class="lineNum">     243 </span>                :<span class="lineCov">         12 :   Index end = cols;</span>
+<span class="lineNum">     244 </span>                :<span class="lineCov">         12 :   Index start = columnBound;</span>
+<span class="lineNum">     245 </span>                :            :   do
+<span class="lineNum">     246 </span>                :            :   {
+<span class="lineNum">     247 </span>[<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         20 :     for (Index k=start; k&lt;end; ++k)</span>
+<span class="lineNum">     248 </span>                :            :     {
+<span class="lineNum">     249 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          8 :       RhsPacket ptmp0 = pset1&lt;RhsPacket&gt;(alpha*rhs[k*rhsIncr]);</span>
+<span class="lineNum">     250 </span>                :<span class="lineCov">          8 :       const LhsScalar* lhs0 = lhs + k*lhsStride;</span>
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :            :       if (Vectorizable)
+<span class="lineNum">     253 </span>                :            :       {
+<span class="lineNum">     254 </span>                :            :         /* explicit vectorization */
+<span class="lineNum">     255 </span>                :            :         // process first unaligned result's coeffs
+<span class="lineNum">     256 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          8 :         for (Index j=0; j&lt;alignedStart; ++j)</span>
+<span class="lineNum">     257 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           res[j] += cj.pmul(lhs0[j], pfirst(ptmp0));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     258 </span>                :            :         // process aligned result's coeffs
+<span class="lineNum">     259 </span>[<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          8 :         if ((size_t(lhs0+alignedStart)%sizeof(LhsPacket))==0)</span>
+<span class="lineNum">     260 </span>[<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         32 :           for (Index i = alignedStart;i&lt;alignedSize;i+=ResPacketSize)</span>
+<span class="lineNum">     261 </span>[<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         24 :             pstore(&amp;res[i], pcj.pmadd(pload&lt;LhsPacket&gt;(&amp;lhs0[i]), ptmp0, pload&lt;ResPacket&gt;(&amp;res[i])));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     262 </span>                :            :         else
+<span class="lineNum">     263 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           for (Index i = alignedStart;i&lt;alignedSize;i+=ResPacketSize)</span>
+<span class="lineNum">     264 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             pstore(&amp;res[i], pcj.pmadd(ploadu&lt;LhsPacket&gt;(&amp;lhs0[i]), ptmp0, pload&lt;ResPacket&gt;(&amp;res[i])));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">     265 </span>                :            :       }
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :            :       // process remaining scalars (or all if no explicit vectorization)
+<span class="lineNum">     268 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          8 :       for (Index i=alignedSize; i&lt;size; ++i)</span>
+<span class="lineNum">     269 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         res[i] += cj.pmul(lhs0[i], pfirst(ptmp0));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     270 </span>                :            :     }
+<span class="lineNum">     271 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         12 :     if (skipColumns)</span>
+<span class="lineNum">     272 </span>                :            :     {
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :       start = 0;</span>
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :       end = skipColumns;</span>
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :       skipColumns = 0;</span>
+<span class="lineNum">     276 </span>                :            :     }
+<span class="lineNum">     277 </span>                :            :     else
+<span class="lineNum">     278 </span>                :<span class="lineCov">         12 :       break;</span>
+<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :   } while(Vectorizable);</span>
+<span class="lineNum">     280 </span>                :            :   #undef _EIGEN_ACCUMULATE_PACKETS
+<span class="lineNum">     281 </span>                :<span class="lineCov">         12 : }</span>
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>                :            : /* Optimized row-major matrix * vector product:
+<span class="lineNum">     284 </span>                :            :  * This algorithm processes 4 rows at onces that allows to both reduce
+<span class="lineNum">     285 </span>                :            :  * the number of load/stores of the result by a factor 4 and to reduce
+<span class="lineNum">     286 </span>                :            :  * the instruction dependency. Moreover, we know that all bands have the
+<span class="lineNum">     287 </span>                :            :  * same alignment pattern.
+<span class="lineNum">     288 </span>                :            :  *
+<span class="lineNum">     289 </span>                :            :  * Mixing type logic:
+<span class="lineNum">     290 </span>                :            :  *  - alpha is always a complex (or converted to a complex)
+<span class="lineNum">     291 </span>                :            :  *  - no vectorization
+<span class="lineNum">     292 </span>                :            :  */
+<span class="lineNum">     293 </span>                :            : template&lt;typename Index, typename LhsScalar, bool ConjugateLhs, typename RhsScalar, bool ConjugateRhs, int Version&gt;
+<span class="lineNum">     294 </span>                :            : struct general_matrix_vector_product&lt;Index,LhsScalar,RowMajor,ConjugateLhs,RhsScalar,ConjugateRhs,Version&gt;
+<span class="lineNum">     295 </span>                :            : {
+<span class="lineNum">     296 </span>                :            : typedef typename scalar_product_traits&lt;LhsScalar, RhsScalar&gt;::ReturnType ResScalar;
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>                :            : enum {
+<span class="lineNum">     299 </span>                :            :   Vectorizable = packet_traits&lt;LhsScalar&gt;::Vectorizable &amp;&amp; packet_traits&lt;RhsScalar&gt;::Vectorizable
+<span class="lineNum">     300 </span>                :            :               &amp;&amp; int(packet_traits&lt;LhsScalar&gt;::size)==int(packet_traits&lt;RhsScalar&gt;::size),
+<span class="lineNum">     301 </span>                :            :   LhsPacketSize = Vectorizable ? packet_traits&lt;LhsScalar&gt;::size : 1,
+<span class="lineNum">     302 </span>                :            :   RhsPacketSize = Vectorizable ? packet_traits&lt;RhsScalar&gt;::size : 1,
+<span class="lineNum">     303 </span>                :            :   ResPacketSize = Vectorizable ? packet_traits&lt;ResScalar&gt;::size : 1
+<span class="lineNum">     304 </span>                :            : };
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :            : typedef typename packet_traits&lt;LhsScalar&gt;::type  _LhsPacket;
+<span class="lineNum">     307 </span>                :            : typedef typename packet_traits&lt;RhsScalar&gt;::type  _RhsPacket;
+<span class="lineNum">     308 </span>                :            : typedef typename packet_traits&lt;ResScalar&gt;::type  _ResPacket;
+<span class="lineNum">     309 </span>                :            : 
+<span class="lineNum">     310 </span>                :            : typedef typename conditional&lt;Vectorizable,_LhsPacket,LhsScalar&gt;::type LhsPacket;
+<span class="lineNum">     311 </span>                :            : typedef typename conditional&lt;Vectorizable,_RhsPacket,RhsScalar&gt;::type RhsPacket;
+<span class="lineNum">     312 </span>                :            : typedef typename conditional&lt;Vectorizable,_ResPacket,ResScalar&gt;::type ResPacket;
+<span class="lineNum">     313 </span>                :            :   
+<span class="lineNum">     314 </span>                :            : EIGEN_DONT_INLINE static void run(
+<span class="lineNum">     315 </span>                :            :   Index rows, Index cols,
+<span class="lineNum">     316 </span>                :            :   const LhsScalar* lhs, Index lhsStride,
+<span class="lineNum">     317 </span>                :            :   const RhsScalar* rhs, Index rhsIncr,
+<span class="lineNum">     318 </span>                :            :   ResScalar* res, Index resIncr,
+<span class="lineNum">     319 </span>                :            :   ResScalar alpha);
+<span class="lineNum">     320 </span>                :            : };
+<a name="321"><span class="lineNum">     321 </span>                :            : </a>
+<span class="lineNum">     322 </span>                :            : template&lt;typename Index, typename LhsScalar, bool ConjugateLhs, typename RhsScalar, bool ConjugateRhs, int Version&gt;
+<span class="lineNum">     323 </span>                :<span class="lineCov">         24 : EIGEN_DONT_INLINE void general_matrix_vector_product&lt;Index,LhsScalar,RowMajor,ConjugateLhs,RhsScalar,ConjugateRhs,Version&gt;::run(</span>
+<span class="lineNum">     324 </span>                :            :   Index rows, Index cols,
+<span class="lineNum">     325 </span>                :            :   const LhsScalar* lhs, Index lhsStride,
+<span class="lineNum">     326 </span>                :            :   const RhsScalar* rhs, Index rhsIncr,
+<span class="lineNum">     327 </span>                :            :   ResScalar* res, Index resIncr,
+<span class="lineNum">     328 </span>                :            :   ResScalar alpha)
+<span class="lineNum">     329 </span>                :            : {
+<span class="lineNum">     330 </span>        [<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         24 :   EIGEN_UNUSED_VARIABLE(rhsIncr);</span>
+<span class="lineNum">     331 </span>                :            :   eigen_internal_assert(rhsIncr==1);
+<span class="lineNum">     332 </span>                :            :   #ifdef _EIGEN_ACCUMULATE_PACKETS
+<span class="lineNum">     333 </span>                :            :   #error _EIGEN_ACCUMULATE_PACKETS has already been defined
+<span class="lineNum">     334 </span>                :            :   #endif
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>                :            :   #define _EIGEN_ACCUMULATE_PACKETS(A0,A13,A2) {\
+<span class="lineNum">     337 </span>                :            :     RhsPacket b = pload&lt;RhsPacket&gt;(&amp;rhs[j]); \
+<span class="lineNum">     338 </span>                :            :     ptmp0 = pcj.pmadd(EIGEN_CAT(ploa,A0) &lt;LhsPacket&gt;(&amp;lhs0[j]), b, ptmp0); \
+<span class="lineNum">     339 </span>                :            :     ptmp1 = pcj.pmadd(EIGEN_CAT(ploa,A13)&lt;LhsPacket&gt;(&amp;lhs1[j]), b, ptmp1); \
+<span class="lineNum">     340 </span>                :            :     ptmp2 = pcj.pmadd(EIGEN_CAT(ploa,A2) &lt;LhsPacket&gt;(&amp;lhs2[j]), b, ptmp2); \
+<span class="lineNum">     341 </span>                :            :     ptmp3 = pcj.pmadd(EIGEN_CAT(ploa,A13)&lt;LhsPacket&gt;(&amp;lhs3[j]), b, ptmp3); }
+<span class="lineNum">     342 </span>                :            : 
+<span class="lineNum">     343 </span>                :            :   conj_helper&lt;LhsScalar,RhsScalar,ConjugateLhs,ConjugateRhs&gt; cj;
+<span class="lineNum">     344 </span>                :            :   conj_helper&lt;LhsPacket,RhsPacket,ConjugateLhs,ConjugateRhs&gt; pcj;
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :            :   enum { AllAligned=0, EvenAligned=1, FirstAligned=2, NoneAligned=3 };
+<span class="lineNum">     347 </span>                :<span class="lineCov">         24 :   const Index rowsAtOnce = 4;</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">         24 :   const Index peels = 2;</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">         24 :   const Index RhsPacketAlignedMask = RhsPacketSize-1;</span>
+<span class="lineNum">     350 </span>                :<span class="lineCov">         24 :   const Index LhsPacketAlignedMask = LhsPacketSize-1;</span>
+<span class="lineNum">     351 </span>                :            : //   const Index PeelAlignedMask = RhsPacketSize*peels-1;
+<span class="lineNum">     352 </span>                :<span class="lineCov">         24 :   const Index depth = cols;</span>
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>                :            :   // How many coeffs of the result do we have to skip to be aligned.
+<span class="lineNum">     355 </span>                :            :   // Here we assume data are at least aligned on the base scalar type
+<span class="lineNum">     356 </span>                :            :   // if that's not the case then vectorization is discarded, see below.
+<span class="lineNum">     357 </span>        [<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         24 :   Index alignedStart = internal::first_aligned(rhs, depth);</span>
+<span class="lineNum">     358 </span>                :<span class="lineCov">         24 :   Index alignedSize = RhsPacketSize&gt;1 ? alignedStart + ((depth-alignedStart) &amp; ~RhsPacketAlignedMask) : 0;</span>
+<span class="lineNum">     359 </span>                :<span class="lineCov">         24 :   const Index peeledSize = alignedSize - RhsPacketSize*peels - RhsPacketSize + 1;</span>
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>                :<span class="lineCov">         24 :   const Index alignmentStep = LhsPacketSize&gt;1 ? (LhsPacketSize - lhsStride % LhsPacketSize) &amp; LhsPacketAlignedMask : 0;</span>
+<span class="lineNum">     362 </span>                :            :   Index alignmentPattern = alignmentStep==0 ? AllAligned
+<span class="lineNum">     363 </span>                :            :                          : alignmentStep==(LhsPacketSize/2) ? EvenAligned
+<span class="lineNum">     364 </span>[<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         24 :                          : FirstAligned;</span>
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>                :            :   // we cannot assume the first element is aligned because of sub-matrices
+<span class="lineNum">     367 </span>        [<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         24 :   const Index lhsAlignmentOffset = internal::first_aligned(lhs,depth);</span>
+<span class="lineNum">     368 </span>                :            : 
+<span class="lineNum">     369 </span>                :            :   // find how many rows do we have to skip to be aligned with rhs (if possible)
+<span class="lineNum">     370 </span>                :<span class="lineCov">         24 :   Index skipRows = 0;</span>
+<span class="lineNum">     371 </span>                :            :   // if the data cannot be aligned (TODO add some compile time tests when possible, e.g. for floats)
+<span class="lineNum">     372 </span>[<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 24 times"> + </span>]:<span class="lineCov">         24 :   if( (sizeof(LhsScalar)!=sizeof(RhsScalar)) || (size_t(lhs)%sizeof(LhsScalar)) || (size_t(rhs)%sizeof(RhsScalar)) )</span>
+<span class="lineNum">     373 </span>                :            :   {
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :     alignedSize = 0;</span>
+<span class="lineNum">     375 </span>                :<span class="lineNoCov">          0 :     alignedStart = 0;</span>
+<span class="lineNum">     376 </span>                :            :   }
+<span class="lineNum">     377 </span>                :            :   else if (LhsPacketSize&gt;1)
+<span class="lineNum">     378 </span>                :            :   {
+<span class="lineNum">     379 </span>                :            :     eigen_internal_assert(size_t(lhs+lhsAlignmentOffset)%sizeof(LhsPacket)==0  || depth&lt;LhsPacketSize);
+<span class="lineNum">     380 </span>                :            : 
+<span class="lineNum">     381 </span>[<span class="branchCov" title="Branch 0 was taken 36 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 12 times"> + </span><span class="branchCov" title="Branch 3 was taken 24 times"> + </span>]:<span class="lineCov">         36 :     while (skipRows&lt;LhsPacketSize &amp;&amp;</span>
+<span class="lineNum">     382 </span>                :            :            alignedStart != ((lhsAlignmentOffset + alignmentStep*skipRows)%LhsPacketSize))
+<span class="lineNum">     383 </span>                :<span class="lineCov">         12 :       ++skipRows;</span>
+<span class="lineNum">     384 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 24 times"> + </span>]:<span class="lineCov">         24 :     if (skipRows==LhsPacketSize)</span>
+<span class="lineNum">     385 </span>                :            :     {
+<span class="lineNum">     386 </span>                :            :       // nothing can be aligned, no need to skip any column
+<span class="lineNum">     387 </span>                :<span class="lineNoCov">          0 :       alignmentPattern = NoneAligned;</span>
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :       skipRows = 0;</span>
+<span class="lineNum">     389 </span>                :            :     }
+<span class="lineNum">     390 </span>                :            :     else
+<span class="lineNum">     391 </span>                :            :     {
+<span class="lineNum">     392 </span>        [<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         24 :       skipRows = (std::min)(skipRows,Index(rows));</span>
+<span class="lineNum">     393 </span>                :            :       // note that the skiped columns are processed later.
+<span class="lineNum">     394 </span>                :            :     }
+<span class="lineNum">     395 </span>                :            :     eigen_internal_assert(  alignmentPattern==NoneAligned
+<span class="lineNum">     396 </span>                :            :                       || LhsPacketSize==1
+<span class="lineNum">     397 </span>                :            :                       || (skipRows + rowsAtOnce &gt;= rows)
+<span class="lineNum">     398 </span>                :            :                       || LhsPacketSize &gt; depth
+<span class="lineNum">     399 </span>                :            :                       || (size_t(lhs+alignedStart+lhsStride*skipRows)%sizeof(LhsPacket))==0);
+<span class="lineNum">     400 </span>                :            :   }
+<span class="lineNum">     401 </span>                :            :   else if(Vectorizable)
+<span class="lineNum">     402 </span>                :            :   {
+<span class="lineNum">     403 </span>                :            :     alignedStart = 0;
+<span class="lineNum">     404 </span>                :            :     alignedSize = depth;
+<span class="lineNum">     405 </span>                :            :     alignmentPattern = AllAligned;
+<span class="lineNum">     406 </span>                :            :   }
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">         24 :   Index offset1 = (FirstAligned &amp;&amp; alignmentStep==1?3:1);</span>
+<span class="lineNum">     409 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">         24 :   Index offset3 = (FirstAligned &amp;&amp; alignmentStep==1?1:3);</span>
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :<span class="lineCov">         24 :   Index rowBound = ((rows-skipRows)/rowsAtOnce)*rowsAtOnce + skipRows;</span>
+<span class="lineNum">     412 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 24 times"> + </span>]:<span class="lineCov">         24 :   for (Index i=skipRows; i&lt;rowBound; i+=rowsAtOnce)</span>
+<span class="lineNum">     413 </span>                :            :   {
+<span class="lineNum">     414 </span>                :<span class="lineNoCov">          0 :     EIGEN_ALIGN16 ResScalar tmp0 = ResScalar(0);</span>
+<span class="lineNum">     415 </span>                :<span class="lineNoCov">          0 :     ResScalar tmp1 = ResScalar(0), tmp2 = ResScalar(0), tmp3 = ResScalar(0);</span>
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :            :     // this helps the compiler generating good binary code
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :     const LhsScalar *lhs0 = lhs + i*lhsStride,     *lhs1 = lhs + (i+offset1)*lhsStride,</span>
+<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :                     *lhs2 = lhs + (i+2)*lhsStride, *lhs3 = lhs + (i+offset3)*lhsStride;</span>
+<span class="lineNum">     420 </span>                :            : 
+<span class="lineNum">     421 </span>                :            :     if (Vectorizable)
+<span class="lineNum">     422 </span>                :            :     {
+<span class="lineNum">     423 </span>                :            :       /* explicit vectorization */
+<span class="lineNum">     424 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       ResPacket ptmp0 = pset1&lt;ResPacket&gt;(ResScalar(0)), ptmp1 = pset1&lt;ResPacket&gt;(ResScalar(0)),</span>
+<span class="lineNum">     425 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ptmp2 = pset1&lt;ResPacket&gt;(ResScalar(0)), ptmp3 = pset1&lt;ResPacket&gt;(ResScalar(0));</span>
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :            :       // process initial unaligned coeffs
+<span class="lineNum">     428 </span>                :            :       // FIXME this loop get vectorized by the compiler !
+<span class="lineNum">     429 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for (Index j=0; j&lt;alignedStart; ++j)</span>
+<span class="lineNum">     430 </span>                :            :       {
+<span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 :         RhsScalar b = rhs[j];</span>
+<span class="lineNum">     432 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         tmp0 += cj.pmul(lhs0[j],b); tmp1 += cj.pmul(lhs1[j],b);</span>
+<span class="lineNum">     433 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         tmp2 += cj.pmul(lhs2[j],b); tmp3 += cj.pmul(lhs3[j],b);</span>
+<span class="lineNum">     434 </span>                :            :       }
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (alignedSize&gt;alignedStart)</span>
+<span class="lineNum">     437 </span>                :            :       {
+<span class="lineNum">     438 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch(alignmentPattern)</span>
+<span class="lineNum">     439 </span>                :            :         {
+<span class="lineNum">     440 </span>                :            :           case AllAligned:
+<span class="lineNum">     441 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             for (Index j = alignedStart; j&lt;alignedSize; j+=RhsPacketSize)</span>
+<span class="lineNum">     442 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               _EIGEN_ACCUMULATE_PACKETS(d,d,d);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     444 </span>                :            :           case EvenAligned:
+<span class="lineNum">     445 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             for (Index j = alignedStart; j&lt;alignedSize; j+=RhsPacketSize)</span>
+<span class="lineNum">     446 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               _EIGEN_ACCUMULATE_PACKETS(d,du,d);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">     447 </span>                :<span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     448 </span>                :            :           case FirstAligned:
+<span class="lineNum">     449 </span>                :            :           {
+<span class="lineNum">     450 </span>                :<span class="lineNoCov">          0 :             Index j = alignedStart;</span>
+<span class="lineNum">     451 </span>                :            :             if (peels&gt;1)
+<span class="lineNum">     452 </span>                :            :             {
+<span class="lineNum">     453 </span>                :            :               /* Here we proccess 4 rows with with two peeled iterations to hide
+<span class="lineNum">     454 </span>                :            :                * the overhead of unaligned loads. Moreover unaligned loads are handled
+<span class="lineNum">     455 </span>                :            :                * using special shift/move operations between the two aligned packets
+<span class="lineNum">     456 </span>                :            :                * overlaping the desired unaligned packet. This is *much* more efficient
+<span class="lineNum">     457 </span>                :            :                * than basic unaligned loads.
+<span class="lineNum">     458 </span>                :            :                */
+<span class="lineNum">     459 </span>                :            :               LhsPacket A01, A02, A03, A11, A12, A13;
+<span class="lineNum">     460 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               A01 = pload&lt;LhsPacket&gt;(&amp;lhs1[alignedStart-1]);</span>
+<span class="lineNum">     461 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               A02 = pload&lt;LhsPacket&gt;(&amp;lhs2[alignedStart-2]);</span>
+<span class="lineNum">     462 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               A03 = pload&lt;LhsPacket&gt;(&amp;lhs3[alignedStart-3]);</span>
+<span class="lineNum">     463 </span>                :            : 
+<span class="lineNum">     464 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :               for (; j&lt;peeledSize; j+=peels*RhsPacketSize)</span>
+<span class="lineNum">     465 </span>                :            :               {
+<span class="lineNum">     466 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 RhsPacket b = pload&lt;RhsPacket&gt;(&amp;rhs[j]);</span>
+<span class="lineNum">     467 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A11 = pload&lt;LhsPacket&gt;(&amp;lhs1[j-1+LhsPacketSize]);  palign&lt;1&gt;(A01,A11);</span>
+<span class="lineNum">     468 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A12 = pload&lt;LhsPacket&gt;(&amp;lhs2[j-2+LhsPacketSize]);  palign&lt;2&gt;(A02,A12);</span>
+<span class="lineNum">     469 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A13 = pload&lt;LhsPacket&gt;(&amp;lhs3[j-3+LhsPacketSize]);  palign&lt;3&gt;(A03,A13);</span>
+<span class="lineNum">     470 </span>                :            : 
+<span class="lineNum">     471 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ptmp0 = pcj.pmadd(pload&lt;LhsPacket&gt;(&amp;lhs0[j]), b, ptmp0);</span>
+<span class="lineNum">     472 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ptmp1 = pcj.pmadd(A01, b, ptmp1);</span>
+<span class="lineNum">     473 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A01 = pload&lt;LhsPacket&gt;(&amp;lhs1[j-1+2*LhsPacketSize]);  palign&lt;1&gt;(A11,A01);</span>
+<span class="lineNum">     474 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ptmp2 = pcj.pmadd(A02, b, ptmp2);</span>
+<span class="lineNum">     475 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A02 = pload&lt;LhsPacket&gt;(&amp;lhs2[j-2+2*LhsPacketSize]);  palign&lt;2&gt;(A12,A02);</span>
+<span class="lineNum">     476 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ptmp3 = pcj.pmadd(A03, b, ptmp3);</span>
+<span class="lineNum">     477 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 A03 = pload&lt;LhsPacket&gt;(&amp;lhs3[j-3+2*LhsPacketSize]);  palign&lt;3&gt;(A13,A03);</span>
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 b = pload&lt;RhsPacket&gt;(&amp;rhs[j+RhsPacketSize]);</span>
+<span class="lineNum">     480 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ptmp0 = pcj.pmadd(pload&lt;LhsPacket&gt;(&amp;lhs0[j+LhsPacketSize]), b, ptmp0);</span>
+<span class="lineNum">     481 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ptmp1 = pcj.pmadd(A11, b, ptmp1);</span>
+<span class="lineNum">     482 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ptmp2 = pcj.pmadd(A12, b, ptmp2);</span>
+<span class="lineNum">     483 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 ptmp3 = pcj.pmadd(A13, b, ptmp3);</span>
+<span class="lineNum">     484 </span>                :            :               }
+<span class="lineNum">     485 </span>                :            :             }
+<span class="lineNum">     486 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             for (; j&lt;alignedSize; j+=RhsPacketSize)</span>
+<span class="lineNum">     487 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               _EIGEN_ACCUMULATE_PACKETS(d,du,du);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">     488 </span>                :<span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     489 </span>                :            :           }
+<span class="lineNum">     490 </span>                :            :           default:
+<span class="lineNum">     491 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             for (Index j = alignedStart; j&lt;alignedSize; j+=RhsPacketSize)</span>
+<span class="lineNum">     492 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               _EIGEN_ACCUMULATE_PACKETS(du,du,du);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">     493 </span>                :<span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     494 </span>                :            :         }
+<span class="lineNum">     495 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         tmp0 += predux(ptmp0);</span>
+<span class="lineNum">     496 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         tmp1 += predux(ptmp1);</span>
+<span class="lineNum">     497 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         tmp2 += predux(ptmp2);</span>
+<span class="lineNum">     498 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         tmp3 += predux(ptmp3);</span>
+<span class="lineNum">     499 </span>                :            :       }
+<span class="lineNum">     500 </span>                :            :     } // end explicit vectorization
+<span class="lineNum">     501 </span>                :            : 
+<span class="lineNum">     502 </span>                :            :     // process remaining coeffs (or all if no explicit vectorization)
+<span class="lineNum">     503 </span>                :            :     // FIXME this loop get vectorized by the compiler !
+<span class="lineNum">     504 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (Index j=alignedSize; j&lt;depth; ++j)</span>
+<span class="lineNum">     505 </span>                :            :     {
+<span class="lineNum">     506 </span>                :<span class="lineNoCov">          0 :       RhsScalar b = rhs[j];</span>
+<span class="lineNum">     507 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       tmp0 += cj.pmul(lhs0[j],b); tmp1 += cj.pmul(lhs1[j],b);</span>
+<span class="lineNum">     508 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       tmp2 += cj.pmul(lhs2[j],b); tmp3 += cj.pmul(lhs3[j],b);</span>
+<span class="lineNum">     509 </span>                :            :     }
+<span class="lineNum">     510 </span>                :<span class="lineNoCov">          0 :     res[i*resIncr]            += alpha*tmp0;</span>
+<span class="lineNum">     511 </span>                :<span class="lineNoCov">          0 :     res[(i+offset1)*resIncr]  += alpha*tmp1;</span>
+<span class="lineNum">     512 </span>                :<span class="lineNoCov">          0 :     res[(i+2)*resIncr]        += alpha*tmp2;</span>
+<span class="lineNum">     513 </span>                :<span class="lineNoCov">          0 :     res[(i+offset3)*resIncr]  += alpha*tmp3;</span>
+<span class="lineNum">     514 </span>                :            :   }
+<span class="lineNum">     515 </span>                :            : 
+<span class="lineNum">     516 </span>                :            :   // process remaining first and last rows (at most columnsAtOnce-1)
+<span class="lineNum">     517 </span>                :<span class="lineCov">         24 :   Index end = rows;</span>
+<span class="lineNum">     518 </span>                :<span class="lineCov">         24 :   Index start = rowBound;</span>
+<span class="lineNum">     519 </span>                :            :   do
+<span class="lineNum">     520 </span>                :            :   {
+<span class="lineNum">     521 </span>        [<span class="branchCov" title="Branch 0 was taken 40 times"> + </span><span class="branchCov" title="Branch 1 was taken 36 times"> + </span>]:<span class="lineCov">         76 :     for (Index i=start; i&lt;end; ++i)</span>
+<span class="lineNum">     522 </span>                :            :     {
+<span class="lineNum">     523 </span>                :<span class="lineCov">         40 :       EIGEN_ALIGN16 ResScalar tmp0 = ResScalar(0);</span>
+<span class="lineNum">     524 </span>        [<span class="branchCov" title="Branch 1 was taken 40 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         40 :       ResPacket ptmp0 = pset1&lt;ResPacket&gt;(tmp0);</span>
+<span class="lineNum">     525 </span>                :<span class="lineCov">         40 :       const LhsScalar* lhs0 = lhs + i*lhsStride;</span>
+<span class="lineNum">     526 </span>                :            :       // process first unaligned result's coeffs
+<span class="lineNum">     527 </span>                :            :       // FIXME this loop get vectorized by the compiler !
+<span class="lineNum">     528 </span>        [<span class="branchCov" title="Branch 0 was taken 56 times"> + </span><span class="branchCov" title="Branch 1 was taken 40 times"> + </span>]:<span class="lineCov">         96 :       for (Index j=0; j&lt;alignedStart; ++j)</span>
+<span class="lineNum">     529 </span>        [<span class="branchCov" title="Branch 1 was taken 56 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         56 :         tmp0 += cj.pmul(lhs0[j], rhs[j]);</span>
+<span class="lineNum">     530 </span>                :            : 
+<span class="lineNum">     531 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         40 :       if (alignedSize&gt;alignedStart)</span>
+<span class="lineNum">     532 </span>                :            :       {
+<span class="lineNum">     533 </span>                :            :         // process aligned rhs coeffs
+<span class="lineNum">     534 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         30 :         if ((size_t(lhs0+alignedStart)%sizeof(LhsPacket))==0)</span>
+<span class="lineNum">     535 </span>        [<span class="branchCov" title="Branch 0 was taken 296 times"> + </span><span class="branchCov" title="Branch 1 was taken 20 times"> + </span>]:<span class="lineCov">        316 :           for (Index j = alignedStart;j&lt;alignedSize;j+=RhsPacketSize)</span>
+<span class="lineNum">     536 </span>[<span class="branchCov" title="Branch 1 was taken 296 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 296 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        296 :             ptmp0 = pcj.pmadd(pload&lt;LhsPacket&gt;(&amp;lhs0[j]), pload&lt;RhsPacket&gt;(&amp;rhs[j]), ptmp0);</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 296 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     537 </span>                :            :         else
+<span class="lineNum">     538 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         20 :           for (Index j = alignedStart;j&lt;alignedSize;j+=RhsPacketSize)</span>
+<span class="lineNum">     539 </span>[<span class="branchCov" title="Branch 1 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         10 :             ptmp0 = pcj.pmadd(ploadu&lt;LhsPacket&gt;(&amp;lhs0[j]), pload&lt;RhsPacket&gt;(&amp;rhs[j]), ptmp0);</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     540 </span>        [<span class="branchCov" title="Branch 1 was taken 30 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         30 :         tmp0 += predux(ptmp0);</span>
+<span class="lineNum">     541 </span>                :            :       }
+<span class="lineNum">     542 </span>                :            : 
+<span class="lineNum">     543 </span>                :            :       // process remaining scalars
+<span class="lineNum">     544 </span>                :            :       // FIXME this loop get vectorized by the compiler !
+<span class="lineNum">     545 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 40 times"> + </span>]:<span class="lineCov">         56 :       for (Index j=alignedSize; j&lt;depth; ++j)</span>
+<span class="lineNum">     546 </span>        [<span class="branchCov" title="Branch 1 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         16 :         tmp0 += cj.pmul(lhs0[j], rhs[j]);</span>
+<span class="lineNum">     547 </span>                :<span class="lineCov">         40 :       res[i*resIncr] += alpha*tmp0;</span>
+<span class="lineNum">     548 </span>                :            :     }
+<span class="lineNum">     549 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 24 times"> + </span>]:<span class="lineCov">         36 :     if (skipRows)</span>
+<span class="lineNum">     550 </span>                :            :     {
+<span class="lineNum">     551 </span>                :<span class="lineCov">         12 :       start = 0;</span>
+<span class="lineNum">     552 </span>                :<span class="lineCov">         12 :       end = skipRows;</span>
+<span class="lineNum">     553 </span>                :<span class="lineCov">         12 :       skipRows = 0;</span>
+<span class="lineNum">     554 </span>                :            :     }
+<span class="lineNum">     555 </span>                :            :     else
+<span class="lineNum">     556 </span>                :<span class="lineCov">         24 :       break;</span>
+<span class="lineNum">     557 </span>                :<span class="lineCov">         12 :   } while(Vectorizable);</span>
+<span class="lineNum">     558 </span>                :            : 
+<span class="lineNum">     559 </span>                :            :   #undef _EIGEN_ACCUMULATE_PACKETS
+<span class="lineNum">     560 </span>                :<span class="lineCov">         24 : }</span>
+<span class="lineNum">     561 </span>                :            : 
+<span class="lineNum">     562 </span>                :            : } // end namespace internal
+<span class="lineNum">     563 </span>                :            : 
+<span class="lineNum">     564 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     565 </span>                :            : 
+<span class="lineNum">     566 </span>                :            : #endif // EIGEN_GENERAL_MATRIX_VECTOR_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

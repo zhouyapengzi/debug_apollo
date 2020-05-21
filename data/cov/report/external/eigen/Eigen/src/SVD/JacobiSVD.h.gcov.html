@@ -1,0 +1,1169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/SVD/JacobiSVD.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/SVD</a> - JacobiSVD.h<span style="font-size: 80%;"> (source / <a href="JacobiSVD.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">132</td>
+            <td class="headerCovTableEntry">139</td>
+            <td class="headerCovTableEntryHi">95.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">58</td>
+            <td class="headerCovTableEntry">97</td>
+            <td class="headerCovTableEntryLo">59.8 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">321</td>
+            <td class="headerCovTableEntry">646</td>
+            <td class="headerCovTableEntryLo">49.7 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2009-2010 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       5 </span>                :            : //
+<span class="lineNum">       6 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       7 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       8 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            : #ifndef EIGEN_JACOBISVD_H
+<span class="lineNum">      11 </span>                :            : #define EIGEN_JACOBISVD_H
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : namespace Eigen { 
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : namespace internal {
+<span class="lineNum">      16 </span>                :            : // forward declaration (needed by ICC)
+<span class="lineNum">      17 </span>                :            : // the empty body is required by MSVC
+<span class="lineNum">      18 </span>                :            : template&lt;typename MatrixType, int QRPreconditioner,
+<span class="lineNum">      19 </span>                :            :          bool IsComplex = NumTraits&lt;typename MatrixType::Scalar&gt;::IsComplex&gt;
+<span class="lineNum">      20 </span>                :            : struct svd_precondition_2x2_block_to_be_real {};
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : /*** QR preconditioners (R-SVD)
+<span class="lineNum">      23 </span>                :            :  ***
+<span class="lineNum">      24 </span>                :            :  *** Their role is to reduce the problem of computing the SVD to the case of a square matrix.
+<span class="lineNum">      25 </span>                :            :  *** This approach, known as R-SVD, is an optimization for rectangular-enough matrices, and is a requirement for
+<span class="lineNum">      26 </span>                :            :  *** JacobiSVD which by itself is only able to work on square matrices.
+<span class="lineNum">      27 </span>                :            :  ***/
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : enum { PreconditionIfMoreColsThanRows, PreconditionIfMoreRowsThanCols };
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : template&lt;typename MatrixType, int QRPreconditioner, int Case&gt;
+<span class="lineNum">      32 </span>                :            : struct qr_preconditioner_should_do_anything
+<span class="lineNum">      33 </span>                :            : {
+<span class="lineNum">      34 </span>                :            :   enum { a = MatrixType::RowsAtCompileTime != Dynamic &amp;&amp;
+<span class="lineNum">      35 </span>                :            :              MatrixType::ColsAtCompileTime != Dynamic &amp;&amp;
+<span class="lineNum">      36 </span>                :            :              MatrixType::ColsAtCompileTime &lt;= MatrixType::RowsAtCompileTime,
+<span class="lineNum">      37 </span>                :            :          b = MatrixType::RowsAtCompileTime != Dynamic &amp;&amp;
+<span class="lineNum">      38 </span>                :            :              MatrixType::ColsAtCompileTime != Dynamic &amp;&amp;
+<span class="lineNum">      39 </span>                :            :              MatrixType::RowsAtCompileTime &lt;= MatrixType::ColsAtCompileTime,
+<span class="lineNum">      40 </span>                :            :          ret = !( (QRPreconditioner == NoQRPreconditioner) ||
+<span class="lineNum">      41 </span>                :            :                   (Case == PreconditionIfMoreColsThanRows &amp;&amp; bool(a)) ||
+<span class="lineNum">      42 </span>                :            :                   (Case == PreconditionIfMoreRowsThanCols &amp;&amp; bool(b)) )
+<span class="lineNum">      43 </span>                :            :   };
+<span class="lineNum">      44 </span>                :            : };
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : template&lt;typename MatrixType, int QRPreconditioner, int Case,
+<span class="lineNum">      47 </span>                :            :          bool DoAnything = qr_preconditioner_should_do_anything&lt;MatrixType, QRPreconditioner, Case&gt;::ret
+<span class="lineNum">      48 </span>                :            : &gt; struct qr_preconditioner_impl {};
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            : template&lt;typename MatrixType, int QRPreconditioner, int Case&gt;
+<span class="lineNum">      51 </span>                :            : class qr_preconditioner_impl&lt;MatrixType, QRPreconditioner, Case, false&gt;
+<span class="lineNum">      52 </span>                :            : {
+<a name="53"><span class="lineNum">      53 </span>                :            : public:</a>
+<a name="54"><span class="lineNum">      54 </span>                :            :   typedef typename MatrixType::Index Index;</a>
+<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 :   void allocate(const JacobiSVD&lt;MatrixType, QRPreconditioner&gt;&amp;) {}</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :   bool run(JacobiSVD&lt;MatrixType, QRPreconditioner&gt;&amp;, const MatrixType&amp;)</span>
+<span class="lineNum">      57 </span>                :            :   {
+<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">      59 </span>                :            :   }
+<span class="lineNum">      60 </span>                :            : };
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            : /*** preconditioner using FullPivHouseholderQR ***/
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">      65 </span>                :            : class qr_preconditioner_impl&lt;MatrixType, FullPivHouseholderQRPreconditioner, PreconditionIfMoreRowsThanCols, true&gt;
+<span class="lineNum">      66 </span>                :            : {
+<span class="lineNum">      67 </span>                :            : public:
+<span class="lineNum">      68 </span>                :            :   typedef typename MatrixType::Index Index;
+<span class="lineNum">      69 </span>                :            :   typedef typename MatrixType::Scalar Scalar;
+<span class="lineNum">      70 </span>                :            :   enum
+<span class="lineNum">      71 </span>                :            :   {
+<span class="lineNum">      72 </span>                :            :     RowsAtCompileTime = MatrixType::RowsAtCompileTime,
+<span class="lineNum">      73 </span>                :            :     MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime
+<span class="lineNum">      74 </span>                :            :   };
+<span class="lineNum">      75 </span>                :            :   typedef Matrix&lt;Scalar, 1, RowsAtCompileTime, RowMajor, 1, MaxRowsAtCompileTime&gt; WorkspaceType;
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :            :   void allocate(const JacobiSVD&lt;MatrixType, FullPivHouseholderQRPreconditioner&gt;&amp; svd)
+<span class="lineNum">      78 </span>                :            :   {
+<span class="lineNum">      79 </span>                :            :     if (svd.rows() != m_qr.rows() || svd.cols() != m_qr.cols())
+<span class="lineNum">      80 </span>                :            :     {
+<span class="lineNum">      81 </span>                :            :       m_qr.~QRType();
+<span class="lineNum">      82 </span>                :            :       ::new (&amp;m_qr) QRType(svd.rows(), svd.cols());
+<span class="lineNum">      83 </span>                :            :     }
+<span class="lineNum">      84 </span>                :            :     if (svd.m_computeFullU) m_workspace.resize(svd.rows());
+<span class="lineNum">      85 </span>                :            :   }
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            :   bool run(JacobiSVD&lt;MatrixType, FullPivHouseholderQRPreconditioner&gt;&amp; svd, const MatrixType&amp; matrix)
+<span class="lineNum">      88 </span>                :            :   {
+<span class="lineNum">      89 </span>                :            :     if(matrix.rows() &gt; matrix.cols())
+<span class="lineNum">      90 </span>                :            :     {
+<span class="lineNum">      91 </span>                :            :       m_qr.compute(matrix);
+<span class="lineNum">      92 </span>                :            :       svd.m_workMatrix = m_qr.matrixQR().block(0,0,matrix.cols(),matrix.cols()).template triangularView&lt;Upper&gt;();
+<span class="lineNum">      93 </span>                :            :       if(svd.m_computeFullU) m_qr.matrixQ().evalTo(svd.m_matrixU, m_workspace);
+<span class="lineNum">      94 </span>                :            :       if(svd.computeV()) svd.m_matrixV = m_qr.colsPermutation();
+<span class="lineNum">      95 </span>                :            :       return true;
+<span class="lineNum">      96 </span>                :            :     }
+<span class="lineNum">      97 </span>                :            :     return false;
+<span class="lineNum">      98 </span>                :            :   }
+<span class="lineNum">      99 </span>                :            : private:
+<span class="lineNum">     100 </span>                :            :   typedef FullPivHouseholderQR&lt;MatrixType&gt; QRType;
+<span class="lineNum">     101 </span>                :            :   QRType m_qr;
+<span class="lineNum">     102 </span>                :            :   WorkspaceType m_workspace;
+<span class="lineNum">     103 </span>                :            : };
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     106 </span>                :            : class qr_preconditioner_impl&lt;MatrixType, FullPivHouseholderQRPreconditioner, PreconditionIfMoreColsThanRows, true&gt;
+<span class="lineNum">     107 </span>                :            : {
+<span class="lineNum">     108 </span>                :            : public:
+<span class="lineNum">     109 </span>                :            :   typedef typename MatrixType::Index Index;
+<span class="lineNum">     110 </span>                :            :   typedef typename MatrixType::Scalar Scalar;
+<span class="lineNum">     111 </span>                :            :   enum
+<span class="lineNum">     112 </span>                :            :   {
+<span class="lineNum">     113 </span>                :            :     RowsAtCompileTime = MatrixType::RowsAtCompileTime,
+<span class="lineNum">     114 </span>                :            :     ColsAtCompileTime = MatrixType::ColsAtCompileTime,
+<span class="lineNum">     115 </span>                :            :     MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
+<span class="lineNum">     116 </span>                :            :     MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime,
+<span class="lineNum">     117 </span>                :            :     Options = MatrixType::Options
+<span class="lineNum">     118 </span>                :            :   };
+<span class="lineNum">     119 </span>                :            :   typedef Matrix&lt;Scalar, ColsAtCompileTime, RowsAtCompileTime, Options, MaxColsAtCompileTime, MaxRowsAtCompileTime&gt;
+<span class="lineNum">     120 </span>                :            :           TransposeTypeWithSameStorageOrder;
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            :   void allocate(const JacobiSVD&lt;MatrixType, FullPivHouseholderQRPreconditioner&gt;&amp; svd)
+<span class="lineNum">     123 </span>                :            :   {
+<span class="lineNum">     124 </span>                :            :     if (svd.cols() != m_qr.rows() || svd.rows() != m_qr.cols())
+<span class="lineNum">     125 </span>                :            :     {
+<span class="lineNum">     126 </span>                :            :       m_qr.~QRType();
+<span class="lineNum">     127 </span>                :            :       ::new (&amp;m_qr) QRType(svd.cols(), svd.rows());
+<span class="lineNum">     128 </span>                :            :     }
+<span class="lineNum">     129 </span>                :            :     m_adjoint.resize(svd.cols(), svd.rows());
+<span class="lineNum">     130 </span>                :            :     if (svd.m_computeFullV) m_workspace.resize(svd.cols());
+<span class="lineNum">     131 </span>                :            :   }
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            :   bool run(JacobiSVD&lt;MatrixType, FullPivHouseholderQRPreconditioner&gt;&amp; svd, const MatrixType&amp; matrix)
+<span class="lineNum">     134 </span>                :            :   {
+<span class="lineNum">     135 </span>                :            :     if(matrix.cols() &gt; matrix.rows())
+<span class="lineNum">     136 </span>                :            :     {
+<span class="lineNum">     137 </span>                :            :       m_adjoint = matrix.adjoint();
+<span class="lineNum">     138 </span>                :            :       m_qr.compute(m_adjoint);
+<span class="lineNum">     139 </span>                :            :       svd.m_workMatrix = m_qr.matrixQR().block(0,0,matrix.rows(),matrix.rows()).template triangularView&lt;Upper&gt;().adjoint();
+<span class="lineNum">     140 </span>                :            :       if(svd.m_computeFullV) m_qr.matrixQ().evalTo(svd.m_matrixV, m_workspace);
+<span class="lineNum">     141 </span>                :            :       if(svd.computeU()) svd.m_matrixU = m_qr.colsPermutation();
+<span class="lineNum">     142 </span>                :            :       return true;
+<span class="lineNum">     143 </span>                :            :     }
+<span class="lineNum">     144 </span>                :            :     else return false;
+<span class="lineNum">     145 </span>                :            :   }
+<span class="lineNum">     146 </span>                :            : private:
+<span class="lineNum">     147 </span>                :            :   typedef FullPivHouseholderQR&lt;TransposeTypeWithSameStorageOrder&gt; QRType;
+<span class="lineNum">     148 </span>                :            :   QRType m_qr;
+<span class="lineNum">     149 </span>                :            :   TransposeTypeWithSameStorageOrder m_adjoint;
+<span class="lineNum">     150 </span>                :            :   typename internal::plain_row_type&lt;MatrixType&gt;::type m_workspace;
+<span class="lineNum">     151 </span>                :            : };
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :            : /*** preconditioner using ColPivHouseholderQR ***/
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     156 </span>                :            : class qr_preconditioner_impl&lt;MatrixType, ColPivHouseholderQRPreconditioner, PreconditionIfMoreRowsThanCols, true&gt;
+<span class="lineNum">     157 </span>                :            : {
+<span class="lineNum">     158 </span>                :            : public:
+<span class="lineNum">     159 </span>                :            :   typedef typename MatrixType::Index Index;
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :            :   void allocate(const JacobiSVD&lt;MatrixType, ColPivHouseholderQRPreconditioner&gt;&amp; svd)
+<span class="lineNum">     162 </span>                :            :   {
+<span class="lineNum">     163 </span>                :            :     if (svd.rows() != m_qr.rows() || svd.cols() != m_qr.cols())
+<span class="lineNum">     164 </span>                :            :     {
+<span class="lineNum">     165 </span>                :            :       m_qr.~QRType();
+<span class="lineNum">     166 </span>                :            :       ::new (&amp;m_qr) QRType(svd.rows(), svd.cols());
+<span class="lineNum">     167 </span>                :            :     }
+<span class="lineNum">     168 </span>                :            :     if (svd.m_computeFullU) m_workspace.resize(svd.rows());
+<span class="lineNum">     169 </span>                :            :     else if (svd.m_computeThinU) m_workspace.resize(svd.cols());
+<span class="lineNum">     170 </span>                :            :   }
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>                :            :   bool run(JacobiSVD&lt;MatrixType, ColPivHouseholderQRPreconditioner&gt;&amp; svd, const MatrixType&amp; matrix)
+<span class="lineNum">     173 </span>                :            :   {
+<span class="lineNum">     174 </span>                :            :     if(matrix.rows() &gt; matrix.cols())
+<span class="lineNum">     175 </span>                :            :     {
+<span class="lineNum">     176 </span>                :            :       m_qr.compute(matrix);
+<span class="lineNum">     177 </span>                :            :       svd.m_workMatrix = m_qr.matrixQR().block(0,0,matrix.cols(),matrix.cols()).template triangularView&lt;Upper&gt;();
+<span class="lineNum">     178 </span>                :            :       if(svd.m_computeFullU) m_qr.householderQ().evalTo(svd.m_matrixU, m_workspace);
+<span class="lineNum">     179 </span>                :            :       else if(svd.m_computeThinU)
+<span class="lineNum">     180 </span>                :            :       {
+<span class="lineNum">     181 </span>                :            :         svd.m_matrixU.setIdentity(matrix.rows(), matrix.cols());
+<span class="lineNum">     182 </span>                :            :         m_qr.householderQ().applyThisOnTheLeft(svd.m_matrixU, m_workspace);
+<span class="lineNum">     183 </span>                :            :       }
+<span class="lineNum">     184 </span>                :            :       if(svd.computeV()) svd.m_matrixV = m_qr.colsPermutation();
+<span class="lineNum">     185 </span>                :            :       return true;
+<span class="lineNum">     186 </span>                :            :     }
+<span class="lineNum">     187 </span>                :            :     return false;
+<span class="lineNum">     188 </span>                :            :   }
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :            : private:
+<span class="lineNum">     191 </span>                :            :   typedef ColPivHouseholderQR&lt;MatrixType&gt; QRType;
+<span class="lineNum">     192 </span>                :            :   QRType m_qr;
+<span class="lineNum">     193 </span>                :            :   typename internal::plain_col_type&lt;MatrixType&gt;::type m_workspace;
+<span class="lineNum">     194 </span>                :            : };
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     197 </span>                :            : class qr_preconditioner_impl&lt;MatrixType, ColPivHouseholderQRPreconditioner, PreconditionIfMoreColsThanRows, true&gt;
+<span class="lineNum">     198 </span>                :            : {
+<span class="lineNum">     199 </span>                :            : public:
+<span class="lineNum">     200 </span>                :            :   typedef typename MatrixType::Index Index;
+<span class="lineNum">     201 </span>                :            :   typedef typename MatrixType::Scalar Scalar;
+<span class="lineNum">     202 </span>                :            :   enum
+<span class="lineNum">     203 </span>                :            :   {
+<span class="lineNum">     204 </span>                :            :     RowsAtCompileTime = MatrixType::RowsAtCompileTime,
+<span class="lineNum">     205 </span>                :            :     ColsAtCompileTime = MatrixType::ColsAtCompileTime,
+<span class="lineNum">     206 </span>                :            :     MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
+<span class="lineNum">     207 </span>                :            :     MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime,
+<span class="lineNum">     208 </span>                :            :     Options = MatrixType::Options
+<span class="lineNum">     209 </span>                :            :   };
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :            :   typedef Matrix&lt;Scalar, ColsAtCompileTime, RowsAtCompileTime, Options, MaxColsAtCompileTime, MaxRowsAtCompileTime&gt;
+<span class="lineNum">     212 </span>                :            :           TransposeTypeWithSameStorageOrder;
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>                :            :   void allocate(const JacobiSVD&lt;MatrixType, ColPivHouseholderQRPreconditioner&gt;&amp; svd)
+<span class="lineNum">     215 </span>                :            :   {
+<span class="lineNum">     216 </span>                :            :     if (svd.cols() != m_qr.rows() || svd.rows() != m_qr.cols())
+<span class="lineNum">     217 </span>                :            :     {
+<span class="lineNum">     218 </span>                :            :       m_qr.~QRType();
+<span class="lineNum">     219 </span>                :            :       ::new (&amp;m_qr) QRType(svd.cols(), svd.rows());
+<span class="lineNum">     220 </span>                :            :     }
+<span class="lineNum">     221 </span>                :            :     if (svd.m_computeFullV) m_workspace.resize(svd.cols());
+<span class="lineNum">     222 </span>                :            :     else if (svd.m_computeThinV) m_workspace.resize(svd.rows());
+<span class="lineNum">     223 </span>                :            :     m_adjoint.resize(svd.cols(), svd.rows());
+<span class="lineNum">     224 </span>                :            :   }
+<span class="lineNum">     225 </span>                :            : 
+<span class="lineNum">     226 </span>                :            :   bool run(JacobiSVD&lt;MatrixType, ColPivHouseholderQRPreconditioner&gt;&amp; svd, const MatrixType&amp; matrix)
+<span class="lineNum">     227 </span>                :            :   {
+<span class="lineNum">     228 </span>                :            :     if(matrix.cols() &gt; matrix.rows())
+<span class="lineNum">     229 </span>                :            :     {
+<span class="lineNum">     230 </span>                :            :       m_adjoint = matrix.adjoint();
+<span class="lineNum">     231 </span>                :            :       m_qr.compute(m_adjoint);
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            :       svd.m_workMatrix = m_qr.matrixQR().block(0,0,matrix.rows(),matrix.rows()).template triangularView&lt;Upper&gt;().adjoint();
+<span class="lineNum">     234 </span>                :            :       if(svd.m_computeFullV) m_qr.householderQ().evalTo(svd.m_matrixV, m_workspace);
+<span class="lineNum">     235 </span>                :            :       else if(svd.m_computeThinV)
+<span class="lineNum">     236 </span>                :            :       {
+<span class="lineNum">     237 </span>                :            :         svd.m_matrixV.setIdentity(matrix.cols(), matrix.rows());
+<span class="lineNum">     238 </span>                :            :         m_qr.householderQ().applyThisOnTheLeft(svd.m_matrixV, m_workspace);
+<span class="lineNum">     239 </span>                :            :       }
+<span class="lineNum">     240 </span>                :            :       if(svd.computeU()) svd.m_matrixU = m_qr.colsPermutation();
+<span class="lineNum">     241 </span>                :            :       return true;
+<span class="lineNum">     242 </span>                :            :     }
+<span class="lineNum">     243 </span>                :            :     else return false;
+<span class="lineNum">     244 </span>                :            :   }
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :            : private:
+<span class="lineNum">     247 </span>                :            :   typedef ColPivHouseholderQR&lt;TransposeTypeWithSameStorageOrder&gt; QRType;
+<span class="lineNum">     248 </span>                :            :   QRType m_qr;
+<span class="lineNum">     249 </span>                :            :   TransposeTypeWithSameStorageOrder m_adjoint;
+<span class="lineNum">     250 </span>                :            :   typename internal::plain_row_type&lt;MatrixType&gt;::type m_workspace;
+<span class="lineNum">     251 </span>                :            : };
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>                :            : /*** preconditioner using HouseholderQR ***/
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     256 </span>                :            : class qr_preconditioner_impl&lt;MatrixType, HouseholderQRPreconditioner, PreconditionIfMoreRowsThanCols, true&gt;
+<span class="lineNum">     257 </span>                :            : {
+<span class="lineNum">     258 </span>                :            : public:
+<span class="lineNum">     259 </span>                :            :   typedef typename MatrixType::Index Index;
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>                :            :   void allocate(const JacobiSVD&lt;MatrixType, HouseholderQRPreconditioner&gt;&amp; svd)
+<span class="lineNum">     262 </span>                :            :   {
+<span class="lineNum">     263 </span>                :            :     if (svd.rows() != m_qr.rows() || svd.cols() != m_qr.cols())
+<span class="lineNum">     264 </span>                :            :     {
+<span class="lineNum">     265 </span>                :            :       m_qr.~QRType();
+<span class="lineNum">     266 </span>                :            :       ::new (&amp;m_qr) QRType(svd.rows(), svd.cols());
+<span class="lineNum">     267 </span>                :            :     }
+<span class="lineNum">     268 </span>                :            :     if (svd.m_computeFullU) m_workspace.resize(svd.rows());
+<span class="lineNum">     269 </span>                :            :     else if (svd.m_computeThinU) m_workspace.resize(svd.cols());
+<span class="lineNum">     270 </span>                :            :   }
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :            :   bool run(JacobiSVD&lt;MatrixType, HouseholderQRPreconditioner&gt;&amp; svd, const MatrixType&amp; matrix)
+<span class="lineNum">     273 </span>                :            :   {
+<span class="lineNum">     274 </span>                :            :     if(matrix.rows() &gt; matrix.cols())
+<span class="lineNum">     275 </span>                :            :     {
+<span class="lineNum">     276 </span>                :            :       m_qr.compute(matrix);
+<span class="lineNum">     277 </span>                :            :       svd.m_workMatrix = m_qr.matrixQR().block(0,0,matrix.cols(),matrix.cols()).template triangularView&lt;Upper&gt;();
+<span class="lineNum">     278 </span>                :            :       if(svd.m_computeFullU) m_qr.householderQ().evalTo(svd.m_matrixU, m_workspace);
+<span class="lineNum">     279 </span>                :            :       else if(svd.m_computeThinU)
+<span class="lineNum">     280 </span>                :            :       {
+<span class="lineNum">     281 </span>                :            :         svd.m_matrixU.setIdentity(matrix.rows(), matrix.cols());
+<span class="lineNum">     282 </span>                :            :         m_qr.householderQ().applyThisOnTheLeft(svd.m_matrixU, m_workspace);
+<span class="lineNum">     283 </span>                :            :       }
+<span class="lineNum">     284 </span>                :            :       if(svd.computeV()) svd.m_matrixV.setIdentity(matrix.cols(), matrix.cols());
+<span class="lineNum">     285 </span>                :            :       return true;
+<span class="lineNum">     286 </span>                :            :     }
+<span class="lineNum">     287 </span>                :            :     return false;
+<span class="lineNum">     288 </span>                :            :   }
+<span class="lineNum">     289 </span>                :            : private:
+<span class="lineNum">     290 </span>                :            :   typedef HouseholderQR&lt;MatrixType&gt; QRType;
+<span class="lineNum">     291 </span>                :            :   QRType m_qr;
+<span class="lineNum">     292 </span>                :            :   typename internal::plain_col_type&lt;MatrixType&gt;::type m_workspace;
+<span class="lineNum">     293 </span>                :            : };
+<span class="lineNum">     294 </span>                :            : 
+<span class="lineNum">     295 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     296 </span>                :            : class qr_preconditioner_impl&lt;MatrixType, HouseholderQRPreconditioner, PreconditionIfMoreColsThanRows, true&gt;
+<span class="lineNum">     297 </span>                :            : {
+<span class="lineNum">     298 </span>                :            : public:
+<span class="lineNum">     299 </span>                :            :   typedef typename MatrixType::Index Index;
+<span class="lineNum">     300 </span>                :            :   typedef typename MatrixType::Scalar Scalar;
+<span class="lineNum">     301 </span>                :            :   enum
+<span class="lineNum">     302 </span>                :            :   {
+<span class="lineNum">     303 </span>                :            :     RowsAtCompileTime = MatrixType::RowsAtCompileTime,
+<span class="lineNum">     304 </span>                :            :     ColsAtCompileTime = MatrixType::ColsAtCompileTime,
+<span class="lineNum">     305 </span>                :            :     MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
+<span class="lineNum">     306 </span>                :            :     MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime,
+<span class="lineNum">     307 </span>                :            :     Options = MatrixType::Options
+<span class="lineNum">     308 </span>                :            :   };
+<span class="lineNum">     309 </span>                :            : 
+<span class="lineNum">     310 </span>                :            :   typedef Matrix&lt;Scalar, ColsAtCompileTime, RowsAtCompileTime, Options, MaxColsAtCompileTime, MaxRowsAtCompileTime&gt;
+<span class="lineNum">     311 </span>                :            :           TransposeTypeWithSameStorageOrder;
+<span class="lineNum">     312 </span>                :            : 
+<span class="lineNum">     313 </span>                :            :   void allocate(const JacobiSVD&lt;MatrixType, HouseholderQRPreconditioner&gt;&amp; svd)
+<span class="lineNum">     314 </span>                :            :   {
+<span class="lineNum">     315 </span>                :            :     if (svd.cols() != m_qr.rows() || svd.rows() != m_qr.cols())
+<span class="lineNum">     316 </span>                :            :     {
+<span class="lineNum">     317 </span>                :            :       m_qr.~QRType();
+<span class="lineNum">     318 </span>                :            :       ::new (&amp;m_qr) QRType(svd.cols(), svd.rows());
+<span class="lineNum">     319 </span>                :            :     }
+<span class="lineNum">     320 </span>                :            :     if (svd.m_computeFullV) m_workspace.resize(svd.cols());
+<span class="lineNum">     321 </span>                :            :     else if (svd.m_computeThinV) m_workspace.resize(svd.rows());
+<span class="lineNum">     322 </span>                :            :     m_adjoint.resize(svd.cols(), svd.rows());
+<span class="lineNum">     323 </span>                :            :   }
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :            :   bool run(JacobiSVD&lt;MatrixType, HouseholderQRPreconditioner&gt;&amp; svd, const MatrixType&amp; matrix)
+<span class="lineNum">     326 </span>                :            :   {
+<span class="lineNum">     327 </span>                :            :     if(matrix.cols() &gt; matrix.rows())
+<span class="lineNum">     328 </span>                :            :     {
+<span class="lineNum">     329 </span>                :            :       m_adjoint = matrix.adjoint();
+<span class="lineNum">     330 </span>                :            :       m_qr.compute(m_adjoint);
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>                :            :       svd.m_workMatrix = m_qr.matrixQR().block(0,0,matrix.rows(),matrix.rows()).template triangularView&lt;Upper&gt;().adjoint();
+<span class="lineNum">     333 </span>                :            :       if(svd.m_computeFullV) m_qr.householderQ().evalTo(svd.m_matrixV, m_workspace);
+<span class="lineNum">     334 </span>                :            :       else if(svd.m_computeThinV)
+<span class="lineNum">     335 </span>                :            :       {
+<span class="lineNum">     336 </span>                :            :         svd.m_matrixV.setIdentity(matrix.cols(), matrix.rows());
+<span class="lineNum">     337 </span>                :            :         m_qr.householderQ().applyThisOnTheLeft(svd.m_matrixV, m_workspace);
+<span class="lineNum">     338 </span>                :            :       }
+<span class="lineNum">     339 </span>                :            :       if(svd.computeU()) svd.m_matrixU.setIdentity(matrix.rows(), matrix.rows());
+<span class="lineNum">     340 </span>                :            :       return true;
+<span class="lineNum">     341 </span>                :            :     }
+<span class="lineNum">     342 </span>                :            :     else return false;
+<span class="lineNum">     343 </span>                :            :   }
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>                :            : private:
+<span class="lineNum">     346 </span>                :            :   typedef HouseholderQR&lt;TransposeTypeWithSameStorageOrder&gt; QRType;
+<span class="lineNum">     347 </span>                :            :   QRType m_qr;
+<span class="lineNum">     348 </span>                :            :   TransposeTypeWithSameStorageOrder m_adjoint;
+<span class="lineNum">     349 </span>                :            :   typename internal::plain_row_type&lt;MatrixType&gt;::type m_workspace;
+<span class="lineNum">     350 </span>                :            : };
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :            : /*** 2x2 SVD implementation
+<span class="lineNum">     353 </span>                :            :  ***
+<span class="lineNum">     354 </span>                :            :  *** JacobiSVD consists in performing a series of 2x2 SVD subproblems
+<span class="lineNum">     355 </span>                :            :  ***/
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>                :            : template&lt;typename MatrixType, int QRPreconditioner&gt;
+<span class="lineNum">     358 </span>                :            : struct svd_precondition_2x2_block_to_be_real&lt;MatrixType, QRPreconditioner, false&gt;
+<span class="lineNum">     359 </span>                :            : {
+<span class="lineNum">     360 </span>                :            :   typedef JacobiSVD&lt;MatrixType, QRPreconditioner&gt; SVD;
+<a name="361"><span class="lineNum">     361 </span>                :            :   typedef typename SVD::Index Index;</a>
+<span class="lineNum">     362 </span>                :            :   typedef typename MatrixType::RealScalar RealScalar;
+<span class="lineNum">     363 </span>                :<span class="lineCov">        756 :   static bool run(typename SVD::WorkMatrixType&amp;, SVD&amp;, Index, Index, RealScalar&amp;) { return true; }</span>
+<span class="lineNum">     364 </span>                :            : };
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>                :            : template&lt;typename MatrixType, int QRPreconditioner&gt;
+<span class="lineNum">     367 </span>                :            : struct svd_precondition_2x2_block_to_be_real&lt;MatrixType, QRPreconditioner, true&gt;
+<span class="lineNum">     368 </span>                :            : {
+<span class="lineNum">     369 </span>                :            :   typedef JacobiSVD&lt;MatrixType, QRPreconditioner&gt; SVD;
+<span class="lineNum">     370 </span>                :            :   typedef typename SVD::Index Index;
+<span class="lineNum">     371 </span>                :            :   typedef typename MatrixType::Scalar Scalar;
+<span class="lineNum">     372 </span>                :            :   typedef typename MatrixType::RealScalar RealScalar;
+<span class="lineNum">     373 </span>                :            :   static bool run(typename SVD::WorkMatrixType&amp; work_matrix, SVD&amp; svd, Index p, Index q, RealScalar&amp; maxDiagEntry)
+<span class="lineNum">     374 </span>                :            :   {
+<span class="lineNum">     375 </span>                :            :     using std::sqrt;
+<span class="lineNum">     376 </span>                :            :     using std::abs;
+<span class="lineNum">     377 </span>                :            :     using std::max;
+<span class="lineNum">     378 </span>                :            :     Scalar z;
+<span class="lineNum">     379 </span>                :            :     JacobiRotation&lt;Scalar&gt; rot;
+<span class="lineNum">     380 </span>                :            :     RealScalar n = sqrt(numext::abs2(work_matrix.coeff(p,p)) + numext::abs2(work_matrix.coeff(q,p)));
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>                :            :     const RealScalar considerAsZero = (std::numeric_limits&lt;RealScalar&gt;::min)();
+<span class="lineNum">     383 </span>                :            :     const RealScalar precision = NumTraits&lt;Scalar&gt;::epsilon();
+<span class="lineNum">     384 </span>                :            : 
+<span class="lineNum">     385 </span>                :            :     if(n==0)
+<span class="lineNum">     386 </span>                :            :     {
+<span class="lineNum">     387 </span>                :            :       // make sure first column is zero
+<span class="lineNum">     388 </span>                :            :       work_matrix.coeffRef(p,p) = work_matrix.coeffRef(q,p) = Scalar(0);
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>                :            :       if(abs(numext::imag(work_matrix.coeff(p,q)))&gt;considerAsZero)
+<span class="lineNum">     391 </span>                :            :       {
+<span class="lineNum">     392 </span>                :            :         // work_matrix.coeff(p,q) can be zero if work_matrix.coeff(q,p) is not zero but small enough to underflow when computing n
+<span class="lineNum">     393 </span>                :            :         z = abs(work_matrix.coeff(p,q)) / work_matrix.coeff(p,q);
+<span class="lineNum">     394 </span>                :            :         work_matrix.row(p) *= z;
+<span class="lineNum">     395 </span>                :            :         if(svd.computeU()) svd.m_matrixU.col(p) *= conj(z);
+<span class="lineNum">     396 </span>                :            :       }
+<span class="lineNum">     397 </span>                :            :       if(abs(numext::imag(work_matrix.coeff(q,q)))&gt;considerAsZero)
+<span class="lineNum">     398 </span>                :            :       {
+<span class="lineNum">     399 </span>                :            :         z = abs(work_matrix.coeff(q,q)) / work_matrix.coeff(q,q);
+<span class="lineNum">     400 </span>                :            :         work_matrix.row(q) *= z;
+<span class="lineNum">     401 </span>                :            :         if(svd.computeU()) svd.m_matrixU.col(q) *= conj(z);
+<span class="lineNum">     402 </span>                :            :       }
+<span class="lineNum">     403 </span>                :            :       // otherwise the second row is already zero, so we have nothing to do.
+<span class="lineNum">     404 </span>                :            :     }
+<span class="lineNum">     405 </span>                :            :     else
+<span class="lineNum">     406 </span>                :            :     {
+<span class="lineNum">     407 </span>                :            :       rot.c() = conj(work_matrix.coeff(p,p)) / n;
+<span class="lineNum">     408 </span>                :            :       rot.s() = work_matrix.coeff(q,p) / n;
+<span class="lineNum">     409 </span>                :            :       work_matrix.applyOnTheLeft(p,q,rot);
+<span class="lineNum">     410 </span>                :            :       if(svd.computeU()) svd.m_matrixU.applyOnTheRight(p,q,rot.adjoint());
+<span class="lineNum">     411 </span>                :            :       if(abs(numext::imag(work_matrix.coeff(p,q)))&gt;considerAsZero)
+<span class="lineNum">     412 </span>                :            :       {
+<span class="lineNum">     413 </span>                :            :         z = abs(work_matrix.coeff(p,q)) / work_matrix.coeff(p,q);
+<span class="lineNum">     414 </span>                :            :         work_matrix.col(q) *= z;
+<span class="lineNum">     415 </span>                :            :         if(svd.computeV()) svd.m_matrixV.col(q) *= z;
+<span class="lineNum">     416 </span>                :            :       }
+<span class="lineNum">     417 </span>                :            :       if(abs(numext::imag(work_matrix.coeff(q,q)))&gt;considerAsZero)
+<span class="lineNum">     418 </span>                :            :       {
+<span class="lineNum">     419 </span>                :            :         z = abs(work_matrix.coeff(q,q)) / work_matrix.coeff(q,q);
+<span class="lineNum">     420 </span>                :            :         work_matrix.row(q) *= z;
+<span class="lineNum">     421 </span>                :            :         if(svd.computeU()) svd.m_matrixU.col(q) *= conj(z);
+<span class="lineNum">     422 </span>                :            :       }
+<span class="lineNum">     423 </span>                :            :     }
+<span class="lineNum">     424 </span>                :            : 
+<span class="lineNum">     425 </span>                :            :     // update largest diagonal entry
+<span class="lineNum">     426 </span>                :            :     maxDiagEntry = max EIGEN_EMPTY (maxDiagEntry,max EIGEN_EMPTY (abs(work_matrix.coeff(p,p)), abs(work_matrix.coeff(q,q))));
+<span class="lineNum">     427 </span>                :            :     // and check whether the 2x2 block is already diagonal
+<span class="lineNum">     428 </span>                :            :     RealScalar threshold = max EIGEN_EMPTY (considerAsZero, precision * maxDiagEntry);
+<span class="lineNum">     429 </span>                :            :     return abs(work_matrix.coeff(p,q))&gt;threshold || abs(work_matrix.coeff(q,p)) &gt; threshold;
+<span class="lineNum">     430 </span>                :            :   }
+<span class="lineNum">     431 </span>                :            : };
+<a name="432"><span class="lineNum">     432 </span>                :            : </a>
+<span class="lineNum">     433 </span>                :            : template&lt;typename MatrixType, typename RealScalar, typename Index&gt;
+<span class="lineNum">     434 </span>                :<span class="lineCov">        378 : void real_2x2_jacobi_svd(const MatrixType&amp; matrix, Index p, Index q,</span>
+<span class="lineNum">     435 </span>                :            :                             JacobiRotation&lt;RealScalar&gt; *j_left,
+<span class="lineNum">     436 </span>                :            :                             JacobiRotation&lt;RealScalar&gt; *j_right)
+<span class="lineNum">     437 </span>                :            : {
+<span class="lineNum">     438 </span>                :            :   using std::sqrt;
+<span class="lineNum">     439 </span>                :            :   using std::abs;
+<span class="lineNum">     440 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :   Matrix&lt;RealScalar,2,2&gt; m;</span>
+<span class="lineNum">     441 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :   m &lt;&lt; numext::real(matrix.coeff(p,p)), numext::real(matrix.coeff(p,q)),</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 27 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 28 was not taken"> - </span>][<span class="branchCov" title="Branch 30 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 31 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 33 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 34 was not taken"> - </span>][<span class="branchCov" title="Branch 36 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 37 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 39 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 40 was not taken"> - </span>][<span class="branchCov" title="Branch 42 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 43 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 45 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 46 was not taken"> - </span>][<span class="branchCov" title="Branch 48 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 49 was not taken"> - </span>]
+<span class="lineNum">     442 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :        numext::real(matrix.coeff(q,p)), numext::real(matrix.coeff(q,q));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">     443 </span>  [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :   JacobiRotation&lt;RealScalar&gt; rot1;</span>
+<span class="lineNum">     444 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :   RealScalar t = m.coeff(0,0) + m.coeff(1,1);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     445 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :   RealScalar d = m.coeff(1,0) - m.coeff(0,1);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     446 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 370 times"> + </span>]:<span class="lineCov">        378 :   if(d == RealScalar(0))</span>
+<span class="lineNum">     447 </span>                :            :   {
+<span class="lineNum">     448 </span>[<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          5 :     rot1.s() = RealScalar(0);</span>
+<span class="lineNum">     449 </span>[<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          5 :     rot1.c() = RealScalar(1);</span>
+<span class="lineNum">     450 </span>                :            :   }
+<span class="lineNum">     451 </span>                :            :   else
+<span class="lineNum">     452 </span>                :            :   {
+<span class="lineNum">     453 </span>                :            :     // If d!=0, then t/d cannot overflow because the magnitude of the
+<span class="lineNum">     454 </span>                :            :     // entries forming d are not too small compared to the ones forming t.
+<span class="lineNum">     455 </span>                :<span class="lineCov">        373 :     RealScalar u = t / d;</span>
+<span class="lineNum">     456 </span>[<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        373 :     RealScalar tmp = sqrt(RealScalar(1) + numext::abs2(u));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     457 </span>[<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        373 :     rot1.s() = RealScalar(1) / tmp;</span>
+<span class="lineNum">     458 </span>[<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        373 :     rot1.c() = u / tmp;</span>
+<span class="lineNum">     459 </span>                :            :   }
+<span class="lineNum">     460 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :   m.applyOnTheLeft(0,1,rot1);</span>
+<span class="lineNum">     461 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :   j_right-&gt;makeJacobi(m,0,1);</span>
+<span class="lineNum">     462 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :   *j_left = rot1 * j_right-&gt;transpose();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     463 </span>                :<span class="lineCov">        378 : }</span>
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :            : } // end namespace internal
+<span class="lineNum">     466 </span>                :            : 
+<span class="lineNum">     467 </span>                :            : /** \ingroup SVD_Module
+<span class="lineNum">     468 </span>                :            :   *
+<span class="lineNum">     469 </span>                :            :   *
+<span class="lineNum">     470 </span>                :            :   * \class JacobiSVD
+<span class="lineNum">     471 </span>                :            :   *
+<span class="lineNum">     472 </span>                :            :   * \brief Two-sided Jacobi SVD decomposition of a rectangular matrix
+<span class="lineNum">     473 </span>                :            :   *
+<span class="lineNum">     474 </span>                :            :   * \param MatrixType the type of the matrix of which we are computing the SVD decomposition
+<span class="lineNum">     475 </span>                :            :   * \param QRPreconditioner this optional parameter allows to specify the type of QR decomposition that will be used internally
+<span class="lineNum">     476 </span>                :            :   *                        for the R-SVD step for non-square matrices. See discussion of possible values below.
+<span class="lineNum">     477 </span>                :            :   *
+<span class="lineNum">     478 </span>                :            :   * SVD decomposition consists in decomposing any n-by-p matrix \a A as a product
+<span class="lineNum">     479 </span>                :            :   *   \f[ A = U S V^* \f]
+<span class="lineNum">     480 </span>                :            :   * where \a U is a n-by-n unitary, \a V is a p-by-p unitary, and \a S is a n-by-p real positive matrix which is zero outside of its main diagonal;
+<span class="lineNum">     481 </span>                :            :   * the diagonal entries of S are known as the \em singular \em values of \a A and the columns of \a U and \a V are known as the left
+<span class="lineNum">     482 </span>                :            :   * and right \em singular \em vectors of \a A respectively.
+<span class="lineNum">     483 </span>                :            :   *
+<span class="lineNum">     484 </span>                :            :   * Singular values are always sorted in decreasing order.
+<span class="lineNum">     485 </span>                :            :   *
+<span class="lineNum">     486 </span>                :            :   * This JacobiSVD decomposition computes only the singular values by default. If you want \a U or \a V, you need to ask for them explicitly.
+<span class="lineNum">     487 </span>                :            :   *
+<span class="lineNum">     488 </span>                :            :   * You can ask for only \em thin \a U or \a V to be computed, meaning the following. In case of a rectangular n-by-p matrix, letting \a m be the
+<span class="lineNum">     489 </span>                :            :   * smaller value among \a n and \a p, there are only \a m singular vectors; the remaining columns of \a U and \a V do not correspond to actual
+<span class="lineNum">     490 </span>                :            :   * singular vectors. Asking for \em thin \a U or \a V means asking for only their \a m first columns to be formed. So \a U is then a n-by-m matrix,
+<span class="lineNum">     491 </span>                :            :   * and \a V is then a p-by-m matrix. Notice that thin \a U and \a V are all you need for (least squares) solving.
+<span class="lineNum">     492 </span>                :            :   *
+<span class="lineNum">     493 </span>                :            :   * Here's an example demonstrating basic usage:
+<span class="lineNum">     494 </span>                :            :   * \include JacobiSVD_basic.cpp
+<span class="lineNum">     495 </span>                :            :   * Output: \verbinclude JacobiSVD_basic.out
+<span class="lineNum">     496 </span>                :            :   *
+<span class="lineNum">     497 </span>                :            :   * This JacobiSVD class is a two-sided Jacobi R-SVD decomposition, ensuring optimal reliability and accuracy. The downside is that it's slower than
+<span class="lineNum">     498 </span>                :            :   * bidiagonalizing SVD algorithms for large square matrices; however its complexity is still \f$ O(n^2p) \f$ where \a n is the smaller dimension and
+<span class="lineNum">     499 </span>                :            :   * \a p is the greater dimension, meaning that it is still of the same order of complexity as the faster bidiagonalizing R-SVD algorithms.
+<span class="lineNum">     500 </span>                :            :   * In particular, like any R-SVD, it takes advantage of non-squareness in that its complexity is only linear in the greater dimension.
+<span class="lineNum">     501 </span>                :            :   *
+<span class="lineNum">     502 </span>                :            :   * If the input matrix has inf or nan coefficients, the result of the computation is undefined, but the computation is guaranteed to
+<span class="lineNum">     503 </span>                :            :   * terminate in finite (and reasonable) time.
+<span class="lineNum">     504 </span>                :            :   *
+<span class="lineNum">     505 </span>                :            :   * The possible values for QRPreconditioner are:
+<span class="lineNum">     506 </span>                :            :   * \li ColPivHouseholderQRPreconditioner is the default. In practice it's very safe. It uses column-pivoting QR.
+<span class="lineNum">     507 </span>                :            :   * \li FullPivHouseholderQRPreconditioner, is the safest and slowest. It uses full-pivoting QR.
+<span class="lineNum">     508 </span>                :            :   *     Contrary to other QRs, it doesn't allow computing thin unitaries.
+<span class="lineNum">     509 </span>                :            :   * \li HouseholderQRPreconditioner is the fastest, and less safe and accurate than the pivoting variants. It uses non-pivoting QR.
+<span class="lineNum">     510 </span>                :            :   *     This is very similar in safety and accuracy to the bidiagonalization process used by bidiagonalizing SVD algorithms (since bidiagonalization
+<span class="lineNum">     511 </span>                :            :   *     is inherently non-pivoting). However the resulting SVD is still more reliable than bidiagonalizing SVDs because the Jacobi-based iterarive
+<span class="lineNum">     512 </span>                :            :   *     process is more reliable than the optimized bidiagonal SVD iterations.
+<span class="lineNum">     513 </span>                :            :   * \li NoQRPreconditioner allows not to use a QR preconditioner at all. This is useful if you know that you will only be computing
+<span class="lineNum">     514 </span>                :            :   *     JacobiSVD decompositions of square matrices. Non-square matrices require a QR preconditioner. Using this option will result in
+<span class="lineNum">     515 </span>                :            :   *     faster compilation and smaller executable code. It won't significantly speed up computation, since JacobiSVD is always checking
+<span class="lineNum">     516 </span>                :            :   *     if QR preconditioning is needed before applying it anyway.
+<span class="lineNum">     517 </span>                :            :   *
+<span class="lineNum">     518 </span>                :            :   * \sa MatrixBase::jacobiSvd()
+<span class="lineNum">     519 </span>                :            :   */
+<span class="lineNum">     520 </span>                :            : template&lt;typename _MatrixType, int QRPreconditioner&gt; class JacobiSVD
+<span class="lineNum">     521 </span>                :            : {
+<span class="lineNum">     522 </span>                :            :   public:
+<span class="lineNum">     523 </span>                :            : 
+<span class="lineNum">     524 </span>                :            :     typedef _MatrixType MatrixType;
+<span class="lineNum">     525 </span>                :            :     typedef typename MatrixType::Scalar Scalar;
+<span class="lineNum">     526 </span>                :            :     typedef typename NumTraits&lt;typename MatrixType::Scalar&gt;::Real RealScalar;
+<span class="lineNum">     527 </span>                :            :     typedef typename MatrixType::Index Index;
+<span class="lineNum">     528 </span>                :            :     enum {
+<span class="lineNum">     529 </span>                :            :       RowsAtCompileTime = MatrixType::RowsAtCompileTime,
+<span class="lineNum">     530 </span>                :            :       ColsAtCompileTime = MatrixType::ColsAtCompileTime,
+<span class="lineNum">     531 </span>                :            :       DiagSizeAtCompileTime = EIGEN_SIZE_MIN_PREFER_DYNAMIC(RowsAtCompileTime,ColsAtCompileTime),
+<span class="lineNum">     532 </span>                :            :       MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
+<span class="lineNum">     533 </span>                :            :       MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime,
+<span class="lineNum">     534 </span>                :            :       MaxDiagSizeAtCompileTime = EIGEN_SIZE_MIN_PREFER_FIXED(MaxRowsAtCompileTime,MaxColsAtCompileTime),
+<span class="lineNum">     535 </span>                :            :       MatrixOptions = MatrixType::Options
+<span class="lineNum">     536 </span>                :            :     };
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>                :            :     typedef Matrix&lt;Scalar, RowsAtCompileTime, RowsAtCompileTime,
+<span class="lineNum">     539 </span>                :            :                    MatrixOptions, MaxRowsAtCompileTime, MaxRowsAtCompileTime&gt;
+<span class="lineNum">     540 </span>                :            :             MatrixUType;
+<span class="lineNum">     541 </span>                :            :     typedef Matrix&lt;Scalar, ColsAtCompileTime, ColsAtCompileTime,
+<span class="lineNum">     542 </span>                :            :                    MatrixOptions, MaxColsAtCompileTime, MaxColsAtCompileTime&gt;
+<span class="lineNum">     543 </span>                :            :             MatrixVType;
+<span class="lineNum">     544 </span>                :            :     typedef typename internal::plain_diag_type&lt;MatrixType, RealScalar&gt;::type SingularValuesType;
+<span class="lineNum">     545 </span>                :            :     typedef typename internal::plain_row_type&lt;MatrixType&gt;::type RowType;
+<span class="lineNum">     546 </span>                :            :     typedef typename internal::plain_col_type&lt;MatrixType&gt;::type ColType;
+<span class="lineNum">     547 </span>                :            :     typedef Matrix&lt;Scalar, DiagSizeAtCompileTime, DiagSizeAtCompileTime,
+<span class="lineNum">     548 </span>                :            :                    MatrixOptions, MaxDiagSizeAtCompileTime, MaxDiagSizeAtCompileTime&gt;
+<span class="lineNum">     549 </span>                :            :             WorkMatrixType;
+<span class="lineNum">     550 </span>                :            : 
+<span class="lineNum">     551 </span>                :            :     /** \brief Default Constructor.
+<span class="lineNum">     552 </span>                :            :       *
+<span class="lineNum">     553 </span>                :            :       * The default constructor is useful in cases in which the user intends to
+<span class="lineNum">     554 </span>                :            :       * perform decompositions via JacobiSVD::compute(const MatrixType&amp;).
+<span class="lineNum">     555 </span>                :            :       */
+<span class="lineNum">     556 </span>                :            :     JacobiSVD()
+<span class="lineNum">     557 </span>                :            :       : m_isInitialized(false),
+<span class="lineNum">     558 </span>                :            :         m_isAllocated(false),
+<span class="lineNum">     559 </span>                :            :         m_usePrescribedThreshold(false),
+<span class="lineNum">     560 </span>                :            :         m_computationOptions(0),
+<span class="lineNum">     561 </span>                :            :         m_rows(-1), m_cols(-1), m_diagSize(0)
+<span class="lineNum">     562 </span>                :            :     {}
+<span class="lineNum">     563 </span>                :            : 
+<span class="lineNum">     564 </span>                :            : 
+<span class="lineNum">     565 </span>                :            :     /** \brief Default Constructor with memory preallocation
+<span class="lineNum">     566 </span>                :            :       *
+<span class="lineNum">     567 </span>                :            :       * Like the default constructor but with preallocation of the internal data
+<span class="lineNum">     568 </span>                :            :       * according to the specified problem size.
+<span class="lineNum">     569 </span>                :            :       * \sa JacobiSVD()
+<span class="lineNum">     570 </span>                :            :       */
+<span class="lineNum">     571 </span>                :            :     JacobiSVD(Index rows, Index cols, unsigned int computationOptions = 0)
+<span class="lineNum">     572 </span>                :            :       : m_isInitialized(false),
+<span class="lineNum">     573 </span>                :            :         m_isAllocated(false),
+<span class="lineNum">     574 </span>                :            :         m_usePrescribedThreshold(false),
+<span class="lineNum">     575 </span>                :            :         m_computationOptions(0),
+<span class="lineNum">     576 </span>                :            :         m_rows(-1), m_cols(-1)
+<span class="lineNum">     577 </span>                :            :     {
+<span class="lineNum">     578 </span>                :            :       allocate(rows, cols, computationOptions);
+<span class="lineNum">     579 </span>                :            :     }
+<span class="lineNum">     580 </span>                :            : 
+<span class="lineNum">     581 </span>                :            :     /** \brief Constructor performing the decomposition of given matrix.
+<span class="lineNum">     582 </span>                :            :      *
+<span class="lineNum">     583 </span>                :            :      * \param matrix the matrix to decompose
+<span class="lineNum">     584 </span>                :            :      * \param computationOptions optional parameter allowing to specify if you want full or thin U or V unitaries to be computed.
+<span class="lineNum">     585 </span>                :            :      *                           By default, none is computed. This is a bit-field, the possible bits are #ComputeFullU, #ComputeThinU,
+<span class="lineNum">     586 </span>                :            :      *                           #ComputeFullV, #ComputeThinV.
+<span class="lineNum">     587 </span>                :            :      *
+<span class="lineNum">     588 </span>                :            :      * Thin unitaries are only available if your matrix type has a Dynamic number of columns (for example MatrixXf). They also are not
+<a name="589"><span class="lineNum">     589 </span>                :            :      * available with the (non-default) FullPivHouseholderQR preconditioner.</a>
+<span class="lineNum">     590 </span>                :            :      */
+<span class="lineNum">     591 </span>                :<span class="lineCov">         25 :     JacobiSVD(const MatrixType&amp; matrix, unsigned int computationOptions = 0)</span>
+<span class="lineNum">     592 </span>                :            :       : m_isInitialized(false),
+<span class="lineNum">     593 </span>                :            :         m_isAllocated(false),
+<span class="lineNum">     594 </span>                :            :         m_usePrescribedThreshold(false),
+<span class="lineNum">     595 </span>                :            :         m_computationOptions(0),
+<span class="lineNum">     596 </span>                :<span class="lineCov">         25 :         m_rows(-1), m_cols(-1)</span>
+<span class="lineNum">     597 </span>                :            :     {
+<span class="lineNum">     598 </span>                :<span class="lineCov">         25 :       compute(matrix, computationOptions);</span>
+<span class="lineNum">     599 </span>                :<span class="lineCov">         25 :     }</span>
+<span class="lineNum">     600 </span>                :            : 
+<span class="lineNum">     601 </span>                :            :     /** \brief Method performing the decomposition of given matrix using custom options.
+<span class="lineNum">     602 </span>                :            :      *
+<span class="lineNum">     603 </span>                :            :      * \param matrix the matrix to decompose
+<span class="lineNum">     604 </span>                :            :      * \param computationOptions optional parameter allowing to specify if you want full or thin U or V unitaries to be computed.
+<span class="lineNum">     605 </span>                :            :      *                           By default, none is computed. This is a bit-field, the possible bits are #ComputeFullU, #ComputeThinU,
+<span class="lineNum">     606 </span>                :            :      *                           #ComputeFullV, #ComputeThinV.
+<span class="lineNum">     607 </span>                :            :      *
+<span class="lineNum">     608 </span>                :            :      * Thin unitaries are only available if your matrix type has a Dynamic number of columns (for example MatrixXf). They also are not
+<span class="lineNum">     609 </span>                :            :      * available with the (non-default) FullPivHouseholderQR preconditioner.
+<span class="lineNum">     610 </span>                :            :      */
+<span class="lineNum">     611 </span>                :            :     JacobiSVD&amp; compute(const MatrixType&amp; matrix, unsigned int computationOptions);
+<span class="lineNum">     612 </span>                :            : 
+<span class="lineNum">     613 </span>                :            :     /** \brief Method performing the decomposition of given matrix using current options.
+<span class="lineNum">     614 </span>                :            :      *
+<span class="lineNum">     615 </span>                :            :      * \param matrix the matrix to decompose
+<span class="lineNum">     616 </span>                :            :      *
+<span class="lineNum">     617 </span>                :            :      * This method uses the current \a computationOptions, as already passed to the constructor or to compute(const MatrixType&amp;, unsigned int).
+<span class="lineNum">     618 </span>                :            :      */
+<span class="lineNum">     619 </span>                :            :     JacobiSVD&amp; compute(const MatrixType&amp; matrix)
+<span class="lineNum">     620 </span>                :            :     {
+<span class="lineNum">     621 </span>                :            :       return compute(matrix, m_computationOptions);
+<span class="lineNum">     622 </span>                :            :     }
+<span class="lineNum">     623 </span>                :            : 
+<span class="lineNum">     624 </span>                :            :     /** \returns the \a U matrix.
+<span class="lineNum">     625 </span>                :            :      *
+<span class="lineNum">     626 </span>                :            :      * For the SVD decomposition of a n-by-p matrix, letting \a m be the minimum of \a n and \a p,
+<span class="lineNum">     627 </span>                :            :      * the U matrix is n-by-n if you asked for #ComputeFullU, and is n-by-m if you asked for #ComputeThinU.
+<span class="lineNum">     628 </span>                :            :      *
+<span class="lineNum">     629 </span>                :            :      * The \a m first columns of \a U are the left singular vectors of the matrix being decomposed.
+<span class="lineNum">     630 </span>                :            :      *
+<a name="631"><span class="lineNum">     631 </span>                :            :      * This method asserts that you asked for \a U to be computed.</a>
+<span class="lineNum">     632 </span>                :            :      */
+<span class="lineNum">     633 </span>                :<span class="lineCov">         26 :     const MatrixUType&amp; matrixU() const</span>
+<span class="lineNum">     634 </span>                :            :     {
+<span class="lineNum">     635 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 16 times"> + </span>]:<span class="lineCov">         26 :       eigen_assert(m_isInitialized &amp;&amp; &quot;JacobiSVD is not initialized.&quot;);</span>
+<span class="lineNum">     636 </span>[<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>][<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 16 times"> + </span>]:<span class="lineCov">         26 :       eigen_assert(computeU() &amp;&amp; &quot;This JacobiSVD decomposition didn't compute U. Did you ask for it?&quot;);</span>
+<span class="lineNum">     637 </span>                :<span class="lineCov">         26 :       return m_matrixU;</span>
+<span class="lineNum">     638 </span>                :            :     }
+<span class="lineNum">     639 </span>                :            : 
+<span class="lineNum">     640 </span>                :            :     /** \returns the \a V matrix.
+<span class="lineNum">     641 </span>                :            :      *
+<span class="lineNum">     642 </span>                :            :      * For the SVD decomposition of a n-by-p matrix, letting \a m be the minimum of \a n and \a p,
+<span class="lineNum">     643 </span>                :            :      * the V matrix is p-by-p if you asked for #ComputeFullV, and is p-by-m if you asked for ComputeThinV.
+<span class="lineNum">     644 </span>                :            :      *
+<span class="lineNum">     645 </span>                :            :      * The \a m first columns of \a V are the right singular vectors of the matrix being decomposed.
+<span class="lineNum">     646 </span>                :            :      *
+<a name="647"><span class="lineNum">     647 </span>                :            :      * This method asserts that you asked for \a V to be computed.</a>
+<span class="lineNum">     648 </span>                :            :      */
+<span class="lineNum">     649 </span>                :<span class="lineCov">         26 :     const MatrixVType&amp; matrixV() const</span>
+<span class="lineNum">     650 </span>                :            :     {
+<span class="lineNum">     651 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 16 times"> + </span>]:<span class="lineCov">         26 :       eigen_assert(m_isInitialized &amp;&amp; &quot;JacobiSVD is not initialized.&quot;);</span>
+<span class="lineNum">     652 </span>[<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>][<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 16 times"> + </span>]:<span class="lineCov">         26 :       eigen_assert(computeV() &amp;&amp; &quot;This JacobiSVD decomposition didn't compute V. Did you ask for it?&quot;);</span>
+<span class="lineNum">     653 </span>                :<span class="lineCov">         26 :       return m_matrixV;</span>
+<span class="lineNum">     654 </span>                :            :     }
+<span class="lineNum">     655 </span>                :            : 
+<span class="lineNum">     656 </span>                :            :     /** \returns the vector of singular values.
+<span class="lineNum">     657 </span>                :            :      *
+<span class="lineNum">     658 </span>                :            :      * For the SVD decomposition of a n-by-p matrix, letting \a m be the minimum of \a n and \a p, the
+<a name="659"><span class="lineNum">     659 </span>                :            :      * returned vector has size \a m.  Singular values are always sorted in decreasing order.</a>
+<span class="lineNum">     660 </span>                :            :      */
+<span class="lineNum">     661 </span>                :<span class="lineCov">         42 :     const SingularValuesType&amp; singularValues() const</span>
+<span class="lineNum">     662 </span>                :            :     {
+<span class="lineNum">     663 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 13 times"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 29 times"> + </span>]:<span class="lineCov">         42 :       eigen_assert(m_isInitialized &amp;&amp; &quot;JacobiSVD is not initialized.&quot;);</span>
+<span class="lineNum">     664 </span>                :<span class="lineCov">         42 :       return m_singularValues;</span>
+<span class="lineNum">     665 </span>                :            :     }
+<a name="666"><span class="lineNum">     666 </span>                :            : </a>
+<span class="lineNum">     667 </span>                :            :     /** \returns true if \a U (full or thin) is asked for in this SVD decomposition */
+<a name="668"><span class="lineNum">     668 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 29 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">       1056 :     inline bool computeU() const { return m_computeFullU || m_computeThinU; }</span></a>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 499 times"> + </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     669 </span>                :            :     /** \returns true if \a V (full or thin) is asked for in this SVD decomposition */
+<span class="lineNum">     670 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">        888 :     inline bool computeV() const { return m_computeFullV || m_computeThinV; }</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 429 times"> + </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     671 </span>                :            : 
+<span class="lineNum">     672 </span>                :            :     /** \returns a (least squares) solution of \f$ A x = b \f$ using the current SVD decomposition of A.
+<span class="lineNum">     673 </span>                :            :       *
+<span class="lineNum">     674 </span>                :            :       * \param b the right-hand-side of the equation to solve.
+<span class="lineNum">     675 </span>                :            :       *
+<span class="lineNum">     676 </span>                :            :       * \note Solving requires both U and V to be computed. Thin U and V are enough, there is no need for full U or V.
+<span class="lineNum">     677 </span>                :            :       *
+<span class="lineNum">     678 </span>                :            :       * \note SVD solving is implicitly least-squares. Thus, this method serves both purposes of exact solving and least-squares solving.
+<span class="lineNum">     679 </span>                :            :       * In other words, the returned solution is guaranteed to minimize the Euclidean norm \f$ \Vert A x - b \Vert \f$.
+<span class="lineNum">     680 </span>                :            :       */
+<a name="681"><span class="lineNum">     681 </span>                :            :     template&lt;typename Rhs&gt;</a>
+<span class="lineNum">     682 </span>                :            :     inline const internal::solve_retval&lt;JacobiSVD, Rhs&gt;
+<span class="lineNum">     683 </span>                :<span class="lineCov">          7 :     solve(const MatrixBase&lt;Rhs&gt;&amp; b) const</span>
+<span class="lineNum">     684 </span>                :            :     {
+<span class="lineNum">     685 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          7 :       eigen_assert(m_isInitialized &amp;&amp; &quot;JacobiSVD is not initialized.&quot;);</span>
+<span class="lineNum">     686 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 7 times"> + </span>]:<span class="lineCov">          7 :       eigen_assert(computeU() &amp;&amp; computeV() &amp;&amp; &quot;JacobiSVD::solve() requires both unitaries U and V to be computed (thin unitaries suffice).&quot;);</span>
+<span class="lineNum">     687 </span>                :<span class="lineCov">          7 :       return internal::solve_retval&lt;JacobiSVD, Rhs&gt;(*this, b.derived());</span>
+<span class="lineNum">     688 </span>                :            :     }
+<span class="lineNum">     689 </span>                :            : 
+<span class="lineNum">     690 </span>                :            :     /** \returns the number of singular values that are not exactly 0 */
+<span class="lineNum">     691 </span>                :            :     Index nonzeroSingularValues() const
+<span class="lineNum">     692 </span>                :            :     {
+<span class="lineNum">     693 </span>                :            :       eigen_assert(m_isInitialized &amp;&amp; &quot;JacobiSVD is not initialized.&quot;);
+<span class="lineNum">     694 </span>                :            :       return m_nonzeroSingularValues;
+<span class="lineNum">     695 </span>                :            :     }
+<span class="lineNum">     696 </span>                :            :     
+<span class="lineNum">     697 </span>                :            :     /** \returns the rank of the matrix of which \c *this is the SVD.
+<span class="lineNum">     698 </span>                :            :       *
+<span class="lineNum">     699 </span>                :            :       * \note This method has to determine which singular values should be considered nonzero.
+<span class="lineNum">     700 </span>                :            :       *       For that, it uses the threshold value that you can control by calling
+<a name="701"><span class="lineNum">     701 </span>                :            :       *       setThreshold(const RealScalar&amp;).</a>
+<span class="lineNum">     702 </span>                :            :       */
+<span class="lineNum">     703 </span>                :<span class="lineCov">          7 :     inline Index rank() const</span>
+<span class="lineNum">     704 </span>                :            :     {
+<span class="lineNum">     705 </span>                :            :       using std::abs;
+<span class="lineNum">     706 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          7 :       eigen_assert(m_isInitialized &amp;&amp; &quot;JacobiSVD is not initialized.&quot;);</span>
+<span class="lineNum">     707 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 7 times"> + </span>]:<span class="lineCov">          7 :       if(m_singularValues.size()==0) return 0;</span>
+<span class="lineNum">     708 </span>                :<span class="lineCov">          7 :       RealScalar premultiplied_threshold = m_singularValues.coeff(0) * threshold();</span>
+<span class="lineNum">     709 </span>                :<span class="lineCov">          7 :       Index i = m_nonzeroSingularValues-1;</span>
+<span class="lineNum">     710 </span>[<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 7 times"> + </span>]:<span class="lineCov">          7 :       while(i&gt;=0 &amp;&amp; m_singularValues.coeff(i) &lt; premultiplied_threshold) --i;</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 7 times"> + </span>]
+<span class="lineNum">     711 </span>                :<span class="lineCov">          7 :       return i+1;</span>
+<span class="lineNum">     712 </span>                :            :     }
+<span class="lineNum">     713 </span>                :            :     
+<span class="lineNum">     714 </span>                :            :     /** Allows to prescribe a threshold to be used by certain methods, such as rank() and solve(),
+<span class="lineNum">     715 </span>                :            :       * which need to determine when singular values are to be considered nonzero.
+<span class="lineNum">     716 </span>                :            :       * This is not used for the SVD decomposition itself.
+<span class="lineNum">     717 </span>                :            :       *
+<span class="lineNum">     718 </span>                :            :       * When it needs to get the threshold value, Eigen calls threshold().
+<span class="lineNum">     719 </span>                :            :       * The default is \c NumTraits&lt;Scalar&gt;::epsilon()
+<span class="lineNum">     720 </span>                :            :       *
+<span class="lineNum">     721 </span>                :            :       * \param threshold The new value to use as the threshold.
+<span class="lineNum">     722 </span>                :            :       *
+<span class="lineNum">     723 </span>                :            :       * A singular value will be considered nonzero if its value is strictly greater than
+<span class="lineNum">     724 </span>                :            :       *  \f$ \vert singular value \vert \leqslant threshold \times \vert max singular value \vert \f$.
+<span class="lineNum">     725 </span>                :            :       *
+<span class="lineNum">     726 </span>                :            :       * If you want to come back to the default behavior, call setThreshold(Default_t)
+<span class="lineNum">     727 </span>                :            :       */
+<span class="lineNum">     728 </span>                :            :     JacobiSVD&amp; setThreshold(const RealScalar&amp; threshold)
+<span class="lineNum">     729 </span>                :            :     {
+<span class="lineNum">     730 </span>                :            :       m_usePrescribedThreshold = true;
+<span class="lineNum">     731 </span>                :            :       m_prescribedThreshold = threshold;
+<span class="lineNum">     732 </span>                :            :       return *this;
+<span class="lineNum">     733 </span>                :            :     }
+<span class="lineNum">     734 </span>                :            : 
+<span class="lineNum">     735 </span>                :            :     /** Allows to come back to the default behavior, letting Eigen use its default formula for
+<span class="lineNum">     736 </span>                :            :       * determining the threshold.
+<span class="lineNum">     737 </span>                :            :       *
+<span class="lineNum">     738 </span>                :            :       * You should pass the special object Eigen::Default as parameter here.
+<span class="lineNum">     739 </span>                :            :       * \code svd.setThreshold(Eigen::Default); \endcode
+<span class="lineNum">     740 </span>                :            :       *
+<span class="lineNum">     741 </span>                :            :       * See the documentation of setThreshold(const RealScalar&amp;).
+<span class="lineNum">     742 </span>                :            :       */
+<span class="lineNum">     743 </span>                :            :     JacobiSVD&amp; setThreshold(Default_t)
+<span class="lineNum">     744 </span>                :            :     {
+<span class="lineNum">     745 </span>                :            :       m_usePrescribedThreshold = false;
+<span class="lineNum">     746 </span>                :            :       return *this;
+<span class="lineNum">     747 </span>                :            :     }
+<span class="lineNum">     748 </span>                :            : 
+<span class="lineNum">     749 </span>                :            :     /** Returns the threshold that will be used by certain methods such as rank().
+<span class="lineNum">     750 </span>                :            :       *
+<a name="751"><span class="lineNum">     751 </span>                :            :       * See the documentation of setThreshold(const RealScalar&amp;).</a>
+<span class="lineNum">     752 </span>                :            :       */
+<span class="lineNum">     753 </span>                :<span class="lineCov">          7 :     RealScalar threshold() const</span>
+<span class="lineNum">     754 </span>                :            :     {
+<span class="lineNum">     755 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          7 :       eigen_assert(m_isInitialized || m_usePrescribedThreshold);</span>
+<span class="lineNum">     756 </span>                :            :       return m_usePrescribedThreshold ? m_prescribedThreshold
+<span class="lineNum">     757 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>][<span class="branchCov" title="Branch 3 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          7 :                                       : (std::max&lt;Index&gt;)(1,m_diagSize)*NumTraits&lt;Scalar&gt;::epsilon();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<a name="758"><span class="lineNum">     758 </span>                :            :     }</a>
+<a name="759"><span class="lineNum">     759 </span>                :            : </a>
+<span class="lineNum">     760 </span>                :<span class="lineCov">         14 :     inline Index rows() const { return m_rows; }</span>
+<span class="lineNum">     761 </span>                :<span class="lineCov">         14 :     inline Index cols() const { return m_cols; }</span>
+<span class="lineNum">     762 </span>                :            : 
+<span class="lineNum">     763 </span>                :            :   private:
+<a name="764"><span class="lineNum">     764 </span>                :            :     void allocate(Index rows, Index cols, unsigned int computationOptions);</a>
+<span class="lineNum">     765 </span>                :            :     
+<span class="lineNum">     766 </span>                :<span class="lineCov">         25 :     static void check_template_parameters()</span>
+<span class="lineNum">     767 </span>                :            :     {
+<span class="lineNum">     768 </span>                :            :       EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar);
+<span class="lineNum">     769 </span>                :<span class="lineCov">         25 :     }</span>
+<span class="lineNum">     770 </span>                :            : 
+<span class="lineNum">     771 </span>                :            :   protected:
+<span class="lineNum">     772 </span>                :            :     MatrixUType m_matrixU;
+<span class="lineNum">     773 </span>                :            :     MatrixVType m_matrixV;
+<span class="lineNum">     774 </span>                :            :     SingularValuesType m_singularValues;
+<span class="lineNum">     775 </span>                :            :     WorkMatrixType m_workMatrix;
+<span class="lineNum">     776 </span>                :            :     bool m_isInitialized, m_isAllocated, m_usePrescribedThreshold;
+<span class="lineNum">     777 </span>                :            :     bool m_computeFullU, m_computeThinU;
+<span class="lineNum">     778 </span>                :            :     bool m_computeFullV, m_computeThinV;
+<span class="lineNum">     779 </span>                :            :     unsigned int m_computationOptions;
+<span class="lineNum">     780 </span>                :            :     Index m_nonzeroSingularValues, m_rows, m_cols, m_diagSize;
+<span class="lineNum">     781 </span>                :            :     RealScalar m_prescribedThreshold;
+<span class="lineNum">     782 </span>                :            : 
+<span class="lineNum">     783 </span>                :            :     template&lt;typename __MatrixType, int _QRPreconditioner, bool _IsComplex&gt;
+<span class="lineNum">     784 </span>                :            :     friend struct internal::svd_precondition_2x2_block_to_be_real;
+<span class="lineNum">     785 </span>                :            :     template&lt;typename __MatrixType, int _QRPreconditioner, int _Case, bool _DoAnything&gt;
+<span class="lineNum">     786 </span>                :            :     friend struct internal::qr_preconditioner_impl;
+<span class="lineNum">     787 </span>                :            : 
+<span class="lineNum">     788 </span>                :            :     internal::qr_preconditioner_impl&lt;MatrixType, QRPreconditioner, internal::PreconditionIfMoreColsThanRows&gt; m_qr_precond_morecols;
+<span class="lineNum">     789 </span>                :            :     internal::qr_preconditioner_impl&lt;MatrixType, QRPreconditioner, internal::PreconditionIfMoreRowsThanCols&gt; m_qr_precond_morerows;
+<span class="lineNum">     790 </span>                :            :     MatrixType m_scaledMatrix;
+<span class="lineNum">     791 </span>                :            : };
+<a name="792"><span class="lineNum">     792 </span>                :            : </a>
+<span class="lineNum">     793 </span>                :            : template&lt;typename MatrixType, int QRPreconditioner&gt;
+<span class="lineNum">     794 </span>                :<span class="lineCov">         25 : void JacobiSVD&lt;MatrixType, QRPreconditioner&gt;::allocate(Index rows, Index cols, unsigned int computationOptions)</span>
+<span class="lineNum">     795 </span>                :            : {
+<span class="lineNum">     796 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">         25 :   eigen_assert(rows &gt;= 0 &amp;&amp; cols &gt;= 0);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 21 times"> + </span>]
+<span class="lineNum">     797 </span>                :            : 
+<span class="lineNum">     798 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         25 :   if (m_isAllocated &amp;&amp;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 8 was not taken"> - </span><span class="branchCov" title="Branch 9 was taken 21 times"> + </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     799 </span>                :            :       rows == m_rows &amp;&amp;
+<span class="lineNum">     800 </span>                :            :       cols == m_cols &amp;&amp;
+<span class="lineNum">     801 </span>                :            :       computationOptions == m_computationOptions)
+<span class="lineNum">     802 </span>                :            :   {
+<span class="lineNum">     803 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     804 </span>                :            :   }
+<span class="lineNum">     805 </span>                :            : 
+<span class="lineNum">     806 </span>                :<span class="lineCov">         25 :   m_rows = rows;</span>
+<span class="lineNum">     807 </span>                :<span class="lineCov">         25 :   m_cols = cols;</span>
+<span class="lineNum">     808 </span>                :<span class="lineCov">         25 :   m_isInitialized = false;</span>
+<span class="lineNum">     809 </span>                :<span class="lineCov">         25 :   m_isAllocated = true;</span>
+<span class="lineNum">     810 </span>                :<span class="lineCov">         25 :   m_computationOptions = computationOptions;</span>
+<span class="lineNum">     811 </span>                :<span class="lineCov">         25 :   m_computeFullU = (computationOptions &amp; ComputeFullU) != 0;</span>
+<span class="lineNum">     812 </span>                :<span class="lineCov">         25 :   m_computeThinU = (computationOptions &amp; ComputeThinU) != 0;</span>
+<span class="lineNum">     813 </span>                :<span class="lineCov">         25 :   m_computeFullV = (computationOptions &amp; ComputeFullV) != 0;</span>
+<span class="lineNum">     814 </span>                :<span class="lineCov">         25 :   m_computeThinV = (computationOptions &amp; ComputeThinV) != 0;</span>
+<span class="lineNum">     815 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">         25 :   eigen_assert(!(m_computeFullU &amp;&amp; m_computeThinU) &amp;&amp; &quot;JacobiSVD: you can't ask for both full and thin U&quot;);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 21 times"> + </span>]
+<span class="lineNum">     816 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">         25 :   eigen_assert(!(m_computeFullV &amp;&amp; m_computeThinV) &amp;&amp; &quot;JacobiSVD: you can't ask for both full and thin V&quot;);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 21 times"> + </span>]
+<span class="lineNum">     817 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">         25 :   eigen_assert(EIGEN_IMPLIES(m_computeThinU || m_computeThinV, MatrixType::ColsAtCompileTime==Dynamic) &amp;&amp;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 21 times"> + </span>]
+<span class="lineNum">     818 </span>                :            :               &quot;JacobiSVD: thin U and V are only available when your matrix has a dynamic number of columns.&quot;);
+<span class="lineNum">     819 </span>                :            :   if (QRPreconditioner == FullPivHouseholderQRPreconditioner)
+<span class="lineNum">     820 </span>                :            :   {
+<span class="lineNum">     821 </span>                :            :       eigen_assert(!(m_computeThinU || m_computeThinV) &amp;&amp;
+<span class="lineNum">     822 </span>                :            :               &quot;JacobiSVD: can't compute thin U or thin V with the FullPivHouseholderQR preconditioner. &quot;
+<span class="lineNum">     823 </span>                :            :               &quot;Use the ColPivHouseholderQR preconditioner instead.&quot;);
+<span class="lineNum">     824 </span>                :            :   }
+<span class="lineNum">     825 </span>                :<span class="lineCov">         25 :   m_diagSize = (std::min)(m_rows, m_cols);</span>
+<span class="lineNum">     826 </span>                :<span class="lineCov">         25 :   m_singularValues.resize(m_diagSize);</span>
+<span class="lineNum">     827 </span>                :            :   if(RowsAtCompileTime==Dynamic)
+<span class="lineNum">     828 </span>                :            :     m_matrixU.resize(m_rows, m_computeFullU ? m_rows
+<span class="lineNum">     829 </span>                :            :                             : m_computeThinU ? m_diagSize
+<span class="lineNum">     830 </span>                :            :                             : 0);
+<span class="lineNum">     831 </span>                :            :   if(ColsAtCompileTime==Dynamic)
+<span class="lineNum">     832 </span>                :            :     m_matrixV.resize(m_cols, m_computeFullV ? m_cols
+<span class="lineNum">     833 </span>                :            :                             : m_computeThinV ? m_diagSize
+<span class="lineNum">     834 </span>                :            :                             : 0);
+<span class="lineNum">     835 </span>                :<span class="lineCov">         25 :   m_workMatrix.resize(m_diagSize, m_diagSize);</span>
+<span class="lineNum">     836 </span>                :            :   
+<span class="lineNum">     837 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 21 times"> + </span>]:<span class="lineCov">         25 :   if(m_cols&gt;m_rows)   m_qr_precond_morecols.allocate(*this);</span>
+<span class="lineNum">     838 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 21 times"> + </span>]:<span class="lineCov">         25 :   if(m_rows&gt;m_cols)   m_qr_precond_morerows.allocate(*this);</span>
+<span class="lineNum">     839 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 21 times"> + </span>]:<span class="lineCov">         25 :   if(m_rows!=m_cols)  m_scaledMatrix.resize(rows,cols);</span>
+<span class="lineNum">     840 </span>                :            : }
+<span class="lineNum">     841 </span>                :            : 
+<a name="842"><span class="lineNum">     842 </span>                :            : template&lt;typename MatrixType, int QRPreconditioner&gt;</a>
+<span class="lineNum">     843 </span>                :            : JacobiSVD&lt;MatrixType, QRPreconditioner&gt;&amp;
+<span class="lineNum">     844 </span>                :<span class="lineCov">         25 : JacobiSVD&lt;MatrixType, QRPreconditioner&gt;::compute(const MatrixType&amp; matrix, unsigned int computationOptions)</span>
+<span class="lineNum">     845 </span>                :            : {
+<span class="lineNum">     846 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :   check_template_parameters();</span>
+<span class="lineNum">     847 </span>                :            :   
+<span class="lineNum">     848 </span>                :            :   using std::abs;
+<span class="lineNum">     849 </span>                :            :   using std::max;
+<span class="lineNum">     850 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :   allocate(matrix.rows(), matrix.cols(), computationOptions);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     851 </span>                :            : 
+<span class="lineNum">     852 </span>                :            :   // currently we stop when we reach precision 2*epsilon as the last bit of precision can require an unreasonable number of iterations,
+<span class="lineNum">     853 </span>                :            :   // only worsening the precision of U and V as we accumulate more rotations
+<span class="lineNum">     854 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :   const RealScalar precision = RealScalar(2) * NumTraits&lt;Scalar&gt;::epsilon();</span>
+<span class="lineNum">     855 </span>                :            : 
+<span class="lineNum">     856 </span>                :            :   // limit for very small denormal numbers to be considered zero in order to avoid infinite loops (see bug 286)
+<span class="lineNum">     857 </span>                :<span class="lineCov">         25 :   const RealScalar considerAsZero = RealScalar(2) * std::numeric_limits&lt;RealScalar&gt;::denorm_min();</span>
+<span class="lineNum">     858 </span>                :            : 
+<span class="lineNum">     859 </span>                :            :   // Scaling factor to reduce over/under-flows
+<span class="lineNum">     860 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         25 :   RealScalar scale = matrix.cwiseAbs().maxCoeff();</span>
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 10 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     861 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 20 times"> + </span>]:<span class="lineCov">         25 :   if(scale==RealScalar(0)) scale = RealScalar(1);</span>
+<span class="lineNum">     862 </span>                :            :   
+<span class="lineNum">     863 </span>                :            :   /*** step 1. The R-SVD step: we use a QR decomposition to reduce to the case of a square matrix */
+<span class="lineNum">     864 </span>                :            : 
+<span class="lineNum">     865 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 21 times"> + </span>]:<span class="lineCov">         25 :   if(m_rows!=m_cols)</span>
+<span class="lineNum">     866 </span>                :            :   {
+<span class="lineNum">     867 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     m_scaledMatrix = matrix / scale;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     868 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     m_qr_precond_morecols.run(*this, m_scaledMatrix);</span>
+<span class="lineNum">     869 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     m_qr_precond_morerows.run(*this, m_scaledMatrix);</span>
+<span class="lineNum">     870 </span>                :            :   }
+<span class="lineNum">     871 </span>                :            :   else
+<span class="lineNum">     872 </span>                :            :   {
+<span class="lineNum">     873 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :     m_workMatrix = matrix.block(0,0,m_diagSize,m_diagSize) / scale;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     874 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         25 :     if(m_computeFullU) m_matrixU.setIdentity(m_rows,m_rows);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">     875 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">         25 :     if(m_computeThinU) m_matrixU.setIdentity(m_rows,m_diagSize);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 21 times"> + </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     876 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         25 :     if(m_computeFullV) m_matrixV.setIdentity(m_cols,m_cols);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">     877 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">         25 :     if(m_computeThinV) m_matrixV.setIdentity(m_cols, m_diagSize);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 21 times"> + </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     878 </span>                :            :   }
+<span class="lineNum">     879 </span>                :            : 
+<span class="lineNum">     880 </span>                :            :   /*** step 2. The main Jacobi SVD iteration. ***/
+<span class="lineNum">     881 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :   RealScalar maxDiagEntry = m_workMatrix.cwiseAbs().diagonal().maxCoeff();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     882 </span>                :            : 
+<span class="lineNum">     883 </span>                :<span class="lineCov">         25 :   bool finished = false;</span>
+<span class="lineNum">     884 </span>[<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 52 times"> + </span><span class="branchCov" title="Branch 3 was taken 21 times"> + </span>]:<span class="lineCov">         84 :   while(!finished)</span>
+<span class="lineNum">     885 </span>                :            :   {
+<span class="lineNum">     886 </span>                :<span class="lineCov">         59 :     finished = true;</span>
+<span class="lineNum">     887 </span>                :            : 
+<span class="lineNum">     888 </span>                :            :     // do a sweep: for all index pairs (p,q), perform SVD of the corresponding 2x2 sub-matrix
+<span class="lineNum">     889 </span>                :            : 
+<span class="lineNum">     890 </span>[<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 204 times"> + </span><span class="branchCov" title="Branch 3 was taken 52 times"> + </span>]:<span class="lineCov">        281 :     for(Index p = 1; p &lt; m_diagSize; ++p)</span>
+<span class="lineNum">     891 </span>                :            :     {
+<span class="lineNum">     892 </span>[<span class="branchCov" title="Branch 0 was taken 39 times"> + </span><span class="branchCov" title="Branch 1 was taken 18 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 584 times"> + </span><span class="branchCov" title="Branch 3 was taken 204 times"> + </span>]:<span class="lineCov">        845 :       for(Index q = 0; q &lt; p; ++q)</span>
+<span class="lineNum">     893 </span>                :            :       {
+<span class="lineNum">     894 </span>                :            :         // if this 2x2 sub-matrix is not diagonal already...
+<span class="lineNum">     895 </span>                :            :         // notice that this comparison will evaluate to false if any NaN is involved, ensuring that NaN's don't
+<span class="lineNum">     896 </span>                :            :         // keep us iterating forever. Similarly, small denormal numbers are considered zero.
+<span class="lineNum">     897 </span>[<span class="branchCov" title="Branch 1 was taken 39 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 584 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        623 :         RealScalar threshold = max EIGEN_EMPTY (considerAsZero, precision * maxDiagEntry);</span>
+<span class="lineNum">     898 </span>[<span class="branchCov" title="Branch 1 was taken 39 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 39 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        623 :         if(abs(m_workMatrix.coeff(p,q))&gt;threshold || abs(m_workMatrix.coeff(q,p)) &gt; threshold)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 31 times"> + </span><span class="branchCov" title="Branch 7 was taken 8 times"> + </span>][<span class="branchCov" title="Branch 9 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>][<span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken 31 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 8 times"> + </span><span class="branchCov" title="Branch 17 was taken 31 times"> + </span>][<span class="branchCov" title="Branch 19 was taken 584 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 22 was taken 584 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>][<span class="branchCov" title="Branch 24 was taken 214 times"> + </span><span class="branchCov" title="Branch 25 was taken 370 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 27 was taken 214 times"> + </span><span class="branchNoCov" title="Branch 28 was not taken"> - </span>][<span class="branchCov" title="Branch 30 was taken 214 times"> + </span><span class="branchNoCov" title="Branch 31 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 32 was not taken"> - </span><span class="branchCov" title="Branch 33 was taken 214 times"> + </span>][<span class="branchCov" title="Branch 34 was taken 370 times"> + </span><span class="branchCov" title="Branch 35 was taken 214 times"> + </span>]
+<span class="lineNum">     899 </span>                :            :         {
+<span class="lineNum">     900 </span>                :<span class="lineCov">        378 :           finished = false;</span>
+<span class="lineNum">     901 </span>                :            :           // perform SVD decomposition of 2x2 sub-matrix corresponding to indices p,q to make it diagonal
+<span class="lineNum">     902 </span>                :            :           // the complex to real operation returns true is the updated 2x2 block is not already diagonal
+<span class="lineNum">     903 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">        378 :           if(internal::svd_precondition_2x2_block_to_be_real&lt;MatrixType, QRPreconditioner&gt;::run(m_workMatrix, *this, p, q, maxDiagEntry))</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">     904 </span>                :            :           {
+<span class="lineNum">     905 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :             JacobiRotation&lt;RealScalar&gt; j_left, j_right;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     906 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :             internal::real_2x2_jacobi_svd(m_workMatrix, p, q, &amp;j_left, &amp;j_right);</span>
+<span class="lineNum">     907 </span>                :            : 
+<span class="lineNum">     908 </span>                :            :             // accumulate resulting Jacobi rotations
+<span class="lineNum">     909 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :             m_workMatrix.applyOnTheLeft(p,q,j_left);</span>
+<span class="lineNum">     910 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">        378 :             if(computeU()) m_matrixU.applyOnTheRight(p,q,j_left.transpose());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 9 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>][<span class="branchCov" title="Branch 14 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 17 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>][<span class="branchCov" title="Branch 20 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">     911 </span>                :            : 
+<span class="lineNum">     912 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :             m_workMatrix.applyOnTheRight(p,q,j_right);</span>
+<span class="lineNum">     913 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">        378 :             if(computeV()) m_matrixV.applyOnTheRight(p,q,j_right);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 9 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 11 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>][<span class="branchCov" title="Branch 14 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">     914 </span>                :            : 
+<span class="lineNum">     915 </span>                :            :             // keep track of the largest diagonal coefficient
+<span class="lineNum">     916 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        378 :             maxDiagEntry = max EIGEN_EMPTY (maxDiagEntry,max EIGEN_EMPTY (abs(m_workMatrix.coeff(p,p)), abs(m_workMatrix.coeff(q,q))));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 25 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 26 was not taken"> - </span>][<span class="branchCov" title="Branch 28 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 29 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 31 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 32 was not taken"> - </span>][<span class="branchCov" title="Branch 34 was taken 370 times"> + </span><span class="branchNoCov" title="Branch 35 was not taken"> - </span>]
+<span class="lineNum">     917 </span>                :            :           }
+<span class="lineNum">     918 </span>                :            :         }
+<span class="lineNum">     919 </span>                :            :       }
+<span class="lineNum">     920 </span>                :            :     }
+<span class="lineNum">     921 </span>                :            :   }
+<span class="lineNum">     922 </span>                :            : 
+<span class="lineNum">     923 </span>                :            :   /*** step 3. The work matrix is now diagonal, so ensure it's positive so its diagonal entries are the singular values ***/
+<span class="lineNum">     924 </span>                :            : 
+<span class="lineNum">     925 </span>[<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 70 times"> + </span><span class="branchCov" title="Branch 3 was taken 21 times"> + </span>]:<span class="lineCov">        109 :   for(Index i = 0; i &lt; m_diagSize; ++i)</span>
+<span class="lineNum">     926 </span>                :            :   {
+<span class="lineNum">     927 </span>[<span class="branchCov" title="Branch 1 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         84 :     RealScalar a = abs(m_workMatrix.coeff(i,i));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 70 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 70 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     928 </span>[<span class="branchCov" title="Branch 1 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 70 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         84 :     m_singularValues.coeffRef(i) = a;</span>
+<span class="lineNum">     929 </span>[<span class="branchCov" title="Branch 1 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         84 :     if(computeU() &amp;&amp; (a!=RealScalar(0))) m_matrixU.col(i) *= m_workMatrix.coeff(i,i)/a;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 7 times"> + </span><span class="branchCov" title="Branch 6 was taken 7 times"> + </span>][<span class="branchCov" title="Branch 7 was taken 7 times"> + </span><span class="branchCov" title="Branch 8 was taken 7 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 10 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>][<span class="branchCov" title="Branch 13 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>][<span class="branchCov" title="Branch 19 was taken 70 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 21 was taken 70 times"> + </span><span class="branchNoCov" title="Branch 22 was not taken"> - </span>][<span class="branchCov" title="Branch 23 was taken 68 times"> + </span><span class="branchCov" title="Branch 24 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 25 was taken 68 times"> + </span><span class="branchCov" title="Branch 26 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 28 was taken 68 times"> + </span><span class="branchNoCov" title="Branch 29 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 31 was taken 68 times"> + </span><span class="branchNoCov" title="Branch 32 was not taken"> - </span>][<span class="branchCov" title="Branch 34 was taken 68 times"> + </span><span class="branchNoCov" title="Branch 35 was not taken"> - </span>]
+<span class="lineNum">     930 </span>                :            :   }
+<span class="lineNum">     931 </span>                :            : 
+<span class="lineNum">     932 </span>                :            :   /*** step 4. Sort singular values in descending order and compute the number of nonzero singular values ***/
+<span class="lineNum">     933 </span>                :            : 
+<span class="lineNum">     934 </span>                :<span class="lineCov">         25 :   m_nonzeroSingularValues = m_diagSize;</span>
+<span class="lineNum">     935 </span>[<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 69 times"> + </span><span class="branchCov" title="Branch 3 was taken 20 times"> + </span>]:<span class="lineCov">        100 :   for(Index i = 0; i &lt; m_diagSize; i++)</span>
+<span class="lineNum">     936 </span>                :            :   {
+<span class="lineNum">     937 </span>                :            :     Index pos;
+<span class="lineNum">     938 </span>[<span class="branchCov" title="Branch 1 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         78 :     RealScalar maxRemainingSingularValue = m_singularValues.tail(m_diagSize-i).maxCoeff(&amp;pos);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 69 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 69 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     939 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 68 times"> + </span>]:<span class="lineCov">         78 :     if(maxRemainingSingularValue == RealScalar(0))</span>
+<span class="lineNum">     940 </span>                :            :     {
+<span class="lineNum">     941 </span>                :<span class="lineCov">          3 :       m_nonzeroSingularValues = i;</span>
+<span class="lineNum">     942 </span>                :<span class="lineCov">          3 :       break;</span>
+<span class="lineNum">     943 </span>                :            :     }
+<span class="lineNum">     944 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 31 times"> + </span><span class="branchCov" title="Branch 3 was taken 37 times"> + </span>]:<span class="lineCov">         75 :     if(pos)</span>
+<span class="lineNum">     945 </span>                :            :     {
+<span class="lineNum">     946 </span>                :<span class="lineCov">         33 :       pos += i;</span>
+<span class="lineNum">     947 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         33 :       std::swap(m_singularValues.coeffRef(i), m_singularValues.coeffRef(pos));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">     948 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         33 :       if(computeU()) m_matrixU.col(pos).swap(m_matrixU.col(i));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>][<span class="branchCov" title="Branch 15 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 17 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>][<span class="branchCov" title="Branch 20 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 23 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 24 was not taken"> - </span>][<span class="branchCov" title="Branch 26 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 27 was not taken"> - </span>]
+<span class="lineNum">     949 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         33 :       if(computeV()) m_matrixV.col(pos).swap(m_matrixV.col(i));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>][<span class="branchCov" title="Branch 15 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 17 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>][<span class="branchCov" title="Branch 20 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 23 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 24 was not taken"> - </span>][<span class="branchCov" title="Branch 26 was taken 31 times"> + </span><span class="branchNoCov" title="Branch 27 was not taken"> - </span>]
+<span class="lineNum">     950 </span>                :            :     }
+<span class="lineNum">     951 </span>                :            :   }
+<span class="lineNum">     952 </span>                :            :   
+<span class="lineNum">     953 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :   m_singularValues *= scale;</span>
+<span class="lineNum">     954 </span>                :            : 
+<span class="lineNum">     955 </span>                :<span class="lineCov">         25 :   m_isInitialized = true;</span>
+<span class="lineNum">     956 </span>                :<span class="lineCov">         25 :   return *this;</span>
+<span class="lineNum">     957 </span>                :            : }
+<span class="lineNum">     958 </span>                :            : 
+<span class="lineNum">     959 </span>                :            : namespace internal {
+<span class="lineNum">     960 </span>                :            : template&lt;typename _MatrixType, int QRPreconditioner, typename Rhs&gt;
+<span class="lineNum">     961 </span>                :            : struct solve_retval&lt;JacobiSVD&lt;_MatrixType, QRPreconditioner&gt;, Rhs&gt;
+<span class="lineNum">     962 </span>                :            :   : solve_retval_base&lt;JacobiSVD&lt;_MatrixType, QRPreconditioner&gt;, Rhs&gt;
+<a name="963"><span class="lineNum">     963 </span>                :            : {</a>
+<span class="lineNum">     964 </span>                :            :   typedef JacobiSVD&lt;_MatrixType, QRPreconditioner&gt; JacobiSVDType;
+<a name="965"><span class="lineNum">     965 </span>                :<span class="lineCov">         14 :   EIGEN_MAKE_SOLVE_HELPERS(JacobiSVDType,Rhs)</span></a>
+<span class="lineNum">     966 </span>                :            : 
+<span class="lineNum">     967 </span>                :<span class="lineCov">          7 :   template&lt;typename Dest&gt; void evalTo(Dest&amp; dst) const</span>
+<span class="lineNum">     968 </span>                :            :   {
+<span class="lineNum">     969 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          7 :     eigen_assert(rhs().rows() == dec().rows());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 12 was not taken"> - </span><span class="branchCov" title="Branch 13 was taken 7 times"> + </span>]
+<span class="lineNum">     970 </span>                :            : 
+<span class="lineNum">     971 </span>                :            :     // A = U S V^*
+<span class="lineNum">     972 </span>                :            :     // So A^{-1} = V S^{-1} U^*
+<span class="lineNum">     973 </span>                :            : 
+<span class="lineNum">     974 </span>        [<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          7 :     Matrix&lt;Scalar, Dynamic, Rhs::ColsAtCompileTime, 0, _MatrixType::MaxRowsAtCompileTime, Rhs::MaxColsAtCompileTime&gt; tmp;</span>
+<span class="lineNum">     975 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          7 :     Index rank = dec().rank();</span>
+<span class="lineNum">     976 </span>                :            :     
+<span class="lineNum">     977 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          7 :     tmp.noalias() = dec().matrixU().leftCols(rank).adjoint() * rhs();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">     978 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          7 :     tmp = dec().singularValues().head(rank).asDiagonal().inverse() * tmp;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 19 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">     979 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          7 :     dst = dec().matrixV().leftCols(rank) * tmp;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 13 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     980 </span>                :<span class="lineCov">          7 :   }</span>
+<span class="lineNum">     981 </span>                :            : };
+<span class="lineNum">     982 </span>                :            : } // end namespace internal
+<span class="lineNum">     983 </span>                :            : 
+<span class="lineNum">     984 </span>                :            : /** \svd_module
+<span class="lineNum">     985 </span>                :            :   *
+<span class="lineNum">     986 </span>                :            :   * \return the singular value decomposition of \c *this computed by two-sided
+<span class="lineNum">     987 </span>                :            :   * Jacobi transformations.
+<span class="lineNum">     988 </span>                :            :   *
+<span class="lineNum">     989 </span>                :            :   * \sa class JacobiSVD
+<span class="lineNum">     990 </span>                :            :   */
+<span class="lineNum">     991 </span>                :            : template&lt;typename Derived&gt;
+<span class="lineNum">     992 </span>                :            : JacobiSVD&lt;typename MatrixBase&lt;Derived&gt;::PlainObject&gt;
+<span class="lineNum">     993 </span>                :            : MatrixBase&lt;Derived&gt;::jacobiSvd(unsigned int computationOptions) const
+<span class="lineNum">     994 </span>                :            : {
+<span class="lineNum">     995 </span>                :            :   return JacobiSVD&lt;PlainObject&gt;(*this, computationOptions);
+<span class="lineNum">     996 </span>                :            : }
+<span class="lineNum">     997 </span>                :            : 
+<span class="lineNum">     998 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     999 </span>                :            : 
+<span class="lineNum">    1000 </span>                :            : #endif // EIGEN_JACOBISVD_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

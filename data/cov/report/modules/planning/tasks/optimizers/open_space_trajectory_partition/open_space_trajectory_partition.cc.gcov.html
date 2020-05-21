@@ -1,0 +1,979 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/planning/tasks/optimizers/open_space_trajectory_partition/open_space_trajectory_partition.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">modules/planning/tasks/optimizers/open_space_trajectory_partition</a> - open_space_trajectory_partition.cc<span style="font-size: 80%;"> (source / <a href="open_space_trajectory_partition.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">450</td>
+            <td class="headerCovTableEntryLo">0.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">11.8 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">1176</td>
+            <td class="headerCovTableEntryLo">0.2 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : #include &quot;cyber/common/log.h&quot;</a>
+<span class="lineNum">       2 </span>                :            : /******************************************************************************
+<span class="lineNum">       3 </span>                :            :  * Copyright 2019 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       4 </span>                :            :  *
+<span class="lineNum">       5 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       6 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       7 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">      10 </span>                :            :  *
+<span class="lineNum">      11 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      12 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      13 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      14 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      15 </span>                :            :  * limitations under the License.
+<span class="lineNum">      16 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : /**
+<span class="lineNum">      19 </span>                :            :  * @file
+<span class="lineNum">      20 </span>                :            :  **/
+<span class="lineNum">      21 </span>                :            : #include &quot;modules/planning/tasks/optimizers/open_space_trajectory_partition/open_space_trajectory_partition.h&quot;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &lt;queue&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : #include &quot;absl/strings/str_cat.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;modules/common/math/polygon2d.h&quot;
+<span class="lineNum">      27 </span>                :            : #include &quot;modules/common/status/status.h&quot;
+<span class="lineNum">      28 </span>                :            : #include &quot;modules/planning/common/planning_context.h&quot;
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : namespace apollo {
+<span class="lineNum">      31 </span>                :            : namespace planning {
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :            : using apollo::common::ErrorCode;
+<span class="lineNum">      34 </span>                :            : using apollo::common::PathPoint;
+<span class="lineNum">      35 </span>                :            : using apollo::common::Status;
+<span class="lineNum">      36 </span>                :            : using apollo::common::TrajectoryPoint;
+<span class="lineNum">      37 </span>                :            : using apollo::common::math::Box2d;
+<span class="lineNum">      38 </span>                :            : using apollo::common::math::NormalizeAngle;
+<span class="lineNum">      39 </span>                :            : using apollo::common::math::Polygon2d;
+<span class="lineNum">      40 </span>                :            : using apollo::common::math::Vec2d;
+<a name="41"><span class="lineNum">      41 </span>                :            : using apollo::common::time::Clock;</a>
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 : OpenSpaceTrajectoryPartition::OpenSpaceTrajectoryPartition(</span>
+<span class="lineNum">      44 </span>                :            :     const TaskConfig&amp; config)
+<span class="lineNum">      45 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     : TrajectoryOptimizer(config) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">      46 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::OpenSpaceTrajectoryPartition&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :   open_space_trajectory_partition_config_ =</span>
+<span class="lineNum">      49 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       config_.open_space_trajectory_partition_config();</span>
+<span class="lineNum">      50 </span>                :            :   heading_search_range_ =
+<span class="lineNum">      51 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.heading_search_range();</span>
+<span class="lineNum">      52 </span>                :            :   heading_track_range_ =
+<span class="lineNum">      53 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.heading_track_range();</span>
+<span class="lineNum">      54 </span>                :            :   distance_search_range_ =
+<span class="lineNum">      55 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.distance_search_range();</span>
+<span class="lineNum">      56 </span>                :            :   heading_offset_to_midpoint_ =
+<span class="lineNum">      57 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.heading_offset_to_midpoint();</span>
+<span class="lineNum">      58 </span>                :            :   lateral_offset_to_midpoint_ =
+<span class="lineNum">      59 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.lateral_offset_to_midpoint();</span>
+<span class="lineNum">      60 </span>                :            :   longitudinal_offset_to_midpoint_ =
+<span class="lineNum">      61 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.longitudinal_offset_to_midpoint();</span>
+<span class="lineNum">      62 </span>                :            :   vehicle_box_iou_threshold_to_midpoint_ =
+<span class="lineNum">      63 </span>                :            :       open_space_trajectory_partition_config_
+<span class="lineNum">      64 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           .vehicle_box_iou_threshold_to_midpoint();</span>
+<span class="lineNum">      65 </span>                :            :   linear_velocity_threshold_on_ego_ = open_space_trajectory_partition_config_
+<span class="lineNum">      66 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                           .linear_velocity_threshold_on_ego();</span>
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :   vehicle_param_ =</span>
+<span class="lineNum">      69 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       common::VehicleConfigHelper::Instance()-&gt;GetConfig().vehicle_param();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">      70 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ego_length_ = vehicle_param_.length();</span>
+<span class="lineNum">      71 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ego_width_ = vehicle_param_.width();</span>
+<span class="lineNum">      72 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   shift_distance_ = ego_length_ / 2.0 - vehicle_param_.back_edge_to_center();</span>
+<span class="lineNum">      73 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   wheel_base_ = vehicle_param_.wheel_base();</span>
+<a name="74"><span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 : void OpenSpaceTrajectoryPartition::Restart() {</span>
+<span class="lineNum">      77 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::Restart&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :            :   auto* current_gear_status =
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :       frame_-&gt;mutable_open_space_info()-&gt;mutable_gear_switch_states();</span>
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :   current_gear_status-&gt;gear_switching_flag = false;</span>
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :   current_gear_status-&gt;gear_shift_period_finished = true;</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :   current_gear_status-&gt;gear_shift_period_started = true;</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :   current_gear_status-&gt;gear_shift_period_time = 0.0;</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :   current_gear_status-&gt;gear_shift_start_time = 0.0;</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :   current_gear_status-&gt;gear_shift_position = canbus::Chassis::GEAR_DRIVE;</span>
+<a name="87"><span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 : Status OpenSpaceTrajectoryPartition::Process() {</span>
+<span class="lineNum">      90 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::Process&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const auto&amp; open_space_info = frame_-&gt;open_space_info();</span>
+<span class="lineNum">      93 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   auto open_space_info_ptr = frame_-&gt;mutable_open_space_info();</span>
+<span class="lineNum">      94 </span>                :            :   const auto&amp; stitched_trajectory_result =
+<span class="lineNum">      95 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_info.stitched_trajectory_result();</span>
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            :   auto* interpolated_trajectory_result_ptr =
+<span class="lineNum">      98 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_info_ptr-&gt;mutable_interpolated_trajectory_result();</span>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :   InterpolateTrajectory(stitched_trajectory_result,
+<span class="lineNum">     101 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         interpolated_trajectory_result_ptr);</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :            :   auto* partitioned_trajectories =
+<span class="lineNum">     104 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_info_ptr-&gt;mutable_partitioned_trajectories();</span>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :   PartitionTrajectory(*interpolated_trajectory_result_ptr,
+<span class="lineNum">     107 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                       partitioned_trajectories);</span>
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            :   const auto&amp; open_space_status =
+<span class="lineNum">     110 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       PlanningContext::Instance()-&gt;planning_status().open_space();</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     111 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!open_space_status.position_init() &amp;&amp;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     112 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       frame_-&gt;open_space_info().open_space_provider_success()) {</span>
+<span class="lineNum">     113 </span>                :            :     auto* open_space_status = PlanningContext::Instance()
+<span class="lineNum">     114 </span>                :            :                                   -&gt;mutable_planning_status()
+<span class="lineNum">     115 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                   -&gt;mutable_open_space();</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     116 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     open_space_status-&gt;set_position_init(true);</span>
+<span class="lineNum">     117 </span>                :            :     auto* chosen_partitioned_trajectory =
+<span class="lineNum">     118 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         open_space_info_ptr-&gt;mutable_chosen_partitioned_trajectory();</span>
+<span class="lineNum">     119 </span>                :            :     auto* mutable_trajectory =
+<span class="lineNum">     120 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         open_space_info_ptr-&gt;mutable_stitched_trajectory_result();</span>
+<span class="lineNum">     121 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AdjustRelativeTimeAndS(open_space_info.partitioned_trajectories(), 0, 0,</span>
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                            mutable_trajectory, chosen_partitioned_trajectory);</span>
+<span class="lineNum">     123 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     return Status::OK();</span>
+<span class="lineNum">     124 </span>                :            :   }
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :            :   // Choose the one to follow based on the closest partitioned trajectory
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :   size_t trajectories_size = partitioned_trajectories-&gt;size();</span>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :   size_t current_trajectory_index = 0;</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :   size_t current_trajectory_point_index = 0;</span>
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :   bool flag_change_to_next = false;</span>
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            :   // Vehicle related information used to choose closest point
+<span class="lineNum">     134 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   UpdateVehicleInfo();</span>
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :            :   std::priority_queue&lt;std::pair&lt;std::pair&lt;size_t, size_t&gt;, double&gt;,
+<span class="lineNum">     137 </span>                :            :                       std::vector&lt;std::pair&lt;std::pair&lt;size_t, size_t&gt;, double&gt;&gt;,
+<span class="lineNum">     138 </span>                :            :                       pair_comp_&gt;
+<span class="lineNum">     139 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       closest_point_on_trajs;</span>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::vector&lt;std::string&gt; trajectories_encodings;</span>
+<span class="lineNum">     142 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; trajectories_size; ++i) {</span>
+<span class="lineNum">     143 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const auto&amp; trajectory = partitioned_trajectories-&gt;at(i).first;</span>
+<span class="lineNum">     144 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     std::string trajectory_encoding;</span>
+<span class="lineNum">     145 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!EncodeTrajectory(trajectory, &amp;trajectory_encoding)) {</span>
+<span class="lineNum">     146 </span>                :            :       return Status(ErrorCode::PLANNING_ERROR,
+<span class="lineNum">     147 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                     &quot;Trajectory empty in trajectory partition&quot;);</span>
+<span class="lineNum">     148 </span>                :            :     }
+<span class="lineNum">     149 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     trajectories_encodings.emplace_back(std::move(trajectory_encoding));</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; trajectories_size; ++i) {</span>
+<span class="lineNum">     153 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const auto&amp; gear = partitioned_trajectories-&gt;at(i).second;</span>
+<span class="lineNum">     154 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const auto&amp; trajectory = partitioned_trajectories-&gt;at(i).first;</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :     size_t trajectory_size = trajectory.size();</span>
+<span class="lineNum">     156 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     CHECK_GT(trajectory_size, 0);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :            :     flag_change_to_next = CheckReachTrajectoryEnd(
+<span class="lineNum">     159 </span>                :            :         trajectory, gear, trajectories_size, i, &amp;current_trajectory_index,
+<span class="lineNum">     160 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &amp;current_trajectory_point_index);</span>
+<span class="lineNum">     161 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (flag_change_to_next &amp;&amp;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     162 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         !CheckTrajTraversed(trajectories_encodings[current_trajectory_index])) {</span>
+<span class="lineNum">     163 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       UpdateTrajHistory(trajectories_encodings[current_trajectory_index]);</span>
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     165 </span>                :            :     }
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>                :            :     // Choose the closest point to track
+<span class="lineNum">     168 </span>                :            :     std::priority_queue&lt;std::pair&lt;size_t, double&gt;,
+<span class="lineNum">     169 </span>                :            :                         std::vector&lt;std::pair&lt;size_t, double&gt;&gt;, comp_&gt;
+<span class="lineNum">     170 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         closest_point;</span>
+<span class="lineNum">     171 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (size_t j = 0; j &lt; trajectory_size; ++j) {</span>
+<span class="lineNum">     172 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const TrajectoryPoint&amp; trajectory_point = trajectory.at(j);</span>
+<span class="lineNum">     173 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const PathPoint&amp; path_point = trajectory_point.path_point();</span>
+<span class="lineNum">     174 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double path_point_x = path_point.x();</span>
+<span class="lineNum">     175 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double path_point_y = path_point.y();</span>
+<span class="lineNum">     176 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double path_point_theta = path_point.theta();</span>
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :       const Vec2d tracking_vector(path_point_x - ego_x_, path_point_y - ego_y_);</span>
+<span class="lineNum">     178 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double distance = tracking_vector.Length();</span>
+<span class="lineNum">     179 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double tracking_direction = tracking_vector.Angle();</span>
+<span class="lineNum">     180 </span>                :            :       const double traj_point_moving_direction =
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :           gear == canbus::Chassis::GEAR_REVERSE</span>
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :               ? NormalizeAngle(path_point_theta + M_PI)</span>
+<span class="lineNum">     183 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :               : path_point_theta;</span>
+<span class="lineNum">     184 </span>                :            :       const double head_track_difference = std::abs(
+<span class="lineNum">     185 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           NormalizeAngle(tracking_direction - vehicle_moving_direction_));</span>
+<span class="lineNum">     186 </span>                :            :       const double heading_search_difference = std::abs(NormalizeAngle(
+<span class="lineNum">     187 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           traj_point_moving_direction - vehicle_moving_direction_));</span>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (distance &lt; distance_search_range_ &amp;&amp;</span>
+<span class="lineNum">     190 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           heading_search_difference &lt; heading_search_range_ &amp;&amp;</span>
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :           head_track_difference &lt; heading_track_range_) {</span>
+<span class="lineNum">     192 </span>                :            :         // get vehicle box and path point box, compute IOU
+<span class="lineNum">     193 </span>                :            :         Box2d path_point_box({path_point_x, path_point_y}, path_point_theta,
+<span class="lineNum">     194 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                              ego_length_, ego_width_);</span>
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :         Vec2d shift_vec{shift_distance_ * std::cos(path_point_theta),</span>
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :                         shift_distance_ * std::sin(path_point_theta)};</span>
+<span class="lineNum">     197 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         path_point_box.Shift(shift_vec);</span>
+<span class="lineNum">     198 </span>                :            :         double iou_ratio =
+<span class="lineNum">     199 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Polygon2d(ego_box_).ComputeIoU(Polygon2d(path_point_box));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     200 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         closest_point.emplace(j, iou_ratio);</span>
+<span class="lineNum">     201 </span>                :            :       }
+<span class="lineNum">     202 </span>                :            :     }
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!closest_point.empty()) {</span>
+<span class="lineNum">     205 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       size_t closest_point_index = closest_point.top().first;</span>
+<span class="lineNum">     206 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       double max_iou_ratio = closest_point.top().second;</span>
+<span class="lineNum">     207 </span>                :            :       closest_point_on_trajs.emplace(std::make_pair(i, closest_point_index),
+<span class="lineNum">     208 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                      max_iou_ratio);</span>
+<span class="lineNum">     209 </span>                :            :     }
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!flag_change_to_next) {</span>
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :     bool use_fail_safe_search = false;</span>
+<span class="lineNum">     214 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (closest_point_on_trajs.empty()) {</span>
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :       use_fail_safe_search = true;</span>
+<span class="lineNum">     216 </span>                :            :     } else {
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :       bool closest_and_not_repeated_traj_found = false;</span>
+<span class="lineNum">     218 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       while (!closest_point_on_trajs.empty()) {</span>
+<span class="lineNum">     219 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         current_trajectory_index = closest_point_on_trajs.top().first.first;</span>
+<span class="lineNum">     220 </span>                :            :         current_trajectory_point_index =
+<span class="lineNum">     221 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             closest_point_on_trajs.top().first.second;</span>
+<span class="lineNum">     222 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (CheckTrajTraversed(</span>
+<span class="lineNum">     223 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 trajectories_encodings[current_trajectory_index])) {</span>
+<span class="lineNum">     224 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           closest_point_on_trajs.pop();</span>
+<span class="lineNum">     225 </span>                :            :         } else {
+<span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 :           closest_and_not_repeated_traj_found = true;</span>
+<span class="lineNum">     227 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           UpdateTrajHistory(trajectories_encodings[current_trajectory_index]);</span>
+<span class="lineNum">     228 </span>                :<span class="lineNoCov">          0 :           break;</span>
+<span class="lineNum">     229 </span>                :            :         }
+<span class="lineNum">     230 </span>                :            :       }
+<span class="lineNum">     231 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (!closest_and_not_repeated_traj_found) {</span>
+<span class="lineNum">     232 </span>                :<span class="lineNoCov">          0 :         use_fail_safe_search = true;</span>
+<span class="lineNum">     233 </span>                :            :       }
+<span class="lineNum">     234 </span>                :            :     }
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (use_fail_safe_search) {</span>
+<span class="lineNum">     237 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (!UseFailSafeSearch(*partitioned_trajectories, trajectories_encodings,</span>
+<span class="lineNum">     238 </span>                :            :                              &amp;current_trajectory_index,
+<span class="lineNum">     239 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                              &amp;current_trajectory_point_index)) {</span>
+<span class="lineNum">     240 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         std::string msg(&quot;Fail to find nearest trajectory point to follow&quot;);</span>
+<span class="lineNum">     241 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         AERROR &lt;&lt; msg;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     242 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         return Status(ErrorCode::PLANNING_ERROR, msg);</span>
+<span class="lineNum">     243 </span>                :            :       }
+<span class="lineNum">     244 </span>                :            :     }
+<span class="lineNum">     245 </span>                :            :   }
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :            :   auto* chosen_partitioned_trajectory =
+<span class="lineNum">     248 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_info_ptr-&gt;mutable_chosen_partitioned_trajectory();</span>
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :   auto trajectory = &amp;(chosen_partitioned_trajectory-&gt;first);</span>
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ADEBUG &lt;&lt; &quot;chosen_partitioned_trajectory [&quot; &lt;&lt; trajectory-&gt;size() &lt;&lt; &quot;]&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>][<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>][<span class="branchNoExec" title="Branch 37 was not executed"> # </span><span class="branchNoExec" title="Branch 38 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span>][<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 45 was not executed"> # </span><span class="branchNoExec" title="Branch 46 was not executed"> # </span>][<span class="branchNoExec" title="Branch 47 was not executed"> # </span><span class="branchNoExec" title="Branch 48 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 50 was not executed"> # </span><span class="branchNoExec" title="Branch 51 was not executed"> # </span><span class="branchNoExec" title="Branch 52 was not executed"> # </span><span class="branchNoExec" title="Branch 53 was not executed"> # </span>]
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (FLAGS_use_gear_shift_trajectory) {</span>
+<span class="lineNum">     255 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (InsertGearShiftTrajectory(flag_change_to_next, current_trajectory_index,</span>
+<span class="lineNum">     256 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                   open_space_info.partitioned_trajectories(),</span>
+<span class="lineNum">     257 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                   chosen_partitioned_trajectory) &amp;&amp;</span>
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 :         chosen_partitioned_trajectory-&gt;first.size() != 0) {</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :       trajectory = &amp;(chosen_partitioned_trajectory-&gt;first);</span>
+<span class="lineNum">     260 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       ADEBUG &lt;&lt; &quot;After InsertGearShiftTrajectory [&quot; &lt;&lt; trajectory-&gt;size()</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>][<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 26 was not executed"> # </span><span class="branchNoExec" title="Branch 27 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>][<span class="branchNoExec" title="Branch 32 was not executed"> # </span><span class="branchNoExec" title="Branch 33 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 35 was not executed"> # </span><span class="branchNoExec" title="Branch 36 was not executed"> # </span>][<span class="branchNoExec" title="Branch 38 was not executed"> # </span><span class="branchNoExec" title="Branch 39 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span>][<span class="branchNoExec" title="Branch 42 was not executed"> # </span><span class="branchNoExec" title="Branch 43 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 45 was not executed"> # </span><span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span><span class="branchNoExec" title="Branch 48 was not executed"> # </span>]
+<span class="lineNum">     261 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :              &lt;&lt; &quot;]&quot;;</span>
+<span class="lineNum">     262 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       return Status::OK();</span>
+<span class="lineNum">     263 </span>                :            :     }
+<span class="lineNum">     264 </span>                :            :   }
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :            :   auto* mutable_trajectory =
+<span class="lineNum">     267 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       open_space_info_ptr-&gt;mutable_stitched_trajectory_result();</span>
+<span class="lineNum">     268 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AdjustRelativeTimeAndS(open_space_info.partitioned_trajectories(),</span>
+<span class="lineNum">     269 </span>                :            :                          current_trajectory_index,
+<span class="lineNum">     270 </span>                :            :                          current_trajectory_point_index, mutable_trajectory,
+<span class="lineNum">     271 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                          chosen_partitioned_trajectory);</span>
+<span class="lineNum">     272 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   return Status::OK();</span>
+<a name="273"><span class="lineNum">     273 </span>                :            : }</a>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 : void OpenSpaceTrajectoryPartition::InterpolateTrajectory(</span>
+<span class="lineNum">     276 </span>                :            :     const DiscretizedTrajectory&amp; stitched_trajectory_result,
+<span class="lineNum">     277 </span>                :            :     DiscretizedTrajectory* interpolated_trajectory) {
+<span class="lineNum">     278 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::InterpolateTrajectory&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (FLAGS_use_iterative_anchoring_smoother) {</span>
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :     *interpolated_trajectory = stitched_trajectory_result;</span>
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     283 </span>                :            :   }
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :   interpolated_trajectory-&gt;clear();</span>
+<span class="lineNum">     285 </span>                :            :   size_t interpolated_pieces_num =
+<span class="lineNum">     286 </span>                :<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.interpolated_pieces_num();</span>
+<span class="lineNum">     287 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_GT(stitched_trajectory_result.size(), 0);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">     288 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_GT(interpolated_pieces_num, 0);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     289 </span>                :            :   size_t trajectory_to_be_partitioned_intervals_num =
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :       stitched_trajectory_result.size() - 1;</span>
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :   size_t interpolated_points_num = interpolated_pieces_num - 1;</span>
+<span class="lineNum">     292 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; trajectory_to_be_partitioned_intervals_num; ++i) {</span>
+<span class="lineNum">     293 </span>                :            :     double relative_time_interval =
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :         (stitched_trajectory_result.at(i + 1).relative_time() -</span>
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :          stitched_trajectory_result.at(i).relative_time()) /</span>
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :         static_cast&lt;double&gt;(interpolated_pieces_num);</span>
+<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :     interpolated_trajectory-&gt;push_back(stitched_trajectory_result.at(i));</span>
+<span class="lineNum">     298 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (size_t j = 0; j &lt; interpolated_points_num; ++j) {</span>
+<span class="lineNum">     299 </span>                :            :       double relative_time =
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :           stitched_trajectory_result.at(i).relative_time() +</span>
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :           (static_cast&lt;double&gt;(j) + 1.0) * relative_time_interval;</span>
+<span class="lineNum">     302 </span>                :            :       interpolated_trajectory-&gt;emplace_back(
+<span class="lineNum">     303 </span>                :            :           common::math::InterpolateUsingLinearApproximation(
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :               stitched_trajectory_result.at(i),</span>
+<span class="lineNum">     305 </span>        [<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :               stitched_trajectory_result.at(i + 1), relative_time));</span>
+<span class="lineNum">     306 </span>                :            :     }
+<span class="lineNum">     307 </span>                :            :   }
+<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :   interpolated_trajectory-&gt;push_back(stitched_trajectory_result.back());</span>
+<a name="309"><span class="lineNum">     309 </span>                :            : }</a>
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 : void OpenSpaceTrajectoryPartition::UpdateVehicleInfo() {</span>
+<span class="lineNum">     312 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::UpdateVehicleInfo&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     313 </span>                :            : 
+<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const common::VehicleState&amp; vehicle_state = frame_-&gt;vehicle_state();</span>
+<span class="lineNum">     315 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ego_theta_ = vehicle_state.heading();</span>
+<span class="lineNum">     316 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ego_x_ = vehicle_state.x();</span>
+<span class="lineNum">     317 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ego_y_ = vehicle_state.y();</span>
+<span class="lineNum">     318 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ego_v_ = vehicle_state.linear_velocity();</span>
+<span class="lineNum">     319 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   Box2d box({ego_x_, ego_y_}, ego_theta_, ego_length_, ego_width_);</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :   ego_box_ = std::move(box);</span>
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :   Vec2d ego_shift_vec{shift_distance_ * std::cos(ego_theta_),</span>
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :                       shift_distance_ * std::sin(ego_theta_)};</span>
+<span class="lineNum">     323 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ego_box_.Shift(ego_shift_vec);</span>
+<span class="lineNum">     324 </span>                :            :   vehicle_moving_direction_ =
+<span class="lineNum">     325 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       vehicle_state.gear() == canbus::Chassis::GEAR_REVERSE</span>
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :           ? NormalizeAngle(ego_theta_ + M_PI)</span>
+<span class="lineNum">     327 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :           : ego_theta_;</span>
+<a name="328"><span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 : bool OpenSpaceTrajectoryPartition::EncodeTrajectory(</span>
+<span class="lineNum">     331 </span>                :            :     const DiscretizedTrajectory&amp; trajectory, std::string* const encoding) {
+<span class="lineNum">     332 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::EncodeTrajectory&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (trajectory.empty()) {</span>
+<span class="lineNum">     335 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;Fail to encode trajectory because it is empty&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     336 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     337 </span>                :            :   }
+<span class="lineNum">     338 </span>                :            :   static constexpr double encoding_origin_x = 58700.0;
+<span class="lineNum">     339 </span>                :            :   static constexpr double encoding_origin_y = 4141000.0;
+<span class="lineNum">     340 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const auto&amp; init_path_point = trajectory.front().path_point();</span>
+<span class="lineNum">     341 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const auto&amp; last_path_point = trajectory.back().path_point();</span>
+<span class="lineNum">     342 </span>                :            : 
+<span class="lineNum">     343 </span>                :            :   const int init_point_x =
+<span class="lineNum">     344 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       static_cast&lt;int&gt;((init_path_point.x() - encoding_origin_x) * 1000.0);</span>
+<span class="lineNum">     345 </span>                :            :   const int init_point_y =
+<span class="lineNum">     346 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       static_cast&lt;int&gt;((init_path_point.y() - encoding_origin_y) * 1000.0);</span>
+<span class="lineNum">     347 </span>                :            :   const int init_point_heading =
+<span class="lineNum">     348 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       static_cast&lt;int&gt;(init_path_point.theta() * 10000.0);</span>
+<span class="lineNum">     349 </span>                :            :   const int last_point_x =
+<span class="lineNum">     350 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       static_cast&lt;int&gt;((last_path_point.x() - encoding_origin_x) * 1000.0);</span>
+<span class="lineNum">     351 </span>                :            :   const int last_point_y =
+<span class="lineNum">     352 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       static_cast&lt;int&gt;((last_path_point.y() - encoding_origin_y) * 1000.0);</span>
+<span class="lineNum">     353 </span>                :            :   const int last_point_heading =
+<span class="lineNum">     354 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       static_cast&lt;int&gt;(last_path_point.theta() * 10000.0);</span>
+<span class="lineNum">     355 </span>                :            : 
+<span class="lineNum">     356 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   *encoding = absl::StrCat(</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     357 </span>                :            :       // init point
+<span class="lineNum">     358 </span>                :            :       init_point_x, &quot;_&quot;, init_point_y, &quot;_&quot;, init_point_heading, &quot;/&quot;,
+<span class="lineNum">     359 </span>                :            :       // last point
+<span class="lineNum">     360 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       last_point_x, &quot;_&quot;, last_point_y, &quot;_&quot;, last_point_heading);</span>
+<span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :   return true;</span>
+<a name="362"><span class="lineNum">     362 </span>                :            : }</a>
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 : bool OpenSpaceTrajectoryPartition::CheckTrajTraversed(</span>
+<span class="lineNum">     365 </span>                :            :     const std::string&amp; trajectory_encoding_to_check) {
+<span class="lineNum">     366 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::CheckTrajTraversed&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     367 </span>                :            : 
+<span class="lineNum">     368 </span>                :            :   const auto&amp; open_space_status =
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :       PlanningContext::Instance()-&gt;planning_status().open_space();</span>
+<span class="lineNum">     370 </span>                :            :   const int index_history_size =
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :       open_space_status.partitioned_trajectories_index_history_size();</span>
+<span class="lineNum">     372 </span>                :            : 
+<span class="lineNum">     373 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (index_history_size &lt;= 1) {</span>
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     375 </span>                :            :   }
+<span class="lineNum">     376 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (int i = 0; i &lt; index_history_size - 1; i++) {</span>
+<span class="lineNum">     377 </span>                :            :     const auto&amp; index_history =
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :         open_space_status.partitioned_trajectories_index_history(i);</span>
+<span class="lineNum">     379 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (index_history == trajectory_encoding_to_check) {</span>
+<span class="lineNum">     380 </span>                :<span class="lineNoCov">          0 :       return true;</span>
+<span class="lineNum">     381 </span>                :            :     }
+<span class="lineNum">     382 </span>                :            :   }
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :   return false;</span>
+<a name="384"><span class="lineNum">     384 </span>                :            : }</a>
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>                :<span class="lineNoCov">          0 : void OpenSpaceTrajectoryPartition::UpdateTrajHistory(</span>
+<span class="lineNum">     387 </span>                :            :     const std::string&amp; chosen_trajectory_encoding) {
+<span class="lineNum">     388 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::UpdateTrajHistory&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>                :            :   auto* open_space_status = PlanningContext::Instance()
+<span class="lineNum">     391 </span>                :            :                                 -&gt;mutable_planning_status()
+<span class="lineNum">     392 </span>                :<span class="lineNoCov">          0 :                                 -&gt;mutable_open_space();</span>
+<span class="lineNum">     393 </span>                :            : 
+<span class="lineNum">     394 </span>                :            :   const auto&amp; trajectory_history =
+<span class="lineNum">     395 </span>                :            :       PlanningContext::Instance()
+<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :           -&gt;planning_status()</span>
+<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :           .open_space()</span>
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :           .partitioned_trajectories_index_history();</span>
+<span class="lineNum">     399 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (trajectory_history.empty()) {</span>
+<span class="lineNum">     400 </span>                :            :     open_space_status-&gt;add_partitioned_trajectories_index_history(
+<span class="lineNum">     401 </span>                :<span class="lineNoCov">          0 :         chosen_trajectory_encoding);</span>
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     403 </span>                :            :   }
+<span class="lineNum">     404 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (*(trajectory_history.rbegin()) == chosen_trajectory_encoding) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     406 </span>                :            :   }
+<span class="lineNum">     407 </span>                :            :   open_space_status-&gt;add_partitioned_trajectories_index_history(
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :       chosen_trajectory_encoding);</span>
+<a name="409"><span class="lineNum">     409 </span>                :            : }</a>
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :<span class="lineNoCov">          0 : void OpenSpaceTrajectoryPartition::PartitionTrajectory(</span>
+<span class="lineNum">     412 </span>                :            :     const DiscretizedTrajectory&amp; raw_trajectory,
+<span class="lineNum">     413 </span>                :            :     std::vector&lt;TrajGearPair&gt;* partitioned_trajectories) {
+<span class="lineNum">     414 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::PartitionTrajectory&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_NOTNULL(partitioned_trajectories);</span>
+<span class="lineNum">     417 </span>                :            : 
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :   size_t horizon = raw_trajectory.size();</span>
+<span class="lineNum">     419 </span>                :            : 
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :   partitioned_trajectories-&gt;clear();</span>
+<span class="lineNum">     421 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   partitioned_trajectories-&gt;emplace_back();</span>
+<span class="lineNum">     422 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   TrajGearPair* current_trajectory_gear = &amp;(partitioned_trajectories-&gt;back());</span>
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>                :<span class="lineNoCov">          0 :   auto* trajectory = &amp;(current_trajectory_gear-&gt;first);</span>
+<span class="lineNum">     425 </span>                :<span class="lineNoCov">          0 :   auto* gear = &amp;(current_trajectory_gear-&gt;second);</span>
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :            :   // Decide initial gear
+<span class="lineNum">     428 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const auto&amp; first_path_point = raw_trajectory.front().path_point();</span>
+<span class="lineNum">     429 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const auto&amp; second_path_point = raw_trajectory[1].path_point();</span>
+<span class="lineNum">     430 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   double heading_angle = first_path_point.theta();</span>
+<span class="lineNum">     431 </span>                :            :   const Vec2d init_tracking_vector(
+<span class="lineNum">     432 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       second_path_point.x() - first_path_point.x(),</span>
+<span class="lineNum">     433 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       second_path_point.y() - first_path_point.y());</span>
+<span class="lineNum">     434 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   double tracking_angle = init_tracking_vector.Angle();</span>
+<span class="lineNum">     435 </span>                :            :   *gear =
+<span class="lineNum">     436 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       std::abs(common::math::NormalizeAngle(tracking_angle - heading_angle)) &lt;</span>
+<span class="lineNum">     437 </span>                :            :               (M_PI_2)
+<span class="lineNum">     438 </span>                :            :           ? canbus::Chassis::GEAR_DRIVE
+<span class="lineNum">     439 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           : canbus::Chassis::GEAR_REVERSE;</span>
+<span class="lineNum">     440 </span>                :            : 
+<span class="lineNum">     441 </span>                :            :   // Set accumulated distance
+<span class="lineNum">     442 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   Vec2d last_pos_vec(first_path_point.x(), first_path_point.y());</span>
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :   double distance_s = 0.0;</span>
+<span class="lineNum">     444 </span>                :            : 
+<span class="lineNum">     445 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; horizon - 1; ++i) {</span>
+<span class="lineNum">     446 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const TrajectoryPoint&amp; trajectory_point = raw_trajectory.at(i);</span>
+<span class="lineNum">     447 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const TrajectoryPoint&amp; next_trajectory_point = raw_trajectory.at(i + 1);</span>
+<span class="lineNum">     448 </span>                :            : 
+<span class="lineNum">     449 </span>                :            :     // Check gear change
+<span class="lineNum">     450 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     heading_angle = trajectory_point.path_point().theta();</span>
+<span class="lineNum">     451 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const Vec2d tracking_vector(next_trajectory_point.path_point().x() -</span>
+<span class="lineNum">     452 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                     trajectory_point.path_point().x(),</span>
+<span class="lineNum">     453 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 next_trajectory_point.path_point().y() -</span>
+<span class="lineNum">     454 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                     trajectory_point.path_point().y());</span>
+<span class="lineNum">     455 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     tracking_angle = tracking_vector.Angle();</span>
+<span class="lineNum">     456 </span>                :            :     auto cur_gear =
+<span class="lineNum">     457 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         std::abs(common::math::NormalizeAngle(tracking_angle - heading_angle)) &lt;</span>
+<span class="lineNum">     458 </span>                :            :                 (M_PI_2)
+<span class="lineNum">     459 </span>                :            :             ? canbus::Chassis::GEAR_DRIVE
+<span class="lineNum">     460 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             : canbus::Chassis::GEAR_REVERSE;</span>
+<span class="lineNum">     461 </span>                :            : 
+<span class="lineNum">     462 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (cur_gear != *gear) {</span>
+<span class="lineNum">     463 </span>                :            :       LoadTrajectoryPoint(trajectory_point, *gear, &amp;last_pos_vec, &amp;distance_s,
+<span class="lineNum">     464 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                           trajectory);</span>
+<span class="lineNum">     465 </span>                :            : 
+<span class="lineNum">     466 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       partitioned_trajectories-&gt;emplace_back();</span>
+<span class="lineNum">     467 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       current_trajectory_gear = &amp;(partitioned_trajectories-&gt;back());</span>
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :       current_trajectory_gear-&gt;second = cur_gear;</span>
+<span class="lineNum">     469 </span>                :<span class="lineNoCov">          0 :       distance_s = 0.0;</span>
+<span class="lineNum">     470 </span>                :            :     }
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :     trajectory = &amp;(current_trajectory_gear-&gt;first);</span>
+<span class="lineNum">     473 </span>                :<span class="lineNoCov">          0 :     gear = &amp;(current_trajectory_gear-&gt;second);</span>
+<span class="lineNum">     474 </span>                :            : 
+<span class="lineNum">     475 </span>                :            :     LoadTrajectoryPoint(trajectory_point, *gear, &amp;last_pos_vec, &amp;distance_s,
+<span class="lineNum">     476 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         trajectory);</span>
+<span class="lineNum">     477 </span>                :            :   }
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const TrajectoryPoint&amp; last_trajectory_point = raw_trajectory.back();</span>
+<span class="lineNum">     480 </span>                :            :   LoadTrajectoryPoint(last_trajectory_point, *gear, &amp;last_pos_vec, &amp;distance_s,
+<span class="lineNum">     481 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                       trajectory);</span>
+<a name="482"><span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>                :<span class="lineNoCov">          0 : void OpenSpaceTrajectoryPartition::LoadTrajectoryPoint(</span>
+<span class="lineNum">     485 </span>                :            :     const TrajectoryPoint&amp; trajectory_point,
+<span class="lineNum">     486 </span>                :            :     const canbus::Chassis::GearPosition&amp; gear, Vec2d* last_pos_vec,
+<span class="lineNum">     487 </span>                :            :     double* distance_s, DiscretizedTrajectory* current_trajectory) {
+<span class="lineNum">     488 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::LoadTrajectoryPoint&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     489 </span>                :            : 
+<span class="lineNum">     490 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   current_trajectory-&gt;emplace_back();</span>
+<span class="lineNum">     491 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   TrajectoryPoint* point = &amp;(current_trajectory-&gt;back());</span>
+<span class="lineNum">     492 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   point-&gt;set_relative_time(trajectory_point.relative_time());</span>
+<span class="lineNum">     493 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   point-&gt;mutable_path_point()-&gt;set_x(trajectory_point.path_point().x());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     494 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   point-&gt;mutable_path_point()-&gt;set_y(trajectory_point.path_point().y());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     495 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   point-&gt;mutable_path_point()-&gt;set_theta(trajectory_point.path_point().theta());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     496 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   point-&gt;set_v(trajectory_point.v());</span>
+<span class="lineNum">     497 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   point-&gt;mutable_path_point()-&gt;set_s(*distance_s);</span>
+<span class="lineNum">     498 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   Vec2d cur_pos_vec(trajectory_point.path_point().x(),</span>
+<span class="lineNum">     499 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                     trajectory_point.path_point().y());</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     500 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   *distance_s += (gear == canbus::Chassis::GEAR_REVERSE ? -1.0 : 1.0) *</span>
+<span class="lineNum">     501 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                  (cur_pos_vec.DistanceTo(*last_pos_vec));</span>
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 :   *last_pos_vec = cur_pos_vec;</span>
+<span class="lineNum">     503 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   point-&gt;mutable_path_point()-&gt;set_kappa(std::tan(trajectory_point.steer()) /</span>
+<span class="lineNum">     504 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                          wheel_base_);</span>
+<span class="lineNum">     505 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   point-&gt;set_a(trajectory_point.a());</span>
+<a name="506"><span class="lineNum">     506 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     507 </span>                :            : 
+<span class="lineNum">     508 </span>                :<span class="lineNoCov">          0 : bool OpenSpaceTrajectoryPartition::CheckReachTrajectoryEnd(</span>
+<span class="lineNum">     509 </span>                :            :     const DiscretizedTrajectory&amp; trajectory,
+<span class="lineNum">     510 </span>                :            :     const canbus::Chassis::GearPosition&amp; gear, const size_t trajectories_size,
+<span class="lineNum">     511 </span>                :            :     const size_t trajectories_index, size_t* current_trajectory_index,
+<span class="lineNum">     512 </span>                :            :     size_t* current_trajectory_point_index) {
+<span class="lineNum">     513 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::CheckReachTrajectoryEnd&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     514 </span>                :            : 
+<span class="lineNum">     515 </span>                :            :   // Check if have reached endpoint of trajectory
+<span class="lineNum">     516 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const TrajectoryPoint&amp; trajectory_end_point = trajectory.back();</span>
+<span class="lineNum">     517 </span>                :<span class="lineNoCov">          0 :   const size_t trajectory_size = trajectory.size();</span>
+<span class="lineNum">     518 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const PathPoint&amp; path_end_point = trajectory_end_point.path_point();</span>
+<span class="lineNum">     519 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const double path_end_point_x = path_end_point.x();</span>
+<span class="lineNum">     520 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const double path_end_point_y = path_end_point.y();</span>
+<span class="lineNum">     521 </span>                :            :   const Vec2d tracking_vector(ego_x_ - path_end_point_x,
+<span class="lineNum">     522 </span>                :<span class="lineNoCov">          0 :                               ego_y_ - path_end_point_y);</span>
+<span class="lineNum">     523 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const double path_end_point_theta = path_end_point.theta();</span>
+<span class="lineNum">     524 </span>                :            :   const double included_angle =
+<span class="lineNum">     525 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       NormalizeAngle(path_end_point_theta - tracking_vector.Angle());</span>
+<span class="lineNum">     526 </span>                :            :   const double distance_to_trajs_end =
+<span class="lineNum">     527 </span>                :<span class="lineNoCov">          0 :       std::sqrt((path_end_point_x - ego_x_) * (path_end_point_x - ego_x_) +</span>
+<span class="lineNum">     528 </span>                :<span class="lineNoCov">          0 :                 (path_end_point_y - ego_y_) * (path_end_point_y - ego_y_));</span>
+<span class="lineNum">     529 </span>                :            :   const double lateral_offset =
+<span class="lineNum">     530 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       std::abs(distance_to_trajs_end * std::sin(included_angle));</span>
+<span class="lineNum">     531 </span>                :            :   const double longitudinal_offset =
+<span class="lineNum">     532 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       std::abs(distance_to_trajs_end * std::cos(included_angle));</span>
+<span class="lineNum">     533 </span>                :            :   const double traj_end_point_moving_direction =
+<span class="lineNum">     534 </span>                :<span class="lineNoCov">          0 :       gear == canbus::Chassis::GEAR_REVERSE</span>
+<span class="lineNum">     535 </span>                :<span class="lineNoCov">          0 :           ? NormalizeAngle(path_end_point_theta + M_PI)</span>
+<span class="lineNum">     536 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :           : path_end_point_theta;</span>
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>                :            :   const double heading_search_to_trajs_end = std::abs(NormalizeAngle(
+<span class="lineNum">     539 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       traj_end_point_moving_direction - vehicle_moving_direction_));</span>
+<span class="lineNum">     540 </span>                :            : 
+<span class="lineNum">     541 </span>                :            :   // If close to the end point, start on the next trajectory
+<span class="lineNum">     542 </span>                :<span class="lineNoCov">          0 :   double end_point_iou_ratio = 0.0;</span>
+<span class="lineNum">     543 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (lateral_offset &lt; lateral_offset_to_midpoint_ &amp;&amp;</span>
+<span class="lineNum">     544 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       longitudinal_offset &lt; longitudinal_offset_to_midpoint_ &amp;&amp;</span>
+<span class="lineNum">     545 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       heading_search_to_trajs_end &lt; heading_offset_to_midpoint_ &amp;&amp;</span>
+<span class="lineNum">     546 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       std::abs(ego_v_) &lt; linear_velocity_threshold_on_ego_) {</span>
+<span class="lineNum">     547 </span>                :            :     // get vehicle box and path point box, compare with a threadhold in IOU
+<span class="lineNum">     548 </span>                :            :     Box2d path_end_point_box({path_end_point_x, path_end_point_y},
+<span class="lineNum">     549 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                              path_end_point_theta, ego_length_, ego_width_);</span>
+<span class="lineNum">     550 </span>                :<span class="lineNoCov">          0 :     Vec2d shift_vec{shift_distance_ * std::cos(path_end_point_theta),</span>
+<span class="lineNum">     551 </span>                :<span class="lineNoCov">          0 :                     shift_distance_ * std::sin(path_end_point_theta)};</span>
+<span class="lineNum">     552 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     path_end_point_box.Shift(shift_vec);</span>
+<span class="lineNum">     553 </span>                :            :     end_point_iou_ratio =
+<span class="lineNum">     554 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Polygon2d(ego_box_).ComputeIoU(Polygon2d(path_end_point_box));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     555 </span>                :            : 
+<span class="lineNum">     556 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (end_point_iou_ratio &gt; vehicle_box_iou_threshold_to_midpoint_) {</span>
+<span class="lineNum">     557 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (trajectories_index + 1 &gt;= trajectories_size) {</span>
+<span class="lineNum">     558 </span>                :<span class="lineNoCov">          0 :         *current_trajectory_index = trajectories_size - 1;</span>
+<span class="lineNum">     559 </span>                :<span class="lineNoCov">          0 :         *current_trajectory_point_index = trajectory_size - 1;</span>
+<span class="lineNum">     560 </span>                :            :       } else {
+<span class="lineNum">     561 </span>                :<span class="lineNoCov">          0 :         *current_trajectory_index = trajectories_index + 1;</span>
+<span class="lineNum">     562 </span>                :<span class="lineNoCov">          0 :         *current_trajectory_point_index = 0;</span>
+<span class="lineNum">     563 </span>                :            :       }
+<span class="lineNum">     564 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       ADEBUG &lt;&lt; &quot;Reach the end of a trajectory, switching to next one&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>][<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 27 was not executed"> # </span><span class="branchNoExec" title="Branch 28 was not executed"> # </span>][<span class="branchNoExec" title="Branch 30 was not executed"> # </span><span class="branchNoExec" title="Branch 31 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 33 was not executed"> # </span><span class="branchNoExec" title="Branch 34 was not executed"> # </span>][<span class="branchNoExec" title="Branch 36 was not executed"> # </span><span class="branchNoExec" title="Branch 37 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 38 was not executed"> # </span><span class="branchNoExec" title="Branch 39 was not executed"> # </span>][<span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span><span class="branchNoExec" title="Branch 45 was not executed"> # </span><span class="branchNoExec" title="Branch 46 was not executed"> # </span>]
+<span class="lineNum">     565 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       return true;</span>
+<span class="lineNum">     566 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     567 </span>                :            :   }
+<span class="lineNum">     568 </span>                :            : 
+<span class="lineNum">     569 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ADEBUG &lt;&lt; &quot;Vehicle did not reach end of a trajectory with conditions for &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>][<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>][<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 33 was not executed"> # </span><span class="branchNoExec" title="Branch 34 was not executed"> # </span>][<span class="branchNoExec" title="Branch 35 was not executed"> # </span><span class="branchNoExec" title="Branch 36 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 38 was not executed"> # </span><span class="branchNoExec" title="Branch 39 was not executed"> # </span><span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span>]
+<span class="lineNum">     570 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             &quot;lateral distance_check: &quot;</span>
+<span class="lineNum">     571 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; (lateral_offset &lt; lateral_offset_to_midpoint_)</span>
+<span class="lineNum">     572 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot; and actual lateral distance: &quot; &lt;&lt; lateral_offset</span>
+<span class="lineNum">     573 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;; longitudinal distance_check: &quot;</span>
+<span class="lineNum">     574 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; (longitudinal_offset &lt; longitudinal_offset_to_midpoint_)</span>
+<span class="lineNum">     575 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot; and actual longitudinal distance: &quot; &lt;&lt; longitudinal_offset</span>
+<span class="lineNum">     576 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;; heading_check: &quot;</span>
+<span class="lineNum">     577 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; (heading_search_to_trajs_end &lt; heading_offset_to_midpoint_)</span>
+<span class="lineNum">     578 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot; with actual heading: &quot; &lt;&lt; heading_search_to_trajs_end</span>
+<span class="lineNum">     579 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot;; velocity_check: &quot;</span>
+<span class="lineNum">     580 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; (std::abs(ego_v_) &lt; linear_velocity_threshold_on_ego_)</span>
+<span class="lineNum">     581 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot; with actual linear velocity: &quot; &lt;&lt; ego_v_ &lt;&lt; &quot;; iou_check: &quot;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     582 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; (end_point_iou_ratio &gt; vehicle_box_iou_threshold_to_midpoint_)</span>
+<span class="lineNum">     583 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; &quot; with actual iou: &quot; &lt;&lt; end_point_iou_ratio;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     584 </span>                :<span class="lineNoCov">          0 :   return false;</span>
+<a name="585"><span class="lineNum">     585 </span>                :            : }</a>
+<span class="lineNum">     586 </span>                :            : 
+<span class="lineNum">     587 </span>                :<span class="lineNoCov">          0 : bool OpenSpaceTrajectoryPartition::UseFailSafeSearch(</span>
+<span class="lineNum">     588 </span>                :            :     const std::vector&lt;TrajGearPair&gt;&amp; partitioned_trajectories,
+<span class="lineNum">     589 </span>                :            :     const std::vector&lt;std::string&gt;&amp; trajectories_encodings,
+<span class="lineNum">     590 </span>                :            :     size_t* current_trajectory_index, size_t* current_trajectory_point_index) {
+<span class="lineNum">     591 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::UseFailSafeSearch&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     592 </span>                :            : 
+<span class="lineNum">     593 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AERROR &lt;&lt; &quot;Trajectory partition fail, using failsafe search&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     594 </span>                :<span class="lineNoCov">          0 :   const size_t trajectories_size = partitioned_trajectories.size();</span>
+<span class="lineNum">     595 </span>                :            :   std::priority_queue&lt;std::pair&lt;std::pair&lt;size_t, size_t&gt;, double&gt;,
+<span class="lineNum">     596 </span>                :            :                       std::vector&lt;std::pair&lt;std::pair&lt;size_t, size_t&gt;, double&gt;&gt;,
+<span class="lineNum">     597 </span>                :            :                       pair_comp_&gt;
+<span class="lineNum">     598 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       failsafe_closest_point_on_trajs;</span>
+<span class="lineNum">     599 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; trajectories_size; ++i) {</span>
+<span class="lineNum">     600 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const auto&amp; trajectory = partitioned_trajectories.at(i).first;</span>
+<span class="lineNum">     601 </span>                :<span class="lineNoCov">          0 :     size_t trajectory_size = trajectory.size();</span>
+<span class="lineNum">     602 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     CHECK_GT(trajectory_size, 0);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     603 </span>                :            :     std::priority_queue&lt;std::pair&lt;size_t, double&gt;,
+<span class="lineNum">     604 </span>                :            :                         std::vector&lt;std::pair&lt;size_t, double&gt;&gt;, comp_&gt;
+<span class="lineNum">     605 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         failsafe_closest_point;</span>
+<span class="lineNum">     606 </span>                :            : 
+<span class="lineNum">     607 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (size_t j = 0; j &lt; trajectory_size; ++j) {</span>
+<span class="lineNum">     608 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const TrajectoryPoint&amp; trajectory_point = trajectory.at(j);</span>
+<span class="lineNum">     609 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const PathPoint&amp; path_point = trajectory_point.path_point();</span>
+<span class="lineNum">     610 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double path_point_x = path_point.x();</span>
+<span class="lineNum">     611 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double path_point_y = path_point.y();</span>
+<span class="lineNum">     612 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double path_point_theta = path_point.theta();</span>
+<span class="lineNum">     613 </span>                :<span class="lineNoCov">          0 :       const Vec2d tracking_vector(path_point_x - ego_x_, path_point_y - ego_y_);</span>
+<span class="lineNum">     614 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double distance = tracking_vector.Length();</span>
+<span class="lineNum">     615 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (distance &lt; distance_search_range_) {</span>
+<span class="lineNum">     616 </span>                :            :         // get vehicle box and path point box, compute IOU
+<span class="lineNum">     617 </span>                :            :         Box2d path_point_box({path_point_x, path_point_y}, path_point_theta,
+<span class="lineNum">     618 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                              ego_length_, ego_width_);</span>
+<span class="lineNum">     619 </span>                :<span class="lineNoCov">          0 :         Vec2d shift_vec{shift_distance_ * std::cos(path_point_theta),</span>
+<span class="lineNum">     620 </span>                :<span class="lineNoCov">          0 :                         shift_distance_ * std::sin(path_point_theta)};</span>
+<span class="lineNum">     621 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         path_point_box.Shift(shift_vec);</span>
+<span class="lineNum">     622 </span>                :            :         double iou_ratio =
+<span class="lineNum">     623 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Polygon2d(ego_box_).ComputeIoU(Polygon2d(path_point_box));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     624 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         failsafe_closest_point.emplace(j, iou_ratio);</span>
+<span class="lineNum">     625 </span>                :            :       }
+<span class="lineNum">     626 </span>                :            :     }
+<span class="lineNum">     627 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!failsafe_closest_point.empty()) {</span>
+<span class="lineNum">     628 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       size_t closest_point_index = failsafe_closest_point.top().first;</span>
+<span class="lineNum">     629 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       double max_iou_ratio = failsafe_closest_point.top().second;</span>
+<span class="lineNum">     630 </span>                :            :       failsafe_closest_point_on_trajs.emplace(
+<span class="lineNum">     631 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           std::make_pair(i, closest_point_index), max_iou_ratio);</span>
+<span class="lineNum">     632 </span>                :            :     }
+<span class="lineNum">     633 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     634 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (failsafe_closest_point_on_trajs.empty()) {</span>
+<span class="lineNum">     635 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     636 </span>                :            :   } else {
+<span class="lineNum">     637 </span>                :<span class="lineNoCov">          0 :     bool closest_and_not_repeated_traj_found = false;</span>
+<span class="lineNum">     638 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     while (!failsafe_closest_point_on_trajs.empty()) {</span>
+<span class="lineNum">     639 </span>                :            :       *current_trajectory_index =
+<span class="lineNum">     640 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           failsafe_closest_point_on_trajs.top().first.first;</span>
+<span class="lineNum">     641 </span>                :            :       *current_trajectory_point_index =
+<span class="lineNum">     642 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           failsafe_closest_point_on_trajs.top().first.second;</span>
+<span class="lineNum">     643 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (CheckTrajTraversed(</span>
+<span class="lineNum">     644 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               trajectories_encodings[*current_trajectory_index])) {</span>
+<span class="lineNum">     645 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         failsafe_closest_point_on_trajs.pop();</span>
+<span class="lineNum">     646 </span>                :            :       } else {
+<span class="lineNum">     647 </span>                :<span class="lineNoCov">          0 :         closest_and_not_repeated_traj_found = true;</span>
+<span class="lineNum">     648 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         UpdateTrajHistory(trajectories_encodings[*current_trajectory_index]);</span>
+<span class="lineNum">     649 </span>                :<span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     650 </span>                :            :       }
+<span class="lineNum">     651 </span>                :            :     }
+<span class="lineNum">     652 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!closest_and_not_repeated_traj_found) {</span>
+<span class="lineNum">     653 </span>                :<span class="lineNoCov">          0 :       return false;</span>
+<span class="lineNum">     654 </span>                :            :     }
+<span class="lineNum">     655 </span>                :            : 
+<span class="lineNum">     656 </span>                :<span class="lineNoCov">          0 :     return true;</span>
+<span class="lineNum">     657 </span>                :<span class="lineNoCov">          0 :   }</span>
+<a name="658"><span class="lineNum">     658 </span>                :            : }</a>
+<span class="lineNum">     659 </span>                :            : 
+<span class="lineNum">     660 </span>                :<span class="lineNoCov">          0 : bool OpenSpaceTrajectoryPartition::InsertGearShiftTrajectory(</span>
+<span class="lineNum">     661 </span>                :            :     const bool flag_change_to_next, const size_t current_trajectory_index,
+<span class="lineNum">     662 </span>                :            :     const std::vector&lt;TrajGearPair&gt;&amp; partitioned_trajectories,
+<span class="lineNum">     663 </span>                :            :     TrajGearPair* gear_switch_idle_time_trajectory) {
+<span class="lineNum">     664 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::InsertGearShiftTrajectory&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     665 </span>                :            : 
+<span class="lineNum">     666 </span>                :<span class="lineNoCov">          0 :   const auto* last_frame = FrameHistory::Instance()-&gt;Latest();</span>
+<span class="lineNum">     667 </span>                :            :   const auto&amp; last_gear_status =
+<span class="lineNum">     668 </span>                :<span class="lineNoCov">          0 :       last_frame-&gt;open_space_info().gear_switch_states();</span>
+<span class="lineNum">     669 </span>                :            :   auto* current_gear_status =
+<span class="lineNum">     670 </span>                :<span class="lineNoCov">          0 :       frame_-&gt;mutable_open_space_info()-&gt;mutable_gear_switch_states();</span>
+<span class="lineNum">     671 </span>                :<span class="lineNoCov">          0 :   *(current_gear_status) = last_gear_status;</span>
+<span class="lineNum">     672 </span>                :            : 
+<span class="lineNum">     673 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (flag_change_to_next || !current_gear_status-&gt;gear_shift_period_finished) {</span>
+<span class="lineNum">     674 </span>                :<span class="lineNoCov">          0 :     current_gear_status-&gt;gear_shift_period_finished = false;</span>
+<span class="lineNum">     675 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (current_gear_status-&gt;gear_shift_period_started) {</span>
+<span class="lineNum">     676 </span>                :<span class="lineNoCov">          0 :       current_gear_status-&gt;gear_shift_start_time = Clock::NowInSeconds();</span>
+<span class="lineNum">     677 </span>                :            :       current_gear_status-&gt;gear_shift_position =
+<span class="lineNum">     678 </span>                :<span class="lineNoCov">          0 :           partitioned_trajectories.at(current_trajectory_index).second;</span>
+<span class="lineNum">     679 </span>                :<span class="lineNoCov">          0 :       current_gear_status-&gt;gear_shift_period_started = false;</span>
+<span class="lineNum">     680 </span>                :            :     }
+<span class="lineNum">     681 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (current_gear_status-&gt;gear_shift_period_time &gt;</span>
+<span class="lineNum">     682 </span>                :<span class="lineNoCov">          0 :         open_space_trajectory_partition_config_.gear_shift_period_duration()) {</span>
+<span class="lineNum">     683 </span>                :<span class="lineNoCov">          0 :       current_gear_status-&gt;gear_shift_period_finished = true;</span>
+<span class="lineNum">     684 </span>                :<span class="lineNoCov">          0 :       current_gear_status-&gt;gear_shift_period_started = true;</span>
+<span class="lineNum">     685 </span>                :            :     } else {
+<span class="lineNum">     686 </span>                :            :       GenerateGearShiftTrajectory(current_gear_status-&gt;gear_shift_position,
+<span class="lineNum">     687 </span>                :<span class="lineNoCov">          0 :                                   gear_switch_idle_time_trajectory);</span>
+<span class="lineNum">     688 </span>                :            :       current_gear_status-&gt;gear_shift_period_time =
+<span class="lineNum">     689 </span>                :<span class="lineNoCov">          0 :           Clock::NowInSeconds() - current_gear_status-&gt;gear_shift_start_time;</span>
+<span class="lineNum">     690 </span>                :<span class="lineNoCov">          0 :       return true;</span>
+<span class="lineNum">     691 </span>                :            :     }
+<span class="lineNum">     692 </span>                :            :   }
+<span class="lineNum">     693 </span>                :            : 
+<span class="lineNum">     694 </span>                :<span class="lineNoCov">          0 :   return true;</span>
+<a name="695"><span class="lineNum">     695 </span>                :            : }</a>
+<span class="lineNum">     696 </span>                :            : 
+<span class="lineNum">     697 </span>                :<span class="lineNoCov">          0 : void OpenSpaceTrajectoryPartition::GenerateGearShiftTrajectory(</span>
+<span class="lineNum">     698 </span>                :            :     const canbus::Chassis::GearPosition&amp; gear_position,
+<span class="lineNum">     699 </span>                :            :     TrajGearPair* gear_switch_idle_time_trajectory) {
+<span class="lineNum">     700 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::GenerateGearShiftTrajectory&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     701 </span>                :            : 
+<span class="lineNum">     702 </span>                :<span class="lineNoCov">          0 :   gear_switch_idle_time_trajectory-&gt;first.clear();</span>
+<span class="lineNum">     703 </span>                :            :   const double gear_shift_max_t =
+<span class="lineNum">     704 </span>                :<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.gear_shift_max_t();</span>
+<span class="lineNum">     705 </span>                :            :   const double gear_shift_unit_t =
+<span class="lineNum">     706 </span>                :<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.gear_shift_unit_t();</span>
+<span class="lineNum">     707 </span>                :            :   // TrajectoryPoint point;
+<span class="lineNum">     708 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (double t = 0.0; t &lt; gear_shift_max_t; t += gear_shift_unit_t) {</span>
+<span class="lineNum">     709 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     TrajectoryPoint point;</span>
+<span class="lineNum">     710 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     point.mutable_path_point()-&gt;set_x(frame_-&gt;vehicle_state().x());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     711 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     point.mutable_path_point()-&gt;set_y(frame_-&gt;vehicle_state().y());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     712 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     point.mutable_path_point()-&gt;set_theta(frame_-&gt;vehicle_state().heading());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     713 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     point.mutable_path_point()-&gt;set_s(0.0);</span>
+<span class="lineNum">     714 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     point.mutable_path_point()-&gt;set_kappa(frame_-&gt;vehicle_state().kappa());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     715 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     point.set_relative_time(t);</span>
+<span class="lineNum">     716 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     point.set_v(0.0);</span>
+<span class="lineNum">     717 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     point.set_a(0.0);</span>
+<span class="lineNum">     718 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     gear_switch_idle_time_trajectory-&gt;first.emplace_back(point);</span>
+<span class="lineNum">     719 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     720 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   ADEBUG &lt;&lt; &quot;gear_switch_idle_time_trajectory&quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>][<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 26 was not executed"> # </span><span class="branchNoExec" title="Branch 27 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>][<span class="branchNoExec" title="Branch 32 was not executed"> # </span><span class="branchNoExec" title="Branch 33 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>][<span class="branchNoExec" title="Branch 36 was not executed"> # </span><span class="branchNoExec" title="Branch 37 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 39 was not executed"> # </span><span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span><span class="branchNoExec" title="Branch 42 was not executed"> # </span>]
+<span class="lineNum">     721 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; gear_switch_idle_time_trajectory-&gt;first.size();</span>
+<span class="lineNum">     722 </span>                :<span class="lineNoCov">          0 :   gear_switch_idle_time_trajectory-&gt;second = gear_position;</span>
+<a name="723"><span class="lineNum">     723 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     724 </span>                :            : 
+<span class="lineNum">     725 </span>                :<span class="lineNoCov">          0 : void OpenSpaceTrajectoryPartition::AdjustRelativeTimeAndS(</span>
+<span class="lineNum">     726 </span>                :            :     const std::vector&lt;TrajGearPair&gt;&amp; partitioned_trajectories,
+<span class="lineNum">     727 </span>                :            :     const size_t current_trajectory_index,
+<span class="lineNum">     728 </span>                :            :     const size_t closest_trajectory_point_index,
+<span class="lineNum">     729 </span>                :            :     DiscretizedTrajectory* unpartitioned_trajectory_result,
+<span class="lineNum">     730 </span>                :            :     TrajGearPair* current_partitioned_trajectory) {
+<span class="lineNum">     731 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: OpenSpaceTrajectoryPartition::AdjustRelativeTimeAndS&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     732 </span>                :            : 
+<span class="lineNum">     733 </span>                :<span class="lineNoCov">          0 :   const size_t partitioned_trajectories_size = partitioned_trajectories.size();</span>
+<span class="lineNum">     734 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_GT(partitioned_trajectories_size, current_trajectory_index);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     735 </span>                :            : 
+<span class="lineNum">     736 </span>                :            :   // Reassign relative time and relative s to have the closest point as origin
+<span class="lineNum">     737 </span>                :            :   // point
+<span class="lineNum">     738 </span>                :            :   *(current_partitioned_trajectory) =
+<span class="lineNum">     739 </span>                :<span class="lineNoCov">          0 :       partitioned_trajectories.at(current_trajectory_index);</span>
+<span class="lineNum">     740 </span>                :<span class="lineNoCov">          0 :   auto trajectory = &amp;(current_partitioned_trajectory-&gt;first);</span>
+<span class="lineNum">     741 </span>                :            :   double time_shift =
+<span class="lineNum">     742 </span>                :<span class="lineNoCov">          0 :       trajectory-&gt;at(closest_trajectory_point_index).relative_time();</span>
+<span class="lineNum">     743 </span>                :            :   double s_shift =
+<span class="lineNum">     744 </span>                :<span class="lineNoCov">          0 :       trajectory-&gt;at(closest_trajectory_point_index).path_point().s();</span>
+<span class="lineNum">     745 </span>                :<span class="lineNoCov">          0 :   const size_t trajectory_size = trajectory-&gt;size();</span>
+<span class="lineNum">     746 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; trajectory_size; ++i) {</span>
+<span class="lineNum">     747 </span>                :<span class="lineNoCov">          0 :     TrajectoryPoint* trajectory_point = &amp;(trajectory-&gt;at(i));</span>
+<span class="lineNum">     748 </span>                :<span class="lineNoCov">          0 :     trajectory_point-&gt;set_relative_time(trajectory_point-&gt;relative_time() -</span>
+<span class="lineNum">     749 </span>                :<span class="lineNoCov">          0 :                                         time_shift);</span>
+<span class="lineNum">     750 </span>                :            :     trajectory_point-&gt;mutable_path_point()-&gt;set_s(
+<span class="lineNum">     751 </span>                :<span class="lineNoCov">          0 :         trajectory_point-&gt;path_point().s() - s_shift);</span>
+<span class="lineNum">     752 </span>                :            :   }
+<span class="lineNum">     753 </span>                :            : 
+<span class="lineNum">     754 </span>                :            :   // Reassign relative t and s on stitched_trajectory_result for accurate next
+<span class="lineNum">     755 </span>                :            :   // frame stitching
+<span class="lineNum">     756 </span>                :            :   const size_t interpolated_pieces_num =
+<span class="lineNum">     757 </span>                :<span class="lineNoCov">          0 :       open_space_trajectory_partition_config_.interpolated_pieces_num();</span>
+<span class="lineNum">     758 </span>                :            :   const size_t unpartitioned_trajectory_size =
+<span class="lineNum">     759 </span>                :<span class="lineNoCov">          0 :       unpartitioned_trajectory_result-&gt;size();</span>
+<span class="lineNum">     760 </span>                :<span class="lineNoCov">          0 :   size_t index_estimate = 0;</span>
+<span class="lineNum">     761 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; current_trajectory_index; ++i) {</span>
+<span class="lineNum">     762 </span>                :<span class="lineNoCov">          0 :     index_estimate += partitioned_trajectories.at(i).first.size();</span>
+<span class="lineNum">     763 </span>                :            :   }
+<span class="lineNum">     764 </span>                :<span class="lineNoCov">          0 :   index_estimate += closest_trajectory_point_index;</span>
+<span class="lineNum">     765 </span>                :<span class="lineNoCov">          0 :   index_estimate /= interpolated_pieces_num;</span>
+<span class="lineNum">     766 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (index_estimate &gt;= unpartitioned_trajectory_size) {</span>
+<span class="lineNum">     767 </span>                :<span class="lineNoCov">          0 :     index_estimate = unpartitioned_trajectory_size - 1;</span>
+<span class="lineNum">     768 </span>                :            :   }
+<span class="lineNum">     769 </span>                :            :   time_shift =
+<span class="lineNum">     770 </span>                :<span class="lineNoCov">          0 :       unpartitioned_trajectory_result-&gt;at(index_estimate).relative_time();</span>
+<span class="lineNum">     771 </span>                :            :   s_shift =
+<span class="lineNum">     772 </span>                :<span class="lineNoCov">          0 :       unpartitioned_trajectory_result-&gt;at(index_estimate).path_point().s();</span>
+<span class="lineNum">     773 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; unpartitioned_trajectory_size; ++i) {</span>
+<span class="lineNum">     774 </span>                :            :     TrajectoryPoint* trajectory_point =
+<span class="lineNum">     775 </span>                :<span class="lineNoCov">          0 :         &amp;(unpartitioned_trajectory_result-&gt;at(i));</span>
+<span class="lineNum">     776 </span>                :<span class="lineNoCov">          0 :     trajectory_point-&gt;set_relative_time(trajectory_point-&gt;relative_time() -</span>
+<span class="lineNum">     777 </span>                :<span class="lineNoCov">          0 :                                         time_shift);</span>
+<span class="lineNum">     778 </span>                :            :     trajectory_point-&gt;mutable_path_point()-&gt;set_s(
+<span class="lineNum">     779 </span>                :<span class="lineNoCov">          0 :         trajectory_point-&gt;path_point().s() - s_shift);</span>
+<span class="lineNum">     780 </span>                :            :   }
+<span class="lineNum">     781 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="782"><span class="lineNum">     782 </span>                :            : </a>
+<span class="lineNum">     783 </span>                :            : }  // namespace planning
+<span class="lineNum">     784 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

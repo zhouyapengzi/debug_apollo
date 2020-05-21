@@ -1,0 +1,629 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/localization/msf/local_integ/localization_lidar_process.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/localization/msf/local_integ</a> - localization_lidar_process.cc<span style="font-size: 80%;"> (source / <a href="localization_lidar_process.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">262</td>
+            <td class="headerCovTableEntryLo">4.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">25.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">432</td>
+            <td class="headerCovTableEntryLo">3.2 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;modules/localization/msf/local_integ/localization_lidar_process.h&quot;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &quot;yaml-cpp/yaml.h&quot;
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #include &quot;cyber/common/file.h&quot;
+<span class="lineNum">      22 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      23 </span>                :            : #include &quot;modules/common/time/time.h&quot;
+<span class="lineNum">      24 </span>                :            : #include &quot;modules/common/time/timer.h&quot;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : namespace apollo {
+<span class="lineNum">      27 </span>                :            : namespace localization {
+<span class="lineNum">      28 </span>                :            : namespace msf {
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : using apollo::common::Status;
+<a name="31"><span class="lineNum">      31 </span>                :            : using apollo::common::time::Timer;</a>
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :<span class="lineCov">          1 : LocalizationLidarProcess::LocalizationLidarProcess()</span>
+<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :     : locator_(new LocalizationLidar()),</span>
+<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :       pose_forecastor_(new PoseForcast()),</span>
+<span class="lineNum">      36 </span>                :            :       map_path_(&quot;&quot;),
+<span class="lineNum">      37 </span>                :            :       lidar_extrinsic_file_(&quot;&quot;),
+<span class="lineNum">      38 </span>                :            :       lidar_height_file_(&quot;&quot;),
+<span class="lineNum">      39 </span>                :            :       localization_mode_(2),
+<span class="lineNum">      40 </span>                :            :       yaw_align_mode_(2),
+<span class="lineNum">      41 </span>                :            :       lidar_filter_size_(17),
+<span class="lineNum">      42 </span>                :            :       delta_yaw_limit_(0.25 * 3.14159 / 180.0),
+<span class="lineNum">      43 </span>                :            :       init_delta_yaw_limit_(1.5 * 3.14159 / 180.0),
+<span class="lineNum">      44 </span>                :            :       compensate_pitch_roll_limit_(0.035),
+<span class="lineNum">      45 </span>                :            :       utm_zone_id_(50),
+<span class="lineNum">      46 </span>                :            :       map_coverage_theshold_(0.8),
+<span class="lineNum">      47 </span>                :            :       lidar_extrinsic_(TransformD::Identity()),
+<span class="lineNum">      48 </span>                :            :       lidar_height_(),
+<span class="lineNum">      49 </span>                :            :       is_get_first_lidar_msg_(false),
+<span class="lineNum">      50 </span>                :            :       cur_predict_location_(TransformD::Identity()),
+<span class="lineNum">      51 </span>                :            :       pre_predict_location_(TransformD::Identity()),
+<span class="lineNum">      52 </span>                :            :       velocity_(Vector3D::Zero()),
+<span class="lineNum">      53 </span>                :            :       pre_location_(TransformD::Identity()),
+<span class="lineNum">      54 </span>                :            :       location_(TransformD::Identity()),
+<span class="lineNum">      55 </span>                :            :       pre_location_time_(0.0),
+<span class="lineNum">      56 </span>                :            :       location_covariance_(Matrix3D::Zero()),
+<span class="lineNum">      57 </span>                :            :       lidar_status_(LidarState::NOT_VALID),
+<span class="lineNum">      58 </span>                :            :       reinit_flag_(false),
+<span class="lineNum">      59 </span>                :            :       imu_lidar_max_delay_time_(0.5),
+<span class="lineNum">      60 </span>                :            :       is_unstable_reset_(true),
+<span class="lineNum">      61 </span>                :            :       unstable_count_(0),
+<span class="lineNum">      62 </span>                :            :       unstable_threshold_(0.3),
+<span class="lineNum">      63 </span>                :            :       out_map_count_(0),
+<span class="lineNum">      64 </span>                :            :       forecast_integ_state_(ForecastState::NOT_VALID),
+<span class="lineNum">      65 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          1 :       forecast_timer_(-1) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>][<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">      66 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::LocalizationLidarProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<a name="67"><span class="lineNum">      67 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineCov">          1 : LocalizationLidarProcess::~LocalizationLidarProcess() {</span>
+<span class="lineNum">      70 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   delete locator_;</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">          1 :   locator_ = nullptr;</span>
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   delete pose_forecastor_;</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">          1 :   pose_forecastor_ = nullptr;</span>
+<a name="75"><span class="lineNum">      75 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 : Status LocalizationLidarProcess::Init(const LocalizationIntegParam&amp; params) {</span>
+<span class="lineNum">      78 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::Init&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            :   // initial_success_ = false;
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :   map_path_ = params.map_path;</span>
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :   lidar_extrinsic_file_ = params.lidar_extrinsic_file;</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :   lidar_height_file_ = params.lidar_height_file;</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :   localization_mode_ = params.localization_mode;</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :   yaw_align_mode_ = params.lidar_yaw_align_mode;</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :   utm_zone_id_ = params.utm_zone_id;</span>
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :   map_coverage_theshold_ = params.map_coverage_theshold;</span>
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :   imu_lidar_max_delay_time_ = params.imu_lidar_max_delay_time;</span>
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :   lidar_filter_size_ = params.lidar_filter_size;</span>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :   is_unstable_reset_ = params.is_lidar_unstable_reset;</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :   unstable_threshold_ = params.unstable_reset_threshold;</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :   if_use_avx_ = params.if_use_avx;</span>
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :   lidar_status_ = LidarState::NOT_VALID;</span>
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :            :   // reload_map_flag_ = false;
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :   reinit_flag_ = false;</span>
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :            :   // buffer
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :   out_map_count_ = 0;</span>
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :   is_get_first_lidar_msg_ = false;</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :   cur_predict_location_ = TransformD::Identity();</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :   pre_predict_location_ = TransformD::Identity();</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :   pre_location_ = TransformD::Identity();</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :   velocity_ = Vector3D::Zero();</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :   location_ = TransformD::Identity();</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :   location_covariance_ = Matrix3D::Zero();</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :   local_lidar_status_ = LocalLidarStatus::MSF_LOCAL_LIDAR_UNDEFINED_STATUS;</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :   local_lidar_quality_ = LocalLidarQuality::MSF_LOCAL_LIDAR_BAD;</span>
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :   bool success = LoadLidarExtrinsic(lidar_extrinsic_file_, &amp;lidar_extrinsic_);</span>
+<span class="lineNum">     115 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!success) {</span>
+<span class="lineNum">     116 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;LocalizationLidar: Fail to access the lidar&quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     117 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               &quot; extrinsic file: &quot;</span>
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :            &lt;&lt; lidar_extrinsic_file_;</span>
+<span class="lineNum">     119 </span>                :            :     return Status(common::LOCALIZATION_ERROR_LIDAR,
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :                   &quot;Fail to access the lidar extrinsic file&quot;);</span>
+<span class="lineNum">     121 </span>                :            :   }
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :   success = LoadLidarHeight(lidar_height_file_, &amp;lidar_height_);</span>
+<span class="lineNum">     124 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!success) {</span>
+<span class="lineNum">     125 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AWARN &lt;&lt; &quot;LocalizationLidar: Fail to load the lidar&quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     126 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :              &quot; height file: &quot;</span>
+<span class="lineNum">     127 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; lidar_height_file_ &lt;&lt; &quot; Will use default value!&quot;;</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :     lidar_height_.height = params.lidar_height_default;</span>
+<span class="lineNum">     129 </span>                :            :   }
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!locator_-&gt;Init(map_path_, lidar_filter_size_, lidar_filter_size_,</span>
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :                       utm_zone_id_)) {</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :     local_lidar_status_ = LocalLidarStatus::MSF_LOCAL_LIDAR_MAP_LOADING_FAILED;</span>
+<span class="lineNum">     134 </span>                :            :     return Status(common::LOCALIZATION_ERROR_LIDAR,
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :                   &quot;Fail to load localization map!&quot;);</span>
+<span class="lineNum">     136 </span>                :            :   }
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :   locator_-&gt;SetVelodyneExtrinsic(lidar_extrinsic_);</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :   locator_-&gt;SetLocalizationMode(localization_mode_);</span>
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :   locator_-&gt;SetImageAlignMode(yaw_align_mode_);</span>
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :   locator_-&gt;SetValidThreshold(static_cast&lt;float&gt;(map_coverage_theshold_));</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :   locator_-&gt;SetVehicleHeight(lidar_height_.height);</span>
+<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :   locator_-&gt;SetDeltaPitchRollLimit(compensate_pitch_roll_limit_);</span>
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :   const double deg_to_rad = 0.017453292519943;</span>
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :   const double max_gyro_input = 200 * deg_to_rad;  // 200 degree</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :   const double max_acc_input = 5.0;                // 5.0 m/s^2</span>
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :   pose_forecastor_-&gt;SetMaxListNum(400);</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :   pose_forecastor_-&gt;SetMaxAccelInput(max_acc_input);</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :   pose_forecastor_-&gt;SetMaxGyroInput(max_gyro_input);</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :   pose_forecastor_-&gt;SetZoneId(utm_zone_id_);</span>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :   return Status::OK();</span>
+<a name="154"><span class="lineNum">     154 </span>                :            : }</a>
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 : double LocalizationLidarProcess::ComputeDeltaYawLimit(</span>
+<span class="lineNum">     157 </span>                :            :     const int64_t index_cur, const int64_t index_stable, const double limit_min,
+<span class="lineNum">     158 </span>                :            :     const double limit_max) {
+<span class="lineNum">     159 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::ComputeDeltaYawLimit&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (index_cur &gt; index_stable) {</span>
+<span class="lineNum">     162 </span>                :            :     return limit_min;
+<span class="lineNum">     163 </span>                :            :   }
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :   double ratio = static_cast&lt;double&gt;(index_cur);</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :   ratio /= static_cast&lt;double&gt;(index_stable);</span>
+<span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :   return limit_min * ratio + limit_max * (1.0 - ratio);</span>
+<a name="168"><span class="lineNum">     168 </span>                :            : }</a>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 : void LocalizationLidarProcess::PcdProcess(const LidarFrame&amp; lidar_frame) {</span>
+<span class="lineNum">     171 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::PcdProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!CheckState()) {</span>
+<span class="lineNum">     174 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;PcdProcess: Receive an invalid lidar msg!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     176 </span>                :            :   }
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :            :   // pcd process cost time
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :   Timer timer;</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :   timer.Start();</span>
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :            :   static unsigned int pcd_index = 0;
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!GetPredictPose(lidar_frame.measurement_time, &amp;cur_predict_location_,</span>
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :                       &amp;forecast_integ_state_)) {</span>
+<span class="lineNum">     186 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;PcdProcess: Discard a lidar msg because can't get predict pose. &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     187 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; &quot;More info see log in function GetPredictPose.&quot;;</span>
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     189 </span>                :            :   }
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (forecast_integ_state_ != ForecastState::INCREMENT) {</span>
+<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :     forecast_timer_ = -1;</span>
+<span class="lineNum">     193 </span>                :            :   }
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :   ++forecast_timer_;</span>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :            :   locator_-&gt;SetDeltaYawLimit(ComputeDeltaYawLimit(
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :       forecast_timer_, 10, delta_yaw_limit_, init_delta_yaw_limit_));</span>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!is_get_first_lidar_msg_) {</span>
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :     pre_predict_location_ = cur_predict_location_;</span>
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :     pre_location_ = cur_predict_location_;</span>
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :     velocity_ = Vector3D::Zero();</span>
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :     is_get_first_lidar_msg_ = true;</span>
+<span class="lineNum">     204 </span>                :            :   }
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :   velocity_ = cur_predict_location_.translation() - pre_location_.translation();</span>
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :            :   int ret = locator_-&gt;Update(pcd_index++, cur_predict_location_, velocity_,
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :                              lidar_frame, if_use_avx_);</span>
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :   UpdateState(ret, lidar_frame.measurement_time);</span>
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   timer.End(&quot;Lidar process&quot;);</span>
+<a name="214"><span class="lineNum">     214 </span>                :            : }</a>
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 : void LocalizationLidarProcess::GetResult(int* lidar_status,</span>
+<span class="lineNum">     217 </span>                :            :                                          TransformD* location,
+<span class="lineNum">     218 </span>                :            :                                          Matrix3D* covariance) const {
+<span class="lineNum">     219 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::GetResult&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(lidar_status);</span>
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(location);</span>
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(covariance);</span>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :   *lidar_status = static_cast&lt;int&gt;(lidar_status_);</span>
+<span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 :   *location = location_;</span>
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :   *covariance = location_covariance_;</span>
+<a name="228"><span class="lineNum">     228 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 : int LocalizationLidarProcess::GetResult(LocalizationEstimate* lidar_local_msg) {</span>
+<span class="lineNum">     231 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::GetResult&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (lidar_local_msg == nullptr) {</span>
+<span class="lineNum">     234 </span>                :            :     return static_cast&lt;int&gt;(LidarState::NOT_VALID);
+<span class="lineNum">     235 </span>                :            :   }
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :   lidar_local_msg-&gt;set_measurement_time(pre_location_time_);</span>
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :   apollo::common::Header* headerpb = lidar_local_msg-&gt;mutable_header();</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :   headerpb-&gt;set_timestamp_sec(pre_location_time_);</span>
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :   apollo::localization::Pose* posepb = lidar_local_msg-&gt;mutable_pose();</span>
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :   apollo::common::PointENU* position = posepb-&gt;mutable_position();</span>
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :   position-&gt;set_x(location_.translation()(0));</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :   position-&gt;set_y(location_.translation()(1));</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :   position-&gt;set_z(location_.translation()(2));</span>
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :   apollo::common::Quaternion* quaternion = posepb-&gt;mutable_orientation();</span>
+<span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :   Eigen::Quaterniond quat(location_.linear());</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :   quaternion-&gt;set_qx(quat.x());</span>
+<span class="lineNum">     251 </span>                :<span class="lineNoCov">          0 :   quaternion-&gt;set_qy(quat.y());</span>
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :   quaternion-&gt;set_qz(quat.z());</span>
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :   quaternion-&gt;set_qw(quat.w());</span>
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>                :            :   apollo::localization::Uncertainty* uncertainty =
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 :       lidar_local_msg-&gt;mutable_uncertainty();</span>
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>                :            :   apollo::common::Point3D* position_std_dev =
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :       uncertainty-&gt;mutable_position_std_dev();</span>
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :   position_std_dev-&gt;set_x(location_covariance_(0, 0));</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :   position_std_dev-&gt;set_y(location_covariance_(1, 1));</span>
+<span class="lineNum">     262 </span>                :            :   position_std_dev-&gt;set_z(0.0);
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :            :   static constexpr double yaw_covariance = 0.15 * 0.15 * DEG_TO_RAD2;
+<span class="lineNum">     265 </span>                :            :   apollo::common::Point3D* orientation_std_dev =
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 :       uncertainty-&gt;mutable_orientation_std_dev();</span>
+<span class="lineNum">     267 </span>                :            :   orientation_std_dev-&gt;set_x(0.0);
+<span class="lineNum">     268 </span>                :            :   orientation_std_dev-&gt;set_y(0.0);
+<span class="lineNum">     269 </span>                :            :   orientation_std_dev-&gt;set_z(yaw_covariance);
+<span class="lineNum">     270 </span>                :            : 
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :   MsfStatus* msf_status = lidar_local_msg-&gt;mutable_msf_status();</span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :   msf_status-&gt;set_local_lidar_status(local_lidar_status_);</span>
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :   msf_status-&gt;set_local_lidar_quality(local_lidar_quality_);</span>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :   return static_cast&lt;int&gt;(lidar_status_);</span>
+<a name="276"><span class="lineNum">     276 </span>                :            : }</a>
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 : void LocalizationLidarProcess::IntegPvaProcess(const InsPva&amp; sins_pva_msg) {</span>
+<span class="lineNum">     279 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::IntegPvaProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :   pose_forecastor_-&gt;PushInspvaData(sins_pva_msg);</span>
+<a name="282"><span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 : void LocalizationLidarProcess::RawImuProcess(const ImuData&amp; imu_msg) {</span>
+<span class="lineNum">     285 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::RawImuProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :   pose_forecastor_-&gt;PushImuData(imu_msg);</span>
+<a name="288"><span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     289 </span>                :            : 
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 : bool LocalizationLidarProcess::GetPredictPose(const double lidar_time,</span>
+<span class="lineNum">     291 </span>                :            :                                               TransformD* predict_pose,
+<span class="lineNum">     292 </span>                :            :                                               ForecastState* forecast_state) {
+<span class="lineNum">     293 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::GetPredictPose&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     294 </span>                :            : 
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(predict_pose);</span>
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(forecast_state);</span>
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :   double latest_imu_time = pose_forecastor_-&gt;GetLastestImuTime();</span>
+<span class="lineNum">     299 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (latest_imu_time - lidar_time &gt; imu_lidar_max_delay_time_) {</span>
+<span class="lineNum">     300 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; std::setprecision(16) &lt;&lt; &quot;LocalizationLidar GetPredictPose: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     301 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &lt;&lt; &quot;Lidar msg too old! &quot;</span>
+<span class="lineNum">     302 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &lt;&lt; &quot;lidar time: &quot; &lt;&lt; lidar_time</span>
+<span class="lineNum">     303 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &lt;&lt; &quot;delay time: &quot; &lt;&lt; latest_imu_time - lidar_time;</span>
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     305 </span>                :            :   }
+<span class="lineNum">     306 </span>                :            : 
+<span class="lineNum">     307 </span>                :            :   Pose forecast_pose;
+<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :   int state = -1;</span>
+<span class="lineNum">     309 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (lidar_status_ != LidarState::OK) {</span>
+<span class="lineNum">     310 </span>                :            :     Pose init_pose;
+<span class="lineNum">     311 </span>                :            :     state = pose_forecastor_-&gt;GetBestForcastPose(lidar_time, -1, init_pose,
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :                                                  &amp;forecast_pose);</span>
+<span class="lineNum">     313 </span>                :            :   } else {
+<span class="lineNum">     314 </span>                :            :     Pose init_pose;
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :     init_pose.x = pre_location_.translation()(0);</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :     init_pose.y = pre_location_.translation()(1);</span>
+<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :     init_pose.z = pre_location_.translation()(2);</span>
+<span class="lineNum">     318 </span>                :<span class="lineNoCov">          0 :     Eigen::Quaterniond quatd(pre_location_.linear());</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :     init_pose.qx = quatd.x();</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :     init_pose.qy = quatd.y();</span>
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :     init_pose.qz = quatd.z();</span>
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :     init_pose.qw = quatd.w();</span>
+<span class="lineNum">     323 </span>                :            : 
+<span class="lineNum">     324 </span>                :            :     state = pose_forecastor_-&gt;GetBestForcastPose(lidar_time, pre_location_time_,
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :                                                  init_pose, &amp;forecast_pose);</span>
+<span class="lineNum">     326 </span>                :            :   }
+<span class="lineNum">     327 </span>                :            : 
+<span class="lineNum">     328 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (state &lt; 0) {</span>
+<span class="lineNum">     329 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;LocalizationLidar GetPredictPose: &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     330 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; &quot;Receive a lidar msg, but can't query predict pose.&quot;;</span>
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :     *forecast_state = ForecastState::NOT_VALID;</span>
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     333 </span>                :            :   }
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (std::abs(forecast_pose.x) &lt; 10.0 || std::abs(forecast_pose.y) &lt; 10.0) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     336 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;LocalizationLidar Fatal Error: invalid pose!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     338 </span>                :            :   }
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :            :   Eigen::Quaterniond quatd(forecast_pose.qw, forecast_pose.qx, forecast_pose.qy,
+<span class="lineNum">     341 </span>                :            :                            forecast_pose.qz);
+<span class="lineNum">     342 </span>                :            :   Eigen::Translation3d transd(
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :       Eigen::Vector3d(forecast_pose.x, forecast_pose.y, forecast_pose.z));</span>
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :   *predict_pose = transd * quatd;</span>
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (state == 0) {</span>
+<span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 :     *forecast_state = ForecastState::INITIAL;</span>
+<span class="lineNum">     348 </span>                :            :   } else {
+<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :     *forecast_state = ForecastState::INCREMENT;</span>
+<span class="lineNum">     350 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;The delta translation input lidar localization: &quot; &lt;&lt; lidar_time</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     351 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; &quot; &quot; &lt;&lt; forecast_pose.x - pre_location_.translation()(0) &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">     352 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           &lt;&lt; forecast_pose.y - pre_location_.translation()(1) &lt;&lt; &quot; &quot;</span>
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 :           &lt;&lt; forecast_pose.z - pre_location_.translation()(2);</span>
+<span class="lineNum">     354 </span>                :            :   }
+<span class="lineNum">     355 </span>                :            : 
+<span class="lineNum">     356 </span>                :            :   return true;
+<a name="357"><span class="lineNum">     357 </span>                :            : }</a>
+<span class="lineNum">     358 </span>                :            : 
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 : bool LocalizationLidarProcess::CheckState() {</span>
+<span class="lineNum">     360 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::CheckState&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<a name="361"><span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :  return true; }</span></a>
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 : void LocalizationLidarProcess::UpdateState(const int ret, const double time) {</span>
+<span class="lineNum">     364 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::UpdateState&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (ret == 0) {  // OK</span>
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :     double location_score = 0.0;</span>
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :     locator_-&gt;GetResult(&amp;location_, &amp;location_covariance_, &amp;location_score);</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :     lidar_status_ = LidarState::OK;</span>
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :     double local_uncertainty_x = std::sqrt(location_covariance_(0, 0));</span>
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :     double local_uncertainty_y = std::sqrt(location_covariance_(1, 1));</span>
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     local_uncertainty_x = local_uncertainty_x &gt; 0.1 ? local_uncertainty_x : 0.1;</span>
+<span class="lineNum">     375 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     local_uncertainty_y = local_uncertainty_y &gt; 0.1 ? local_uncertainty_y : 0.1;</span>
+<span class="lineNum">     376 </span>                :            :     // check covariance
+<span class="lineNum">     377 </span>                :            :     double cur_location_std_area =
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :         std::sqrt(local_uncertainty_x * local_uncertainty_x +</span>
+<span class="lineNum">     379 </span>                :<span class="lineNoCov">          0 :                   local_uncertainty_y * local_uncertainty_y);</span>
+<span class="lineNum">     380 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (cur_location_std_area &gt; unstable_threshold_ || location_score &lt; 0.8) {</span>
+<span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :       local_lidar_quality_ = LocalLidarQuality::MSF_LOCAL_LIDAR_BAD;</span>
+<span class="lineNum">     382 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } else if (cur_location_std_area &lt;= unstable_threshold_ &amp;&amp;</span>
+<span class="lineNum">     383 </span>                :            :                location_score &lt; 0.85) {
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :       local_lidar_quality_ = LocalLidarQuality::MSF_LOCAL_LIDAR_NOT_BAD;</span>
+<span class="lineNum">     385 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } else if (cur_location_std_area &lt;= unstable_threshold_ &amp;&amp;</span>
+<span class="lineNum">     386 </span>                :            :                location_score &lt; 0.95) {
+<span class="lineNum">     387 </span>                :<span class="lineNoCov">          0 :       local_lidar_quality_ = LocalLidarQuality::MSF_LOCAL_LIDAR_GOOD;</span>
+<span class="lineNum">     388 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     } else if (cur_location_std_area &lt;= unstable_threshold_) {</span>
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :       local_lidar_quality_ = LocalLidarQuality::MSF_LOCAL_LIDAR_VERY_GOOD;</span>
+<span class="lineNum">     390 </span>                :            :     }
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (local_lidar_quality_ == LocalLidarQuality::MSF_LOCAL_LIDAR_BAD) {</span>
+<span class="lineNum">     393 </span>                :<span class="lineNoCov">          0 :       ++unstable_count_;</span>
+<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :       local_lidar_status_ = LocalLidarStatus::MSF_LOCAL_LIDAR_NOT_GOOD;</span>
+<span class="lineNum">     395 </span>                :            :     } else {
+<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :       unstable_count_ = 0;</span>
+<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :       local_lidar_status_ = LocalLidarStatus::MSF_LOCAL_LIDAR_NORMAL;</span>
+<span class="lineNum">     398 </span>                :            :     }
+<span class="lineNum">     399 </span>                :            : 
+<span class="lineNum">     400 </span>                :            :     // check if lidar need reset
+<span class="lineNum">     401 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (unstable_count_ &gt;= 2 &amp;&amp; is_unstable_reset_) {</span>
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :       unstable_count_ = 2;</span>
+<span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :       reinit_flag_ = true;</span>
+<span class="lineNum">     404 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AWARN &lt;&lt; &quot;Reinit lidar localization due to big covariance&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :       lidar_status_ = LidarState::NOT_STABLE;</span>
+<span class="lineNum">     406 </span>                :            :     } else {
+<span class="lineNum">     407 </span>                :<span class="lineNoCov">          0 :       lidar_status_ = LidarState::OK;</span>
+<span class="lineNum">     408 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (out_map_count_ &gt; 0) {</span>
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :         --out_map_count_;</span>
+<span class="lineNum">     410 </span>                :            :       }
+<span class="lineNum">     411 </span>                :            :     }
+<span class="lineNum">     412 </span>                :<span class="lineNoCov">          0 :     pre_location_ = location_;</span>
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :     pre_location_time_ = time;</span>
+<span class="lineNum">     414 </span>                :            : 
+<span class="lineNum">     415 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   } else if (ret == -2) {  // out of map</span>
+<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 :     local_lidar_status_ = LocalLidarStatus::MSF_LOCAL_LIDAR_OUT_OF_MAP;</span>
+<span class="lineNum">     417 </span>                :<span class="lineNoCov">          0 :     double location_score = 0.0;</span>
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :     locator_-&gt;GetResult(&amp;location_, &amp;location_covariance_, &amp;location_score);</span>
+<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :     lidar_status_ = LidarState::NOT_STABLE;</span>
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :     pre_location_ = location_;</span>
+<span class="lineNum">     421 </span>                :<span class="lineNoCov">          0 :     pre_location_time_ = time;</span>
+<span class="lineNum">     422 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (out_map_count_ &lt; 10) {</span>
+<span class="lineNum">     423 </span>                :<span class="lineNoCov">          0 :       ++out_map_count_;</span>
+<span class="lineNum">     424 </span>                :            :     } else {
+<span class="lineNum">     425 </span>                :<span class="lineNoCov">          0 :       reinit_flag_ = true;</span>
+<span class="lineNum">     426 </span>                :            :     }
+<span class="lineNum">     427 </span>                :            :   } else {  // NOT_VALID
+<span class="lineNum">     428 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;LocalizationLidar: The reflection map load failed!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :     lidar_status_ = LidarState::NOT_VALID;</span>
+<span class="lineNum">     430 </span>                :            :   }
+<a name="431"><span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :<span class="lineNoCov">          0 : bool LocalizationLidarProcess::LoadLidarExtrinsic(const std::string&amp; file_path,</span>
+<span class="lineNum">     434 </span>                :            :                                                   TransformD* lidar_extrinsic) {
+<span class="lineNum">     435 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::LoadLidarExtrinsic&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     436 </span>                :            : 
+<span class="lineNum">     437 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(lidar_extrinsic);</span>
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :<span class="lineNoCov">          0 :   YAML::Node config = YAML::LoadFile(file_path);</span>
+<span class="lineNum">     440 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (config[&quot;transform&quot;]) {</span>
+<span class="lineNum">     441 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (config[&quot;transform&quot;][&quot;translation&quot;]) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     442 </span>                :<span class="lineNoCov">          0 :       lidar_extrinsic-&gt;translation()(0) =</span>
+<span class="lineNum">     443 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           config[&quot;transform&quot;][&quot;translation&quot;][&quot;x&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :       lidar_extrinsic-&gt;translation()(1) =</span>
+<span class="lineNum">     445 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           config[&quot;transform&quot;][&quot;translation&quot;][&quot;y&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     446 </span>                :<span class="lineNoCov">          0 :       lidar_extrinsic-&gt;translation()(2) =</span>
+<span class="lineNum">     447 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           config[&quot;transform&quot;][&quot;translation&quot;][&quot;z&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     448 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (config[&quot;transform&quot;][&quot;rotation&quot;]) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     449 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         double qx = config[&quot;transform&quot;][&quot;rotation&quot;][&quot;x&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     450 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         double qy = config[&quot;transform&quot;][&quot;rotation&quot;][&quot;y&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     451 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         double qz = config[&quot;transform&quot;][&quot;rotation&quot;][&quot;z&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     452 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         double qw = config[&quot;transform&quot;][&quot;rotation&quot;][&quot;w&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :         lidar_extrinsic-&gt;linear() =</span>
+<span class="lineNum">     454 </span>                :            :             Eigen::Quaterniond(qw, qx, qy, qz).toRotationMatrix();
+<span class="lineNum">     455 </span>                :            :         return true;
+<span class="lineNum">     456 </span>                :            :       }
+<span class="lineNum">     457 </span>                :            :     }
+<span class="lineNum">     458 </span>                :            :   }
+<span class="lineNum">     459 </span>                :            :   return false;
+<a name="460"><span class="lineNum">     460 </span>                :            : }</a>
+<span class="lineNum">     461 </span>                :            : 
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 : bool LocalizationLidarProcess::LoadLidarHeight(const std::string&amp; file_path,</span>
+<span class="lineNum">     463 </span>                :            :                                                LidarHeight* height) {
+<span class="lineNum">     464 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationLidarProcess::LoadLidarHeight&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     465 </span>                :            : 
+<span class="lineNum">     466 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(height);</span>
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!cyber::common::PathExists(file_path)) {</span>
+<span class="lineNum">     469 </span>                :            :     return false;
+<span class="lineNum">     470 </span>                :            :   }
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :   YAML::Node config = YAML::LoadFile(file_path);</span>
+<span class="lineNum">     473 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (config[&quot;vehicle&quot;]) {</span>
+<span class="lineNum">     474 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (config[&quot;vehicle&quot;][&quot;parameters&quot;]) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     475 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       height-&gt;height = config[&quot;vehicle&quot;][&quot;parameters&quot;][&quot;height&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     476 </span>                :            :       height-&gt;height_var =
+<span class="lineNum">     477 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           config[&quot;vehicle&quot;][&quot;parameters&quot;][&quot;height_var&quot;].as&lt;double&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     478 </span>                :<span class="lineNoCov">          0 :       return true;</span>
+<span class="lineNum">     479 </span>                :            :     }
+<span class="lineNum">     480 </span>                :            :   }
+<span class="lineNum">     481 </span>                :            :   return false;
+<span class="lineNum">     482 </span>                :            : }
+<span class="lineNum">     483 </span>                :            : 
+<a name="484"><span class="lineNum">     484 </span>                :            : }  // namespace msf</a>
+<span class="lineNum">     485 </span>                :            : }  // namespace localization
+<span class="lineNum">     486 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

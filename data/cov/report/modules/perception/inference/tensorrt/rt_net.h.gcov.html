@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/perception/inference/tensorrt/rt_net.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/perception/inference/tensorrt</a> - rt_net.h<span style="font-size: 80%;"> (source / <a href="rt_net.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #pragma once
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &lt;map&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;memory&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : #include &quot;modules/perception/inference/inference.h&quot;
+<span class="lineNum">      25 </span>                :            : #include &quot;modules/perception/inference/tensorrt/entropy_calibrator.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;modules/perception/proto/rt.pb.h&quot;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : namespace apollo {
+<span class="lineNum">      29 </span>                :            : namespace perception {
+<span class="lineNum">      30 </span>                :            : namespace inference {
+<span class="lineNum">      31 </span>                :            : class ArgMax1Plugin;
+<span class="lineNum">      32 </span>                :            : class ReLUPlugin;
+<span class="lineNum">      33 </span>                :            : class SLICEPlugin;
+<span class="lineNum">      34 </span>                :            : class SoftmaxPlugin;
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : typedef std::map&lt;std::string, std::vector&lt;nvinfer1::Weights&gt;&gt; WeightMap;
+<span class="lineNum">      37 </span>                :            : typedef std::map&lt;std::string, nvinfer1::ITensor *&gt; TensorMap;
+<span class="lineNum">      38 </span>                :            : typedef std::map&lt;std::string, nvinfer1::DimsCHW&gt; TensorDimsMap;
+<span class="lineNum">      39 </span>                :            : typedef std::map&lt;std::string, std::string&gt; TensorModifyMap;
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : const std::map&lt;EltwiseParameter::EltwiseOp, nvinfer1::ElementWiseOperation&gt;
+<span class="lineNum">      42 </span>[<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         12 :     eltwise_map{</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">      43 </span>                :            :         {EltwiseParameter_EltwiseOp_PROD,
+<span class="lineNum">      44 </span>                :            :          nvinfer1::ElementWiseOperation::kPROD},
+<span class="lineNum">      45 </span>                :            :         {EltwiseParameter_EltwiseOp_SUM, nvinfer1::ElementWiseOperation::kSUM},
+<span class="lineNum">      46 </span>                :<span class="lineCov">         12 :         {EltwiseParameter_EltwiseOp_MAX, nvinfer1::ElementWiseOperation::kMAX}};</span>
+<span class="lineNum">      47 </span>[<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         30 : const std::map&lt;std::string, nvinfer1::ActivationType&gt; active_map{</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 12 was taken 18 times"> + </span><span class="branchCov" title="Branch 13 was taken 6 times"> + </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">      48 </span>                :            :     {&quot;Sigmoid&quot;, nvinfer1::ActivationType::kSIGMOID},
+<span class="lineNum">      49 </span>                :            :     {&quot;TanH&quot;, nvinfer1::ActivationType::kTANH},
+<span class="lineNum">      50 </span>                :<span class="lineCov">         30 :     {&quot;ReLU&quot;, nvinfer1::ActivationType::kRELU}};</span>
+<span class="lineNum">      51 </span>[<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         54 : const std::vector&lt;std::string&gt; _gpu_checklist{</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 10 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>][<span class="branchCov" title="Branch 14 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 18 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 26 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 27 was not taken"> - </span>][<span class="branchCov" title="Branch 29 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 30 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 31 was taken 42 times"> + </span><span class="branchCov" title="Branch 32 was taken 6 times"> + </span>][<span class="branchNoExec" title="Branch 41 was not executed"> # </span><span class="branchNoExec" title="Branch 42 was not executed"> # </span>]
+<span class="lineNum">      52 </span>                :            :     &quot;GeForce GTX 1080&quot;,    &quot;GeForce GTX 1080 Ti&quot;, &quot;Tesla P4&quot;,
+<span class="lineNum">      53 </span>                :            :     &quot;Tesla P40&quot;,           &quot;GeForce GTX 1070&quot;,    &quot;GeForce GTX 1060&quot;,
+<span class="lineNum">      54 </span>                :<span class="lineCov">         54 :     &quot;Tesla V100-SXM2-16GB&quot;};</span>
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : class RTNet : public Inference {
+<span class="lineNum">      57 </span>                :            :  public:
+<span class="lineNum">      58 </span>                :            :   RTNet(const std::string &amp;net_file, const std::string &amp;model_file,
+<span class="lineNum">      59 </span>                :            :         const std::vector&lt;std::string&gt; &amp;outputs,
+<span class="lineNum">      60 </span>                :            :         const std::vector&lt;std::string&gt; &amp;inputs);
+<span class="lineNum">      61 </span>                :            :   RTNet(const std::string &amp;net_file, const std::string &amp;model_file,
+<span class="lineNum">      62 </span>                :            :         const std::vector&lt;std::string&gt; &amp;outputs,
+<span class="lineNum">      63 </span>                :            :         const std::vector&lt;std::string&gt; &amp;inputs,
+<span class="lineNum">      64 </span>                :            :         nvinfer1::Int8EntropyCalibrator *calibrator);
+<span class="lineNum">      65 </span>                :            :   RTNet(const std::string &amp;net_file, const std::string &amp;model_file,
+<span class="lineNum">      66 </span>                :            :         const std::vector&lt;std::string&gt; &amp;outputs,
+<span class="lineNum">      67 </span>                :            :         const std::vector&lt;std::string&gt; &amp;inputs, const std::string &amp;model_root);
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            :   virtual ~RTNet();
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            :   bool Init(const std::map&lt;std::string, std::vector&lt;int&gt;&gt; &amp;shapes) override;
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :            :   void Infer() override;
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            :   std::shared_ptr&lt;apollo::perception::base::Blob&lt;float&gt;&gt; get_blob(
+<span class="lineNum">      76 </span>                :            :       const std::string &amp;name) override;
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            :  protected:
+<span class="lineNum">      79 </span>                :            :   bool addInput(const TensorDimsMap &amp;tensor_dims_map,
+<span class="lineNum">      80 </span>                :            :                 const std::map&lt;std::string, std::vector&lt;int&gt;&gt; &amp;shapes,
+<span class="lineNum">      81 </span>                :            :                 TensorMap *tensor_map);
+<span class="lineNum">      82 </span>                :            :   bool shape(const std::string &amp;name, std::vector&lt;int&gt; *res);
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :            :   void ConstructMap(const LayerParameter &amp;layer_param, nvinfer1::ILayer *layer,
+<span class="lineNum">      85 </span>                :            :                     TensorMap *tensor_map, TensorModifyMap *tensor_modify_map);
+<span class="lineNum">      86 </span>                :            :   void parse_with_api(const std::map&lt;std::string, std::vector&lt;int&gt;&gt; &amp;shapes);
+<span class="lineNum">      87 </span>                :            :   void addLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">      88 </span>                :            :                 nvinfer1::ITensor *const *inputs, int nbInputs,
+<span class="lineNum">      89 </span>                :            :                 WeightMap *weight_map, nvinfer1::INetworkDefinition *net,
+<span class="lineNum">      90 </span>                :            :                 TensorMap *tensor_map, TensorModifyMap *tensor_modify_map);
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :   void addConvLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">      93 </span>                :            :                     nvinfer1::ITensor *const *inputs, WeightMap *weight_map,
+<span class="lineNum">      94 </span>                :            :                     nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">      95 </span>                :            :                     TensorModifyMap *tensor_modify_map);
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            :   void addDeconvLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">      98 </span>                :            :                       nvinfer1::ITensor *const *inputs, WeightMap *weight_map,
+<span class="lineNum">      99 </span>                :            :                       nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     100 </span>                :            :                       TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            :   void addActiveLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     103 </span>                :            :                       nvinfer1::ITensor *const *inputs, int nbInputs,
+<span class="lineNum">     104 </span>                :            :                       nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     105 </span>                :            :                       TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            :   void addConcatLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     108 </span>                :            :                       nvinfer1::ITensor *const *inputs, int nbInputs,
+<span class="lineNum">     109 </span>                :            :                       nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     110 </span>                :            :                       TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            :   void addPoolingLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     113 </span>                :            :                        nvinfer1::ITensor *const *inputs,
+<span class="lineNum">     114 </span>                :            :                        nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     115 </span>                :            :                        TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     116 </span>                :            :   void addSliceLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     117 </span>                :            :                      nvinfer1::ITensor *const *inputs, int nbInputs,
+<span class="lineNum">     118 </span>                :            :                      nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     119 </span>                :            :                      TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :            :   void addInnerproductLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     122 </span>                :            :                             nvinfer1::ITensor *const *inputs,
+<span class="lineNum">     123 </span>                :            :                             WeightMap *weight_map,
+<span class="lineNum">     124 </span>                :            :                             nvinfer1::INetworkDefinition *net,
+<span class="lineNum">     125 </span>                :            :                             TensorMap *tensor_map,
+<span class="lineNum">     126 </span>                :            :                             TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            :   void addScaleLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     129 </span>                :            :                      nvinfer1::ITensor *const *inputs, WeightMap *weight_map,
+<span class="lineNum">     130 </span>                :            :                      nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     131 </span>                :            :                      TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            :   void addBatchnormLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     134 </span>                :            :                          nvinfer1::ITensor *const *inputs,
+<span class="lineNum">     135 </span>                :            :                          WeightMap *weight_map,
+<span class="lineNum">     136 </span>                :            :                          nvinfer1::INetworkDefinition *net,
+<span class="lineNum">     137 </span>                :            :                          TensorMap *tensor_map,
+<span class="lineNum">     138 </span>                :            :                          TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            :   void addSoftmaxLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     141 </span>                :            :                        nvinfer1::ITensor *const *inputs, int nbInputs,
+<span class="lineNum">     142 </span>                :            :                        nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     143 </span>                :            :                        TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :            :   void addEltwiseLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     146 </span>                :            :                        nvinfer1::ITensor *const *inputs,
+<span class="lineNum">     147 </span>                :            :                        nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     148 </span>                :            :                        TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            :   void addArgmaxLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     151 </span>                :            :                       nvinfer1::ITensor *const *inputs, int nbInputs,
+<span class="lineNum">     152 </span>                :            :                       nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     153 </span>                :            :                       TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :            :   void addPermuteLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     156 </span>                :            :                        nvinfer1::ITensor *const *inputs, int nbInputs,
+<span class="lineNum">     157 </span>                :            :                        nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     158 </span>                :            :                        TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            :   void addReshapeLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     161 </span>                :            :                        nvinfer1::ITensor *const *inputs,
+<span class="lineNum">     162 </span>                :            :                        nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     163 </span>                :            :                        TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            :   void addPaddingLayer(const LayerParameter &amp;layer_param,
+<span class="lineNum">     166 </span>                :            :                        nvinfer1::ITensor *const *inputs,
+<span class="lineNum">     167 </span>                :            :                        nvinfer1::INetworkDefinition *net, TensorMap *tensor_map,
+<span class="lineNum">     168 </span>                :            :                        TensorModifyMap *tensor_modify_map);
+<span class="lineNum">     169 </span>                :            :   bool checkInt8(const std::string &amp;gpu_name,
+<span class="lineNum">     170 </span>                :            :                  nvinfer1::IInt8Calibrator *calibrator);
+<span class="lineNum">     171 </span>                :            :   void mergeBN(int index, LayerParameter *layer_param);
+<span class="lineNum">     172 </span>                :            :   nvinfer1::Weights loadLayerWeights(const float *data, int size);
+<span class="lineNum">     173 </span>                :            :   nvinfer1::Weights loadLayerWeights(float data, int size);
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            :   bool loadWeights(const std::string &amp;model_file, WeightMap *weight_map);
+<span class="lineNum">     176 </span>                :            :   void init_blob(std::vector&lt;std::string&gt; *names);
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :            :  private:
+<span class="lineNum">     179 </span>                :            :   nvinfer1::IExecutionContext *context_ = nullptr;
+<span class="lineNum">     180 </span>                :            :   cudaStream_t stream_ = 0;
+<span class="lineNum">     181 </span>                :            :   std::vector&lt;std::shared_ptr&lt;ArgMax1Plugin&gt;&gt; argmax_plugins_;
+<span class="lineNum">     182 </span>                :            :   std::vector&lt;std::shared_ptr&lt;SoftmaxPlugin&gt;&gt; softmax_plugins_;
+<span class="lineNum">     183 </span>                :            :   std::vector&lt;std::shared_ptr&lt;SLICEPlugin&gt;&gt; slice_plugins_;
+<span class="lineNum">     184 </span>                :            :   std::vector&lt;std::shared_ptr&lt;ReLUPlugin&gt;&gt; relu_plugins_;
+<span class="lineNum">     185 </span>                :            :   std::vector&lt;std::string&gt; output_names_;
+<span class="lineNum">     186 </span>                :            :   std::vector&lt;std::string&gt; input_names_;
+<span class="lineNum">     187 </span>                :            :   std::map&lt;std::string, std::string&gt; tensor_modify_map_;
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            :   std::shared_ptr&lt;NetParameter&gt; net_param_;
+<span class="lineNum">     190 </span>                :            :   WeightMap weight_map_;
+<span class="lineNum">     191 </span>                :            :   std::vector&lt;void *&gt; buffers_;
+<span class="lineNum">     192 </span>                :            :   int workspaceSize_ = 1;
+<span class="lineNum">     193 </span>                :            :   nvinfer1::Int8EntropyCalibrator *calibrator_ = nullptr;
+<span class="lineNum">     194 </span>                :            :   bool is_own_calibrator_ = true;
+<span class="lineNum">     195 </span>                :            :   std::string model_root_;
+<span class="lineNum">     196 </span>                :            :   nvinfer1::IBuilder *builder_ = nullptr;
+<span class="lineNum">     197 </span>                :            :   nvinfer1::INetworkDefinition *network_ = nullptr;
+<span class="lineNum">     198 </span>                :            :   std::vector&lt;std::shared_ptr&lt;float&gt;&gt; weights_mem_;
+<span class="lineNum">     199 </span>                :            :   BlobMap blobs_;
+<span class="lineNum">     200 </span>                :            : };
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :            : }  // namespace inference
+<span class="lineNum">     203 </span>                :            : }  // namespace perception
+<span class="lineNum">     204 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

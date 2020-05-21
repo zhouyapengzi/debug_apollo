@@ -1,0 +1,201 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/planning/open_space/trajectory_smoother/iterative_anchoring_smoother.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/planning/open_space/trajectory_smoother</a> - iterative_anchoring_smoother.h<span style="font-size: 80%;"> (source / <a href="iterative_anchoring_smoother.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2019 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /*
+<span class="lineNum">      18 </span>                :            :  * @file
+<span class="lineNum">      19 </span>                :            :  */
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #pragma once
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : #include &quot;Eigen/Eigen&quot;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : #include &quot;modules/common/math/box2d.h&quot;
+<span class="lineNum">      29 </span>                :            : #include &quot;modules/common/math/line_segment2d.h&quot;
+<span class="lineNum">      30 </span>                :            : #include &quot;modules/common/math/vec2d.h&quot;
+<span class="lineNum">      31 </span>                :            : #include &quot;modules/planning/common/path/discretized_path.h&quot;
+<span class="lineNum">      32 </span>                :            : #include &quot;modules/planning/common/speed/speed_data.h&quot;
+<span class="lineNum">      33 </span>                :            : #include &quot;modules/planning/common/trajectory/discretized_trajectory.h&quot;
+<span class="lineNum">      34 </span>                :            : #include &quot;modules/planning/math/curve1d/quintic_polynomial_curve1d.h&quot;
+<span class="lineNum">      35 </span>                :            : #include &quot;modules/planning/proto/planning.pb.h&quot;
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : namespace apollo {
+<span class="lineNum">      38 </span>                :            : namespace planning {
+<span class="lineNum">      39 </span>                :            : class IterativeAnchoringSmoother {
+<span class="lineNum">      40 </span>                :            :  public:
+<span class="lineNum">      41 </span>                :            :   IterativeAnchoringSmoother(
+<a name="42"><span class="lineNum">      42 </span>                :            :       const PlannerOpenSpaceConfig&amp; planner_open_space_config);</a>
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :   ~IterativeAnchoringSmoother() = default;</span>
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            :   bool Smooth(const Eigen::MatrixXd&amp; xWS, const double init_a,
+<span class="lineNum">      47 </span>                :            :               const double init_v,
+<span class="lineNum">      48 </span>                :            :               const std::vector&lt;std::vector&lt;common::math::Vec2d&gt;&gt;&amp;
+<span class="lineNum">      49 </span>                :            :                   obstacles_vertices_vec,
+<span class="lineNum">      50 </span>                :            :               DiscretizedTrajectory* discretized_trajectory);
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            :  private:
+<span class="lineNum">      53 </span>                :            :   void AdjustStartEndHeading(
+<span class="lineNum">      54 </span>                :            :       const Eigen::MatrixXd&amp; xWS,
+<span class="lineNum">      55 </span>                :            :       std::vector&lt;std::pair&lt;double, double&gt;&gt;* const point2d);
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            :   bool ReAnchoring(const std::vector&lt;size_t&gt;&amp; colliding_point_index,
+<span class="lineNum">      58 </span>                :            :                    DiscretizedPath* path_points);
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            :   bool GenerateInitialBounds(const DiscretizedPath&amp; path_points,
+<span class="lineNum">      61 </span>                :            :                              std::vector&lt;double&gt;* initial_bounds);
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :            :   bool SmoothPath(const DiscretizedPath&amp; raw_path_points,
+<span class="lineNum">      64 </span>                :            :                   const std::vector&lt;double&gt;&amp; bounds,
+<span class="lineNum">      65 </span>                :            :                   DiscretizedPath* smoothed_path_points);
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :            :   bool CheckCollisionAvoidance(const DiscretizedPath&amp; path_points,
+<span class="lineNum">      68 </span>                :            :                                std::vector&lt;size_t&gt;* colliding_point_index);
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :            :   void AdjustPathBounds(const std::vector&lt;size_t&gt;&amp; colliding_point_index,
+<span class="lineNum">      71 </span>                :            :                         std::vector&lt;double&gt;* bounds);
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :            :   bool SetPathProfile(const std::vector&lt;std::pair&lt;double, double&gt;&gt;&amp; point2d,
+<span class="lineNum">      74 </span>                :            :                       DiscretizedPath* raw_path_points);
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            :   bool CheckGear(const Eigen::MatrixXd&amp; xWS);
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            :   bool SmoothSpeed(const double init_a, const double init_v,
+<span class="lineNum">      79 </span>                :            :                    const double path_length, SpeedData* smoothed_speeds);
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :   bool CombinePathAndSpeed(const DiscretizedPath&amp; path_points,
+<span class="lineNum">      82 </span>                :            :                            const SpeedData&amp; speed_points,
+<span class="lineNum">      83 </span>                :            :                            DiscretizedTrajectory* discretized_trajectory);
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            :   void AdjustPathAndSpeedByGear(DiscretizedTrajectory* discretized_trajectory);
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            :   bool GenerateStopProfileFromPolynomial(const double init_acc,
+<span class="lineNum">      88 </span>                :            :                                          const double init_speed,
+<span class="lineNum">      89 </span>                :            :                                          const double stop_distance,
+<span class="lineNum">      90 </span>                :            :                                          SpeedData* smoothed_speeds);
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :   bool IsValidPolynomialProfile(const QuinticPolynomialCurve1d&amp; curve);
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :            :   // @brief: a helper function on discrete point heading adjustment
+<span class="lineNum">      95 </span>                :            :   double CalcHeadings(const DiscretizedPath&amp; path_points, const size_t index);
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            :  private:
+<span class="lineNum">      98 </span>                :            :   // vehicle_param
+<span class="lineNum">      99 </span>                :            :   double ego_length_ = 0.0;
+<span class="lineNum">     100 </span>                :            :   double ego_width_ = 0.0;
+<span class="lineNum">     101 </span>                :            :   double center_shift_distance_ = 0.0;
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :            :   std::vector&lt;std::vector&lt;common::math::LineSegment2d&gt;&gt;
+<span class="lineNum">     104 </span>                :            :       obstacles_linesegments_vec_;
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :   std::vector&lt;size_t&gt; input_colliding_point_index_;
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :            :   bool enforce_initial_kappa_ = true;
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            :   // gear DRIVE as true and gear REVERSE as false
+<span class="lineNum">     111 </span>                :            :   bool gear_ = false;
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>                :            :   PlannerOpenSpaceConfig planner_open_space_config_;
+<span class="lineNum">     114 </span>                :            : };
+<span class="lineNum">     115 </span>                :            : }  // namespace planning
+<span class="lineNum">     116 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

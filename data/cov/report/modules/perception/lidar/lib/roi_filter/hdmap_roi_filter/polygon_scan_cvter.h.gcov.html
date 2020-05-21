@@ -1,0 +1,630 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/perception/lidar/lib/roi_filter/hdmap_roi_filter/polygon_scan_cvter.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">modules/perception/lidar/lib/roi_filter/hdmap_roi_filter</a> - polygon_scan_cvter.h<span style="font-size: 80%;"> (source / <a href="polygon_scan_cvter.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">252</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">560</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : #pragma once
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;limits&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &quot;Eigen/Core&quot;
+<span class="lineNum">      24 </span>                :            : #include &quot;Eigen/StdVector&quot;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : #include &quot;modules/perception/lidar/common/lidar_log.h&quot;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : namespace apollo {
+<span class="lineNum">      29 </span>                :            : namespace perception {
+<span class="lineNum">      30 </span>                :            : namespace lidar {
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : template &lt;typename T = double&gt;
+<span class="lineNum">      33 </span>                :            : class PolygonScanCvter {
+<span class="lineNum">      34 </span>                :            :  public:
+<span class="lineNum">      35 </span>                :            :   typedef Eigen::Matrix&lt;T, 2, 1&gt; Point;
+<span class="lineNum">      36 </span>                :            :   typedef std::vector&lt;Point, Eigen::aligned_allocator&lt;Point&gt;&gt; Polygon;
+<span class="lineNum">      37 </span>                :            :   typedef std::pair&lt;T, T&gt; IntervalIn;
+<span class="lineNum">      38 </span>                :            :   typedef std::pair&lt;double, double&gt; IntervalOut;
+<a name="39"><span class="lineNum">      39 </span>                :            :   typedef std::pair&lt;Point, Point&gt; Segment;</a>
+<a name="40"><span class="lineNum">      40 </span>                :            : </a>
+<a name="41"><span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :   struct Edge {</span></a>
+<span class="lineNum">      42 </span>                :<span class="lineNoCov">          0 :     bool operator&lt;(const Edge&amp; other) const { return y &lt; other.y; }</span>
+<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 :     bool MoveUp(double delta_x) {</span>
+<span class="lineNum">      44 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (delta_x &lt; 0 || !std::isfinite(k)) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">      46 </span>                :            :       }
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :       x += delta_x;</span>
+<span class="lineNum">      48 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (x &gt; max_x) {</span>
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">      50 </span>                :            :       }
+<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :       y += (delta_x * k);</span>
+<a name="52"><span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :       return true;</span></a>
+<span class="lineNum">      53 </span>                :            :     }
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :     friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Edge&amp; edge) {</span>
+<span class="lineNum">      55 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       out &lt;&lt; boost::format(</span>
+<span class="lineNum">      56 </span>                :            :                  &quot;max_x: %13.10lf max_y: %13.10lf&quot;
+<span class="lineNum">      57 </span>                :            :                  &quot;min_x: %13.10lf min_y: %13.10lf&quot;
+<span class="lineNum">      58 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                  &quot;x: %13.10lf y: %13.10lf k %13.10lf&quot;) %</span>
+<span class="lineNum">      59 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                  edge.max_x % edge.max_y % edge.min_x % edge.min_y % edge.x %</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">      60 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                  edge.y % edge.k;</span>
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :       return out;</span>
+<span class="lineNum">      62 </span>                :            :     }
+<span class="lineNum">      63 </span>                :            :     // high x end point constant vars
+<span class="lineNum">      64 </span>                :            :     double max_x = 0.0;
+<span class="lineNum">      65 </span>                :            :     double max_y = 0.0;
+<span class="lineNum">      66 </span>                :            :     // for test
+<span class="lineNum">      67 </span>                :            :     double min_x = 0.0;
+<span class="lineNum">      68 </span>                :            :     double min_y = 0.0;
+<span class="lineNum">      69 </span>                :            :     // initial to low x y and move
+<span class="lineNum">      70 </span>                :            :     double x = 0.0;
+<span class="lineNum">      71 </span>                :            :     double y = 0.0;
+<span class="lineNum">      72 </span>                :            :     double k = 0.0;
+<span class="lineNum">      73 </span>                :            :   };
+<span class="lineNum">      74 </span>                :            : 
+<a name="75"><span class="lineNum">      75 </span>                :            :   enum DirectionMajor { XMAJOR = 0, YMAJOR = 1 };</a>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :   static inline DirectionMajor OppositeDirection(</span>
+<span class="lineNum">      78 </span>                :            :       const DirectionMajor dir_major) {
+<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 :     return static_cast&lt;DirectionMajor&gt;(dir_major ^ 1);</span>
+<a name="80"><span class="lineNum">      80 </span>                :            :   }</a>
+<a name="81"><span class="lineNum">      81 </span>                :            : </a>
+<span class="lineNum">      82 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   PolygonScanCvter() = default;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">      83 </span>        [<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]:<span class="lineNoCov">          0 :   virtual ~PolygonScanCvter() = default;</span>
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            :   const Polygon&amp; polygon() const { return polygon_; }
+<span class="lineNum">      86 </span>                :            :   void Init(const Polygon&amp; polygon);
+<span class="lineNum">      87 </span>                :            :   void Reset();
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :            :   // get scan intervals
+<span class="lineNum">      90 </span>                :            :   // HORIZONTAL = 0 for x, VERTICAL = 1 for y
+<span class="lineNum">      91 </span>                :            :   void ScanCvt(const T&amp; scan_loc, DirectionMajor dir_major,
+<span class="lineNum">      92 </span>                :            :                std::vector&lt;IntervalOut&gt;* scan_intervals);
+<span class="lineNum">      93 </span>                :            :   void ScansCvt(const IntervalIn&amp; scans_interval,
+<span class="lineNum">      94 </span>                :            :                 const DirectionMajor dir_major, const T&amp; step,
+<span class="lineNum">      95 </span>                :            :                 std::vector&lt;std::vector&lt;IntervalOut&gt;&gt;* scans_intervals);
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            :   static const double s_epsilon_;
+<span class="lineNum">      98 </span>                :            :   static const double s_inf_;
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :  private:
+<span class="lineNum">     101 </span>                :            :   void DisturbPolygon(const DirectionMajor dir_major);
+<span class="lineNum">     102 </span>                :            :   void ParsePolygon(const DirectionMajor dir_major, const bool disturb = false);
+<span class="lineNum">     103 </span>                :            :   void BuildEt();
+<span class="lineNum">     104 </span>                :            :   void UpdateAet(std::vector&lt;IntervalOut&gt;* scan_intervals);
+<span class="lineNum">     105 </span>                :            :   // convert segment, x  from continuous domain to discrete domain
+<span class="lineNum">     106 </span>                :            :   bool ConvertSegment(const size_t seg_id, std::pair&lt;int, Edge&gt;* out_edge);
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :            :   Polygon polygon_;
+<span class="lineNum">     109 </span>                :            :   Polygon polygon_disturbed_;
+<span class="lineNum">     110 </span>                :            :   std::vector&lt;std::vector&lt;bool&gt;&gt; is_singular_;  // 0 for x 1 for y
+<span class="lineNum">     111 </span>                :            :   std::vector&lt;std::vector&lt;Segment&gt;&gt; segments_;  // 0 for x 1 for y
+<span class="lineNum">     112 </span>                :            :   // ensure the k = _s_inf edge to be filled
+<span class="lineNum">     113 </span>                :            :   std::vector&lt;std::vector&lt;double&gt;&gt; ks_;  // 0 for x 1 for y
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :   std::vector&lt;std::pair&lt;double, double&gt;&gt; top_segments_;
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>                :            :   // edge table
+<span class="lineNum">     118 </span>                :            :   std::vector&lt;std::vector&lt;Edge&gt;&gt; et_;
+<span class="lineNum">     119 </span>                :            :   // active edge table
+<span class="lineNum">     120 </span>                :            :   std::pair&lt;size_t, std::vector&lt;Edge&gt;&gt; aet_;
+<span class="lineNum">     121 </span>                :            :   double bottom_x_ = 0.0;
+<span class="lineNum">     122 </span>                :            :   double step_ = 0.0;
+<span class="lineNum">     123 </span>                :            :   size_t scans_size_ = 0;
+<span class="lineNum">     124 </span>                :            :   DirectionMajor dir_major_ = DirectionMajor::XMAJOR;
+<span class="lineNum">     125 </span>                :            :   DirectionMajor op_dir_major_ = DirectionMajor::YMAJOR;
+<span class="lineNum">     126 </span>                :            : };
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     129 </span>                :            : const double PolygonScanCvter&lt;T&gt;::s_epsilon_ =
+<span class="lineNum">     130 </span>                :            :     std::numeric_limits&lt;float&gt;::epsilon();
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     133 </span>                :            : const double PolygonScanCvter&lt;T&gt;::s_inf_ = std::numeric_limits&lt;T&gt;::infinity();
+<a name="134"><span class="lineNum">     134 </span>                :            : </a>
+<span class="lineNum">     135 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 : void PolygonScanCvter&lt;T&gt;::Init(const Polygon&amp; polygon) {</span>
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :   Reset();</span>
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :   polygon_ = polygon;</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :   is_singular_.resize(2);</span>
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :   segments_.resize(2);</span>
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :   ks_.resize(2);</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="143"><span class="lineNum">     143 </span>                :            : </a>
+<span class="lineNum">     144 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 : void PolygonScanCvter&lt;T&gt;::Reset() {</span>
+<span class="lineNum">     146 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   polygon_ = Polygon();</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :   is_singular_.clear();</span>
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :   segments_.clear();</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :   ks_.clear();</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="151"><span class="lineNum">     151 </span>                :            : </a>
+<span class="lineNum">     152 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 : void PolygonScanCvter&lt;T&gt;::ScanCvt(const T&amp; scan_loc, DirectionMajor dir_major,</span>
+<span class="lineNum">     154 </span>                :            :                                   std::vector&lt;IntervalOut&gt;* scan_intervals) {
+<span class="lineNum">     155 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   DirectionMajor op_dir_major = OppositeDirection(dir_major);</span>
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :   double x = scan_loc;</span>
+<span class="lineNum">     157 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   auto&amp; is_singular = is_singular_[dir_major];</span>
+<span class="lineNum">     158 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   auto&amp; segments = segments_[dir_major];</span>
+<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   auto&amp; ks = ks_[dir_major];</span>
+<span class="lineNum">     160 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_EQ(segments.size(), polygon_.size());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">     161 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_EQ(segments.size(), ks.size());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :   scan_intervals-&gt;clear();</span>
+<span class="lineNum">     163 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   scan_intervals-&gt;reserve(polygon_.size());</span>
+<span class="lineNum">     164 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::vector&lt;double&gt; nodes;</span>
+<span class="lineNum">     165 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   nodes.reserve(polygon_.size());</span>
+<span class="lineNum">     166 </span>                :            :   // for normal edge
+<span class="lineNum">     167 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; segments.size(); ++i) {</span>
+<span class="lineNum">     168 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const Segment&amp; segment = segments[i];</span>
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :     const Point&amp; low_vertex = segment.first;</span>
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :     const Point&amp; high_vertex = segment.second;</span>
+<span class="lineNum">     171 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double high_x = high_vertex[dir_major];</span>
+<span class="lineNum">     172 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double high_y = high_vertex[op_dir_major];</span>
+<span class="lineNum">     173 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double low_x = low_vertex[dir_major];</span>
+<span class="lineNum">     174 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double low_y = low_vertex[op_dir_major];</span>
+<span class="lineNum">     175 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double k = ks[i];</span>
+<span class="lineNum">     176 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (std::isfinite(k)) {</span>
+<span class="lineNum">     177 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if ((x &gt;= low_x &amp;&amp; x &lt; high_x) || (x &lt;= low_x &amp;&amp; x &gt; high_x)) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     178 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (x == low_x) {</span>
+<span class="lineNum">     179 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           nodes.push_back(low_y);</span>
+<span class="lineNum">     180 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if (is_singular[i]) {</span>
+<span class="lineNum">     181 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             nodes.push_back(low_y);</span>
+<span class="lineNum">     182 </span>                :            :           }
+<span class="lineNum">     183 </span>                :            :         } else {
+<span class="lineNum">     184 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           nodes.push_back(low_y + (x - low_x) * k);</span>
+<span class="lineNum">     185 </span>                :            :         }
+<span class="lineNum">     186 </span>                :            :       }
+<span class="lineNum">     187 </span>                :            :     } else {
+<span class="lineNum">     188 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (std::abs(x - low_x) &lt; s_epsilon_ ||</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     189 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           std::abs(x - high_x) &lt; s_epsilon_) {</span>
+<span class="lineNum">     190 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (low_y &lt; high_y) {</span>
+<span class="lineNum">     191 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           scan_intervals-&gt;push_back(IntervalOut(low_y, high_y));</span>
+<span class="lineNum">     192 </span>                :            :         } else {
+<span class="lineNum">     193 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           scan_intervals-&gt;push_back(IntervalOut(high_y, low_y));</span>
+<span class="lineNum">     194 </span>                :            :         }
+<span class="lineNum">     195 </span>                :            :       }
+<span class="lineNum">     196 </span>                :            :     }
+<span class="lineNum">     197 </span>                :            :   }
+<span class="lineNum">     198 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_EQ(nodes.size() % 2, 0);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">     199 </span>        [<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::sort(nodes.begin(), nodes.end());</span>
+<span class="lineNum">     200 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; nodes.size(); i += 2) {</span>
+<span class="lineNum">     201 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     scan_intervals-&gt;push_back(IntervalOut(nodes[i], nodes[i + 1]));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="204"><span class="lineNum">     204 </span>                :            : </a>
+<span class="lineNum">     205 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 : void PolygonScanCvter&lt;T&gt;::ScansCvt(</span>
+<span class="lineNum">     207 </span>                :            :     const IntervalIn&amp; scans_interval, const DirectionMajor dir_major,
+<span class="lineNum">     208 </span>                :            :     const T&amp; step, std::vector&lt;std::vector&lt;IntervalOut&gt;&gt;* scans_intervals) {
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :   dir_major_ = dir_major;</span>
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :   op_dir_major_ = OppositeDirection(dir_major_);</span>
+<span class="lineNum">     211 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_GT(step, 0.0);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :   step_ = step;</span>
+<span class="lineNum">     213 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_GT(scans_interval.second, scans_interval.first + step);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :   bottom_x_ = scans_interval.first;</span>
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :   double top_x = scans_interval.second;</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :   scans_size_ = static_cast&lt;size_t&gt;((top_x - bottom_x_) / step_);</span>
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :   top_segments_.clear();</span>
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :   top_segments_.reserve(2);</span>
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :   ParsePolygon(dir_major, true);</span>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :            :   // allocate output data
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :   scans_intervals-&gt;clear();</span>
+<span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 :   scans_intervals-&gt;resize(scans_size_);</span>
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :<span class="lineNoCov">          0 :   BuildEt();</span>
+<span class="lineNum">     229 </span>                :            :   // initialization aet
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :   (*scans_intervals)[0].reserve(polygon_.size());</span>
+<span class="lineNum">     231 </span>                :            :   // add et to aet
+<span class="lineNum">     232 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (const auto&amp; edge : et_[0]) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     233 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (std::isfinite(edge.k)) {</span>
+<span class="lineNum">     234 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       aet_.second.push_back(edge);</span>
+<span class="lineNum">     235 </span>                :            :     } else {
+<span class="lineNum">     236 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       (*scans_intervals)[0].push_back(IntervalOut(edge.y, edge.max_y));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     237 </span>                :            :     }
+<span class="lineNum">     238 </span>                :            :   }
+<span class="lineNum">     239 </span>                :            :   // sort
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :   std::sort(aet_.second.begin(), aet_.second.end());</span>
+<span class="lineNum">     241 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_EQ(aet_.second.size() &amp; 1, 0);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :            :   // add aet to result
+<span class="lineNum">     244 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; aet_.second.size(); i += 2) {</span>
+<span class="lineNum">     245 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double min_y = aet_.second[i].y;</span>
+<span class="lineNum">     246 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double max_y = aet_.second[i + 1].y;</span>
+<span class="lineNum">     247 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     (*scans_intervals)[0].push_back(IntervalOut(min_y, max_y));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     248 </span>                :            :   }
+<span class="lineNum">     249 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 1; i &lt; scans_size_; ++i) {</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :     UpdateAet(&amp;((*scans_intervals)[i]));</span>
+<span class="lineNum">     251 </span>                :            :   }
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (top_segments_.size()) {</span>
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :     scans_intervals-&gt;resize(scans_size_ + 1);</span>
+<span class="lineNum">     255 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (auto&amp; seg : top_segments_) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 :       double y1 = seg.first;</span>
+<span class="lineNum">     257 </span>                :<span class="lineNoCov">          0 :       double y2 = seg.second;</span>
+<span class="lineNum">     258 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       double min_y = std::min(y1, y2);</span>
+<span class="lineNum">     259 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       double max_y = std::max(y1, y2);</span>
+<span class="lineNum">     260 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       (*scans_intervals)[scans_size_].push_back(IntervalOut(min_y, max_y));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     261 </span>                :            :     }
+<span class="lineNum">     262 </span>                :            :   }
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="264"><span class="lineNum">     264 </span>                :            : </a>
+<span class="lineNum">     265 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 : void PolygonScanCvter&lt;T&gt;::DisturbPolygon(const DirectionMajor dir_major) {</span>
+<span class="lineNum">     267 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (auto&amp; pt : polygon_disturbed_) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     268 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     T&amp; x = pt[dir_major];</span>
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :     double d_x = (x - bottom_x_) / step_;</span>
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :     int int_d_x = static_cast&lt;int&gt;(std::round(d_x));</span>
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :     double delta_x = d_x - int_d_x;</span>
+<span class="lineNum">     272 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (std::abs(delta_x) &lt; s_epsilon_) {</span>
+<span class="lineNum">     273 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (delta_x &gt; 0) {</span>
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :         x = static_cast&lt;T&gt;((int_d_x + s_epsilon_) * step_ + bottom_x_);</span>
+<span class="lineNum">     275 </span>                :            :       } else {
+<span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :         x = static_cast&lt;T&gt;((int_d_x - s_epsilon_) * step_ + bottom_x_);</span>
+<span class="lineNum">     277 </span>                :            :       }
+<span class="lineNum">     278 </span>                :            :     }
+<span class="lineNum">     279 </span>                :            :   }
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="281"><span class="lineNum">     281 </span>                :            : </a>
+<span class="lineNum">     282 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 : void PolygonScanCvter&lt;T&gt;::ParsePolygon(const DirectionMajor dir_major,</span>
+<span class="lineNum">     284 </span>                :            :                                        const bool disturb) {
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :   polygon_disturbed_ = polygon_;</span>
+<span class="lineNum">     286 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (disturb) {</span>
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :     DisturbPolygon(dir_major);</span>
+<span class="lineNum">     288 </span>                :            :   }
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :   DirectionMajor op_dir_major = OppositeDirection(dir_major);</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :   size_t vertices_size = polygon_disturbed_.size();</span>
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :   is_singular_[dir_major].clear();</span>
+<span class="lineNum">     292 </span>                :<span class="lineNoCov">          0 :   is_singular_[dir_major].reserve(vertices_size);</span>
+<span class="lineNum">     293 </span>                :<span class="lineNoCov">          0 :   segments_[dir_major].clear();</span>
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :   segments_[dir_major].reserve(vertices_size);</span>
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :   ks_[dir_major].clear();</span>
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :   ks_[dir_major].reserve(vertices_size);</span>
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :   auto&amp; is_singular = is_singular_[dir_major];</span>
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :   auto&amp; segments = segments_[dir_major];</span>
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :   auto&amp; ks = ks_[dir_major];</span>
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; vertices_size; ++i) {</span>
+<span class="lineNum">     303 </span>                :            :     const Point&amp; pre_vertex =
+<span class="lineNum">     304 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         polygon_disturbed_[(i + vertices_size - 1) % vertices_size];</span>
+<span class="lineNum">     305 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const Point&amp; vertex = polygon_disturbed_[i];</span>
+<span class="lineNum">     306 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const Point&amp; nex_vertex = polygon_disturbed_[(i + 1) % vertices_size];</span>
+<span class="lineNum">     307 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     T pre_x = pre_vertex[dir_major];</span>
+<span class="lineNum">     308 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     T x = vertex[dir_major];</span>
+<span class="lineNum">     309 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     T y = vertex[op_dir_major];</span>
+<span class="lineNum">     310 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     T nex_x = nex_vertex[dir_major];</span>
+<span class="lineNum">     311 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     T nex_y = nex_vertex[op_dir_major];</span>
+<span class="lineNum">     312 </span>                :            : 
+<span class="lineNum">     313 </span>                :            :     // get segment
+<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     Segment line_seg(vertex, nex_vertex);</span>
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :     double x_diff = nex_x - x;</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :     double y_diff = nex_y - y;</span>
+<span class="lineNum">     317 </span>                :            : 
+<span class="lineNum">     318 </span>                :            :     // get k
+<span class="lineNum">     319 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     segments.push_back(line_seg);</span>
+<span class="lineNum">     320 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     std::abs(x_diff) &lt; s_epsilon_ ? ks.push_back(s_inf_)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     321 </span>                :            :                                   : ks.push_back(y_diff / x_diff);
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :     double pre_x_diff = pre_x - x;</span>
+<span class="lineNum">     323 </span>                :            : 
+<span class="lineNum">     324 </span>                :            :     // get singular property
+<span class="lineNum">     325 </span>                :            :     // ensure fill edge
+<span class="lineNum">     326 </span>                :            :     // case for zero
+<span class="lineNum">     327 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (std::abs(x_diff) &lt; s_epsilon_ || std::abs(pre_x_diff) &lt; s_epsilon_) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     328 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       is_singular.push_back(true);</span>
+<span class="lineNum">     329 </span>                :            :     } else {
+<span class="lineNum">     330 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       pre_x_diff* x_diff &gt; 0 ? is_singular.push_back(true)</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     331 </span>                :            :                              : is_singular.push_back(false);
+<span class="lineNum">     332 </span>                :            :     }
+<span class="lineNum">     333 </span>                :            :   }
+<span class="lineNum">     334 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="335"><span class="lineNum">     335 </span>                :            : </a>
+<span class="lineNum">     336 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 : void PolygonScanCvter&lt;T&gt;::BuildEt() {</span>
+<span class="lineNum">     338 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const auto&amp; segments = segments_[dir_major_];</span>
+<span class="lineNum">     339 </span>                :            :   // allocate memory
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 :   et_.clear();</span>
+<span class="lineNum">     341 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   et_.resize(scans_size_);</span>
+<span class="lineNum">     342 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (auto&amp; edge_list : et_) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     343 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     edge_list.reserve(polygon_.size());</span>
+<span class="lineNum">     344 </span>                :            :   }
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :            :   // convert segments to edges
+<span class="lineNum">     347 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::vector&lt;std::pair&lt;int, Edge&gt;&gt; edges;</span>
+<span class="lineNum">     348 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   edges.reserve(segments.size());</span>
+<span class="lineNum">     349 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; segments.size(); ++i) {</span>
+<span class="lineNum">     350 </span>                :<span class="lineNoCov">          0 :     std::pair&lt;int, Edge&gt; out_edge;</span>
+<span class="lineNum">     351 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (ConvertSegment(i, &amp;(out_edge))) {</span>
+<span class="lineNum">     352 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       edges.push_back(out_edge);</span>
+<span class="lineNum">     353 </span>                :            :     }
+<span class="lineNum">     354 </span>                :            :   }
+<span class="lineNum">     355 </span>                :            : 
+<span class="lineNum">     356 </span>                :            :   // initial active edge table
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :   aet_.first = 0;</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :   aet_.second.clear();</span>
+<span class="lineNum">     359 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   aet_.second.reserve(segments.size());</span>
+<span class="lineNum">     360 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; edges.size(); ++i) {</span>
+<span class="lineNum">     361 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     int x_id = edges[i].first;</span>
+<span class="lineNum">     362 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const Edge&amp; edge = edges[i].second;</span>
+<span class="lineNum">     363 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (x_id &gt;= static_cast&lt;int&gt;(scans_size_)) {</span>
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     365 </span>                :            :     }
+<span class="lineNum">     366 </span>                :            :     // add x_id == 0 to act
+<span class="lineNum">     367 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (x_id &gt;= 0) {</span>
+<span class="lineNum">     368 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       et_[x_id].push_back(edge);</span>
+<span class="lineNum">     369 </span>                :            :     } else {
+<span class="lineNum">     370 </span>                :            :       // check if intersect at x_id = 0
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :       Edge active_edge = edge;</span>
+<span class="lineNum">     372 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (active_edge.MoveUp(0.0 - active_edge.x)) {</span>
+<span class="lineNum">     373 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         aet_.second.push_back(active_edge);</span>
+<span class="lineNum">     374 </span>                :            :       }
+<span class="lineNum">     375 </span>                :            :     }
+<span class="lineNum">     376 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="378"><span class="lineNum">     378 </span>                :            : </a>
+<span class="lineNum">     379 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     380 </span>                :<span class="lineNoCov">          0 : void PolygonScanCvter&lt;T&gt;::UpdateAet(std::vector&lt;IntervalOut&gt;* scan_intervals) {</span>
+<span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :   size_t x_id = aet_.first + 1;</span>
+<span class="lineNum">     382 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_LT(x_id, et_.size());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :   aet_.first += 1;</span>
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :   scan_intervals-&gt;clear();</span>
+<span class="lineNum">     385 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   scan_intervals-&gt;reserve(polygon_.size());</span>
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>                :            :   // check
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :   size_t valid_edges_num = aet_.second.size();</span>
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :   size_t invalid_edges_num = 0;</span>
+<span class="lineNum">     390 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (auto&amp; edge : aet_.second) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     391 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!edge.MoveUp(step_)) {</span>
+<span class="lineNum">     392 </span>                :<span class="lineNoCov">          0 :       --valid_edges_num;</span>
+<span class="lineNum">     393 </span>                :<span class="lineNoCov">          0 :       ++invalid_edges_num;</span>
+<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :       edge.y = s_inf_;</span>
+<span class="lineNum">     395 </span>                :            :     }
+<span class="lineNum">     396 </span>                :            :   }
+<span class="lineNum">     397 </span>                :            : 
+<span class="lineNum">     398 </span>                :            :   // add et to aet
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :   size_t new_edges_num = 0;</span>
+<span class="lineNum">     400 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (const auto&amp; edge : et_[x_id]) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     401 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (std::isfinite(edge.k)) {</span>
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :       ++valid_edges_num;</span>
+<span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :       ++new_edges_num;</span>
+<span class="lineNum">     404 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       aet_.second.push_back(edge);</span>
+<span class="lineNum">     405 </span>                :            :     } else {
+<span class="lineNum">     406 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       scan_intervals-&gt;push_back(IntervalOut(edge.y, edge.max_y));</span>
+<span class="lineNum">     407 </span>                :            :     }
+<span class="lineNum">     408 </span>                :            :   }
+<span class="lineNum">     409 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_EQ(valid_edges_num &amp; 1, 0)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>][<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>]
+<span class="lineNum">     410 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &lt;&lt; boost::format(</span>
+<span class="lineNum">     411 </span>                :            :              &quot;valid edges num: %d x: %lf bottom_x: %lf \n vertices num: %d &quot;
+<span class="lineNum">     412 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :              &quot;\n&quot;) %</span>
+<span class="lineNum">     413 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :              valid_edges_num % (x_id * step_ + bottom_x_) % bottom_x_ %</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     414 </span>                :            :              polygon_.size()
+<span class="lineNum">     415 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &lt;&lt; aet_.second[0] &lt;&lt; &quot;\n&quot;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     416 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &lt;&lt; aet_.second[1] &lt;&lt; &quot;\n&quot;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     417 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &lt;&lt; aet_.second[2] &lt;&lt; &quot;\n&quot;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     418 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       &lt;&lt; aet_.second[3];</span>
+<span class="lineNum">     419 </span>                :            : 
+<span class="lineNum">     420 </span>                :            :   // sort
+<span class="lineNum">     421 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (invalid_edges_num != 0 || new_edges_num != 0) {</span>
+<span class="lineNum">     422 </span>        [<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     std::sort(aet_.second.begin(), aet_.second.end());</span>
+<span class="lineNum">     423 </span>                :            :     // remove invalid edges
+<span class="lineNum">     424 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     aet_.second.resize(valid_edges_num);</span>
+<span class="lineNum">     425 </span>                :            :   }
+<span class="lineNum">     426 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; aet_.second.size(); i += 2) {</span>
+<span class="lineNum">     427 </span>                :            :     // corner case, same point in the pre scan and complex polygon
+<span class="lineNum">     428 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double min_y = aet_.second[i].y;</span>
+<span class="lineNum">     429 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double max_y = aet_.second[i + 1].y;</span>
+<span class="lineNum">     430 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     scan_intervals-&gt;push_back(IntervalOut(min_y, max_y));</span>
+<span class="lineNum">     431 </span>                :            :   }
+<span class="lineNum">     432 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="433"><span class="lineNum">     433 </span>                :            : </a>
+<span class="lineNum">     434 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     435 </span>                :<span class="lineNoCov">          0 : bool PolygonScanCvter&lt;T&gt;::ConvertSegment(const size_t seg_id,</span>
+<span class="lineNum">     436 </span>                :            :                                          std::pair&lt;int, Edge&gt;* out_edge) {
+<span class="lineNum">     437 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const auto&amp; segments = segments_[dir_major_];</span>
+<span class="lineNum">     438 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const auto&amp; ks = ks_[dir_major_];</span>
+<span class="lineNum">     439 </span>                :            : 
+<span class="lineNum">     440 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_LT(seg_id, segments.size());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">     441 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   Segment segment = segments[seg_id];</span>
+<span class="lineNum">     442 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   double k = ks[seg_id];</span>
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :   const Point&amp; low_vertex = segment.first;</span>
+<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :   const Point&amp; high_vertex = segment.second;</span>
+<span class="lineNum">     445 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (low_vertex[dir_major_] &gt; high_vertex[dir_major_]) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     446 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     std::swap(segment.first, segment.second);</span>
+<span class="lineNum">     447 </span>                :            :   }
+<span class="lineNum">     448 </span>                :            :   // return pair of int id and edge
+<span class="lineNum">     449 </span>                :<span class="lineNoCov">          0 :   Edge&amp; edge = out_edge-&gt;second;</span>
+<span class="lineNum">     450 </span>                :<span class="lineNoCov">          0 :   int&amp; x_id = out_edge-&gt;first;</span>
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :   const Point&amp; min_vertex = segment.first;</span>
+<span class="lineNum">     452 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   double min_x = min_vertex[dir_major_] - bottom_x_;</span>
+<span class="lineNum">     453 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   double min_y = min_vertex[op_dir_major_];</span>
+<span class="lineNum">     454 </span>                :<span class="lineNoCov">          0 :   x_id = static_cast&lt;int&gt;(std::ceil(min_x / step_));</span>
+<span class="lineNum">     455 </span>                :<span class="lineNoCov">          0 :   double min_x_ceil = x_id * step_;</span>
+<span class="lineNum">     456 </span>                :            : 
+<span class="lineNum">     457 </span>                :<span class="lineNoCov">          0 :   edge.x = min_x_ceil;</span>
+<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 :   edge.min_x = edge.x;</span>
+<span class="lineNum">     459 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   edge.max_x = segment.second[dir_major_] - bottom_x_;</span>
+<span class="lineNum">     460 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   edge.max_y = segment.second[op_dir_major_];</span>
+<span class="lineNum">     461 </span>                :<span class="lineNoCov">          0 :   edge.k = k;</span>
+<span class="lineNum">     462 </span>                :            :   // handle special edges
+<span class="lineNum">     463 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (std::isfinite(edge.k)) {</span>
+<span class="lineNum">     464 </span>                :<span class="lineNoCov">          0 :     edge.y = min_y + (edge.x - min_x) * edge.k;</span>
+<span class="lineNum">     465 </span>                :            :   } else {
+<span class="lineNum">     466 </span>                :<span class="lineNoCov">          0 :     edge.y = min_y;</span>
+<span class="lineNum">     467 </span>                :            :     // swap
+<span class="lineNum">     468 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (edge.y &gt; edge.max_y) {</span>
+<span class="lineNum">     469 </span>                :<span class="lineNoCov">          0 :       std::swap(edge.y, edge.max_y);</span>
+<span class="lineNum">     470 </span>                :            :     }
+<span class="lineNum">     471 </span>                :            :   }
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :   edge.min_y = edge.y;</span>
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :            :   // save top edge
+<span class="lineNum">     475 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (x_id &gt;= scans_size_) {</span>
+<span class="lineNum">     476 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     std::pair&lt;double, double&gt; seg(low_vertex[op_dir_major_],</span>
+<span class="lineNum">     477 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                   high_vertex[op_dir_major_]);</span>
+<span class="lineNum">     478 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     top_segments_.push_back(seg);</span>
+<span class="lineNum">     479 </span>                :            :   }
+<span class="lineNum">     480 </span>                :            :   // check edge valid, for length &lt; step
+<span class="lineNum">     481 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (std::isfinite(edge.k) &amp;&amp; edge.max_x &lt; edge.x) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     483 </span>                :            :   }
+<span class="lineNum">     484 </span>                :<span class="lineNoCov">          0 :   return true;</span>
+<span class="lineNum">     485 </span>                :            : }
+<span class="lineNum">     486 </span>                :            : 
+<span class="lineNum">     487 </span>                :            : }  // namespace lidar
+<span class="lineNum">     488 </span>                :            : }  // namespace perception
+<span class="lineNum">     489 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

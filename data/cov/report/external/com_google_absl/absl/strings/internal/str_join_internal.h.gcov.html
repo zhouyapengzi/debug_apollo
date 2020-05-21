@@ -1,0 +1,406 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/com_google_absl/absl/strings/internal/str_join_internal.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/com_google_absl/absl/strings/internal</a> - str_join_internal.h<span style="font-size: 80%;"> (source / <a href="str_join_internal.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntryLo">62.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryLo">13.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">86</td>
+            <td class="headerCovTableEntryLo">25.6 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : //</a>
+<span class="lineNum">       2 </span>                :            : // Copyright 2017 The Abseil Authors.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            : // you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            : // You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            : //
+<span class="lineNum">       8 </span>                :            : //      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            : //
+<span class="lineNum">      10 </span>                :            : // Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            : // distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            : // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            : // See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            : // limitations under the License.
+<span class="lineNum">      15 </span>                :            : //
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : // This file declares INTERNAL parts of the Join API that are inlined/templated
+<span class="lineNum">      18 </span>                :            : // or otherwise need to be available at compile time. The main abstractions
+<span class="lineNum">      19 </span>                :            : // defined in this file are:
+<span class="lineNum">      20 </span>                :            : //
+<span class="lineNum">      21 </span>                :            : //   - A handful of default Formatters
+<span class="lineNum">      22 </span>                :            : //   - JoinAlgorithm() overloads
+<span class="lineNum">      23 </span>                :            : //   - JoinRange() overloads
+<span class="lineNum">      24 </span>                :            : //   - JoinTuple()
+<span class="lineNum">      25 </span>                :            : //
+<span class="lineNum">      26 </span>                :            : // DO NOT INCLUDE THIS FILE DIRECTLY. Use this file by including
+<span class="lineNum">      27 </span>                :            : // absl/strings/str_join.h
+<span class="lineNum">      28 </span>                :            : //
+<span class="lineNum">      29 </span>                :            : // IWYU pragma: private, include &quot;absl/strings/str_join.h&quot;
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : #ifndef ABSL_STRINGS_INTERNAL_STR_JOIN_INTERNAL_H_
+<span class="lineNum">      32 </span>                :            : #define ABSL_STRINGS_INTERNAL_STR_JOIN_INTERNAL_H_
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : #include &lt;cstring&gt;
+<span class="lineNum">      35 </span>                :            : #include &lt;iterator&gt;
+<span class="lineNum">      36 </span>                :            : #include &lt;memory&gt;
+<span class="lineNum">      37 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      38 </span>                :            : #include &lt;type_traits&gt;
+<span class="lineNum">      39 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : #include &quot;absl/strings/internal/ostringstream.h&quot;
+<span class="lineNum">      42 </span>                :            : #include &quot;absl/strings/internal/resize_uninitialized.h&quot;
+<span class="lineNum">      43 </span>                :            : #include &quot;absl/strings/str_cat.h&quot;
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : namespace absl {
+<span class="lineNum">      46 </span>                :            : namespace strings_internal {
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : //
+<span class="lineNum">      49 </span>                :            : // Formatter objects
+<span class="lineNum">      50 </span>                :            : //
+<span class="lineNum">      51 </span>                :            : // The following are implementation classes for standard Formatter objects. The
+<span class="lineNum">      52 </span>                :            : // factory functions that users will call to create and use these formatters are
+<span class="lineNum">      53 </span>                :            : // defined and documented in strings/join.h.
+<span class="lineNum">      54 </span>                :            : //
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : // The default formatter. Converts alpha-numeric types to strings.
+<span class="lineNum">      57 </span>                :            : struct AlphaNumFormatterImpl {
+<span class="lineNum">      58 </span>                :            :   // This template is needed in order to support passing in a dereferenced
+<a name="59"><span class="lineNum">      59 </span>                :            :   // vector&lt;bool&gt;::iterator</a>
+<span class="lineNum">      60 </span>                :            :   template &lt;typename T&gt;
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :   void operator()(std::string* out, const T&amp; t) const {</span>
+<span class="lineNum">      62 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     StrAppend(out, AlphaNum(t));</span>
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            :   void operator()(std::string* out, const AlphaNum&amp; t) const {
+<span class="lineNum">      66 </span>                :            :     StrAppend(out, t);
+<span class="lineNum">      67 </span>                :            :   }
+<span class="lineNum">      68 </span>                :            : };
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :            : // A type that's used to overload the JoinAlgorithm() function (defined below)
+<span class="lineNum">      71 </span>                :            : // for ranges that do not require additional formatting (e.g., a range of
+<span class="lineNum">      72 </span>                :            : // strings).
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            : struct NoFormatter : public AlphaNumFormatterImpl {};
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : // Formats types to strings using the &lt;&lt; operator.
+<span class="lineNum">      77 </span>                :            : class StreamFormatterImpl {
+<span class="lineNum">      78 </span>                :            :  public:
+<span class="lineNum">      79 </span>                :            :   // The method isn't const because it mutates state. Making it const will
+<span class="lineNum">      80 </span>                :            :   // render StreamFormatterImpl thread-hostile.
+<span class="lineNum">      81 </span>                :            :   template &lt;typename T&gt;
+<span class="lineNum">      82 </span>                :            :   void operator()(std::string* out, const T&amp; t) {
+<span class="lineNum">      83 </span>                :            :     // The stream is created lazily to avoid paying the relatively high cost
+<span class="lineNum">      84 </span>                :            :     // of its construction when joining an empty range.
+<span class="lineNum">      85 </span>                :            :     if (strm_) {
+<span class="lineNum">      86 </span>                :            :       strm_-&gt;clear();  // clear the bad, fail and eof bits in case they were set
+<span class="lineNum">      87 </span>                :            :       strm_-&gt;str(out);
+<span class="lineNum">      88 </span>                :            :     } else {
+<span class="lineNum">      89 </span>                :            :       strm_.reset(new strings_internal::OStringStream(out));
+<span class="lineNum">      90 </span>                :            :     }
+<span class="lineNum">      91 </span>                :            :     *strm_ &lt;&lt; t;
+<span class="lineNum">      92 </span>                :            :   }
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :            :  private:
+<span class="lineNum">      95 </span>                :            :   std::unique_ptr&lt;strings_internal::OStringStream&gt; strm_;
+<span class="lineNum">      96 </span>                :            : };
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :            : // Formats a std::pair&lt;&gt;. The 'first' member is formatted using f1_ and the
+<span class="lineNum">      99 </span>                :            : // 'second' member is formatted using f2_. sep_ is the separator.
+<span class="lineNum">     100 </span>                :            : template &lt;typename F1, typename F2&gt;
+<span class="lineNum">     101 </span>                :            : class PairFormatterImpl {
+<span class="lineNum">     102 </span>                :            :  public:
+<span class="lineNum">     103 </span>                :            :   PairFormatterImpl(F1 f1, absl::string_view sep, F2 f2)
+<span class="lineNum">     104 </span>                :            :       : f1_(std::move(f1)), sep_(sep), f2_(std::move(f2)) {}
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :   template &lt;typename T&gt;
+<span class="lineNum">     107 </span>                :            :   void operator()(std::string* out, const T&amp; p) {
+<span class="lineNum">     108 </span>                :            :     f1_(out, p.first);
+<span class="lineNum">     109 </span>                :            :     out-&gt;append(sep_);
+<span class="lineNum">     110 </span>                :            :     f2_(out, p.second);
+<span class="lineNum">     111 </span>                :            :   }
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>                :            :   template &lt;typename T&gt;
+<span class="lineNum">     114 </span>                :            :   void operator()(std::string* out, const T&amp; p) const {
+<span class="lineNum">     115 </span>                :            :     f1_(out, p.first);
+<span class="lineNum">     116 </span>                :            :     out-&gt;append(sep_);
+<span class="lineNum">     117 </span>                :            :     f2_(out, p.second);
+<span class="lineNum">     118 </span>                :            :   }
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :            :  private:
+<span class="lineNum">     121 </span>                :            :   F1 f1_;
+<span class="lineNum">     122 </span>                :            :   std::string sep_;
+<span class="lineNum">     123 </span>                :            :   F2 f2_;
+<span class="lineNum">     124 </span>                :            : };
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :            : // Wraps another formatter and dereferences the argument to operator() then
+<span class="lineNum">     127 </span>                :            : // passes the dereferenced argument to the wrapped formatter. This can be
+<span class="lineNum">     128 </span>                :            : // useful, for example, to join a std::vector&lt;int*&gt;.
+<span class="lineNum">     129 </span>                :            : template &lt;typename Formatter&gt;
+<span class="lineNum">     130 </span>                :            : class DereferenceFormatterImpl {
+<span class="lineNum">     131 </span>                :            :  public:
+<span class="lineNum">     132 </span>                :            :   DereferenceFormatterImpl() : f_() {}
+<span class="lineNum">     133 </span>                :            :   explicit DereferenceFormatterImpl(Formatter&amp;&amp; f)
+<span class="lineNum">     134 </span>                :            :       : f_(std::forward&lt;Formatter&gt;(f)) {}
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :            :   template &lt;typename T&gt;
+<span class="lineNum">     137 </span>                :            :   void operator()(std::string* out, const T&amp; t) {
+<span class="lineNum">     138 </span>                :            :     f_(out, *t);
+<span class="lineNum">     139 </span>                :            :   }
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :            :   template &lt;typename T&gt;
+<span class="lineNum">     142 </span>                :            :   void operator()(std::string* out, const T&amp; t) const {
+<span class="lineNum">     143 </span>                :            :     f_(out, *t);
+<span class="lineNum">     144 </span>                :            :   }
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            :  private:
+<span class="lineNum">     147 </span>                :            :   Formatter f_;
+<span class="lineNum">     148 </span>                :            : };
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            : // DefaultFormatter&lt;T&gt; is a traits class that selects a default Formatter to use
+<span class="lineNum">     151 </span>                :            : // for the given type T. The ::Type member names the Formatter to use. This is
+<span class="lineNum">     152 </span>                :            : // used by the strings::Join() functions that do NOT take a Formatter argument,
+<span class="lineNum">     153 </span>                :            : // in which case a default Formatter must be chosen.
+<span class="lineNum">     154 </span>                :            : //
+<span class="lineNum">     155 </span>                :            : // AlphaNumFormatterImpl is the default in the base template, followed by
+<span class="lineNum">     156 </span>                :            : // specializations for other types.
+<span class="lineNum">     157 </span>                :            : template &lt;typename ValueType&gt;
+<span class="lineNum">     158 </span>                :            : struct DefaultFormatter {
+<span class="lineNum">     159 </span>                :            :   typedef AlphaNumFormatterImpl Type;
+<span class="lineNum">     160 </span>                :            : };
+<span class="lineNum">     161 </span>                :            : template &lt;&gt;
+<span class="lineNum">     162 </span>                :            : struct DefaultFormatter&lt;const char*&gt; {
+<span class="lineNum">     163 </span>                :            :   typedef AlphaNumFormatterImpl Type;
+<span class="lineNum">     164 </span>                :            : };
+<span class="lineNum">     165 </span>                :            : template &lt;&gt;
+<span class="lineNum">     166 </span>                :            : struct DefaultFormatter&lt;char*&gt; {
+<span class="lineNum">     167 </span>                :            :   typedef AlphaNumFormatterImpl Type;
+<span class="lineNum">     168 </span>                :            : };
+<span class="lineNum">     169 </span>                :            : template &lt;&gt;
+<span class="lineNum">     170 </span>                :            : struct DefaultFormatter&lt;std::string&gt; {
+<span class="lineNum">     171 </span>                :            :   typedef NoFormatter Type;
+<span class="lineNum">     172 </span>                :            : };
+<span class="lineNum">     173 </span>                :            : template &lt;&gt;
+<span class="lineNum">     174 </span>                :            : struct DefaultFormatter&lt;absl::string_view&gt; {
+<span class="lineNum">     175 </span>                :            :   typedef NoFormatter Type;
+<span class="lineNum">     176 </span>                :            : };
+<span class="lineNum">     177 </span>                :            : template &lt;typename ValueType&gt;
+<span class="lineNum">     178 </span>                :            : struct DefaultFormatter&lt;ValueType*&gt; {
+<span class="lineNum">     179 </span>                :            :   typedef DereferenceFormatterImpl&lt;typename DefaultFormatter&lt;ValueType&gt;::Type&gt;
+<span class="lineNum">     180 </span>                :            :       Type;
+<span class="lineNum">     181 </span>                :            : };
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :            : template &lt;typename ValueType&gt;
+<span class="lineNum">     184 </span>                :            : struct DefaultFormatter&lt;std::unique_ptr&lt;ValueType&gt;&gt;
+<span class="lineNum">     185 </span>                :            :     : public DefaultFormatter&lt;ValueType*&gt; {};
+<span class="lineNum">     186 </span>                :            : 
+<span class="lineNum">     187 </span>                :            : //
+<span class="lineNum">     188 </span>                :            : // JoinAlgorithm() functions
+<span class="lineNum">     189 </span>                :            : //
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>                :            : // The main joining algorithm. This simply joins the elements in the given
+<span class="lineNum">     192 </span>                :            : // iterator range, each separated by the given separator, into an output std::string,
+<a name="193"><span class="lineNum">     193 </span>                :            : // and formats each element using the provided Formatter object.</a>
+<span class="lineNum">     194 </span>                :            : template &lt;typename Iterator, typename Formatter&gt;
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 : std::string JoinAlgorithm(Iterator start, Iterator end, absl::string_view s,</span>
+<span class="lineNum">     196 </span>                :            :                      Formatter&amp;&amp; f) {
+<span class="lineNum">     197 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::string result;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :   absl::string_view sep(&quot;&quot;);</span>
+<span class="lineNum">     199 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (Iterator it = start; it != end; ++it) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>][<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]
+<span class="lineNum">     200 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]:<span class="lineNoCov">          0 :     result.append(sep.data(), sep.size());</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     201 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     f(&amp;result, *it);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :     sep = s;</span>
+<span class="lineNum">     203 </span>                :            :   }
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :   return result;</span>
+<span class="lineNum">     205 </span>                :            : }
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :            : // A joining algorithm that's optimized for a forward iterator range of
+<span class="lineNum">     208 </span>                :            : // std::string-like objects that do not need any additional formatting. This is to
+<span class="lineNum">     209 </span>                :            : // optimize the common case of joining, say, a std::vector&lt;std::string&gt; or a
+<span class="lineNum">     210 </span>                :            : // std::vector&lt;absl::string_view&gt;.
+<span class="lineNum">     211 </span>                :            : //
+<span class="lineNum">     212 </span>                :            : // This is an overload of the previous JoinAlgorithm() function. Here the
+<span class="lineNum">     213 </span>                :            : // Formatter argument is of type NoFormatter. Since NoFormatter is an internal
+<span class="lineNum">     214 </span>                :            : // type, this overload is only invoked when strings::Join() is called with a
+<span class="lineNum">     215 </span>                :            : // range of std::string-like objects (e.g., std::string, absl::string_view), and an
+<span class="lineNum">     216 </span>                :            : // explicit Formatter argument was NOT specified.
+<span class="lineNum">     217 </span>                :            : //
+<span class="lineNum">     218 </span>                :            : // The optimization is that the needed space will be reserved in the output
+<span class="lineNum">     219 </span>                :            : // std::string to avoid the need to resize while appending. To do this, the iterator
+<span class="lineNum">     220 </span>                :            : // range will be traversed twice: once to calculate the total needed size, and
+<span class="lineNum">     221 </span>                :            : // then again to copy the elements and delimiters to the output std::string.
+<span class="lineNum">     222 </span>                :            : template &lt;typename Iterator,
+<span class="lineNum">     223 </span>                :            :           typename = typename std::enable_if&lt;std::is_convertible&lt;
+<a name="224"><span class="lineNum">     224 </span>                :            :               typename std::iterator_traits&lt;Iterator&gt;::iterator_category,</a>
+<span class="lineNum">     225 </span>                :            :               std::forward_iterator_tag&gt;::value&gt;::type&gt;
+<span class="lineNum">     226 </span>                :<span class="lineCov">         20 : std::string JoinAlgorithm(Iterator start, Iterator end, absl::string_view s,</span>
+<span class="lineNum">     227 </span>                :            :                      NoFormatter) {
+<span class="lineNum">     228 </span>                :<span class="lineCov">         20 :   std::string result;</span>
+<span class="lineNum">     229 </span>[<span class="branchCov" title="Branch 1 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         20 :   if (start != end) {</span>
+<span class="lineNum">     230 </span>                :            :     // Sums size
+<span class="lineNum">     231 </span>        [<span class="branchCov" title="Branch 1 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         20 :     size_t result_size = start-&gt;size();</span>
+<span class="lineNum">     232 </span>[<span class="branchCov" title="Branch 1 was taken 53 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 53 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         53 :     for (Iterator it = start; ++it != end;) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 6 was taken 33 times"> + </span><span class="branchCov" title="Branch 7 was taken 20 times"> + </span>]
+<span class="lineNum">     233 </span>                :<span class="lineCov">         33 :       result_size += s.size();</span>
+<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 1 was taken 33 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         33 :       result_size += it-&gt;size();</span>
+<span class="lineNum">     235 </span>                :            :     }
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         20 :     if (result_size &gt; 0) {</span>
+<span class="lineNum">     238 </span>        [<span class="branchCov" title="Branch 1 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         20 :       STLStringResizeUninitialized(&amp;result, result_size);</span>
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>                :            :       // Joins strings
+<span class="lineNum">     241 </span>        [<span class="branchCov" title="Branch 2 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         20 :       char* result_buf = &amp;*result.begin();</span>
+<span class="lineNum">     242 </span>[<span class="branchCov" title="Branch 1 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         20 :       memcpy(result_buf, start-&gt;data(), start-&gt;size());</span>
+<span class="lineNum">     243 </span>        [<span class="branchCov" title="Branch 1 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         20 :       result_buf += start-&gt;size();</span>
+<span class="lineNum">     244 </span>[<span class="branchCov" title="Branch 1 was taken 53 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 53 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         53 :       for (Iterator it = start; ++it != end;) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 6 was taken 33 times"> + </span><span class="branchCov" title="Branch 7 was taken 20 times"> + </span>]
+<span class="lineNum">     245 </span>                :<span class="lineCov">         33 :         memcpy(result_buf, s.data(), s.size());</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">         33 :         result_buf += s.size();</span>
+<span class="lineNum">     247 </span>[<span class="branchCov" title="Branch 1 was taken 33 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 33 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         33 :         memcpy(result_buf, it-&gt;data(), it-&gt;size());</span>
+<span class="lineNum">     248 </span>        [<span class="branchCov" title="Branch 1 was taken 33 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         33 :         result_buf += it-&gt;size();</span>
+<span class="lineNum">     249 </span>                :            :       }
+<span class="lineNum">     250 </span>                :            :     }
+<span class="lineNum">     251 </span>                :            :   }
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>                :<span class="lineCov">         20 :   return result;</span>
+<span class="lineNum">     254 </span>                :            : }
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :            : // JoinTupleLoop implements a loop over the elements of a std::tuple, which
+<span class="lineNum">     257 </span>                :            : // are heterogeneous. The primary template matches the tuple interior case. It
+<span class="lineNum">     258 </span>                :            : // continues the iteration after appending a separator (for nonzero indices)
+<span class="lineNum">     259 </span>                :            : // and formatting an element of the tuple. The specialization for the I=N case
+<span class="lineNum">     260 </span>                :            : // matches the end-of-tuple, and terminates the iteration.
+<span class="lineNum">     261 </span>                :            : template &lt;size_t I, size_t N&gt;
+<span class="lineNum">     262 </span>                :            : struct JoinTupleLoop {
+<span class="lineNum">     263 </span>                :            :   template &lt;typename Tup, typename Formatter&gt;
+<span class="lineNum">     264 </span>                :            :   void operator()(std::string* out, const Tup&amp; tup, absl::string_view sep,
+<span class="lineNum">     265 </span>                :            :                   Formatter&amp;&amp; fmt) {
+<span class="lineNum">     266 </span>                :            :     if (I &gt; 0) out-&gt;append(sep.data(), sep.size());
+<span class="lineNum">     267 </span>                :            :     fmt(out, std::get&lt;I&gt;(tup));
+<span class="lineNum">     268 </span>                :            :     JoinTupleLoop&lt;I + 1, N&gt;()(out, tup, sep, fmt);
+<span class="lineNum">     269 </span>                :            :   }
+<span class="lineNum">     270 </span>                :            : };
+<span class="lineNum">     271 </span>                :            : template &lt;size_t N&gt;
+<span class="lineNum">     272 </span>                :            : struct JoinTupleLoop&lt;N, N&gt; {
+<span class="lineNum">     273 </span>                :            :   template &lt;typename Tup, typename Formatter&gt;
+<span class="lineNum">     274 </span>                :            :   void operator()(std::string*, const Tup&amp;, absl::string_view, Formatter&amp;&amp;) {}
+<span class="lineNum">     275 </span>                :            : };
+<span class="lineNum">     276 </span>                :            : 
+<span class="lineNum">     277 </span>                :            : template &lt;typename... T, typename Formatter&gt;
+<span class="lineNum">     278 </span>                :            : std::string JoinAlgorithm(const std::tuple&lt;T...&gt;&amp; tup, absl::string_view sep,
+<span class="lineNum">     279 </span>                :            :                      Formatter&amp;&amp; fmt) {
+<span class="lineNum">     280 </span>                :            :   std::string result;
+<span class="lineNum">     281 </span>                :            :   JoinTupleLoop&lt;0, sizeof...(T)&gt;()(&amp;result, tup, sep, fmt);
+<span class="lineNum">     282 </span>                :            :   return result;
+<span class="lineNum">     283 </span>                :            : }
+<a name="284"><span class="lineNum">     284 </span>                :            : </a>
+<span class="lineNum">     285 </span>                :            : template &lt;typename Iterator&gt;
+<span class="lineNum">     286 </span>                :<span class="lineCov">         20 : std::string JoinRange(Iterator first, Iterator last, absl::string_view separator) {</span>
+<span class="lineNum">     287 </span>                :            :   // No formatter was explicitly given, so a default must be chosen.
+<span class="lineNum">     288 </span>                :            :   typedef typename std::iterator_traits&lt;Iterator&gt;::value_type ValueType;
+<span class="lineNum">     289 </span>                :            :   typedef typename DefaultFormatter&lt;ValueType&gt;::Type Formatter;
+<span class="lineNum">     290 </span>        [<span class="branchCov" title="Branch 1 was taken 20 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         20 :   return JoinAlgorithm(first, last, separator, Formatter());</span>
+<span class="lineNum">     291 </span>                :            : }
+<a name="292"><span class="lineNum">     292 </span>                :            : </a>
+<span class="lineNum">     293 </span>                :            : template &lt;typename Range, typename Formatter&gt;
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 : std::string JoinRange(const Range&amp; range, absl::string_view separator,</span>
+<span class="lineNum">     295 </span>                :            :                  Formatter&amp;&amp; fmt) {
+<span class="lineNum">     296 </span>                :            :   using std::begin;
+<span class="lineNum">     297 </span>                :            :   using std::end;
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :   return JoinAlgorithm(begin(range), end(range), separator, fmt);</span>
+<span class="lineNum">     299 </span>                :            : }
+<a name="300"><span class="lineNum">     300 </span>                :            : </a>
+<span class="lineNum">     301 </span>                :            : template &lt;typename Range&gt;
+<span class="lineNum">     302 </span>                :<span class="lineCov">         20 : std::string JoinRange(const Range&amp; range, absl::string_view separator) {</span>
+<span class="lineNum">     303 </span>                :            :   using std::begin;
+<span class="lineNum">     304 </span>                :            :   using std::end;
+<span class="lineNum">     305 </span>                :<span class="lineCov">         20 :   return JoinRange(begin(range), end(range), separator);</span>
+<span class="lineNum">     306 </span>                :            : }
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :            : }  // namespace strings_internal
+<span class="lineNum">     309 </span>                :            : }  // namespace absl
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :            : #endif  // ABSL_STRINGS_INTERNAL_STR_JOIN_INTERNAL_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

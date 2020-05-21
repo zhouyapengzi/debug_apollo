@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/planning/open_space/coarse_trajectory_generator/hybrid_a_star.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/planning/open_space/coarse_trajectory_generator</a> - hybrid_a_star.h<span style="font-size: 80%;"> (source / <a href="hybrid_a_star.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /*
+<span class="lineNum">      18 </span>                :            :  * @file
+<span class="lineNum">      19 </span>                :            :  */
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #pragma once
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;memory&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;queue&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;unordered_map&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      29 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : #include &quot;modules/planning/open_space/coarse_trajectory_generator/grid_search.h&quot;
+<span class="lineNum">      32 </span>                :            : #include &quot;modules/planning/open_space/coarse_trajectory_generator/node3d.h&quot;
+<span class="lineNum">      33 </span>                :            : #include &quot;modules/planning/open_space/coarse_trajectory_generator/reeds_shepp_path.h&quot;
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;cyber/common/macros.h&quot;
+<span class="lineNum">      37 </span>                :            : #include &quot;modules/common/configs/proto/vehicle_config.pb.h&quot;
+<span class="lineNum">      38 </span>                :            : #include &quot;modules/common/configs/vehicle_config_helper.h&quot;
+<span class="lineNum">      39 </span>                :            : #include &quot;modules/common/math/math_utils.h&quot;
+<span class="lineNum">      40 </span>                :            : #include &quot;modules/common/time/time.h&quot;
+<span class="lineNum">      41 </span>                :            : #include &quot;modules/planning/common/obstacle.h&quot;
+<span class="lineNum">      42 </span>                :            : #include &quot;modules/planning/common/planning_gflags.h&quot;
+<span class="lineNum">      43 </span>                :            : #include &quot;modules/planning/proto/planner_open_space_config.pb.h&quot;
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : namespace apollo {
+<a name="46"><span class="lineNum">      46 </span>                :            : namespace planning {</a>
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]:<span class="lineNoCov">          0 : struct HybridAStartResult {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>][<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span>][<span class="branchNoExec" title="Branch 26 was not executed"> # </span><span class="branchNoExec" title="Branch 27 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>][<span class="branchNoExec" title="Branch 32 was not executed"> # </span><span class="branchNoExec" title="Branch 33 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 35 was not executed"> # </span><span class="branchNoExec" title="Branch 36 was not executed"> # </span>][<span class="branchNoExec" title="Branch 38 was not executed"> # </span><span class="branchNoExec" title="Branch 39 was not executed"> # </span>]
+<span class="lineNum">      49 </span>                :            :   std::vector&lt;double&gt; x;
+<span class="lineNum">      50 </span>                :            :   std::vector&lt;double&gt; y;
+<span class="lineNum">      51 </span>                :            :   std::vector&lt;double&gt; phi;
+<span class="lineNum">      52 </span>                :            :   std::vector&lt;double&gt; v;
+<span class="lineNum">      53 </span>                :            :   std::vector&lt;double&gt; a;
+<span class="lineNum">      54 </span>                :            :   std::vector&lt;double&gt; steer;
+<span class="lineNum">      55 </span>                :            :   std::vector&lt;double&gt; accumulated_s;
+<span class="lineNum">      56 </span>                :            : };
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : class HybridAStar {
+<a name="59"><span class="lineNum">      59 </span>                :            :  public:</a>
+<span class="lineNum">      60 </span>                :            :   explicit HybridAStar(const PlannerOpenSpaceConfig&amp; open_space_conf);
+<span class="lineNum">      61 </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]:<span class="lineNoCov">          0 :   virtual ~HybridAStar() = default;</span>
+<span class="lineNum">      62 </span>                :            :   bool Plan(double sx, double sy, double sphi, double ex, double ey,
+<span class="lineNum">      63 </span>                :            :             double ephi, const std::vector&lt;double&gt;&amp; XYbounds,
+<span class="lineNum">      64 </span>                :            :             const std::vector&lt;std::vector&lt;common::math::Vec2d&gt;&gt;&amp;
+<span class="lineNum">      65 </span>                :            :                 obstacles_vertices_vec,
+<span class="lineNum">      66 </span>                :            :             HybridAStartResult* result);
+<span class="lineNum">      67 </span>                :            :   bool TrajectoryPartition(const HybridAStartResult&amp; result,
+<span class="lineNum">      68 </span>                :            :                            std::vector&lt;HybridAStartResult&gt;* partitioned_result);
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :            :  private:
+<span class="lineNum">      71 </span>                :            :   bool AnalyticExpansion(std::shared_ptr&lt;Node3d&gt; current_node);
+<span class="lineNum">      72 </span>                :            :   // check collision and validity
+<span class="lineNum">      73 </span>                :            :   bool ValidityCheck(std::shared_ptr&lt;Node3d&gt; node);
+<span class="lineNum">      74 </span>                :            :   // check Reeds Shepp path collision and validity
+<span class="lineNum">      75 </span>                :            :   bool RSPCheck(const std::shared_ptr&lt;ReedSheppPath&gt; reeds_shepp_to_end);
+<span class="lineNum">      76 </span>                :            :   // load the whole RSP as nodes and add to the close set
+<span class="lineNum">      77 </span>                :            :   std::shared_ptr&lt;Node3d&gt; LoadRSPinCS(
+<span class="lineNum">      78 </span>                :            :       const std::shared_ptr&lt;ReedSheppPath&gt; reeds_shepp_to_end,
+<span class="lineNum">      79 </span>                :            :       std::shared_ptr&lt;Node3d&gt; current_node);
+<span class="lineNum">      80 </span>                :            :   std::shared_ptr&lt;Node3d&gt; Next_node_generator(
+<span class="lineNum">      81 </span>                :            :       std::shared_ptr&lt;Node3d&gt; current_node, size_t next_node_index);
+<span class="lineNum">      82 </span>                :            :   void CalculateNodeCost(std::shared_ptr&lt;Node3d&gt; current_node,
+<span class="lineNum">      83 </span>                :            :                          std::shared_ptr&lt;Node3d&gt; next_node);
+<span class="lineNum">      84 </span>                :            :   double TrajCost(std::shared_ptr&lt;Node3d&gt; current_node,
+<span class="lineNum">      85 </span>                :            :                   std::shared_ptr&lt;Node3d&gt; next_node);
+<span class="lineNum">      86 </span>                :            :   double HoloObstacleHeuristic(std::shared_ptr&lt;Node3d&gt; next_node);
+<span class="lineNum">      87 </span>                :            :   bool GetResult(HybridAStartResult* result);
+<span class="lineNum">      88 </span>                :            :   bool GetTemporalProfile(HybridAStartResult* result);
+<span class="lineNum">      89 </span>                :            :   bool GenerateSpeedAcceleration(HybridAStartResult* result);
+<span class="lineNum">      90 </span>                :            :   bool GenerateSCurveSpeedAcceleration(HybridAStartResult* result);
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :  private:
+<span class="lineNum">      93 </span>                :            :   PlannerOpenSpaceConfig planner_open_space_config_;
+<span class="lineNum">      94 </span>                :            :   common::VehicleParam vehicle_param_ =
+<span class="lineNum">      95 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       common::VehicleConfigHelper::GetConfig().vehicle_param();</span>
+<span class="lineNum">      96 </span>                :            :   size_t next_node_num_ = 0;
+<span class="lineNum">      97 </span>                :            :   double max_steer_angle_ = 0.0;
+<span class="lineNum">      98 </span>                :            :   double step_size_ = 0.0;
+<span class="lineNum">      99 </span>                :            :   double xy_grid_resolution_ = 0.0;
+<span class="lineNum">     100 </span>                :            :   double delta_t_ = 0.0;
+<span class="lineNum">     101 </span>                :            :   double traj_forward_penalty_ = 0.0;
+<span class="lineNum">     102 </span>                :            :   double traj_back_penalty_ = 0.0;
+<span class="lineNum">     103 </span>                :            :   double traj_gear_switch_penalty_ = 0.0;
+<span class="lineNum">     104 </span>                :            :   double traj_steer_penalty_ = 0.0;
+<span class="lineNum">     105 </span>                :            :   double traj_steer_change_penalty_ = 0.0;
+<span class="lineNum">     106 </span>                :            :   double heu_rs_forward_penalty_ = 0.0;
+<span class="lineNum">     107 </span>                :            :   double heu_rs_back_penalty_ = 0.0;
+<span class="lineNum">     108 </span>                :            :   double heu_rs_gear_switch_penalty_ = 0.0;
+<span class="lineNum">     109 </span>                :            :   double heu_rs_steer_penalty_ = 0.0;
+<span class="lineNum">     110 </span>                :            :   double heu_rs_steer_change_penalty_ = 0.0;
+<span class="lineNum">     111 </span>                :            :   std::vector&lt;double&gt; XYbounds_;
+<span class="lineNum">     112 </span>                :            :   std::shared_ptr&lt;Node3d&gt; start_node_;
+<span class="lineNum">     113 </span>                :            :   std::shared_ptr&lt;Node3d&gt; end_node_;
+<span class="lineNum">     114 </span>                :            :   std::shared_ptr&lt;Node3d&gt; final_node_;
+<span class="lineNum">     115 </span>                :            :   std::vector&lt;std::vector&lt;common::math::LineSegment2d&gt;&gt;
+<span class="lineNum">     116 </span>                :            :       obstacles_linesegments_vec_;
+<a name="117"><span class="lineNum">     117 </span>                :            : </a>
+<span class="lineNum">     118 </span>                :            :   struct cmp {
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :     bool operator()(const std::pair&lt;std::string, double&gt;&amp; left,</span>
+<span class="lineNum">     120 </span>                :            :                     const std::pair&lt;std::string, double&gt;&amp; right) const {
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :       return left.second &gt;= right.second;</span>
+<span class="lineNum">     122 </span>                :            :     }
+<span class="lineNum">     123 </span>                :            :   };
+<span class="lineNum">     124 </span>                :            :   std::priority_queue&lt;std::pair&lt;std::string, double&gt;,
+<span class="lineNum">     125 </span>                :            :                       std::vector&lt;std::pair&lt;std::string, double&gt;&gt;, cmp&gt;
+<span class="lineNum">     126 </span>                :            :       open_pq_;
+<span class="lineNum">     127 </span>                :            :   std::unordered_map&lt;std::string, std::shared_ptr&lt;Node3d&gt;&gt; open_set_;
+<span class="lineNum">     128 </span>                :            :   std::unordered_map&lt;std::string, std::shared_ptr&lt;Node3d&gt;&gt; close_set_;
+<span class="lineNum">     129 </span>                :            :   std::unique_ptr&lt;ReedShepp&gt; reed_shepp_generator_;
+<span class="lineNum">     130 </span>                :            :   std::unique_ptr&lt;GridSearch&gt; grid_a_star_heuristic_generator_;
+<span class="lineNum">     131 </span>                :            : };
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            : }  // namespace planning
+<span class="lineNum">     134 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

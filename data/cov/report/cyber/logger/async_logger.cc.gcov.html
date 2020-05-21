@@ -1,0 +1,238 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - cyber/logger/async_logger.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">cyber/logger</a> - async_logger.cc<span style="font-size: 80%;"> (source / <a href="async_logger.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntry">70</td>
+            <td class="headerCovTableEntryMed">88.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">68</td>
+            <td class="headerCovTableEntry">172</td>
+            <td class="headerCovTableEntryLo">39.5 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;cyber/logger/async_logger.h&quot;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &lt;cstdlib&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;thread&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;unordered_map&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : #include &quot;cyber/base/macros.h&quot;
+<span class="lineNum">      25 </span>                :            : #include &quot;cyber/logger/log_file_object.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;cyber/logger/logger_util.h&quot;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : namespace apollo {
+<span class="lineNum">      29 </span>                :            : namespace cyber {
+<span class="lineNum">      30 </span>                :            : namespace logger {
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>        [<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 : static std::unordered_map&lt;std::string, LogFileObject*&gt; moduleLoggerMap;</span>
+<span class="lineNum">      33 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 : static std::unordered_map&lt;char, int&gt; log_level_map = {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<a name="34"><span class="lineNum">      34 </span>                :            :     {'F', 3}, {'E', 2}, {'W', 1}, {'I', 0}};</a>
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :<span class="lineCov">          2 : AsyncLogger::AsyncLogger(google::base::Logger* wrapped) : wrapped_(wrapped) {</span>
+<span class="lineNum">      37 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   active_buf_.reset(new std::deque&lt;Msg&gt;());</span>
+<span class="lineNum">      38 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   flushing_buf_.reset(new std::deque&lt;Msg&gt;());</span>
+<a name="39"><span class="lineNum">      39 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 : AsyncLogger::~AsyncLogger() {</span>
+<span class="lineNum">      42 </span>        [<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (auto&amp; logger : moduleLoggerMap) {</span>
+<span class="lineNum">      43 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     delete logger.second;</span>
+<span class="lineNum">      44 </span>                :            :   }
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 :   moduleLoggerMap.clear();</span>
+<a name="46"><span class="lineNum">      46 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :<span class="lineCov">          1 : void AsyncLogger::Start() {</span>
+<span class="lineNum">      49 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   CHECK_EQ(state_.load(std::memory_order_acquire), INITTED);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchNoCov" title="Branch 10 was not taken"> - </span><span class="branchCov" title="Branch 11 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">      50 </span>                :<span class="lineCov">          1 :   state_.store(RUNNING, std::memory_order_release);</span>
+<span class="lineNum">      51 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   log_thread_ = std::thread(&amp;AsyncLogger::RunThread, this);</span>
+<span class="lineNum">      52 </span>                :            :   // std::cout &lt;&lt; &quot;Async Logger Start!&quot; &lt;&lt; std::endl;
+<a name="53"><span class="lineNum">      53 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :<span class="lineCov">          1 : void AsyncLogger::Stop() {</span>
+<span class="lineNum">      56 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   CHECK_EQ(state_.load(std::memory_order_acquire), RUNNING);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchNoCov" title="Branch 10 was not taken"> - </span><span class="branchCov" title="Branch 11 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">      57 </span>                :<span class="lineCov">          1 :   state_.store(STOPPED, std::memory_order_release);</span>
+<span class="lineNum">      58 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   if (log_thread_.joinable()) {</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">          1 :     log_thread_.join();</span>
+<span class="lineNum">      60 </span>                :            :   }
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :<span class="lineCov">          1 :   FlushBuffer(active_buf_);</span>
+<span class="lineNum">      63 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineCov">          1 :   CHECK(active_buf_-&gt;empty());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 19 was not taken"> - </span><span class="branchCov" title="Branch 20 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 21 was not taken"> - </span><span class="branchCov" title="Branch 22 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span><span class="branchNoExec" title="Branch 27 was not executed"> # </span>]
+<span class="lineNum">      64 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineCov">          1 :   CHECK(flushing_buf_-&gt;empty());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 19 was not taken"> - </span><span class="branchCov" title="Branch 20 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 21 was not taken"> - </span><span class="branchCov" title="Branch 22 was taken 1 time"> + </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span><span class="branchNoExec" title="Branch 27 was not executed"> # </span>]
+<span class="lineNum">      65 </span>                :            :   // std::cout &lt;&lt; &quot;Async Logger Stop!&quot; &lt;&lt; std::endl;
+<a name="66"><span class="lineNum">      66 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :<span class="lineCov">         75 : void AsyncLogger::Write(bool force_flush, time_t timestamp, const char* message,</span>
+<span class="lineNum">      69 </span>                :            :                         int message_len) {
+<span class="lineNum">      70 </span>                :            :   (void)force_flush;
+<span class="lineNum">      71 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 75 times"> + </span>]:<span class="lineCov">         75 :   if (cyber_unlikely(state_.load(std::memory_order_acquire) != RUNNING)) {</span>
+<span class="lineNum">      72 </span>                :            :     // std::cout &lt;&lt; &quot;Async Logger not running!&quot; &lt;&lt; std::endl;
+<span class="lineNum">      73 </span>                :<span class="lineCov">         75 :     return;</span>
+<span class="lineNum">      74 </span>                :            :   }
+<span class="lineNum">      75 </span>        [<span class="branchCov" title="Branch 2 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         75 :   auto msg_str = std::string(message, message_len);</span>
+<span class="lineNum">      76 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 75 times"> + </span>]:<span class="lineCov">         75 :   while (flag_.test_and_set(std::memory_order_acquire)) {</span>
+<span class="lineNum">      77 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     cpu_relax();</span>
+<span class="lineNum">      78 </span>                :            :   }
+<span class="lineNum">      79 </span>                :<span class="lineCov">         75 :   active_buf_-&gt;emplace_back(timestamp, std::move(msg_str),</span>
+<span class="lineNum">      80 </span>  [<span class="branchCov" title="Branch 1 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">        150 :                             log_level_map[message[0]]);</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">         75 :   flag_.clear(std::memory_order_release);</span>
+<a name="82"><span class="lineNum">      82 </span>                :            : }</a>
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :<span class="lineCov">       1063 : void AsyncLogger::Flush() {</span>
+<span class="lineNum">      85 </span>[<span class="branchCov" title="Branch 3 was taken 1062 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 1062 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">       2125 :   for (auto&amp; module_logger : moduleLoggerMap) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 2125 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1062 times"> + </span><span class="branchCov" title="Branch 12 was taken 1063 times"> + </span>]
+<span class="lineNum">      86 </span>        [<span class="branchCov" title="Branch 1 was taken 1062 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       1062 :     module_logger.second-&gt;Flush();</span>
+<span class="lineNum">      87 </span>                :            :   }
+<a name="88"><span class="lineNum">      88 </span>                :<span class="lineCov">       1063 : }</span></a>
+<span class="lineNum">      89 </span>                :            : 
+<a name="90"><span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 : uint32_t AsyncLogger::LogSize() { return wrapped_-&gt;LogSize(); }</span></a>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :<span class="lineCov">          1 : void AsyncLogger::RunThread() {</span>
+<span class="lineNum">      93 </span>        [<span class="branchCov" title="Branch 1 was taken 1062 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">       1063 :   while (state_ == RUNNING) {</span>
+<span class="lineNum">      94 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1062 times"> + </span>]:<span class="lineCov">       1062 :     while (flag_.test_and_set(std::memory_order_acquire)) {</span>
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :       cpu_relax();</span>
+<span class="lineNum">      96 </span>                :            :     }
+<span class="lineNum">      97 </span>                :<span class="lineCov">       1062 :     active_buf_.swap(flushing_buf_);</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">       1062 :     flag_.clear(std::memory_order_release);</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">       1062 :     FlushBuffer(flushing_buf_);</span>
+<span class="lineNum">     100 </span>        [<span class="branchCov" title="Branch 2 was taken 1062 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       1062 :     if (active_buf_-&gt;size() &lt; 800) {</span>
+<span class="lineNum">     101 </span>[<span class="branchCov" title="Branch 1 was taken 1062 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1062 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       1062 :       std::this_thread::sleep_for(std::chrono::milliseconds(1));</span>
+<span class="lineNum">     102 </span>                :            :     }
+<span class="lineNum">     103 </span>                :            :   }
+<a name="104"><span class="lineNum">     104 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :<span class="lineCov">       1063 : void AsyncLogger::FlushBuffer(const std::unique_ptr&lt;std::deque&lt;Msg&gt;&gt;&amp; buffer) {</span>
+<span class="lineNum">     107 </span>        [<span class="branchCov" title="Branch 2 was taken 1063 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       1063 :   std::string module_name = &quot;&quot;;</span>
+<span class="lineNum">     108 </span>        [<span class="branchCov" title="Branch 2 was taken 75 times"> + </span><span class="branchCov" title="Branch 3 was taken 1063 times"> + </span>]:<span class="lineCov">       1138 :   while (!buffer-&gt;empty()) {</span>
+<span class="lineNum">     109 </span>        [<span class="branchCov" title="Branch 2 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         75 :     auto&amp; msg = buffer-&gt;front();</span>
+<span class="lineNum">     110 </span>        [<span class="branchCov" title="Branch 1 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         75 :     FindModuleName(&amp;(msg.message), &amp;module_name);</span>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :<span class="lineCov">         75 :     LogFileObject* fileobject = nullptr;</span>
+<span class="lineNum">     113 </span>[<span class="branchCov" title="Branch 2 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         75 :     if (moduleLoggerMap.find(module_name) != moduleLoggerMap.end()) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 74 times"> + </span><span class="branchCov" title="Branch 8 was taken 1 time"> + </span>]
+<span class="lineNum">     114 </span>        [<span class="branchCov" title="Branch 1 was taken 74 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         74 :       fileobject = moduleLoggerMap[module_name];</span>
+<span class="lineNum">     115 </span>                :            :     } else {
+<span class="lineNum">     116 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       std::string file_name = module_name + &quot;.log.INFO.&quot;;</span>
+<span class="lineNum">     117 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       if (!FLAGS_log_dir.empty()) {</span>
+<span class="lineNum">     118 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :         file_name = FLAGS_log_dir + &quot;/&quot; + file_name;</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     119 </span>                :            :       }
+<span class="lineNum">     120 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :       fileobject = new LogFileObject(google::INFO, file_name.c_str());</span>
+<span class="lineNum">     121 </span>        [<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :       fileobject-&gt;SetSymlinkBasename(module_name.c_str());</span>
+<span class="lineNum">     122 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       moduleLoggerMap[module_name] = fileobject;</span>
+<span class="lineNum">     123 </span>                :            :     }
+<span class="lineNum">     124 </span>        [<span class="branchCov" title="Branch 0 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         75 :     if (fileobject) {</span>
+<span class="lineNum">     125 </span>                :<span class="lineCov">         75 :       const bool force_flush = msg.level &gt; 0;</span>
+<span class="lineNum">     126 </span>                :            :       fileobject-&gt;Write(force_flush, msg.ts, msg.message.data(),
+<span class="lineNum">     127 </span>        [<span class="branchCov" title="Branch 3 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         75 :                         static_cast&lt;int&gt;(msg.message.size()));</span>
+<span class="lineNum">     128 </span>                :            :     }
+<span class="lineNum">     129 </span>        [<span class="branchCov" title="Branch 2 was taken 75 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         75 :     buffer-&gt;pop_front();</span>
+<span class="lineNum">     130 </span>                :            :   }
+<span class="lineNum">     131 </span>        [<span class="branchCov" title="Branch 1 was taken 1063 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       1063 :   Flush();</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">       1063 : }</span>
+<span class="lineNum">     133 </span>                :            : 
+<a name="134"><span class="lineNum">     134 </span>                :            : }  // namespace logger</a>
+<span class="lineNum">     135 </span>                :            : }  // namespace cyber
+<span class="lineNum">     136 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

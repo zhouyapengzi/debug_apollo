@@ -1,0 +1,334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/boost/boost/property_tree/stream_translator.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">external/boost/boost/property_tree</a> - stream_translator.hpp<span style="font-size: 80%;"> (source / <a href="stream_translator.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntryHi">93.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">77</td>
+            <td class="headerCovTableEntry">170</td>
+            <td class="headerCovTableEntryLo">45.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // ----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            : // Copyright (C) 2009 Sebastian Redl
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Distributed under the Boost Software License, Version 1.0. 
+<span class="lineNum">       5 </span>                :            : // (See accompanying file LICENSE_1_0.txt or copy at 
+<span class="lineNum">       6 </span>                :            : // http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       7 </span>                :            : //
+<span class="lineNum">       8 </span>                :            : // For more information, see www.boost.org
+<span class="lineNum">       9 </span>                :            : // ----------------------------------------------------------------------------
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : #ifndef BOOST_PROPERTY_TREE_STREAM_TRANSLATOR_HPP_INCLUDED
+<span class="lineNum">      12 </span>                :            : #define BOOST_PROPERTY_TREE_STREAM_TRANSLATOR_HPP_INCLUDED
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : #include &lt;boost/property_tree/ptree_fwd.hpp&gt;
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : #include &lt;boost/optional.hpp&gt;
+<span class="lineNum">      17 </span>                :            : #include &lt;boost/optional/optional_io.hpp&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;boost/utility/enable_if.hpp&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;boost/type_traits/decay.hpp&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;boost/type_traits/integral_constant.hpp&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;sstream&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;locale&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;limits&gt;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : namespace boost { namespace property_tree
+<span class="lineNum">      27 </span>                :            : {
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            :     template &lt;typename Ch, typename Traits, typename E, typename Enabler = void&gt;
+<a name="30"><span class="lineNum">      30 </span>                :            :     struct customize_stream</a>
+<span class="lineNum">      31 </span>                :            :     {
+<span class="lineNum">      32 </span>                :<span class="lineCov">          4 :         static void insert(std::basic_ostream&lt;Ch, Traits&gt;&amp; s, const E&amp; e) {</span>
+<a name="33"><span class="lineNum">      33 </span>                :<span class="lineCov">          4 :             s &lt;&lt; e;</span></a>
+<span class="lineNum">      34 </span>                :<span class="lineCov">          4 :         }</span>
+<span class="lineNum">      35 </span>                :<span class="lineCov">          6 :         static void extract(std::basic_istream&lt;Ch, Traits&gt;&amp; s, E&amp; e) {</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">          6 :             s &gt;&gt; e;</span>
+<span class="lineNum">      37 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :             if(!s.eof()) {</span>
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 :                 s &gt;&gt; std::ws;</span>
+<span class="lineNum">      39 </span>                :            :             }
+<span class="lineNum">      40 </span>                :<span class="lineCov">          6 :         }</span>
+<span class="lineNum">      41 </span>                :            :     };
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            :     // No whitespace skipping for single characters.
+<span class="lineNum">      44 </span>                :            :     template &lt;typename Ch, typename Traits&gt;
+<span class="lineNum">      45 </span>                :            :     struct customize_stream&lt;Ch, Traits, Ch, void&gt;
+<span class="lineNum">      46 </span>                :            :     {
+<span class="lineNum">      47 </span>                :            :         static void insert(std::basic_ostream&lt;Ch, Traits&gt;&amp; s, Ch e) {
+<span class="lineNum">      48 </span>                :            :             s &lt;&lt; e;
+<span class="lineNum">      49 </span>                :            :         }
+<span class="lineNum">      50 </span>                :            :         static void extract(std::basic_istream&lt;Ch, Traits&gt;&amp; s, Ch&amp; e) {
+<span class="lineNum">      51 </span>                :            :             s.unsetf(std::ios_base::skipws);
+<span class="lineNum">      52 </span>                :            :             s &gt;&gt; e;
+<span class="lineNum">      53 </span>                :            :         }
+<span class="lineNum">      54 </span>                :            :     };
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            :     // Ugly workaround for numeric_traits that don't have members when not
+<span class="lineNum">      57 </span>                :            :     // specialized, e.g. MSVC.
+<span class="lineNum">      58 </span>                :            :     namespace detail
+<span class="lineNum">      59 </span>                :            :     {
+<span class="lineNum">      60 </span>                :            :         template &lt;bool is_specialized&gt;
+<span class="lineNum">      61 </span>                :            :         struct is_inexact_impl
+<span class="lineNum">      62 </span>                :            :         {
+<span class="lineNum">      63 </span>                :            :             template &lt;typename T&gt;
+<span class="lineNum">      64 </span>                :            :             struct test
+<span class="lineNum">      65 </span>                :            :             {
+<span class="lineNum">      66 </span>                :            :                 typedef boost::false_type type;
+<span class="lineNum">      67 </span>                :            :             };
+<span class="lineNum">      68 </span>                :            :         };
+<span class="lineNum">      69 </span>                :            :         template &lt;&gt;
+<span class="lineNum">      70 </span>                :            :         struct is_inexact_impl&lt;true&gt;
+<span class="lineNum">      71 </span>                :            :         {
+<span class="lineNum">      72 </span>                :            :             template &lt;typename T&gt;
+<span class="lineNum">      73 </span>                :            :             struct test
+<span class="lineNum">      74 </span>                :            :             {
+<span class="lineNum">      75 </span>                :            :               typedef boost::integral_constant&lt;bool,
+<span class="lineNum">      76 </span>                :            :                   !std::numeric_limits&lt;T&gt;::is_exact&gt; type;
+<span class="lineNum">      77 </span>                :            :             };
+<span class="lineNum">      78 </span>                :            :         };
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            :         template &lt;typename F&gt;
+<span class="lineNum">      81 </span>                :            :         struct is_inexact
+<span class="lineNum">      82 </span>                :            :         {
+<span class="lineNum">      83 </span>                :            :             typedef typename boost::decay&lt;F&gt;::type decayed;
+<span class="lineNum">      84 </span>                :            :             typedef typename is_inexact_impl&lt;
+<span class="lineNum">      85 </span>                :            :                 std::numeric_limits&lt;decayed&gt;::is_specialized
+<span class="lineNum">      86 </span>                :            :             &gt;::BOOST_NESTED_TEMPLATE test&lt;decayed&gt;::type type;
+<span class="lineNum">      87 </span>                :            :             static const bool value = type::value;
+<span class="lineNum">      88 </span>                :            :         };
+<span class="lineNum">      89 </span>                :            :     }
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :            :     template &lt;typename Ch, typename Traits, typename F&gt;
+<span class="lineNum">      92 </span>                :            :     struct customize_stream&lt;Ch, Traits, F,
+<span class="lineNum">      93 </span>                :            :         typename boost::enable_if&lt; detail::is_inexact&lt;F&gt; &gt;::type
+<a name="94"><span class="lineNum">      94 </span>                :            :     &gt;</a>
+<span class="lineNum">      95 </span>                :            :     {
+<span class="lineNum">      96 </span>                :<span class="lineCov">         12 :         static void insert(std::basic_ostream&lt;Ch, Traits&gt;&amp; s, const F&amp; e) {</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">         12 :             s.precision(std::numeric_limits&lt;F&gt;::digits10 + 1);</span>
+<a name="98"><span class="lineNum">      98 </span>                :<span class="lineCov">         12 :             s &lt;&lt; e;</span></a>
+<span class="lineNum">      99 </span>                :<span class="lineCov">         12 :         }</span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">          7 :         static void extract(std::basic_istream&lt;Ch, Traits&gt;&amp; s, F&amp; e) {</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">          7 :             s &gt;&gt; e;</span>
+<span class="lineNum">     102 </span>  [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 4 times"> + </span>]:<span class="lineCov">          7 :             if(!s.eof()) {</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :                 s &gt;&gt; std::ws;</span>
+<span class="lineNum">     104 </span>                :            :             }
+<span class="lineNum">     105 </span>                :<span class="lineCov">          7 :         }</span>
+<span class="lineNum">     106 </span>                :            :     };
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :            :     template &lt;typename Ch, typename Traits&gt;
+<a name="109"><span class="lineNum">     109 </span>                :            :     struct customize_stream&lt;Ch, Traits, bool, void&gt;</a>
+<span class="lineNum">     110 </span>                :            :     {
+<span class="lineNum">     111 </span>                :<span class="lineCov">          4 :         static void insert(std::basic_ostream&lt;Ch, Traits&gt;&amp; s, bool e) {</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">          4 :             s.setf(std::ios_base::boolalpha);</span>
+<a name="113"><span class="lineNum">     113 </span>                :<span class="lineCov">          4 :             s &lt;&lt; e;</span></a>
+<span class="lineNum">     114 </span>                :<span class="lineCov">          4 :         }</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">          2 :         static void extract(std::basic_istream&lt;Ch, Traits&gt;&amp; s, bool&amp; e) {</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">          2 :             s &gt;&gt; e;</span>
+<span class="lineNum">     117 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :             if(s.fail()) {</span>
+<span class="lineNum">     118 </span>                :            :                 // Try again in word form.
+<span class="lineNum">     119 </span>                :<span class="lineCov">          2 :                 s.clear();</span>
+<span class="lineNum">     120 </span>                :<span class="lineCov">          2 :                 s.setf(std::ios_base::boolalpha);</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">          2 :                 s &gt;&gt; e;</span>
+<span class="lineNum">     122 </span>                :            :             }
+<span class="lineNum">     123 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :             if(!s.eof()) {</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">          2 :                 s &gt;&gt; std::ws;</span>
+<span class="lineNum">     125 </span>                :            :             }
+<span class="lineNum">     126 </span>                :<span class="lineCov">          2 :         }</span>
+<span class="lineNum">     127 </span>                :            :     };
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :            :     template &lt;typename Ch, typename Traits&gt;
+<span class="lineNum">     130 </span>                :            :     struct customize_stream&lt;Ch, Traits, signed char, void&gt;
+<span class="lineNum">     131 </span>                :            :     {
+<span class="lineNum">     132 </span>                :            :         static void insert(std::basic_ostream&lt;Ch, Traits&gt;&amp; s, signed char e) {
+<span class="lineNum">     133 </span>                :            :             s &lt;&lt; (int)e;
+<span class="lineNum">     134 </span>                :            :         }
+<span class="lineNum">     135 </span>                :            :         static void extract(std::basic_istream&lt;Ch, Traits&gt;&amp; s, signed char&amp; e) {
+<span class="lineNum">     136 </span>                :            :             int i;
+<span class="lineNum">     137 </span>                :            :             s &gt;&gt; i;
+<span class="lineNum">     138 </span>                :            :             // out of range?
+<span class="lineNum">     139 </span>                :            :             if(i &gt; (std::numeric_limits&lt;signed char&gt;::max)() ||
+<span class="lineNum">     140 </span>                :            :                 i &lt; (std::numeric_limits&lt;signed char&gt;::min)())
+<span class="lineNum">     141 </span>                :            :             {
+<span class="lineNum">     142 </span>                :            :                 s.clear(); // guarantees eof to be unset
+<span class="lineNum">     143 </span>                :            :                 return;
+<span class="lineNum">     144 </span>                :            :             }
+<span class="lineNum">     145 </span>                :            :             e = (signed char)i;
+<span class="lineNum">     146 </span>                :            :             if(!s.eof()) {
+<span class="lineNum">     147 </span>                :            :                 s &gt;&gt; std::ws;
+<span class="lineNum">     148 </span>                :            :             }
+<span class="lineNum">     149 </span>                :            :         }
+<span class="lineNum">     150 </span>                :            :     };
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :            :     template &lt;typename Ch, typename Traits&gt;
+<span class="lineNum">     153 </span>                :            :     struct customize_stream&lt;Ch, Traits, unsigned char, void&gt;
+<span class="lineNum">     154 </span>                :            :     {
+<span class="lineNum">     155 </span>                :            :         static void insert(std::basic_ostream&lt;Ch, Traits&gt;&amp; s, unsigned char e) {
+<span class="lineNum">     156 </span>                :            :             s &lt;&lt; (unsigned)e;
+<span class="lineNum">     157 </span>                :            :         }
+<span class="lineNum">     158 </span>                :            :         static void extract(std::basic_istream&lt;Ch,Traits&gt;&amp; s, unsigned char&amp; e){
+<span class="lineNum">     159 </span>                :            :             unsigned i;
+<span class="lineNum">     160 </span>                :            :             s &gt;&gt; i;
+<span class="lineNum">     161 </span>                :            :             // out of range?
+<span class="lineNum">     162 </span>                :            :             if(i &gt; (std::numeric_limits&lt;unsigned char&gt;::max)()) {
+<span class="lineNum">     163 </span>                :            :                 s.clear(); // guarantees eof to be unset
+<span class="lineNum">     164 </span>                :            :                 return;
+<span class="lineNum">     165 </span>                :            :             }
+<span class="lineNum">     166 </span>                :            :             e = (unsigned char)i;
+<span class="lineNum">     167 </span>                :            :             if(!s.eof()) {
+<span class="lineNum">     168 </span>                :            :                 s &gt;&gt; std::ws;
+<span class="lineNum">     169 </span>                :            :             }
+<span class="lineNum">     170 </span>                :            :         }
+<span class="lineNum">     171 </span>                :            :     };
+<span class="lineNum">     172 </span>                :            : 
+<a name="173"><span class="lineNum">     173 </span>                :            :     /// Implementation of Translator that uses the stream overloads.</a>
+<span class="lineNum">     174 </span>                :            :     template &lt;typename Ch, typename Traits, typename Alloc, typename E&gt;
+<span class="lineNum">     175 </span>                :<span class="lineCov">        208 :     class stream_translator</span>
+<span class="lineNum">     176 </span>                :            :     {
+<span class="lineNum">     177 </span>                :            :         typedef customize_stream&lt;Ch, Traits, E&gt; customized;
+<span class="lineNum">     178 </span>                :            :     public:
+<span class="lineNum">     179 </span>                :            :         typedef std::basic_string&lt;Ch, Traits, Alloc&gt; internal_type;
+<a name="180"><span class="lineNum">     180 </span>                :            :         typedef E external_type;</a>
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :<span class="lineCov">         36 :         explicit stream_translator(std::locale loc = std::locale())</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">         36 :             : m_loc(loc)</span>
+<a name="184"><span class="lineNum">     184 </span>                :<span class="lineCov">         36 :         {}</span></a>
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :<span class="lineCov">         15 :         boost::optional&lt;E&gt; get_value(const internal_type &amp;v) {</span>
+<span class="lineNum">     187 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         15 :             std::basic_istringstream&lt;Ch, Traits, Alloc&gt; iss(v);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     188 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         15 :             iss.imbue(m_loc);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 13 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     189 </span>                :            :             E e;
+<span class="lineNum">     190 </span>  [<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span> :<span class="lineCov">         15 :             customized::extract(iss, e);</span>
+<span class="lineNum">         </span>   <span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     191 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         15 :             if(iss.fail() || iss.bad() || iss.get() != Traits::eof()) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 11 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>][<span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken 7 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 16 was not taken"> - </span><span class="branchCov" title="Branch 17 was taken 7 times"> + </span>][<span class="branchCov" title="Branch 19 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 21 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 22 was not taken"> - </span>][<span class="branchCov" title="Branch 24 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 25 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 26 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 27 was not taken"> - </span>][<span class="branchCov" title="Branch 29 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 30 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 32 was not taken"> - </span><span class="branchCov" title="Branch 33 was taken 2 times"> + </span>][<span class="branchNoCov" title="Branch 34 was not taken"> - </span><span class="branchCov" title="Branch 35 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 37 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 38 was not taken"> - </span>][<span class="branchCov" title="Branch 39 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 40 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 42 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 43 was not taken"> - </span>][<span class="branchCov" title="Branch 44 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 45 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 47 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 48 was not taken"> - </span>][<span class="branchNoCov" title="Branch 50 was not taken"> - </span><span class="branchCov" title="Branch 51 was taken 4 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 52 was not taken"> - </span><span class="branchCov" title="Branch 53 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 55 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 56 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 57 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 58 was not taken"> - </span>][<span class="branchCov" title="Branch 60 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 61 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 62 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 63 was not taken"> - </span>][<span class="branchCov" title="Branch 65 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 66 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 68 was not taken"> - </span><span class="branchCov" title="Branch 69 was taken 2 times"> + </span>][<span class="branchNoCov" title="Branch 70 was not taken"> - </span><span class="branchCov" title="Branch 71 was taken 2 times"> + </span>]
+<span class="lineNum">     192 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 return boost::optional&lt;E&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     193 </span>                :            :             }
+<a name="194"><span class="lineNum">     194 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         15 :             return e;</span></a>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 11 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     195 </span>                :            :         }
+<span class="lineNum">     196 </span>                :<span class="lineCov">         20 :         boost::optional&lt;internal_type&gt; put_value(const E &amp;v) {</span>
+<span class="lineNum">     197 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         20 :             std::basic_ostringstream&lt;Ch, Traits, Alloc&gt; oss;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     198 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         20 :             oss.imbue(m_loc);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 13 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     199 </span>  [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span> :<span class="lineCov">         20 :             customized::insert(oss, v);</span>
+<span class="lineNum">         </span>   <span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     200 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         20 :             if(oss) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 11 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>][<span class="branchCov" title="Branch 13 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     201 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         20 :                 return oss.str();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 17 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>][<span class="branchCov" title="Branch 20 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 25 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 26 was not taken"> - </span>][<span class="branchCov" title="Branch 28 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 29 was not taken"> - </span>]
+<span class="lineNum">     202 </span>                :            :             }
+<span class="lineNum">     203 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineCov">         20 :             return boost::optional&lt;internal_type&gt;();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     204 </span>                :            :         }
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :            :     private:
+<span class="lineNum">     207 </span>                :            :         std::locale m_loc;
+<span class="lineNum">     208 </span>                :            :     };
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :            :     // This is the default translator when basic_string is the internal type.
+<span class="lineNum">     211 </span>                :            :     // Unless the external type is also basic_string, in which case
+<span class="lineNum">     212 </span>                :            :     // id_translator takes over.
+<span class="lineNum">     213 </span>                :            :     template &lt;typename Ch, typename Traits, typename Alloc, typename E&gt;
+<span class="lineNum">     214 </span>                :            :     struct translator_between&lt;std::basic_string&lt;Ch, Traits, Alloc&gt;, E&gt;
+<span class="lineNum">     215 </span>                :            :     {
+<span class="lineNum">     216 </span>                :            :         typedef stream_translator&lt;Ch, Traits, Alloc, E&gt; type;
+<span class="lineNum">     217 </span>                :            :     };
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :            : }}
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

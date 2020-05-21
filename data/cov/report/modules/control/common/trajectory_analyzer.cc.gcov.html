@@ -1,0 +1,427 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/control/common/trajectory_analyzer.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">modules/control/common</a> - trajectory_analyzer.cc<span style="font-size: 80%;"> (source / <a href="trajectory_analyzer.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">96</td>
+            <td class="headerCovTableEntry">139</td>
+            <td class="headerCovTableEntryLo">69.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">138</td>
+            <td class="headerCovTableEntry">432</td>
+            <td class="headerCovTableEntryLo">31.9 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2017 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;modules/control/common/trajectory_analyzer.h&quot;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;cmath&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &quot;Eigen/Core&quot;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;modules/common/math/linear_interpolation.h&quot;
+<span class="lineNum">      27 </span>                :            : #include &quot;modules/common/math/math_utils.h&quot;
+<span class="lineNum">      28 </span>                :            : #include &quot;modules/common/math/search.h&quot;
+<span class="lineNum">      29 </span>                :            : #include &quot;modules/control/common/control_gflags.h&quot;
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : using apollo::common::PathPoint;
+<span class="lineNum">      32 </span>                :            : using apollo::common::TrajectoryPoint;
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : namespace apollo {
+<span class="lineNum">      35 </span>                :            : namespace control {
+<span class="lineNum">      36 </span>                :            : namespace {
+<a name="37"><span class="lineNum">      37 </span>                :            : </a>
+<span class="lineNum">      38 </span>                :            : // Squared distance from the point to (x, y).
+<span class="lineNum">      39 </span>                :<span class="lineCov">         42 : double PointDistanceSquare(const TrajectoryPoint &amp;point, const double x,</span>
+<span class="lineNum">      40 </span>                :            :                            const double y) {
+<span class="lineNum">      41 </span>[<span class="branchCov" title="Branch 2 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         42 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: PointDistanceSquare&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :<span class="lineCov">         42 :   const double dx = point.path_point().x() - x;</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">         42 :   const double dy = point.path_point().y() - y;</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">         42 :   return dx * dx + dy * dy;</span>
+<a name="46"><span class="lineNum">      46 </span>                :            : }</a>
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 : PathPoint TrajectoryPointToPathPoint(const TrajectoryPoint &amp;point) {</span>
+<span class="lineNum">      49 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryPointToPathPoint&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (point.has_path_point()) {</span>
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :     return point.path_point();</span>
+<span class="lineNum">      53 </span>                :            :   } else {
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :     return PathPoint();</span>
+<span class="lineNum">      55 </span>                :            :   }
+<span class="lineNum">      56 </span>                :            : }
+<span class="lineNum">      57 </span>                :            : 
+<a name="58"><span class="lineNum">      58 </span>                :            : }  // namespace</a>
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :<span class="lineCov">          2 : TrajectoryAnalyzer::TrajectoryAnalyzer(</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">          2 :     const planning::ADCTrajectory *planning_published_trajectory) {</span>
+<span class="lineNum">      62 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryAnalyzer::TrajectoryAnalyzer&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :   header_time_ = planning_published_trajectory-&gt;header().timestamp_sec();</span>
+<span class="lineNum">      65 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :   seq_num_ = planning_published_trajectory-&gt;header().sequence_num();</span>
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>[<span class="branchCov" title="Branch 1 was taken 44 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 42 times"> + </span><span class="branchCov" title="Branch 4 was taken 2 times"> + </span>]:<span class="lineCov">         44 :   for (int i = 0; i &lt; planning_published_trajectory-&gt;trajectory_point_size();</span>
+<span class="lineNum">      68 </span>                :            :        ++i) {
+<span class="lineNum">      69 </span>                :            :     trajectory_points_.push_back(
+<span class="lineNum">      70 </span>[<span class="branchCov" title="Branch 1 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         42 :         planning_published_trajectory-&gt;trajectory_point(i));</span>
+<span class="lineNum">      71 </span>                :            :   }
+<a name="72"><span class="lineNum">      72 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineCov">          1 : PathPoint TrajectoryAnalyzer::QueryMatchedPathPoint(const double x,</span>
+<span class="lineNum">      75 </span>                :            :                                                     const double y) const {
+<span class="lineNum">      76 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryAnalyzer::QueryMatchedPathPoint&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>[<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          1 :   CHECK_GT(trajectory_points_.size(), 0);</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 8 was not taken"> - </span><span class="branchCov" title="Branch 9 was taken 1 time"> + </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :<span class="lineCov">          1 :   double d_min = PointDistanceSquare(trajectory_points_.front(), x, y);</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">          1 :   size_t index_min = 0;</span>
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>        [<span class="branchCov" title="Branch 1 was taken 20 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">         21 :   for (size_t i = 1; i &lt; trajectory_points_.size(); ++i) {</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">         20 :     double d_temp = PointDistanceSquare(trajectory_points_[i], x, y);</span>
+<span class="lineNum">      85 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 20 times"> + </span>]:<span class="lineCov">         20 :     if (d_temp &lt; d_min) {</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :       d_min = d_temp;</span>
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :       index_min = i;</span>
+<span class="lineNum">      88 </span>                :            :     }
+<span class="lineNum">      89 </span>                :            :   }
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :   size_t index_start = index_min == 0 ? index_min : index_min - 1;</span>
+<span class="lineNum">      92 </span>                :            :   size_t index_end =
+<span class="lineNum">      93 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       index_min + 1 == trajectory_points_.size() ? index_min : index_min + 1;</span>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :<span class="lineCov">          1 :   const double kEpsilon = 0.001;</span>
+<span class="lineNum">      96 </span>  [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          2 :   if (index_start == index_end ||</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span>]
+<span class="lineNum">      97 </span>                :<span class="lineCov">          1 :       std::fabs(trajectory_points_[index_start].path_point().s() -</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">          1 :                 trajectory_points_[index_end].path_point().s()) &lt;= kEpsilon) {</span>
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :     return TrajectoryPointToPathPoint(trajectory_points_[index_start]);</span>
+<span class="lineNum">     100 </span>                :            :   }
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :<span class="lineCov">          1 :   return FindMinDistancePoint(trajectory_points_[index_start],</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">          2 :                               trajectory_points_[index_end], x, y);</span>
+<span class="lineNum">     104 </span>                :            : }
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            : // reference: Optimal trajectory generation for dynamic street scenarios in a
+<span class="lineNum">     107 </span>                :            : // Frenét Frame,
+<span class="lineNum">     108 </span>                :            : // Moritz Werling, Julius Ziegler, Sören Kammel and Sebastian Thrun, ICRA 2010
+<span class="lineNum">     109 </span>                :            : // similar to the method in this paper without the assumption the &quot;normal&quot;
+<span class="lineNum">     110 </span>                :            : // vector
+<a name="111"><span class="lineNum">     111 </span>                :            : // (from vehicle position to ref_point position) and reference heading are</a>
+<span class="lineNum">     112 </span>                :            : // perpendicular.
+<span class="lineNum">     113 </span>                :<span class="lineCov">          1 : void TrajectoryAnalyzer::ToTrajectoryFrame(const double x, const double y,</span>
+<span class="lineNum">     114 </span>                :            :                                            const double theta, const double v,
+<span class="lineNum">     115 </span>                :            :                                            const PathPoint &amp;ref_point,
+<span class="lineNum">     116 </span>                :            :                                            double *ptr_s, double *ptr_s_dot,
+<span class="lineNum">     117 </span>                :            :                                            double *ptr_d,
+<span class="lineNum">     118 </span>                :            :                                            double *ptr_d_dot) const {
+<span class="lineNum">     119 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryAnalyzer::ToTrajectoryFrame&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :   double dx = x - ref_point.x();</span>
+<span class="lineNum">     122 </span>                :<span class="lineCov">          1 :   double dy = y - ref_point.y();</span>
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :<span class="lineCov">          1 :   double cos_ref_theta = std::cos(ref_point.theta());</span>
+<span class="lineNum">     125 </span>                :<span class="lineCov">          1 :   double sin_ref_theta = std::sin(ref_point.theta());</span>
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :            :   // the sin of diff angle between vector (cos_ref_theta, sin_ref_theta) and
+<span class="lineNum">     128 </span>                :            :   // (dx, dy)
+<span class="lineNum">     129 </span>                :<span class="lineCov">          1 :   double cross_rd_nd = cos_ref_theta * dy - sin_ref_theta * dx;</span>
+<span class="lineNum">     130 </span>                :<span class="lineCov">          1 :   *ptr_d = cross_rd_nd;</span>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :   // the cos of diff angle between vector (cos_ref_theta, sin_ref_theta) and
+<span class="lineNum">     133 </span>                :            :   // (dx, dy)
+<span class="lineNum">     134 </span>                :<span class="lineCov">          1 :   double dot_rd_nd = dx * cos_ref_theta + dy * sin_ref_theta;</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">          1 :   *ptr_s = ref_point.s() + dot_rd_nd;</span>
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :<span class="lineCov">          1 :   double delta_theta = theta - ref_point.theta();</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">          1 :   double cos_delta_theta = std::cos(delta_theta);</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          1 :   double sin_delta_theta = std::sin(delta_theta);</span>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineCov">          1 :   *ptr_d_dot = v * sin_delta_theta;</span>
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :<span class="lineCov">          1 :   double one_minus_kappa_r_d = 1 - ref_point.kappa() * (*ptr_d);</span>
+<span class="lineNum">     144 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :   if (one_minus_kappa_r_d &lt;= 0.0) {</span>
+<span class="lineNum">     145 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;TrajectoryAnalyzer::ToTrajectoryFrame &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     146 </span>                :            :               &quot;found fatal reference and actual difference. &quot;
+<span class="lineNum">     147 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               &quot;Control output might be unstable:&quot;</span>
+<span class="lineNum">     148 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &lt;&lt; &quot; ref_point.kappa:&quot; &lt;&lt; ref_point.kappa()</span>
+<span class="lineNum">     149 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &lt;&lt; &quot; ref_point.x:&quot; &lt;&lt; ref_point.x()</span>
+<span class="lineNum">     150 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &lt;&lt; &quot; ref_point.y:&quot; &lt;&lt; ref_point.y() &lt;&lt; &quot; car x:&quot; &lt;&lt; x</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     151 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &lt;&lt; &quot; car y:&quot; &lt;&lt; y &lt;&lt; &quot; *ptr_d:&quot; &lt;&lt; *ptr_d</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     152 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :            &lt;&lt; &quot; one_minus_kappa_r_d:&quot; &lt;&lt; one_minus_kappa_r_d;</span>
+<span class="lineNum">     153 </span>                :            :     // currently set to a small value to avoid control crash.
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :     one_minus_kappa_r_d = 0.01;</span>
+<span class="lineNum">     155 </span>                :            :   }
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :<span class="lineCov">          1 :   *ptr_s_dot = v * cos_delta_theta / one_minus_kappa_r_d;</span>
+<a name="158"><span class="lineNum">     158 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :<span class="lineCov">          2 : TrajectoryPoint TrajectoryAnalyzer::QueryNearestPointByAbsoluteTime(</span>
+<span class="lineNum">     161 </span>                :            :     const double t) const {
+<span class="lineNum">     162 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          2 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryAnalyzer::QueryNearestPointByAbsoluteTime&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :<span class="lineCov">          2 :   return QueryNearestPointByRelativeTime(t - header_time_);</span>
+<a name="165"><span class="lineNum">     165 </span>                :            : }</a>
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>                :<span class="lineCov">          3 : TrajectoryPoint TrajectoryAnalyzer::QueryNearestPointByRelativeTime(</span>
+<span class="lineNum">     168 </span>                :            :     const double t) const {
+<span class="lineNum">     169 </span>[<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          3 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryAnalyzer::QueryNearestPointByRelativeTime&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<a name="170"><span class="lineNum">     170 </span>                :            : </a>
+<span class="lineNum">     171 </span>                :            :   auto func_comp = [](const TrajectoryPoint &amp;point,
+<span class="lineNum">     172 </span>                :<span class="lineCov">         13 :                       const double relative_time) {</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">         13 :     return point.relative_time() &lt; relative_time;</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">         13 :   };</span>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :            :   auto it_low = std::lower_bound(trajectory_points_.begin(),
+<span class="lineNum">     177 </span>        [<span class="branchCov" title="Branch 3 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          3 :                                  trajectory_points_.end(), t, func_comp);</span>
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>[<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchCov" title="Branch 5 was taken 2 times"> + </span>]:<span class="lineCov">          3 :   if (it_low == trajectory_points_.begin()) {</span>
+<span class="lineNum">     180 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :     return trajectory_points_.front();</span>
+<span class="lineNum">     181 </span>                :            :   }
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :   if (it_low == trajectory_points_.end()) {</span>
+<span class="lineNum">     184 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :     return trajectory_points_.back();</span>
+<span class="lineNum">     185 </span>                :            :   }
+<span class="lineNum">     186 </span>                :            : 
+<span class="lineNum">     187 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (FLAGS_query_forward_time_point_only) {</span>
+<span class="lineNum">     188 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     return *it_low;</span>
+<span class="lineNum">     189 </span>                :            :   } else {
+<span class="lineNum">     190 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     auto it_lower = it_low - 1;</span>
+<span class="lineNum">     191 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (it_low-&gt;relative_time() - t &lt; t - it_lower-&gt;relative_time()) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">     192 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       return *it_low;</span>
+<span class="lineNum">     193 </span>                :            :     }
+<span class="lineNum">     194 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          3 :     return *it_lower;</span>
+<span class="lineNum">     195 </span>                :            :   }
+<a name="196"><span class="lineNum">     196 </span>                :            : }</a>
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>                :<span class="lineCov">          1 : TrajectoryPoint TrajectoryAnalyzer::QueryNearestPointByPosition(</span>
+<span class="lineNum">     199 </span>                :            :     const double x, const double y) const {
+<span class="lineNum">     200 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryAnalyzer::QueryNearestPointByPosition&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :<span class="lineCov">          1 :   double d_min = PointDistanceSquare(trajectory_points_.front(), x, y);</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">          1 :   size_t index_min = 0;</span>
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>        [<span class="branchCov" title="Branch 1 was taken 20 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">         21 :   for (size_t i = 1; i &lt; trajectory_points_.size(); ++i) {</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">         20 :     double d_temp = PointDistanceSquare(trajectory_points_[i], x, y);</span>
+<span class="lineNum">     207 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 20 times"> + </span>]:<span class="lineCov">         20 :     if (d_temp &lt; d_min) {</span>
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :       d_min = d_temp;</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :       index_min = i;</span>
+<span class="lineNum">     210 </span>                :            :     }
+<span class="lineNum">     211 </span>                :            :   }
+<span class="lineNum">     212 </span>                :<span class="lineCov">          1 :   return trajectory_points_[index_min];</span>
+<a name="213"><span class="lineNum">     213 </span>                :            : }</a>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 : const std::vector&lt;TrajectoryPoint&gt; &amp;TrajectoryAnalyzer::trajectory_points()</span>
+<span class="lineNum">     216 </span>                :            :     const {
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :   return trajectory_points_;</span>
+<a name="218"><span class="lineNum">     218 </span>                :            : }</a>
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 : PathPoint TrajectoryAnalyzer::FindMinDistancePoint(const TrajectoryPoint &amp;p0,</span>
+<span class="lineNum">     221 </span>                :            :                                                    const TrajectoryPoint &amp;p1,
+<span class="lineNum">     222 </span>                :            :                                                    const double x,
+<span class="lineNum">     223 </span>                :            :                                                    const double y) const {
+<span class="lineNum">     224 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryAnalyzer::FindMinDistancePoint&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     225 </span>                :            : 
+<a name="226"><span class="lineNum">     226 </span>                :            :   // given the fact that the discretized trajectory is dense enough,</a>
+<span class="lineNum">     227 </span>                :            :   // we assume linear trajectory between consecutive trajectory points.
+<span class="lineNum">     228 </span>                :<span class="lineCov">         52 :   auto dist_square = [&amp;p0, &amp;p1, &amp;x, &amp;y](const double s) {</span>
+<span class="lineNum">     229 </span>[<span class="branchCov" title="Branch 1 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        104 :     double px = common::math::lerp(p0.path_point().x(), p0.path_point().s(),</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     230 </span>[<span class="branchCov" title="Branch 5 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]:<span class="lineCov">        156 :                                    p1.path_point().x(), p1.path_point().s(), s);</span>
+<span class="lineNum">     231 </span>[<span class="branchCov" title="Branch 1 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        104 :     double py = common::math::lerp(p0.path_point().y(), p0.path_point().s(),</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     232 </span>[<span class="branchCov" title="Branch 5 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]:<span class="lineCov">        156 :                                    p1.path_point().y(), p1.path_point().s(), s);</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">         52 :     double dx = px - x;</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">         52 :     double dy = py - y;</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">         52 :     return dx * dx + dy * dy;</span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">          1 :   };</span>
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          1 :   PathPoint p = p0.path_point();</span>
+<span class="lineNum">     239 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   double s = common::math::GoldenSectionSearch(dist_square, p0.path_point().s(),</span>
+<span class="lineNum">     240 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :                                                p1.path_point().s());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     241 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   p.set_s(s);</span>
+<span class="lineNum">     242 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :   p.set_x(common::math::lerp(p0.path_point().x(), p0.path_point().s(),</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     243 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          3 :                              p1.path_point().x(), p1.path_point().s(), s));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 19 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">     244 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :   p.set_y(common::math::lerp(p0.path_point().y(), p0.path_point().s(),</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     245 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          3 :                              p1.path_point().y(), p1.path_point().s(), s));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 19 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">     246 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :   p.set_theta(common::math::slerp(p0.path_point().theta(), p0.path_point().s(),</span>
+<span class="lineNum">     247 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :                                   p1.path_point().theta(), p1.path_point().s(),</span>
+<span class="lineNum">     248 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :                                   s));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     249 </span>                :            :   // approximate the curvature at the intermediate point
+<span class="lineNum">     250 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :   p.set_kappa(common::math::lerp(p0.path_point().kappa(), p0.path_point().s(),</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     251 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :                                  p1.path_point().kappa(), p1.path_point().s(),</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     252 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          3 :                                  s));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     253 </span>                :<span class="lineCov">          1 :   return p;</span>
+<a name="254"><span class="lineNum">     254 </span>                :            : }</a>
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 : void TrajectoryAnalyzer::TrajectoryTransformToCOM(</span>
+<span class="lineNum">     257 </span>                :            :     const double rear_to_com_distance) {
+<span class="lineNum">     258 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryAnalyzer::TrajectoryTransformToCOM&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_GT(trajectory_points_.size(), 0);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">     261 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 0; i &lt; trajectory_points_.size(); ++i) {</span>
+<span class="lineNum">     262 </span>                :            :     auto com = ComputeCOMPosition(rear_to_com_distance,
+<span class="lineNum">     263 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                   trajectory_points_[i].path_point());</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     264 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     trajectory_points_[i].mutable_path_point()-&gt;set_x(com.x());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     265 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     trajectory_points_[i].mutable_path_point()-&gt;set_y(com.y());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     266 </span>                :            :   }
+<a name="267"><span class="lineNum">     267 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 : common::math::Vec2d TrajectoryAnalyzer::ComputeCOMPosition(</span>
+<span class="lineNum">     270 </span>                :            :     const double rear_to_com_distance, const PathPoint &amp;path_point) const {
+<span class="lineNum">     271 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: TrajectoryAnalyzer::ComputeCOMPosition&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     272 </span>                :            : 
+<span class="lineNum">     273 </span>                :            :   // Initialize the vector for coordinate transformation of the position
+<span class="lineNum">     274 </span>                :            :   // reference point
+<span class="lineNum">     275 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   Eigen::Vector3d v;</span>
+<span class="lineNum">     276 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const double cos_heading = std::cos(path_point.theta());</span>
+<span class="lineNum">     277 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   const double sin_heading = std::sin(path_point.theta());</span>
+<span class="lineNum">     278 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   v &lt;&lt; rear_to_com_distance * cos_heading, rear_to_com_distance * sin_heading,</span>
+<span class="lineNum">     279 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       0.0;</span>
+<span class="lineNum">     280 </span>                :            :   // Original position reference point at center of rear-axis
+<span class="lineNum">     281 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   Eigen::Vector3d pos_vec(path_point.x(), path_point.y(), path_point.z());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     282 </span>                :            :   // Transform original position with vector v
+<span class="lineNum">     283 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   Eigen::Vector3d com_pos_3d = v + pos_vec;</span>
+<span class="lineNum">     284 </span>                :            :   // Return transfromed x and y
+<span class="lineNum">     285 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   return common::math::Vec2d(com_pos_3d[0], com_pos_3d[1]);</span>
+<span class="lineNum">     286 </span>                :            : }
+<a name="287"><span class="lineNum">     287 </span>                :            : </a>
+<span class="lineNum">     288 </span>                :            : }  // namespace control
+<span class="lineNum">     289 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

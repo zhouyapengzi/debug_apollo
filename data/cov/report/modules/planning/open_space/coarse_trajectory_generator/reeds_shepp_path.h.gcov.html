@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/planning/open_space/coarse_trajectory_generator/reeds_shepp_path.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/planning/open_space/coarse_trajectory_generator</a> - reeds_shepp_path.h<span style="font-size: 80%;"> (source / <a href="reeds_shepp_path.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /*
+<span class="lineNum">      18 </span>                :            :  * @file
+<span class="lineNum">      19 </span>                :            :  */
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #pragma once
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &lt;omp.h&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : #include &lt;limits&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;memory&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      29 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      32 </span>                :            : #include &quot;cyber/common/macros.h&quot;
+<span class="lineNum">      33 </span>                :            : #include &quot;modules/common/configs/proto/vehicle_config.pb.h&quot;
+<span class="lineNum">      34 </span>                :            : #include &quot;modules/common/math/math_utils.h&quot;
+<span class="lineNum">      35 </span>                :            : #include &quot;modules/planning/open_space/coarse_trajectory_generator/node3d.h&quot;
+<span class="lineNum">      36 </span>                :            : #include &quot;modules/planning/proto/planner_open_space_config.pb.h&quot;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : #include &quot;modules/planning/common/planning_gflags.h&quot;
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : namespace apollo {
+<a name="41"><span class="lineNum">      41 </span>                :            : namespace planning {</a>
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]:<span class="lineNoCov">          0 : struct ReedSheppPath {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchNoExec" title="Branch 41 was not executed"> # </span><span class="branchNoExec" title="Branch 42 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 44 was not executed"> # </span><span class="branchNoExec" title="Branch 45 was not executed"> # </span>][<span class="branchNoExec" title="Branch 47 was not executed"> # </span><span class="branchNoExec" title="Branch 48 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 50 was not executed"> # </span><span class="branchNoExec" title="Branch 51 was not executed"> # </span>][<span class="branchNoExec" title="Branch 53 was not executed"> # </span><span class="branchNoExec" title="Branch 54 was not executed"> # </span>]
+<span class="lineNum">      44 </span>                :            :   std::vector&lt;double&gt; segs_lengths;
+<span class="lineNum">      45 </span>                :            :   std::vector&lt;char&gt; segs_types;
+<span class="lineNum">      46 </span>                :            :   double total_length = 0.0;
+<span class="lineNum">      47 </span>                :            :   std::vector&lt;double&gt; x;
+<span class="lineNum">      48 </span>                :            :   std::vector&lt;double&gt; y;
+<span class="lineNum">      49 </span>                :            :   std::vector&lt;double&gt; phi;
+<span class="lineNum">      50 </span>                :            :   // true for driving forward and false for driving backward
+<span class="lineNum">      51 </span>                :            :   std::vector&lt;bool&gt; gear;
+<span class="lineNum">      52 </span>                :            : };
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            : struct RSPParam {
+<span class="lineNum">      55 </span>                :            :   bool flag = false;
+<span class="lineNum">      56 </span>                :            :   double t = 0.0;
+<span class="lineNum">      57 </span>                :            :   double u = 0.0;
+<span class="lineNum">      58 </span>                :            :   double v = 0.0;
+<span class="lineNum">      59 </span>                :            : };
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : class ReedShepp {
+<span class="lineNum">      62 </span>                :            :  public:
+<a name="63"><span class="lineNum">      63 </span>                :            :   ReedShepp(const common::VehicleParam&amp; vehicle_param,</a>
+<span class="lineNum">      64 </span>                :            :             const PlannerOpenSpaceConfig&amp; open_space_conf);
+<span class="lineNum">      65 </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   virtual ~ReedShepp() = default;</span>
+<span class="lineNum">      66 </span>                :            :   // Pick the shortest path from all possible combination of movement primitives
+<span class="lineNum">      67 </span>                :            :   // by Reed Shepp
+<span class="lineNum">      68 </span>                :            :   bool ShortestRSP(const std::shared_ptr&lt;Node3d&gt; start_node,
+<span class="lineNum">      69 </span>                :            :                    const std::shared_ptr&lt;Node3d&gt; end_node,
+<span class="lineNum">      70 </span>                :            :                    std::shared_ptr&lt;ReedSheppPath&gt; optimal_path);
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            :  protected:
+<span class="lineNum">      73 </span>                :            :   // Generate all possible combination of movement primitives by Reed Shepp and
+<span class="lineNum">      74 </span>                :            :   // interpolate them
+<span class="lineNum">      75 </span>                :            :   bool GenerateRSPs(const std::shared_ptr&lt;Node3d&gt; start_node,
+<span class="lineNum">      76 </span>                :            :                     const std::shared_ptr&lt;Node3d&gt; end_node,
+<span class="lineNum">      77 </span>                :            :                     std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">      78 </span>                :            :   // Set the general profile of the movement primitives
+<span class="lineNum">      79 </span>                :            :   bool GenerateRSP(const std::shared_ptr&lt;Node3d&gt; start_node,
+<span class="lineNum">      80 </span>                :            :                    const std::shared_ptr&lt;Node3d&gt; end_node,
+<span class="lineNum">      81 </span>                :            :                    std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">      82 </span>                :            :   // Set the general profile of the movement primitives, parallel implementation
+<span class="lineNum">      83 </span>                :            :   bool GenerateRSPPar(const std::shared_ptr&lt;Node3d&gt; start_node,
+<span class="lineNum">      84 </span>                :            :                       const std::shared_ptr&lt;Node3d&gt; end_node,
+<span class="lineNum">      85 </span>                :            :                       std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">      86 </span>                :            :   // Set local exact configurations profile of each movement primitive
+<span class="lineNum">      87 </span>                :            :   bool GenerateLocalConfigurations(const std::shared_ptr&lt;Node3d&gt; start_node,
+<span class="lineNum">      88 </span>                :            :                                    const std::shared_ptr&lt;Node3d&gt; end_node,
+<span class="lineNum">      89 </span>                :            :                                    ReedSheppPath* shortest_path);
+<span class="lineNum">      90 </span>                :            :   // Interpolation usde in GenetateLocalConfiguration
+<span class="lineNum">      91 </span>                :            :   void Interpolation(const int index, const double pd, const char m,
+<span class="lineNum">      92 </span>                :            :                      const double ox, const double oy, const double ophi,
+<span class="lineNum">      93 </span>                :            :                      std::vector&lt;double&gt;* px, std::vector&lt;double&gt;* py,
+<span class="lineNum">      94 </span>                :            :                      std::vector&lt;double&gt;* pphi, std::vector&lt;bool&gt;* pgear);
+<span class="lineNum">      95 </span>                :            :   // motion primitives combination setup function
+<span class="lineNum">      96 </span>                :            :   bool SetRSP(const int size, const double* lengths, const char* types,
+<span class="lineNum">      97 </span>                :            :               std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">      98 </span>                :            :   // setRSP parallel version
+<span class="lineNum">      99 </span>                :            :   bool SetRSPPar(const int size, const double* lengths,
+<span class="lineNum">     100 </span>                :            :                  const std::string&amp; types,
+<span class="lineNum">     101 </span>                :            :                  std::vector&lt;ReedSheppPath&gt;* all_possible_paths, const int idx);
+<span class="lineNum">     102 </span>                :            :   // Six different combination of motion primitive in Reed Shepp path used in
+<span class="lineNum">     103 </span>                :            :   // GenerateRSP()
+<span class="lineNum">     104 </span>                :            :   bool SCS(const double x, const double y, const double phi,
+<span class="lineNum">     105 </span>                :            :            std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">     106 </span>                :            :   bool CSC(const double x, const double y, const double phi,
+<span class="lineNum">     107 </span>                :            :            std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">     108 </span>                :            :   bool CCC(const double x, const double y, const double phi,
+<span class="lineNum">     109 </span>                :            :            std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">     110 </span>                :            :   bool CCCC(const double x, const double y, const double phi,
+<span class="lineNum">     111 </span>                :            :             std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">     112 </span>                :            :   bool CCSC(const double x, const double y, const double phi,
+<span class="lineNum">     113 </span>                :            :             std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">     114 </span>                :            :   bool CCSCC(const double x, const double y, const double phi,
+<span class="lineNum">     115 </span>                :            :              std::vector&lt;ReedSheppPath&gt;* all_possible_paths);
+<span class="lineNum">     116 </span>                :            :   // different options for different combination of motion primitives
+<span class="lineNum">     117 </span>                :            :   void LSL(const double x, const double y, const double phi, RSPParam* param);
+<span class="lineNum">     118 </span>                :            :   void LSR(const double x, const double y, const double phi, RSPParam* param);
+<span class="lineNum">     119 </span>                :            :   void LRL(const double x, const double y, const double phi, RSPParam* param);
+<span class="lineNum">     120 </span>                :            :   void SLS(const double x, const double y, const double phi, RSPParam* param);
+<span class="lineNum">     121 </span>                :            :   void LRLRn(const double x, const double y, const double phi, RSPParam* param);
+<span class="lineNum">     122 </span>                :            :   void LRLRp(const double x, const double y, const double phi, RSPParam* param);
+<span class="lineNum">     123 </span>                :            :   void LRSR(const double x, const double y, const double phi, RSPParam* param);
+<span class="lineNum">     124 </span>                :            :   void LRSL(const double x, const double y, const double phi, RSPParam* param);
+<span class="lineNum">     125 </span>                :            :   void LRSLR(const double x, const double y, const double phi, RSPParam* param);
+<span class="lineNum">     126 </span>                :            :   std::pair&lt;double, double&gt; calc_tau_omega(const double u, const double v,
+<span class="lineNum">     127 </span>                :            :                                            const double xi, const double eta,
+<span class="lineNum">     128 </span>                :            :                                            const double phi);
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            :  protected:
+<span class="lineNum">     131 </span>                :            :   common::VehicleParam vehicle_param_;
+<span class="lineNum">     132 </span>                :            :   PlannerOpenSpaceConfig planner_open_space_config_;
+<span class="lineNum">     133 </span>                :            :   double max_kappa_;
+<span class="lineNum">     134 </span>                :            : };
+<span class="lineNum">     135 </span>                :            : }  // namespace planning
+<span class="lineNum">     136 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

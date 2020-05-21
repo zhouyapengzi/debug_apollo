@@ -1,0 +1,454 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Core/products/TriangularSolverMatrix.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Core/products</a> - TriangularSolverMatrix.h<span style="font-size: 80%;"> (source / <a href="TriangularSolverMatrix.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntry">106</td>
+            <td class="headerCovTableEntryLo">43.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">130</td>
+            <td class="headerCovTableEntry">358</td>
+            <td class="headerCovTableEntryLo">36.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2009 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       5 </span>                :            : //
+<span class="lineNum">       6 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       7 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       8 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            : #ifndef EIGEN_TRIANGULAR_SOLVER_MATRIX_H
+<span class="lineNum">      11 </span>                :            : #define EIGEN_TRIANGULAR_SOLVER_MATRIX_H
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : namespace Eigen { 
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : namespace internal {
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : // if the rhs is row major, let's transpose the product
+<span class="lineNum">      18 </span>                :            : template &lt;typename Scalar, typename Index, int Side, int Mode, bool Conjugate, int TriStorageOrder&gt;
+<span class="lineNum">      19 </span>                :            : struct triangular_solve_matrix&lt;Scalar,Index,Side,Mode,Conjugate,TriStorageOrder,RowMajor&gt;
+<span class="lineNum">      20 </span>                :            : {
+<span class="lineNum">      21 </span>                :            :   static void run(
+<span class="lineNum">      22 </span>                :            :     Index size, Index cols,
+<span class="lineNum">      23 </span>                :            :     const Scalar*  tri, Index triStride,
+<span class="lineNum">      24 </span>                :            :     Scalar* _other, Index otherStride,
+<span class="lineNum">      25 </span>                :            :     level3_blocking&lt;Scalar,Scalar&gt;&amp; blocking)
+<span class="lineNum">      26 </span>                :            :   {
+<span class="lineNum">      27 </span>                :            :     triangular_solve_matrix&lt;
+<span class="lineNum">      28 </span>                :            :       Scalar, Index, Side==OnTheLeft?OnTheRight:OnTheLeft,
+<span class="lineNum">      29 </span>                :            :       (Mode&amp;UnitDiag) | ((Mode&amp;Upper) ? Lower : Upper),
+<span class="lineNum">      30 </span>                :            :       NumTraits&lt;Scalar&gt;::IsComplex &amp;&amp; Conjugate,
+<span class="lineNum">      31 </span>                :            :       TriStorageOrder==RowMajor ? ColMajor : RowMajor, ColMajor&gt;
+<span class="lineNum">      32 </span>                :            :       ::run(size, cols, tri, triStride, _other, otherStride, blocking);
+<span class="lineNum">      33 </span>                :            :   }
+<span class="lineNum">      34 </span>                :            : };
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : /* Optimized triangular solver with multiple right hand side and the triangular matrix on the left
+<span class="lineNum">      37 </span>                :            :  */
+<span class="lineNum">      38 </span>                :            : template &lt;typename Scalar, typename Index, int Mode, bool Conjugate, int TriStorageOrder&gt;
+<span class="lineNum">      39 </span>                :            : struct triangular_solve_matrix&lt;Scalar,Index,OnTheLeft,Mode,Conjugate,TriStorageOrder,ColMajor&gt;
+<span class="lineNum">      40 </span>                :            : {
+<span class="lineNum">      41 </span>                :            :   static EIGEN_DONT_INLINE void run(
+<span class="lineNum">      42 </span>                :            :     Index size, Index otherSize,
+<span class="lineNum">      43 </span>                :            :     const Scalar* _tri, Index triStride,
+<span class="lineNum">      44 </span>                :            :     Scalar* _other, Index otherStride,
+<span class="lineNum">      45 </span>                :            :     level3_blocking&lt;Scalar,Scalar&gt;&amp; blocking);
+<a name="46"><span class="lineNum">      46 </span>                :            : };</a>
+<span class="lineNum">      47 </span>                :            : template &lt;typename Scalar, typename Index, int Mode, bool Conjugate, int TriStorageOrder&gt;
+<span class="lineNum">      48 </span>                :<span class="lineCov">        366 : EIGEN_DONT_INLINE void triangular_solve_matrix&lt;Scalar,Index,OnTheLeft,Mode,Conjugate,TriStorageOrder,ColMajor&gt;::run(</span>
+<span class="lineNum">      49 </span>                :            :     Index size, Index otherSize,
+<span class="lineNum">      50 </span>                :            :     const Scalar* _tri, Index triStride,
+<span class="lineNum">      51 </span>                :            :     Scalar* _other, Index otherStride,
+<span class="lineNum">      52 </span>                :            :     level3_blocking&lt;Scalar,Scalar&gt;&amp; blocking)
+<span class="lineNum">      53 </span>                :            :   {
+<span class="lineNum">      54 </span>                :<span class="lineCov">        366 :     Index cols = otherSize;</span>
+<span class="lineNum">      55 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     const_blas_data_mapper&lt;Scalar, Index, TriStorageOrder&gt; tri(_tri,triStride);</span>
+<span class="lineNum">      56 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     blas_data_mapper&lt;Scalar, Index, ColMajor&gt; other(_other,otherStride);</span>
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            :     typedef gebp_traits&lt;Scalar,Scalar&gt; Traits;
+<span class="lineNum">      59 </span>                :            :     enum {
+<span class="lineNum">      60 </span>                :            :       SmallPanelWidth   = EIGEN_PLAIN_ENUM_MAX(Traits::mr,Traits::nr),
+<span class="lineNum">      61 </span>                :            :       IsLower = (Mode&amp;Lower) == Lower
+<span class="lineNum">      62 </span>                :            :     };
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     Index kc = blocking.kc();                   // cache block size along the K direction</span>
+<span class="lineNum">      65 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     Index mc = (std::min)(size,blocking.mc());  // cache block size along the M direction</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :<span class="lineCov">        366 :     std::size_t sizeA = kc*mc;</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">        366 :     std::size_t sizeB = kc*cols;</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">        366 :     std::size_t sizeW = kc*Traits::WorkSpaceFactor;</span>
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 18 times"> + </span><span class="branchCov" title="Branch 4 was taken 166 times"> + </span>]:<span class="lineCov">        366 :     ei_declare_aligned_stack_constructed_variable(Scalar, blockA, sizeA, blocking.blockA());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 166 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchCov" title="Branch 14 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 166 times"> + </span><span class="branchCov" title="Branch 17 was taken 18 times"> + </span>][<span class="branchCov" title="Branch 19 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 22 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>][<span class="branchCov" title="Branch 24 was taken 18 times"> + </span><span class="branchCov" title="Branch 25 was taken 164 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 27 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 28 was not taken"> - </span>][<span class="branchCov" title="Branch 29 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 30 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 32 was not executed"> # </span><span class="branchNoExec" title="Branch 33 was not executed"> # </span>][<span class="branchCov" title="Branch 35 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 36 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 37 was taken 164 times"> + </span><span class="branchCov" title="Branch 38 was taken 18 times"> + </span>][<span class="branchCov" title="Branch 40 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 41 was not taken"> - </span>]
+<span class="lineNum">      72 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 18 times"> + </span><span class="branchCov" title="Branch 4 was taken 166 times"> + </span>]:<span class="lineCov">        732 :     ei_declare_aligned_stack_constructed_variable(Scalar, blockB, sizeB, blocking.blockB());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 166 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchCov" title="Branch 14 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 166 times"> + </span><span class="branchCov" title="Branch 17 was taken 18 times"> + </span>][<span class="branchCov" title="Branch 19 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 24 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 25 was not taken"> - </span>][<span class="branchCov" title="Branch 26 was taken 18 times"> + </span><span class="branchCov" title="Branch 27 was taken 164 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 29 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 30 was not taken"> - </span>][<span class="branchCov" title="Branch 31 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 32 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>][<span class="branchCov" title="Branch 37 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 38 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 39 was taken 164 times"> + </span><span class="branchCov" title="Branch 40 was taken 18 times"> + </span>][<span class="branchCov" title="Branch 42 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 43 was not taken"> - </span>]
+<span class="lineNum">      73 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 18 times"> + </span><span class="branchCov" title="Branch 4 was taken 166 times"> + </span>]:<span class="lineCov">        732 :     ei_declare_aligned_stack_constructed_variable(Scalar, blockW, sizeW, blocking.blockW());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 166 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchCov" title="Branch 14 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 16 was taken 166 times"> + </span><span class="branchCov" title="Branch 17 was taken 18 times"> + </span>][<span class="branchCov" title="Branch 19 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 24 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 25 was not taken"> - </span>][<span class="branchCov" title="Branch 26 was taken 18 times"> + </span><span class="branchCov" title="Branch 27 was taken 164 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 29 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 30 was not taken"> - </span>][<span class="branchCov" title="Branch 31 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 32 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>][<span class="branchCov" title="Branch 37 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 38 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 39 was taken 164 times"> + </span><span class="branchCov" title="Branch 40 was taken 18 times"> + </span>][<span class="branchCov" title="Branch 42 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 43 was not taken"> - </span>]
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            :     conj_if&lt;Conjugate&gt; conj;
+<span class="lineNum">      76 </span>                :            :     gebp_kernel&lt;Scalar, Scalar, Index, Traits::mr, Traits::nr, Conjugate, false&gt; gebp_kernel;
+<span class="lineNum">      77 </span>                :            :     gemm_pack_lhs&lt;Scalar, Index, Traits::mr, Traits::LhsProgress, TriStorageOrder&gt; pack_lhs;
+<span class="lineNum">      78 </span>                :            :     gemm_pack_rhs&lt;Scalar, Index, Traits::nr, ColMajor, false, true&gt; pack_rhs;
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            :     // the goal here is to subdivise the Rhs panels such that we keep some cache
+<span class="lineNum">      81 </span>                :            :     // coherence when accessing the rhs elements
+<span class="lineNum">      82 </span>                :            :     std::ptrdiff_t l1, l2;
+<span class="lineNum">      83 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     manage_caching_sizes(GetAction, &amp;l1, &amp;l2);</span>
+<span class="lineNum">      84 </span>[<span class="branchCov" title="Branch 0 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">        366 :     Index subcols = cols&gt;0 ? l2/(4 * sizeof(Scalar) *  std::max&lt;Index&gt;(otherStride,size)) : 0;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">      85 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     subcols = std::max&lt;Index&gt;((subcols/Traits::nr)*Traits::nr, Traits::nr);</span>
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>[<span class="branchCov" title="Branch 0 was taken 184 times"> + </span><span class="branchCov" title="Branch 1 was taken 184 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 182 times"> + </span><span class="branchCov" title="Branch 3 was taken 182 times"> + </span>]:<span class="lineCov">        732 :     for(Index k2=IsLower ? 0 : size;</span>
+<span class="lineNum">      88 </span>                :            :         IsLower ? k2&lt;size : k2&gt;0;
+<span class="lineNum">      89 </span>                :            :         IsLower ? k2+=kc : k2-=kc)
+<span class="lineNum">      90 </span>                :            :     {
+<span class="lineNum">      91 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :       const Index actual_kc = (std::min)(IsLower ? size-k2 : k2, kc);</span>
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :            :       // We have selected and packed a big horizontal panel R1 of rhs. Let B be the packed copy of this panel,
+<span class="lineNum">      94 </span>                :            :       // and R2 the remaining part of rhs. The corresponding vertical panel of lhs is split into
+<span class="lineNum">      95 </span>                :            :       // A11 (the triangular part) and A21 the remaining rectangular part.
+<span class="lineNum">      96 </span>                :            :       // Then the high level algorithm is:
+<span class="lineNum">      97 </span>                :            :       //  - B = R1                    =&gt; general block copy (done during the next step)
+<span class="lineNum">      98 </span>                :            :       //  - R1 = A11^-1 B             =&gt; tricky part
+<span class="lineNum">      99 </span>                :            :       //  - update B from the new R1  =&gt; actually this has to be performed continuously during the above step
+<span class="lineNum">     100 </span>                :            :       //  - R2 -= A21 * B             =&gt; GEPP
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            :       // The tricky part: compute R1 = A11^-1 B while updating B from R1
+<span class="lineNum">     103 </span>                :            :       // The idea is to split A11 into multiple small vertical panels.
+<span class="lineNum">     104 </span>                :            :       // Each panel can be split into a small triangular part T1k which is processed without optimization,
+<span class="lineNum">     105 </span>                :            :       // and the remaining small part T2k which is processed using gebp with appropriate block strides
+<span class="lineNum">     106 </span>[<span class="branchCov" title="Branch 0 was taken 184 times"> + </span><span class="branchCov" title="Branch 1 was taken 184 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 182 times"> + </span><span class="branchCov" title="Branch 3 was taken 182 times"> + </span>]:<span class="lineCov">        732 :       for(Index j2=0; j2&lt;cols; j2+=subcols)</span>
+<span class="lineNum">     107 </span>                :            :       {
+<span class="lineNum">     108 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :         Index actual_cols = (std::min)(cols-j2,subcols);</span>
+<span class="lineNum">     109 </span>                :            :         // for each small vertical panels [T1k^T, T2k^T]^T of lhs
+<span class="lineNum">     110 </span>[<span class="branchCov" title="Branch 0 was taken 190 times"> + </span><span class="branchCov" title="Branch 1 was taken 184 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 186 times"> + </span><span class="branchCov" title="Branch 3 was taken 182 times"> + </span>]:<span class="lineCov">        742 :         for (Index k1=0; k1&lt;actual_kc; k1+=SmallPanelWidth)</span>
+<span class="lineNum">     111 </span>                :            :         {
+<span class="lineNum">     112 </span>[<span class="branchCov" title="Branch 1 was taken 190 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 186 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        376 :           Index actualPanelWidth = std::min&lt;Index&gt;(actual_kc-k1, SmallPanelWidth);</span>
+<span class="lineNum">     113 </span>                :            :           // tr solve
+<span class="lineNum">     114 </span>[<span class="branchCov" title="Branch 0 was taken 275 times"> + </span><span class="branchCov" title="Branch 1 was taken 190 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 265 times"> + </span><span class="branchCov" title="Branch 3 was taken 186 times"> + </span>]:<span class="lineCov">        916 :           for (Index k=0; k&lt;actualPanelWidth; ++k)</span>
+<span class="lineNum">     115 </span>                :            :           {
+<span class="lineNum">     116 </span>                :            :             // TODO write a small kernel handling this (can be shared with trsv)
+<span class="lineNum">     117 </span>                :<span class="lineCov">        540 :             Index i  = IsLower ? k2+k1+k : k2-k1-k-1;</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">        540 :             Index rs = actualPanelWidth - k - 1; // remaining size</span>
+<span class="lineNum">     119 </span>                :            :             Index s  = TriStorageOrder==RowMajor ? (IsLower ? k2+k1 : i+1)
+<span class="lineNum">     120 </span>                :<span class="lineCov">        540 :                                                  :  IsLower ? i+1 : i-rs;</span>
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>[<span class="branchCov" title="Branch 1 was taken 275 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 275 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        275 :             Scalar a = (Mode &amp; UnitDiag) ? Scalar(1) : Scalar(1)/conj(tri(i,i));</span>
+<span class="lineNum">     123 </span>[<span class="branchCov" title="Branch 0 was taken 611 times"> + </span><span class="branchCov" title="Branch 1 was taken 275 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 601 times"> + </span><span class="branchCov" title="Branch 3 was taken 265 times"> + </span>]:<span class="lineCov">       1752 :             for (Index j=j2; j&lt;j2+actual_cols; ++j)</span>
+<span class="lineNum">     124 </span>                :            :             {
+<span class="lineNum">     125 </span>                :            :               if (TriStorageOrder==RowMajor)
+<span class="lineNum">     126 </span>                :            :               {
+<span class="lineNum">     127 </span>                :            :                 Scalar b(0);
+<span class="lineNum">     128 </span>                :            :                 const Scalar* l = &amp;tri(i,s);
+<span class="lineNum">     129 </span>                :            :                 Scalar* r = &amp;other(s,j);
+<span class="lineNum">     130 </span>                :            :                 for (Index i3=0; i3&lt;k; ++i3)
+<span class="lineNum">     131 </span>                :            :                   b += conj(l[i3]) * r[i3];
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            :                 other(i,j) = (other(i,j) - b)*a;
+<span class="lineNum">     134 </span>                :            :               }
+<span class="lineNum">     135 </span>                :            :               else
+<span class="lineNum">     136 </span>                :            :               {
+<span class="lineNum">     137 </span>[<span class="branchCov" title="Branch 1 was taken 611 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 601 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       1212 :                 Scalar b = (other(i,j) *= a);</span>
+<span class="lineNum">     138 </span>[<span class="branchCov" title="Branch 1 was taken 611 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 601 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       1212 :                 Scalar* r = &amp;other(s,j);</span>
+<span class="lineNum">     139 </span>[<span class="branchCov" title="Branch 1 was taken 611 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 601 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       1212 :                 const Scalar* l = &amp;tri(s,i);</span>
+<span class="lineNum">     140 </span>[<span class="branchCov" title="Branch 0 was taken 558 times"> + </span><span class="branchCov" title="Branch 1 was taken 611 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 546 times"> + </span><span class="branchCov" title="Branch 3 was taken 601 times"> + </span>]:<span class="lineCov">       2316 :                 for (Index i3=0;i3&lt;rs;++i3)</span>
+<span class="lineNum">     141 </span>[<span class="branchCov" title="Branch 1 was taken 558 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 546 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       1104 :                   r[i3] -= b * conj(l[i3]);</span>
+<span class="lineNum">     142 </span>                :            :               }
+<span class="lineNum">     143 </span>                :            :             }
+<span class="lineNum">     144 </span>                :            :           }
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineCov">        376 :           Index lengthTarget = actual_kc-k1-actualPanelWidth;</span>
+<span class="lineNum">     147 </span>                :<span class="lineCov">        376 :           Index startBlock   = IsLower ? k2+k1 : k2-k1-actualPanelWidth;</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">        376 :           Index blockBOffset = IsLower ? k1 : lengthTarget;</span>
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            :           // update the respective rows of B from other
+<span class="lineNum">     151 </span>[<span class="branchCov" title="Branch 1 was taken 190 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 190 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        376 :           pack_rhs(blockB+actual_kc*j2, &amp;other(startBlock,j2), otherStride, actualPanelWidth, actual_cols, actual_kc, blockBOffset);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 186 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 186 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :            :           // GEBP
+<span class="lineNum">     154 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 184 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchCov" title="Branch 3 was taken 182 times"> + </span>]:<span class="lineCov">        376 :           if (lengthTarget&gt;0)</span>
+<span class="lineNum">     155 </span>                :            :           {
+<span class="lineNum">     156 </span>                :<span class="lineCov">         10 :             Index startTarget  = IsLower ? k2+k1+actualPanelWidth : k2-actual_kc;</span>
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>[<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         10 :             pack_lhs(blockA, &amp;tri(startTarget,startBlock), triStride, actualPanelWidth, lengthTarget);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>[<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         10 :             gebp_kernel(&amp;other(startTarget,j2), otherStride, blockA, blockB+actual_kc*j2, lengthTarget, actualPanelWidth, actual_cols, Scalar(-1),</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     161 </span>                :<span class="lineCov">         10 :                         actualPanelWidth, actual_kc, 0, blockBOffset, blockW);</span>
+<span class="lineNum">     162 </span>                :            :           }
+<span class="lineNum">     163 </span>                :            :         }
+<span class="lineNum">     164 </span>                :            :       }
+<span class="lineNum">     165 </span>                :            :       
+<span class="lineNum">     166 </span>                :            :       // R2 -= A21 * B =&gt; GEPP
+<span class="lineNum">     167 </span>                :            :       {
+<span class="lineNum">     168 </span>                :<span class="lineCov">        366 :         Index start = IsLower ? k2+kc : 0;</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">        366 :         Index end   = IsLower ? size : k2-kc;</span>
+<span class="lineNum">     170 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 184 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 182 times"> + </span>]:<span class="lineCov">        366 :         for(Index i2=start; i2&lt;end; i2+=mc)</span>
+<span class="lineNum">     171 </span>                :            :         {
+<span class="lineNum">     172 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           const Index actual_mc = (std::min)(mc,end-i2);</span>
+<span class="lineNum">     173 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if (actual_mc&gt;0)</span>
+<span class="lineNum">     174 </span>                :            :           {
+<span class="lineNum">     175 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             pack_lhs(blockA, &amp;tri(i2, IsLower ? k2 : k2-kc), triStride, actual_kc, actual_mc);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             gebp_kernel(_other+i2, otherStride, blockA, blockB, actual_mc, actual_kc, cols, Scalar(-1), -1, -1, 0, 0, blockW);</span>
+<span class="lineNum">     178 </span>                :            :           }
+<span class="lineNum">     179 </span>                :            :         }
+<span class="lineNum">     180 </span>                :            :       }
+<span class="lineNum">     181 </span>                :<span class="lineCov">        366 :     }</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">        366 :   }</span>
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :            : /* Optimized triangular solver with multiple left hand sides and the trinagular matrix on the right
+<span class="lineNum">     185 </span>                :            :  */
+<span class="lineNum">     186 </span>                :            : template &lt;typename Scalar, typename Index, int Mode, bool Conjugate, int TriStorageOrder&gt;
+<span class="lineNum">     187 </span>                :            : struct triangular_solve_matrix&lt;Scalar,Index,OnTheRight,Mode,Conjugate,TriStorageOrder,ColMajor&gt;
+<span class="lineNum">     188 </span>                :            : {
+<span class="lineNum">     189 </span>                :            :   static EIGEN_DONT_INLINE void run(
+<span class="lineNum">     190 </span>                :            :     Index size, Index otherSize,
+<span class="lineNum">     191 </span>                :            :     const Scalar* _tri, Index triStride,
+<span class="lineNum">     192 </span>                :            :     Scalar* _other, Index otherStride,
+<span class="lineNum">     193 </span>                :            :     level3_blocking&lt;Scalar,Scalar&gt;&amp; blocking);
+<a name="194"><span class="lineNum">     194 </span>                :            : };</a>
+<span class="lineNum">     195 </span>                :            : template &lt;typename Scalar, typename Index, int Mode, bool Conjugate, int TriStorageOrder&gt;
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 : EIGEN_DONT_INLINE void triangular_solve_matrix&lt;Scalar,Index,OnTheRight,Mode,Conjugate,TriStorageOrder,ColMajor&gt;::run(</span>
+<span class="lineNum">     197 </span>                :            :     Index size, Index otherSize,
+<span class="lineNum">     198 </span>                :            :     const Scalar* _tri, Index triStride,
+<span class="lineNum">     199 </span>                :            :     Scalar* _other, Index otherStride,
+<span class="lineNum">     200 </span>                :            :     level3_blocking&lt;Scalar,Scalar&gt;&amp; blocking)
+<span class="lineNum">     201 </span>                :            :   {
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :     Index rows = otherSize;</span>
+<span class="lineNum">     203 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     const_blas_data_mapper&lt;Scalar, Index, TriStorageOrder&gt; rhs(_tri,triStride);</span>
+<span class="lineNum">     204 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     blas_data_mapper&lt;Scalar, Index, ColMajor&gt; lhs(_other,otherStride);</span>
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :            :     typedef gebp_traits&lt;Scalar,Scalar&gt; Traits;
+<span class="lineNum">     207 </span>                :            :     enum {
+<span class="lineNum">     208 </span>                :            :       RhsStorageOrder   = TriStorageOrder,
+<span class="lineNum">     209 </span>                :            :       SmallPanelWidth   = EIGEN_PLAIN_ENUM_MAX(Traits::mr,Traits::nr),
+<span class="lineNum">     210 </span>                :            :       IsLower = (Mode&amp;Lower) == Lower
+<span class="lineNum">     211 </span>                :            :     };
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     Index kc = blocking.kc();                   // cache block size along the K direction</span>
+<span class="lineNum">     214 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     Index mc = (std::min)(rows,blocking.mc());  // cache block size along the M direction</span>
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :     std::size_t sizeA = kc*mc;</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :     std::size_t sizeB = kc*size;</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :     std::size_t sizeW = kc*Traits::WorkSpaceFactor;</span>
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     ei_declare_aligned_stack_constructed_variable(Scalar, blockA, sizeA, blocking.blockA());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">     221 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     ei_declare_aligned_stack_constructed_variable(Scalar, blockB, sizeB, blocking.blockB());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">     222 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     ei_declare_aligned_stack_constructed_variable(Scalar, blockW, sizeW, blocking.blockW());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :            :     conj_if&lt;Conjugate&gt; conj;
+<span class="lineNum">     225 </span>                :            :     gebp_kernel&lt;Scalar,Scalar, Index, Traits::mr, Traits::nr, false, Conjugate&gt; gebp_kernel;
+<span class="lineNum">     226 </span>                :            :     gemm_pack_rhs&lt;Scalar, Index, Traits::nr,RhsStorageOrder&gt; pack_rhs;
+<span class="lineNum">     227 </span>                :            :     gemm_pack_rhs&lt;Scalar, Index, Traits::nr,RhsStorageOrder,false,true&gt; pack_rhs_panel;
+<span class="lineNum">     228 </span>                :            :     gemm_pack_lhs&lt;Scalar, Index, Traits::mr, Traits::LhsProgress, ColMajor, false, true&gt; pack_lhs_panel;
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for(Index k2=IsLower ? size : 0;</span>
+<span class="lineNum">     231 </span>                :            :         IsLower ? k2&gt;0 : k2&lt;size;
+<span class="lineNum">     232 </span>                :            :         IsLower ? k2-=kc : k2+=kc)
+<span class="lineNum">     233 </span>                :            :     {
+<span class="lineNum">     234 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const Index actual_kc = (std::min)(IsLower ? k2 : size-k2, kc);</span>
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :       Index actual_k2 = IsLower ? k2-actual_kc : k2 ;</span>
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :       Index startPanel = IsLower ? 0 : k2+actual_kc;</span>
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :       Index rs = IsLower ? actual_k2 : size - actual_k2 - actual_kc;</span>
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :       Scalar* geb = blockB+actual_kc*actual_kc;</span>
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (rs&gt;0) pack_rhs(geb, &amp;rhs(actual_k2,startPanel), triStride, actual_kc, rs);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :            :       // triangular packing (we only pack the panels off the diagonal,
+<span class="lineNum">     244 </span>                :            :       // neglecting the blocks overlapping the diagonal
+<span class="lineNum">     245 </span>                :            :       {
+<span class="lineNum">     246 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (Index j2=0; j2&lt;actual_kc; j2+=SmallPanelWidth)</span>
+<span class="lineNum">     247 </span>                :            :         {
+<span class="lineNum">     248 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           Index actualPanelWidth = std::min&lt;Index&gt;(actual_kc-j2, SmallPanelWidth);</span>
+<span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :           Index actual_j2 = actual_k2 + j2;</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :           Index panelOffset = IsLower ? j2+actualPanelWidth : 0;</span>
+<span class="lineNum">     251 </span>                :<span class="lineNoCov">          0 :           Index panelLength = IsLower ? actual_kc-j2-actualPanelWidth : j2;</span>
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if (panelLength&gt;0)</span>
+<span class="lineNum">     254 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           pack_rhs_panel(blockB+j2*actual_kc,</span>
+<span class="lineNum">     255 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                          &amp;rhs(actual_k2+panelOffset, actual_j2), triStride,</span>
+<span class="lineNum">     256 </span>                :            :                          panelLength, actualPanelWidth,
+<span class="lineNum">     257 </span>                :<span class="lineNoCov">          0 :                          actual_kc, panelOffset);</span>
+<span class="lineNum">     258 </span>                :            :         }
+<span class="lineNum">     259 </span>                :            :       }
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(Index i2=0; i2&lt;rows; i2+=mc)</span>
+<span class="lineNum">     262 </span>                :            :       {
+<span class="lineNum">     263 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         const Index actual_mc = (std::min)(mc,rows-i2);</span>
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :            :         // triangular solver kernel
+<span class="lineNum">     266 </span>                :            :         {
+<span class="lineNum">     267 </span>                :            :           // for each small block of the diagonal (=&gt; vertical panels of rhs)
+<span class="lineNum">     268 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           for (Index j2 = IsLower</span>
+<span class="lineNum">     269 </span>                :            :                       ? (actual_kc - ((actual_kc%SmallPanelWidth) ? Index(actual_kc%SmallPanelWidth)
+<span class="lineNum">     270 </span>                :            :                                                                   : Index(SmallPanelWidth)))
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :                       : 0;</span>
+<span class="lineNum">     272 </span>                :            :                IsLower ? j2&gt;=0 : j2&lt;actual_kc;
+<span class="lineNum">     273 </span>                :            :                IsLower ? j2-=SmallPanelWidth : j2+=SmallPanelWidth)
+<span class="lineNum">     274 </span>                :            :           {
+<span class="lineNum">     275 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             Index actualPanelWidth = std::min&lt;Index&gt;(actual_kc-j2, SmallPanelWidth);</span>
+<span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :             Index absolute_j2 = actual_k2 + j2;</span>
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :             Index panelOffset = IsLower ? j2+actualPanelWidth : 0;</span>
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :             Index panelLength = IsLower ? actual_kc - j2 - actualPanelWidth : j2;</span>
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>                :            :             // GEBP
+<span class="lineNum">     281 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if(panelLength&gt;0)</span>
+<span class="lineNum">     282 </span>                :            :             {
+<span class="lineNum">     283 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :               gebp_kernel(&amp;lhs(i2,absolute_j2), otherStride,</span>
+<span class="lineNum">     284 </span>                :            :                           blockA, blockB+j2*actual_kc,
+<span class="lineNum">     285 </span>                :            :                           actual_mc, panelLength, actualPanelWidth,
+<span class="lineNum">     286 </span>                :            :                           Scalar(-1),
+<span class="lineNum">     287 </span>                :            :                           actual_kc, actual_kc, // strides
+<span class="lineNum">     288 </span>                :            :                           panelOffset, panelOffset, // offsets
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :                           blockW);  // workspace</span>
+<span class="lineNum">     290 </span>                :            :             }
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :            :             // unblocked triangular solve
+<span class="lineNum">     293 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             for (Index k=0; k&lt;actualPanelWidth; ++k)</span>
+<span class="lineNum">     294 </span>                :            :             {
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :               Index j = IsLower ? absolute_j2+actualPanelWidth-k-1 : absolute_j2+k;</span>
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               Scalar* r = &amp;lhs(i2,j);</span>
+<span class="lineNum">     298 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :               for (Index k3=0; k3&lt;k; ++k3)</span>
+<span class="lineNum">     299 </span>                :            :               {
+<span class="lineNum">     300 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 Scalar b = conj(rhs(IsLower ? j+1+k3 : absolute_j2+k3,j));</span>
+<span class="lineNum">     301 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 Scalar* a = &amp;lhs(i2,IsLower ? j+1+k3 : absolute_j2+k3);</span>
+<span class="lineNum">     302 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for (Index i=0; i&lt;actual_mc; ++i)</span>
+<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :                   r[i] -= a[i] * b;</span>
+<span class="lineNum">     304 </span>                :            :               }
+<span class="lineNum">     305 </span>                :            :               if((Mode &amp; UnitDiag)==0)
+<span class="lineNum">     306 </span>                :            :               {
+<span class="lineNum">     307 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 Scalar b = conj(rhs(j,j));</span>
+<span class="lineNum">     308 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for (Index i=0; i&lt;actual_mc; ++i)</span>
+<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :                   r[i] /= b;</span>
+<span class="lineNum">     310 </span>                :            :               }
+<span class="lineNum">     311 </span>                :            :             }
+<span class="lineNum">     312 </span>                :            : 
+<span class="lineNum">     313 </span>                :            :             // pack the just computed part of lhs to A
+<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             pack_lhs_panel(blockA, _other+absolute_j2*otherStride+i2, otherStride,</span>
+<span class="lineNum">     315 </span>                :            :                            actualPanelWidth, actual_mc,
+<span class="lineNum">     316 </span>                :            :                            actual_kc, j2);
+<span class="lineNum">     317 </span>                :            :           }
+<span class="lineNum">     318 </span>                :            :         }
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rs&gt;0)</span>
+<span class="lineNum">     321 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           gebp_kernel(_other+i2+startPanel*otherStride, otherStride, blockA, geb,</span>
+<span class="lineNum">     322 </span>                :            :                       actual_mc, actual_kc, rs, Scalar(-1),
+<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 :                       -1, -1, 0, 0, blockW);</span>
+<span class="lineNum">     324 </span>                :            :       }
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     327 </span>                :            : 
+<span class="lineNum">     328 </span>                :            : } // end namespace internal
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>                :            : #endif // EIGEN_TRIANGULAR_SOLVER_MATRIX_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

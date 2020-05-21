@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/boost/boost/multi_index/detail/copy_map.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/boost/boost/multi_index/detail</a> - copy_map.hpp<span style="font-size: 80%;"> (source / <a href="copy_map.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryLo">35.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">40.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntryLo">10.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2003-2008 Joaquin M Lopez Munoz.</a>
+<span class="lineNum">       2 </span>                :            :  * Distributed under the Boost Software License, Version 1.0.
+<span class="lineNum">       3 </span>                :            :  * (See accompanying file LICENSE_1_0.txt or copy at
+<span class="lineNum">       4 </span>                :            :  * http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       5 </span>                :            :  *
+<span class="lineNum">       6 </span>                :            :  * See http://www.boost.org/libs/multi_index for library home page.
+<span class="lineNum">       7 </span>                :            :  */
+<span class="lineNum">       8 </span>                :            : 
+<span class="lineNum">       9 </span>                :            : #ifndef BOOST_MULTI_INDEX_DETAIL_COPY_MAP_HPP
+<span class="lineNum">      10 </span>                :            : #define BOOST_MULTI_INDEX_DETAIL_COPY_MAP_HPP
+<span class="lineNum">      11 </span>                :            : 
+<span class="lineNum">      12 </span>                :            : #if defined(_MSC_VER)&amp;&amp;(_MSC_VER&gt;=1200)
+<span class="lineNum">      13 </span>                :            : #pragma once
+<span class="lineNum">      14 </span>                :            : #endif
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : #include &lt;boost/config.hpp&gt; /* keep it first to prevent nasty warns in MSVC */
+<span class="lineNum">      17 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;boost/detail/no_exceptions_support.hpp&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;boost/multi_index/detail/auto_space.hpp&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;boost/multi_index/detail/prevent_eti.hpp&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;boost/noncopyable.hpp&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;cstddef&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;functional&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : namespace boost{
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : namespace multi_index{
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : namespace detail{
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : /* copy_map is used as an auxiliary structure during copy_() operations.
+<span class="lineNum">      32 </span>                :            :  * When a container with n nodes is replicated, node_map holds the pairings
+<span class="lineNum">      33 </span>                :            :  * between original and copied nodes, and provides a fast way to find a
+<span class="lineNum">      34 </span>                :            :  * copied node from an original one.
+<span class="lineNum">      35 </span>                :            :  * The semantics of the class are not simple, and no attempt has been made
+<span class="lineNum">      36 </span>                :            :  * to enforce it: multi_index_container handles it right. On the other hand,
+<span class="lineNum">      37 </span>                :            :  * the const interface, which is the one provided to index implementations,
+<span class="lineNum">      38 </span>                :            :  * only allows for:
+<span class="lineNum">      39 </span>                :            :  *   - Enumeration of pairs of (original,copied) nodes (excluding the headers),
+<span class="lineNum">      40 </span>                :            :  *   - fast retrieval of copied nodes (including the headers.)
+<span class="lineNum">      41 </span>                :            :  */
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : template &lt;typename Node&gt;
+<a name="44"><span class="lineNum">      44 </span>                :            : struct copy_map_entry</a>
+<span class="lineNum">      45 </span>                :            : {
+<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :   copy_map_entry(Node* f,Node* s):first(f),second(s){}</span>
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            :   Node* first;
+<a name="49"><span class="lineNum">      49 </span>                :            :   Node* second;</a>
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :   bool operator&lt;(const copy_map_entry&lt;Node&gt;&amp; x)const</span>
+<span class="lineNum">      52 </span>                :            :   {
+<span class="lineNum">      53 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     return std::less&lt;Node*&gt;()(first,x.first);</span>
+<span class="lineNum">      54 </span>                :            :   }
+<span class="lineNum">      55 </span>                :            : };
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : template &lt;typename Node,typename Allocator&gt;
+<span class="lineNum">      58 </span>                :            : class copy_map:private noncopyable
+<span class="lineNum">      59 </span>                :            : {
+<span class="lineNum">      60 </span>                :            : public:
+<a name="61"><span class="lineNum">      61 </span>                :            :   typedef const copy_map_entry&lt;Node&gt;* const_iterator;</a>
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :<span class="lineCov">        463 :   copy_map(</span>
+<span class="lineNum">      64 </span>                :            :     const Allocator&amp; al,std::size_t size,Node* header_org,Node* header_cpy):
+<span class="lineNum">      65 </span>                :            :     al_(al),size_(size),spc(al_,size_),n(0),
+<span class="lineNum">      66 </span>        [<span class="branchCov" title="Branch 4 was taken 463 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        463 :     header_org_(header_org),header_cpy_(header_cpy),released(false)</span>
+<a name="67"><span class="lineNum">      67 </span>                :<span class="lineCov">        463 :   {}</span></a>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineCov">        463 :   ~copy_map()</span>
+<span class="lineNum">      70 </span>                :            :   {
+<span class="lineNum">      71 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 463 times"> + </span>]:<span class="lineCov">        463 :     if(!released){</span>
+<span class="lineNum">      72 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(std::size_t i=0;i&lt;n;++i){</span>
+<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :         boost::detail::allocator::destroy(&amp;(spc.data()+i)-&gt;second-&gt;value());</span>
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :         deallocate((spc.data()+i)-&gt;second);</span>
+<span class="lineNum">      75 </span>                :            :       }
+<span class="lineNum">      76 </span>                :            :     }
+<a name="77"><span class="lineNum">      77 </span>                :<span class="lineCov">        463 :   }</span></a>
+<a name="78"><span class="lineNum">      78 </span>                :            : </a>
+<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 :   const_iterator begin()const{return &amp;*spc.data();}</span>
+<a name="80"><span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :   const_iterator end()const{return &amp;*(spc.data()+n);}</span></a>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :   void clone(Node* node)</span>
+<span class="lineNum">      83 </span>                :            :   {
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :     (spc.data()+n)-&gt;first=node;</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :     (spc.data()+n)-&gt;second=&amp;*al_.allocate(1);</span>
+<span class="lineNum">      86 </span>                :            :     BOOST_TRY{
+<span class="lineNum">      87 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       boost::detail::allocator::construct(</span>
+<span class="lineNum">      88 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         &amp;(spc.data()+n)-&gt;second-&gt;value(),node-&gt;value());</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">      89 </span>                :            :     }
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :     BOOST_CATCH(...){</span>
+<span class="lineNum">      91 </span>  [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       deallocate((spc.data()+n)-&gt;second);</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :       BOOST_RETHROW;</span>
+<span class="lineNum">      93 </span>                :            :     }
+<span class="lineNum">      94 </span>                :            :     BOOST_CATCH_END
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :     ++n;</span>
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if(n==size_)std::sort(&amp;*spc.data(),&amp;*spc.data()+size_);</span>
+<a name="98"><span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :   }</span></a>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :<span class="lineCov">        463 :   Node* find(Node* node)const</span>
+<span class="lineNum">     101 </span>                :            :   {
+<span class="lineNum">     102 </span>        [<span class="branchCov" title="Branch 0 was taken 463 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        463 :     if(node==header_org_)return header_cpy_;</span>
+<span class="lineNum">     103 </span>                :            :     return std::lower_bound(
+<span class="lineNum">     104 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineCov">        463 :       begin(),end(),copy_map_entry&lt;Node&gt;(node,0))-&gt;second;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<a name="105"><span class="lineNum">     105 </span>                :            :   }</a>
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :<span class="lineCov">        463 :   void release()</span>
+<span class="lineNum">     108 </span>                :            :   {
+<span class="lineNum">     109 </span>                :<span class="lineCov">        463 :     released=true;</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">        463 :   }</span>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            : private:
+<span class="lineNum">     113 </span>                :            :   typedef typename prevent_eti&lt;
+<span class="lineNum">     114 </span>                :            :     Allocator,
+<span class="lineNum">     115 </span>                :            :     typename boost::detail::allocator::rebind_to&lt;
+<span class="lineNum">     116 </span>                :            :       Allocator,Node&gt;::type
+<span class="lineNum">     117 </span>                :            :   &gt;::type                                         allocator_type;
+<span class="lineNum">     118 </span>                :            :   typedef typename allocator_type::pointer        allocator_pointer;
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :            :   allocator_type                                  al_;
+<span class="lineNum">     121 </span>                :            :   std::size_t                                     size_;
+<span class="lineNum">     122 </span>                :            :   auto_space&lt;copy_map_entry&lt;Node&gt;,Allocator&gt;      spc;
+<span class="lineNum">     123 </span>                :            :   std::size_t                                     n;
+<span class="lineNum">     124 </span>                :            :   Node*                                           header_org_;
+<span class="lineNum">     125 </span>                :            :   Node*                                           header_cpy_;
+<a name="126"><span class="lineNum">     126 </span>                :            :   bool                                            released;</a>
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :   void deallocate(Node* node)</span>
+<span class="lineNum">     129 </span>                :            :   {
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :     al_.deallocate(static_cast&lt;allocator_pointer&gt;(node),1);</span>
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     132 </span>                :            : };
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :            : } /* namespace multi_index::detail */
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :            : } /* namespace multi_index */
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :            : } /* namespace boost */
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

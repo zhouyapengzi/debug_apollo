@@ -1,0 +1,418 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/LU/arch/Inverse_SSE.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/LU/arch</a> - Inverse_SSE.h<span style="font-size: 80%;"> (source / <a href="Inverse_SSE.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">78</td>
+            <td class="headerCovTableEntry">78</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2001 Intel Corporation
+<span class="lineNum">       5 </span>                :            : // Copyright (C) 2010 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       6 </span>                :            : // Copyright (C) 2009 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       7 </span>                :            : //
+<span class="lineNum">       8 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       9 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">      10 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">      11 </span>                :            : 
+<span class="lineNum">      12 </span>                :            : // The SSE code for the 4x4 float and double matrix inverse in this file
+<span class="lineNum">      13 </span>                :            : // comes from the following Intel's library:
+<span class="lineNum">      14 </span>                :            : // http://software.intel.com/en-us/articles/optimized-matrix-library-for-use-with-the-intel-pentiumr-4-processors-sse2-instructions/
+<span class="lineNum">      15 </span>                :            : //
+<span class="lineNum">      16 </span>                :            : // Here is the respective copyright and license statement:
+<span class="lineNum">      17 </span>                :            : //
+<span class="lineNum">      18 </span>                :            : //   Copyright (c) 2001 Intel Corporation.
+<span class="lineNum">      19 </span>                :            : //
+<span class="lineNum">      20 </span>                :            : // Permition is granted to use, copy, distribute and prepare derivative works
+<span class="lineNum">      21 </span>                :            : // of this library for any purpose and without fee, provided, that the above
+<span class="lineNum">      22 </span>                :            : // copyright notice and this statement appear in all copies.
+<span class="lineNum">      23 </span>                :            : // Intel makes no representations about the suitability of this software for
+<span class="lineNum">      24 </span>                :            : // any purpose, and specifically disclaims all warranties.
+<span class="lineNum">      25 </span>                :            : // See LEGAL.TXT for all the legal information.
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : #ifndef EIGEN_INVERSE_SSE_H
+<span class="lineNum">      28 </span>                :            : #define EIGEN_INVERSE_SSE_H
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : namespace Eigen { 
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : namespace internal {
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : template&lt;typename MatrixType, typename ResultType&gt;
+<span class="lineNum">      35 </span>                :            : struct compute_inverse_size4&lt;Architecture::SSE, float, MatrixType, ResultType&gt;
+<span class="lineNum">      36 </span>                :            : {
+<span class="lineNum">      37 </span>                :            :   enum {
+<span class="lineNum">      38 </span>                :            :     MatrixAlignment     = bool(MatrixType::Flags&amp;AlignedBit),
+<span class="lineNum">      39 </span>                :            :     ResultAlignment     = bool(ResultType::Flags&amp;AlignedBit),
+<span class="lineNum">      40 </span>                :            :     StorageOrdersMatch  = (MatrixType::Flags&amp;RowMajorBit) == (ResultType::Flags&amp;RowMajorBit)
+<span class="lineNum">      41 </span>                :            :   };
+<span class="lineNum">      42 </span>                :            :   
+<span class="lineNum">      43 </span>                :            :   static void run(const MatrixType&amp; matrix, ResultType&amp; result)
+<span class="lineNum">      44 </span>                :            :   {
+<span class="lineNum">      45 </span>                :            :     EIGEN_ALIGN16 const unsigned int _Sign_PNNP[4] = { 0x00000000, 0x80000000, 0x80000000, 0x00000000 };
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            :     // Load the full matrix into registers
+<span class="lineNum">      48 </span>                :            :     __m128 _L1 = matrix.template packet&lt;MatrixAlignment&gt;( 0);
+<span class="lineNum">      49 </span>                :            :     __m128 _L2 = matrix.template packet&lt;MatrixAlignment&gt;( 4);
+<span class="lineNum">      50 </span>                :            :     __m128 _L3 = matrix.template packet&lt;MatrixAlignment&gt;( 8);
+<span class="lineNum">      51 </span>                :            :     __m128 _L4 = matrix.template packet&lt;MatrixAlignment&gt;(12);
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            :     // The inverse is calculated using &quot;Divide and Conquer&quot; technique. The
+<span class="lineNum">      54 </span>                :            :     // original matrix is divide into four 2x2 sub-matrices. Since each
+<span class="lineNum">      55 </span>                :            :     // register holds four matrix element, the smaller matrices are
+<span class="lineNum">      56 </span>                :            :     // represented as a registers. Hence we get a better locality of the
+<span class="lineNum">      57 </span>                :            :     // calculations.
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            :     __m128 A, B, C, D; // the four sub-matrices
+<span class="lineNum">      60 </span>                :            :     if(!StorageOrdersMatch)
+<span class="lineNum">      61 </span>                :            :     {
+<span class="lineNum">      62 </span>                :            :       A = _mm_unpacklo_ps(_L1, _L2);
+<span class="lineNum">      63 </span>                :            :       B = _mm_unpacklo_ps(_L3, _L4);
+<span class="lineNum">      64 </span>                :            :       C = _mm_unpackhi_ps(_L1, _L2);
+<span class="lineNum">      65 </span>                :            :       D = _mm_unpackhi_ps(_L3, _L4);
+<span class="lineNum">      66 </span>                :            :     }
+<span class="lineNum">      67 </span>                :            :     else
+<span class="lineNum">      68 </span>                :            :     {
+<span class="lineNum">      69 </span>                :            :       A = _mm_movelh_ps(_L1, _L2);
+<span class="lineNum">      70 </span>                :            :       B = _mm_movehl_ps(_L2, _L1);
+<span class="lineNum">      71 </span>                :            :       C = _mm_movelh_ps(_L3, _L4);
+<span class="lineNum">      72 </span>                :            :       D = _mm_movehl_ps(_L4, _L3);
+<span class="lineNum">      73 </span>                :            :     }
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            :     __m128 iA, iB, iC, iD,                 // partial inverse of the sub-matrices
+<span class="lineNum">      76 </span>                :            :             DC, AB;
+<span class="lineNum">      77 </span>                :            :     __m128 dA, dB, dC, dD;                 // determinant of the sub-matrices
+<span class="lineNum">      78 </span>                :            :     __m128 det, d, d1, d2;
+<span class="lineNum">      79 </span>                :            :     __m128 rd;                             // reciprocal of the determinant
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :     //  AB = A# * B
+<span class="lineNum">      82 </span>                :            :     AB = _mm_mul_ps(_mm_shuffle_ps(A,A,0x0F), B);
+<span class="lineNum">      83 </span>                :            :     AB = _mm_sub_ps(AB,_mm_mul_ps(_mm_shuffle_ps(A,A,0xA5), _mm_shuffle_ps(B,B,0x4E)));
+<span class="lineNum">      84 </span>                :            :     //  DC = D# * C
+<span class="lineNum">      85 </span>                :            :     DC = _mm_mul_ps(_mm_shuffle_ps(D,D,0x0F), C);
+<span class="lineNum">      86 </span>                :            :     DC = _mm_sub_ps(DC,_mm_mul_ps(_mm_shuffle_ps(D,D,0xA5), _mm_shuffle_ps(C,C,0x4E)));
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :            :     //  dA = |A|
+<span class="lineNum">      89 </span>                :            :     dA = _mm_mul_ps(_mm_shuffle_ps(A, A, 0x5F),A);
+<span class="lineNum">      90 </span>                :            :     dA = _mm_sub_ss(dA, _mm_movehl_ps(dA,dA));
+<span class="lineNum">      91 </span>                :            :     //  dB = |B|
+<span class="lineNum">      92 </span>                :            :     dB = _mm_mul_ps(_mm_shuffle_ps(B, B, 0x5F),B);
+<span class="lineNum">      93 </span>                :            :     dB = _mm_sub_ss(dB, _mm_movehl_ps(dB,dB));
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            :     //  dC = |C|
+<span class="lineNum">      96 </span>                :            :     dC = _mm_mul_ps(_mm_shuffle_ps(C, C, 0x5F),C);
+<span class="lineNum">      97 </span>                :            :     dC = _mm_sub_ss(dC, _mm_movehl_ps(dC,dC));
+<span class="lineNum">      98 </span>                :            :     //  dD = |D|
+<span class="lineNum">      99 </span>                :            :     dD = _mm_mul_ps(_mm_shuffle_ps(D, D, 0x5F),D);
+<span class="lineNum">     100 </span>                :            :     dD = _mm_sub_ss(dD, _mm_movehl_ps(dD,dD));
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            :     //  d = trace(AB*DC) = trace(A#*B*D#*C)
+<span class="lineNum">     103 </span>                :            :     d = _mm_mul_ps(_mm_shuffle_ps(DC,DC,0xD8),AB);
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            :     //  iD = C*A#*B
+<span class="lineNum">     106 </span>                :            :     iD = _mm_mul_ps(_mm_shuffle_ps(C,C,0xA0), _mm_movelh_ps(AB,AB));
+<span class="lineNum">     107 </span>                :            :     iD = _mm_add_ps(iD,_mm_mul_ps(_mm_shuffle_ps(C,C,0xF5), _mm_movehl_ps(AB,AB)));
+<span class="lineNum">     108 </span>                :            :     //  iA = B*D#*C
+<span class="lineNum">     109 </span>                :            :     iA = _mm_mul_ps(_mm_shuffle_ps(B,B,0xA0), _mm_movelh_ps(DC,DC));
+<span class="lineNum">     110 </span>                :            :     iA = _mm_add_ps(iA,_mm_mul_ps(_mm_shuffle_ps(B,B,0xF5), _mm_movehl_ps(DC,DC)));
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            :     //  d = trace(AB*DC) = trace(A#*B*D#*C) [continue]
+<span class="lineNum">     113 </span>                :            :     d  = _mm_add_ps(d, _mm_movehl_ps(d, d));
+<span class="lineNum">     114 </span>                :            :     d  = _mm_add_ss(d, _mm_shuffle_ps(d, d, 1));
+<span class="lineNum">     115 </span>                :            :     d1 = _mm_mul_ss(dA,dD);
+<span class="lineNum">     116 </span>                :            :     d2 = _mm_mul_ss(dB,dC);
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :            :     //  iD = D*|A| - C*A#*B
+<span class="lineNum">     119 </span>                :            :     iD = _mm_sub_ps(_mm_mul_ps(D,_mm_shuffle_ps(dA,dA,0)), iD);
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :            :     //  iA = A*|D| - B*D#*C;
+<span class="lineNum">     122 </span>                :            :     iA = _mm_sub_ps(_mm_mul_ps(A,_mm_shuffle_ps(dD,dD,0)), iA);
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :            :     //  det = |A|*|D| + |B|*|C| - trace(A#*B*D#*C)
+<span class="lineNum">     125 </span>                :            :     det = _mm_sub_ss(_mm_add_ss(d1,d2),d);
+<span class="lineNum">     126 </span>                :            :     rd  = _mm_div_ss(_mm_set_ss(1.0f), det);
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            : //     #ifdef ZERO_SINGULAR
+<span class="lineNum">     129 </span>                :            : //         rd = _mm_and_ps(_mm_cmpneq_ss(det,_mm_setzero_ps()), rd);
+<span class="lineNum">     130 </span>                :            : //     #endif
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :     //  iB = D * (A#B)# = D*B#*A
+<span class="lineNum">     133 </span>                :            :     iB = _mm_mul_ps(D, _mm_shuffle_ps(AB,AB,0x33));
+<span class="lineNum">     134 </span>                :            :     iB = _mm_sub_ps(iB, _mm_mul_ps(_mm_shuffle_ps(D,D,0xB1), _mm_shuffle_ps(AB,AB,0x66)));
+<span class="lineNum">     135 </span>                :            :     //  iC = A * (D#C)# = A*C#*D
+<span class="lineNum">     136 </span>                :            :     iC = _mm_mul_ps(A, _mm_shuffle_ps(DC,DC,0x33));
+<span class="lineNum">     137 </span>                :            :     iC = _mm_sub_ps(iC, _mm_mul_ps(_mm_shuffle_ps(A,A,0xB1), _mm_shuffle_ps(DC,DC,0x66)));
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :            :     rd = _mm_shuffle_ps(rd,rd,0);
+<span class="lineNum">     140 </span>                :            :     rd = _mm_xor_ps(rd, _mm_load_ps((float*)_Sign_PNNP));
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            :     //  iB = C*|B| - D*B#*A
+<span class="lineNum">     143 </span>                :            :     iB = _mm_sub_ps(_mm_mul_ps(C,_mm_shuffle_ps(dB,dB,0)), iB);
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :            :     //  iC = B*|C| - A*C#*D;
+<span class="lineNum">     146 </span>                :            :     iC = _mm_sub_ps(_mm_mul_ps(B,_mm_shuffle_ps(dC,dC,0)), iC);
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :            :     //  iX = iX / det
+<span class="lineNum">     149 </span>                :            :     iA = _mm_mul_ps(rd,iA);
+<span class="lineNum">     150 </span>                :            :     iB = _mm_mul_ps(rd,iB);
+<span class="lineNum">     151 </span>                :            :     iC = _mm_mul_ps(rd,iC);
+<span class="lineNum">     152 </span>                :            :     iD = _mm_mul_ps(rd,iD);
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            :     DenseIndex res_stride = result.outerStride();
+<span class="lineNum">     155 </span>                :            :     float* res = result.data();
+<span class="lineNum">     156 </span>                :            :     pstoret&lt;float, Packet4f, ResultAlignment&gt;(res+0,            _mm_shuffle_ps(iA,iB,0x77));
+<span class="lineNum">     157 </span>                :            :     pstoret&lt;float, Packet4f, ResultAlignment&gt;(res+res_stride,   _mm_shuffle_ps(iA,iB,0x22));
+<span class="lineNum">     158 </span>                :            :     pstoret&lt;float, Packet4f, ResultAlignment&gt;(res+2*res_stride, _mm_shuffle_ps(iC,iD,0x77));
+<span class="lineNum">     159 </span>                :            :     pstoret&lt;float, Packet4f, ResultAlignment&gt;(res+3*res_stride, _mm_shuffle_ps(iC,iD,0x22));
+<span class="lineNum">     160 </span>                :            :   }
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            : };
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            : template&lt;typename MatrixType, typename ResultType&gt;
+<span class="lineNum">     165 </span>                :            : struct compute_inverse_size4&lt;Architecture::SSE, double, MatrixType, ResultType&gt;
+<span class="lineNum">     166 </span>                :            : {
+<span class="lineNum">     167 </span>                :            :   enum {
+<span class="lineNum">     168 </span>                :            :     MatrixAlignment = bool(MatrixType::Flags&amp;AlignedBit),
+<span class="lineNum">     169 </span>                :            :     ResultAlignment = bool(ResultType::Flags&amp;AlignedBit),
+<a name="170"><span class="lineNum">     170 </span>                :            :     StorageOrdersMatch  = (MatrixType::Flags&amp;RowMajorBit) == (ResultType::Flags&amp;RowMajorBit)</a>
+<span class="lineNum">     171 </span>                :            :   };
+<span class="lineNum">     172 </span>                :<span class="lineCov">          3 :   static void run(const MatrixType&amp; matrix, ResultType&amp; result)</span>
+<span class="lineNum">     173 </span>                :            :   {
+<span class="lineNum">     174 </span>                :<span class="lineCov">          6 :     const __m128d _Sign_NP = _mm_castsi128_pd(_mm_set_epi32(0x0,0x0,0x80000000,0x0));</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">          3 :     const __m128d _Sign_PN = _mm_castsi128_pd(_mm_set_epi32(0x80000000,0x0,0x0,0x0));</span>
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>                :            :     // The inverse is calculated using &quot;Divide and Conquer&quot; technique. The
+<span class="lineNum">     178 </span>                :            :     // original matrix is divide into four 2x2 sub-matrices. Since each
+<span class="lineNum">     179 </span>                :            :     // register of the matrix holds two element, the smaller matrices are
+<span class="lineNum">     180 </span>                :            :     // consisted of two registers. Hence we get a better locality of the
+<span class="lineNum">     181 </span>                :            :     // calculations.
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :            :     // the four sub-matrices
+<span class="lineNum">     184 </span>                :            :     __m128d A1, A2, B1, B2, C1, C2, D1, D2;
+<span class="lineNum">     185 </span>                :            :     
+<span class="lineNum">     186 </span>                :            :     if(StorageOrdersMatch)
+<span class="lineNum">     187 </span>                :            :     {
+<span class="lineNum">     188 </span>                :<span class="lineCov">          3 :       A1 = matrix.template packet&lt;MatrixAlignment&gt;( 0); B1 = matrix.template packet&lt;MatrixAlignment&gt;( 2);</span>
+<span class="lineNum">     189 </span>                :<span class="lineCov">          3 :       A2 = matrix.template packet&lt;MatrixAlignment&gt;( 4); B2 = matrix.template packet&lt;MatrixAlignment&gt;( 6);</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">          3 :       C1 = matrix.template packet&lt;MatrixAlignment&gt;( 8); D1 = matrix.template packet&lt;MatrixAlignment&gt;(10);</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">          3 :       C2 = matrix.template packet&lt;MatrixAlignment&gt;(12); D2 = matrix.template packet&lt;MatrixAlignment&gt;(14);</span>
+<span class="lineNum">     192 </span>                :            :     }
+<span class="lineNum">     193 </span>                :            :     else
+<span class="lineNum">     194 </span>                :            :     {
+<span class="lineNum">     195 </span>                :            :       __m128d tmp;
+<span class="lineNum">     196 </span>                :            :       A1 = matrix.template packet&lt;MatrixAlignment&gt;( 0); C1 = matrix.template packet&lt;MatrixAlignment&gt;( 2);
+<span class="lineNum">     197 </span>                :            :       A2 = matrix.template packet&lt;MatrixAlignment&gt;( 4); C2 = matrix.template packet&lt;MatrixAlignment&gt;( 6);
+<span class="lineNum">     198 </span>                :            :       tmp = A1;
+<span class="lineNum">     199 </span>                :            :       A1 = _mm_unpacklo_pd(A1,A2);
+<span class="lineNum">     200 </span>                :            :       A2 = _mm_unpackhi_pd(tmp,A2);
+<span class="lineNum">     201 </span>                :            :       tmp = C1;
+<span class="lineNum">     202 </span>                :            :       C1 = _mm_unpacklo_pd(C1,C2);
+<span class="lineNum">     203 </span>                :            :       C2 = _mm_unpackhi_pd(tmp,C2);
+<span class="lineNum">     204 </span>                :            :       
+<span class="lineNum">     205 </span>                :            :       B1 = matrix.template packet&lt;MatrixAlignment&gt;( 8); D1 = matrix.template packet&lt;MatrixAlignment&gt;(10);
+<span class="lineNum">     206 </span>                :            :       B2 = matrix.template packet&lt;MatrixAlignment&gt;(12); D2 = matrix.template packet&lt;MatrixAlignment&gt;(14);
+<span class="lineNum">     207 </span>                :            :       tmp = B1;
+<span class="lineNum">     208 </span>                :            :       B1 = _mm_unpacklo_pd(B1,B2);
+<span class="lineNum">     209 </span>                :            :       B2 = _mm_unpackhi_pd(tmp,B2);
+<span class="lineNum">     210 </span>                :            :       tmp = D1;
+<span class="lineNum">     211 </span>                :            :       D1 = _mm_unpacklo_pd(D1,D2);
+<span class="lineNum">     212 </span>                :            :       D2 = _mm_unpackhi_pd(tmp,D2);
+<span class="lineNum">     213 </span>                :            :     }
+<span class="lineNum">     214 </span>                :            :     
+<span class="lineNum">     215 </span>                :            :     __m128d iA1, iA2, iB1, iB2, iC1, iC2, iD1, iD2,     // partial invese of the sub-matrices
+<span class="lineNum">     216 </span>                :            :             DC1, DC2, AB1, AB2;
+<span class="lineNum">     217 </span>                :            :     __m128d dA, dB, dC, dD;     // determinant of the sub-matrices
+<span class="lineNum">     218 </span>                :            :     __m128d det, d1, d2, rd;
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :            :     //  dA = |A|
+<span class="lineNum">     221 </span>                :<span class="lineCov">          3 :     dA = _mm_shuffle_pd(A2, A2, 1);</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">          3 :     dA = _mm_mul_pd(A1, dA);</span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">          3 :     dA = _mm_sub_sd(dA, _mm_shuffle_pd(dA,dA,3));</span>
+<span class="lineNum">     224 </span>                :            :     //  dB = |B|
+<span class="lineNum">     225 </span>                :<span class="lineCov">          3 :     dB = _mm_shuffle_pd(B2, B2, 1);</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">          3 :     dB = _mm_mul_pd(B1, dB);</span>
+<span class="lineNum">     227 </span>                :<span class="lineCov">          3 :     dB = _mm_sub_sd(dB, _mm_shuffle_pd(dB,dB,3));</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :            :     //  AB = A# * B
+<span class="lineNum">     230 </span>                :<span class="lineCov">          3 :     AB1 = _mm_mul_pd(B1, _mm_shuffle_pd(A2,A2,3));</span>
+<span class="lineNum">     231 </span>                :<span class="lineCov">          3 :     AB2 = _mm_mul_pd(B2, _mm_shuffle_pd(A1,A1,0));</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">          3 :     AB1 = _mm_sub_pd(AB1, _mm_mul_pd(B2, _mm_shuffle_pd(A1,A1,3)));</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">          3 :     AB2 = _mm_sub_pd(AB2, _mm_mul_pd(B1, _mm_shuffle_pd(A2,A2,0)));</span>
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :            :     //  dC = |C|
+<span class="lineNum">     236 </span>                :<span class="lineCov">          3 :     dC = _mm_shuffle_pd(C2, C2, 1);</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">          3 :     dC = _mm_mul_pd(C1, dC);</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">          3 :     dC = _mm_sub_sd(dC, _mm_shuffle_pd(dC,dC,3));</span>
+<span class="lineNum">     239 </span>                :            :     //  dD = |D|
+<span class="lineNum">     240 </span>                :<span class="lineCov">          3 :     dD = _mm_shuffle_pd(D2, D2, 1);</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">          3 :     dD = _mm_mul_pd(D1, dD);</span>
+<span class="lineNum">     242 </span>                :<span class="lineCov">          3 :     dD = _mm_sub_sd(dD, _mm_shuffle_pd(dD,dD,3));</span>
+<span class="lineNum">     243 </span>                :            : 
+<span class="lineNum">     244 </span>                :            :     //  DC = D# * C
+<span class="lineNum">     245 </span>                :<span class="lineCov">          3 :     DC1 = _mm_mul_pd(C1, _mm_shuffle_pd(D2,D2,3));</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">          3 :     DC2 = _mm_mul_pd(C2, _mm_shuffle_pd(D1,D1,0));</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">          3 :     DC1 = _mm_sub_pd(DC1, _mm_mul_pd(C2, _mm_shuffle_pd(D1,D1,3)));</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">          3 :     DC2 = _mm_sub_pd(DC2, _mm_mul_pd(C1, _mm_shuffle_pd(D2,D2,0)));</span>
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            :     //  rd = trace(AB*DC) = trace(A#*B*D#*C)
+<span class="lineNum">     251 </span>                :<span class="lineCov">          3 :     d1 = _mm_mul_pd(AB1, _mm_shuffle_pd(DC1, DC2, 0));</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">          3 :     d2 = _mm_mul_pd(AB2, _mm_shuffle_pd(DC1, DC2, 3));</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">          3 :     rd = _mm_add_pd(d1, d2);</span>
+<span class="lineNum">     254 </span>                :<span class="lineCov">          3 :     rd = _mm_add_sd(rd, _mm_shuffle_pd(rd, rd,3));</span>
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :            :     //  iD = C*A#*B
+<span class="lineNum">     257 </span>                :<span class="lineCov">          3 :     iD1 = _mm_mul_pd(AB1, _mm_shuffle_pd(C1,C1,0));</span>
+<span class="lineNum">     258 </span>                :<span class="lineCov">          3 :     iD2 = _mm_mul_pd(AB1, _mm_shuffle_pd(C2,C2,0));</span>
+<span class="lineNum">     259 </span>                :<span class="lineCov">          3 :     iD1 = _mm_add_pd(iD1, _mm_mul_pd(AB2, _mm_shuffle_pd(C1,C1,3)));</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">          3 :     iD2 = _mm_add_pd(iD2, _mm_mul_pd(AB2, _mm_shuffle_pd(C2,C2,3)));</span>
+<span class="lineNum">     261 </span>                :            : 
+<span class="lineNum">     262 </span>                :            :     //  iA = B*D#*C
+<span class="lineNum">     263 </span>                :<span class="lineCov">          3 :     iA1 = _mm_mul_pd(DC1, _mm_shuffle_pd(B1,B1,0));</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">          3 :     iA2 = _mm_mul_pd(DC1, _mm_shuffle_pd(B2,B2,0));</span>
+<span class="lineNum">     265 </span>                :<span class="lineCov">          3 :     iA1 = _mm_add_pd(iA1, _mm_mul_pd(DC2, _mm_shuffle_pd(B1,B1,3)));</span>
+<span class="lineNum">     266 </span>                :<span class="lineCov">          3 :     iA2 = _mm_add_pd(iA2, _mm_mul_pd(DC2, _mm_shuffle_pd(B2,B2,3)));</span>
+<span class="lineNum">     267 </span>                :            : 
+<span class="lineNum">     268 </span>                :            :     //  iD = D*|A| - C*A#*B
+<span class="lineNum">     269 </span>                :<span class="lineCov">          3 :     dA = _mm_shuffle_pd(dA,dA,0);</span>
+<span class="lineNum">     270 </span>                :<span class="lineCov">          6 :     iD1 = _mm_sub_pd(_mm_mul_pd(D1, dA), iD1);</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">          6 :     iD2 = _mm_sub_pd(_mm_mul_pd(D2, dA), iD2);</span>
+<span class="lineNum">     272 </span>                :            : 
+<span class="lineNum">     273 </span>                :            :     //  iA = A*|D| - B*D#*C;
+<span class="lineNum">     274 </span>                :<span class="lineCov">          3 :     dD = _mm_shuffle_pd(dD,dD,0);</span>
+<span class="lineNum">     275 </span>                :<span class="lineCov">          6 :     iA1 = _mm_sub_pd(_mm_mul_pd(A1, dD), iA1);</span>
+<span class="lineNum">     276 </span>                :<span class="lineCov">          6 :     iA2 = _mm_sub_pd(_mm_mul_pd(A2, dD), iA2);</span>
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :<span class="lineCov">          3 :     d1 = _mm_mul_sd(dA, dD);</span>
+<span class="lineNum">     279 </span>                :<span class="lineCov">          3 :     d2 = _mm_mul_sd(dB, dC);</span>
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :            :     //  iB = D * (A#B)# = D*B#*A
+<span class="lineNum">     282 </span>                :<span class="lineCov">          3 :     iB1 = _mm_mul_pd(D1, _mm_shuffle_pd(AB2,AB1,1));</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">          3 :     iB2 = _mm_mul_pd(D2, _mm_shuffle_pd(AB2,AB1,1));</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">          3 :     iB1 = _mm_sub_pd(iB1, _mm_mul_pd(_mm_shuffle_pd(D1,D1,1), _mm_shuffle_pd(AB2,AB1,2)));</span>
+<span class="lineNum">     285 </span>                :<span class="lineCov">          3 :     iB2 = _mm_sub_pd(iB2, _mm_mul_pd(_mm_shuffle_pd(D2,D2,1), _mm_shuffle_pd(AB2,AB1,2)));</span>
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :            :     //  det = |A|*|D| + |B|*|C| - trace(A#*B*D#*C)
+<span class="lineNum">     288 </span>                :<span class="lineCov">          3 :     det = _mm_add_sd(d1, d2);</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">          3 :     det = _mm_sub_sd(det, rd);</span>
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :            :     //  iC = A * (D#C)# = A*C#*D
+<span class="lineNum">     292 </span>                :<span class="lineCov">          3 :     iC1 = _mm_mul_pd(A1, _mm_shuffle_pd(DC2,DC1,1));</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          3 :     iC2 = _mm_mul_pd(A2, _mm_shuffle_pd(DC2,DC1,1));</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">          3 :     iC1 = _mm_sub_pd(iC1, _mm_mul_pd(_mm_shuffle_pd(A1,A1,1), _mm_shuffle_pd(DC2,DC1,2)));</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          3 :     iC2 = _mm_sub_pd(iC2, _mm_mul_pd(_mm_shuffle_pd(A2,A2,1), _mm_shuffle_pd(DC2,DC1,2)));</span>
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>                :<span class="lineCov">          6 :     rd = _mm_div_sd(_mm_set_sd(1.0), det);</span>
+<span class="lineNum">     298 </span>                :            : //     #ifdef ZERO_SINGULAR
+<span class="lineNum">     299 </span>                :            : //         rd = _mm_and_pd(_mm_cmpneq_sd(det,_mm_setzero_pd()), rd);
+<span class="lineNum">     300 </span>                :            : //     #endif
+<span class="lineNum">     301 </span>                :<span class="lineCov">          3 :     rd = _mm_shuffle_pd(rd,rd,0);</span>
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>                :            :     //  iB = C*|B| - D*B#*A
+<span class="lineNum">     304 </span>                :<span class="lineCov">          3 :     dB = _mm_shuffle_pd(dB,dB,0);</span>
+<span class="lineNum">     305 </span>                :<span class="lineCov">          6 :     iB1 = _mm_sub_pd(_mm_mul_pd(C1, dB), iB1);</span>
+<span class="lineNum">     306 </span>                :<span class="lineCov">          6 :     iB2 = _mm_sub_pd(_mm_mul_pd(C2, dB), iB2);</span>
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :<span class="lineCov">          3 :     d1 = _mm_xor_pd(rd, _Sign_PN);</span>
+<span class="lineNum">     309 </span>                :<span class="lineCov">          3 :     d2 = _mm_xor_pd(rd, _Sign_NP);</span>
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :            :     //  iC = B*|C| - A*C#*D;
+<span class="lineNum">     312 </span>                :<span class="lineCov">          3 :     dC = _mm_shuffle_pd(dC,dC,0);</span>
+<span class="lineNum">     313 </span>                :<span class="lineCov">          6 :     iC1 = _mm_sub_pd(_mm_mul_pd(B1, dC), iC1);</span>
+<span class="lineNum">     314 </span>                :<span class="lineCov">          6 :     iC2 = _mm_sub_pd(_mm_mul_pd(B2, dC), iC2);</span>
+<span class="lineNum">     315 </span>                :            : 
+<span class="lineNum">     316 </span>                :<span class="lineCov">          3 :     DenseIndex res_stride = result.outerStride();</span>
+<span class="lineNum">     317 </span>                :<span class="lineCov">          3 :     double* res = result.data();</span>
+<span class="lineNum">     318 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     pstoret&lt;double, Packet2d, ResultAlignment&gt;(res+0,             _mm_mul_pd(_mm_shuffle_pd(iA2, iA1, 3), d1));</span>
+<span class="lineNum">     319 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     pstoret&lt;double, Packet2d, ResultAlignment&gt;(res+res_stride,    _mm_mul_pd(_mm_shuffle_pd(iA2, iA1, 0), d2));</span>
+<span class="lineNum">     320 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     pstoret&lt;double, Packet2d, ResultAlignment&gt;(res+2,             _mm_mul_pd(_mm_shuffle_pd(iB2, iB1, 3), d1));</span>
+<span class="lineNum">     321 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     pstoret&lt;double, Packet2d, ResultAlignment&gt;(res+res_stride+2,  _mm_mul_pd(_mm_shuffle_pd(iB2, iB1, 0), d2));</span>
+<span class="lineNum">     322 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     pstoret&lt;double, Packet2d, ResultAlignment&gt;(res+2*res_stride,  _mm_mul_pd(_mm_shuffle_pd(iC2, iC1, 3), d1));</span>
+<span class="lineNum">     323 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     pstoret&lt;double, Packet2d, ResultAlignment&gt;(res+3*res_stride,  _mm_mul_pd(_mm_shuffle_pd(iC2, iC1, 0), d2));</span>
+<span class="lineNum">     324 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     pstoret&lt;double, Packet2d, ResultAlignment&gt;(res+2*res_stride+2,_mm_mul_pd(_mm_shuffle_pd(iD2, iD1, 3), d1));</span>
+<span class="lineNum">     325 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     pstoret&lt;double, Packet2d, ResultAlignment&gt;(res+3*res_stride+2,_mm_mul_pd(_mm_shuffle_pd(iD2, iD1, 0), d2));</span>
+<span class="lineNum">     326 </span>                :<span class="lineCov">          3 :   }</span>
+<span class="lineNum">     327 </span>                :            : };
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :            : } // end namespace internal
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :            : #endif // EIGEN_INVERSE_SSE_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Core/arch/SSE/PacketMath.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Core/arch/SSE</a> - PacketMath.h<span style="font-size: 80%;"> (source / <a href="PacketMath.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">59</td>
+            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntryLo">73.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntryLo">73.1 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryLo">22.7 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2008-2009 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       5 </span>                :            : //
+<span class="lineNum">       6 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       7 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       8 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            : #ifndef EIGEN_PACKET_MATH_SSE_H
+<span class="lineNum">      11 </span>                :            : #define EIGEN_PACKET_MATH_SSE_H
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : namespace Eigen {
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : namespace internal {
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD
+<span class="lineNum">      18 </span>                :            : #define EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD 8
+<span class="lineNum">      19 </span>                :            : #endif
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #ifndef EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS
+<span class="lineNum">      22 </span>                :            : #define EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS (2*sizeof(void*))
+<span class="lineNum">      23 </span>                :            : #endif
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : typedef __m128  Packet4f;
+<span class="lineNum">      26 </span>                :            : typedef __m128i Packet4i;
+<span class="lineNum">      27 </span>                :            : typedef __m128d Packet2d;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : template&lt;&gt; struct is_arithmetic&lt;__m128&gt;  { enum { value = true }; };
+<span class="lineNum">      30 </span>                :            : template&lt;&gt; struct is_arithmetic&lt;__m128i&gt; { enum { value = true }; };
+<span class="lineNum">      31 </span>                :            : template&lt;&gt; struct is_arithmetic&lt;__m128d&gt; { enum { value = true }; };
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :            : #define vec4f_swizzle1(v,p,q,r,s) \
+<span class="lineNum">      34 </span>                :            :   (_mm_castsi128_ps(_mm_shuffle_epi32( _mm_castps_si128(v), ((s)&lt;&lt;6|(r)&lt;&lt;4|(q)&lt;&lt;2|(p)))))
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : #define vec4i_swizzle1(v,p,q,r,s) \
+<span class="lineNum">      37 </span>                :            :   (_mm_shuffle_epi32( v, ((s)&lt;&lt;6|(r)&lt;&lt;4|(q)&lt;&lt;2|(p))))
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            : #define vec2d_swizzle1(v,p,q) \
+<span class="lineNum">      40 </span>                :            :   (_mm_castsi128_pd(_mm_shuffle_epi32( _mm_castpd_si128(v), ((q*2+1)&lt;&lt;6|(q*2)&lt;&lt;4|(p*2+1)&lt;&lt;2|(p*2)))))
+<span class="lineNum">      41 </span>                :            :   
+<span class="lineNum">      42 </span>                :            : #define vec4f_swizzle2(a,b,p,q,r,s) \
+<span class="lineNum">      43 </span>                :            :   (_mm_shuffle_ps( (a), (b), ((s)&lt;&lt;6|(r)&lt;&lt;4|(q)&lt;&lt;2|(p))))
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : #define vec4i_swizzle2(a,b,p,q,r,s) \
+<span class="lineNum">      46 </span>                :            :   (_mm_castps_si128( (_mm_shuffle_ps( _mm_castsi128_ps(a), _mm_castsi128_ps(b), ((s)&lt;&lt;6|(r)&lt;&lt;4|(q)&lt;&lt;2|(p))))))
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : #define _EIGEN_DECLARE_CONST_Packet4f(NAME,X) \
+<span class="lineNum">      49 </span>                :            :   const Packet4f p4f_##NAME = pset1&lt;Packet4f&gt;(X)
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : #define _EIGEN_DECLARE_CONST_Packet2d(NAME,X) \
+<span class="lineNum">      52 </span>                :            :   const Packet2d p2d_##NAME = pset1&lt;Packet2d&gt;(X)
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            : #define _EIGEN_DECLARE_CONST_Packet4f_FROM_INT(NAME,X) \
+<span class="lineNum">      55 </span>                :            :   const Packet4f p4f_##NAME = _mm_castsi128_ps(pset1&lt;Packet4i&gt;(X))
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : #define _EIGEN_DECLARE_CONST_Packet4i(NAME,X) \
+<span class="lineNum">      58 </span>                :            :   const Packet4i p4i_##NAME = pset1&lt;Packet4i&gt;(X)
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : template&lt;&gt; struct packet_traits&lt;float&gt;  : default_packet_traits
+<span class="lineNum">      62 </span>                :            : {
+<span class="lineNum">      63 </span>                :            :   typedef Packet4f type;
+<span class="lineNum">      64 </span>                :            :   enum {
+<span class="lineNum">      65 </span>                :            :     Vectorizable = 1,
+<span class="lineNum">      66 </span>                :            :     AlignedOnScalar = 1,
+<span class="lineNum">      67 </span>                :            :     size=4,
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            :     HasDiv  = 1,
+<span class="lineNum">      70 </span>                :            :     HasSin  = EIGEN_FAST_MATH,
+<span class="lineNum">      71 </span>                :            :     HasCos  = EIGEN_FAST_MATH,
+<span class="lineNum">      72 </span>                :            :     HasLog  = 1,
+<span class="lineNum">      73 </span>                :            :     HasExp  = 1,
+<span class="lineNum">      74 </span>                :            :     HasSqrt = 1
+<span class="lineNum">      75 </span>                :            :   };
+<span class="lineNum">      76 </span>                :            : };
+<span class="lineNum">      77 </span>                :            : template&lt;&gt; struct packet_traits&lt;double&gt; : default_packet_traits
+<span class="lineNum">      78 </span>                :            : {
+<span class="lineNum">      79 </span>                :            :   typedef Packet2d type;
+<span class="lineNum">      80 </span>                :            :   enum {
+<span class="lineNum">      81 </span>                :            :     Vectorizable = 1,
+<span class="lineNum">      82 </span>                :            :     AlignedOnScalar = 1,
+<span class="lineNum">      83 </span>                :            :     size=2,
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            :     HasDiv  = 1,
+<span class="lineNum">      86 </span>                :            :     HasExp  = 1,
+<span class="lineNum">      87 </span>                :            :     HasSqrt = 1
+<span class="lineNum">      88 </span>                :            :   };
+<span class="lineNum">      89 </span>                :            : };
+<span class="lineNum">      90 </span>                :            : template&lt;&gt; struct packet_traits&lt;int&gt;    : default_packet_traits
+<span class="lineNum">      91 </span>                :            : {
+<span class="lineNum">      92 </span>                :            :   typedef Packet4i type;
+<span class="lineNum">      93 </span>                :            :   enum {
+<span class="lineNum">      94 </span>                :            :     // FIXME check the Has*
+<span class="lineNum">      95 </span>                :            :     Vectorizable = 1,
+<span class="lineNum">      96 </span>                :            :     AlignedOnScalar = 1,
+<span class="lineNum">      97 </span>                :            :     size=4
+<span class="lineNum">      98 </span>                :            :   };
+<span class="lineNum">      99 </span>                :            : };
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :            : template&lt;&gt; struct unpacket_traits&lt;Packet4f&gt; { typedef float  type; enum {size=4}; };
+<span class="lineNum">     102 </span>                :            : template&lt;&gt; struct unpacket_traits&lt;Packet2d&gt; { typedef double type; enum {size=2}; };
+<span class="lineNum">     103 </span>                :            : template&lt;&gt; struct unpacket_traits&lt;Packet4i&gt; { typedef int    type; enum {size=4}; };
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            : #if defined(_MSC_VER) &amp;&amp; (_MSC_VER==1500)
+<span class="lineNum">     106 </span>                :            : // Workaround MSVC 9 internal compiler error.
+<span class="lineNum">     107 </span>                :            : // TODO: It has been detected with win64 builds (amd64), so let's check whether it also happens in 32bits+SSE mode
+<span class="lineNum">     108 </span>                :            : // TODO: let's check whether there does not exist a better fix, like adding a pset0() function. (it crashed on pset1(0)).
+<span class="lineNum">     109 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pset1&lt;Packet4f&gt;(const float&amp;  from) { return _mm_set_ps(from,from,from,from); }
+<span class="lineNum">     110 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pset1&lt;Packet2d&gt;(const double&amp; from) { return _mm_set_pd(from,from); }
+<a name="111"><span class="lineNum">     111 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pset1&lt;Packet4i&gt;(const int&amp;    from) { return _mm_set_epi32(from,from,from,from); }</a>
+<a name="112"><span class="lineNum">     112 </span>                :            : #else</a>
+<a name="113"><span class="lineNum">     113 </span>                :<span class="lineCov">   10287592 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pset1&lt;Packet4f&gt;(const float&amp;  from) { return _mm_set1_ps(from); }</span></a>
+<span class="lineNum">     114 </span>                :<span class="lineCov">    1169267 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pset1&lt;Packet2d&gt;(const double&amp; from) { return _mm_set1_pd(from); }</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">         16 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pset1&lt;Packet4i&gt;(const int&amp;    from) { return _mm_set1_epi32(from); }</span>
+<span class="lineNum">     116 </span>                :            : #endif
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f plset&lt;float&gt;(const float&amp; a) { return _mm_add_ps(pset1&lt;Packet4f&gt;(a), _mm_set_ps(3,2,1,0)); }
+<span class="lineNum">     119 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d plset&lt;double&gt;(const double&amp; a) { return _mm_add_pd(pset1&lt;Packet2d&gt;(a),_mm_set_pd(1,0)); }
+<a name="120"><span class="lineNum">     120 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i plset&lt;int&gt;(const int&amp; a) { return _mm_add_epi32(pset1&lt;Packet4i&gt;(a),_mm_set_epi32(3,2,1,0)); }</a>
+<a name="121"><span class="lineNum">     121 </span>                :            : </a>
+<a name="122"><span class="lineNum">     122 </span>                :<span class="lineCov">       1318 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f padd&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_add_ps(a,b); }</span></a>
+<span class="lineNum">     123 </span>                :<span class="lineCov">    1000314 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d padd&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_add_pd(a,b); }</span>
+<a name="124"><span class="lineNum">     124 </span>                :<span class="lineCov">          4 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i padd&lt;Packet4i&gt;(const Packet4i&amp; a, const Packet4i&amp; b) { return _mm_add_epi32(a,b); }</span></a>
+<a name="125"><span class="lineNum">     125 </span>                :            : </a>
+<a name="126"><span class="lineNum">     126 </span>                :<span class="lineCov">      16608 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f psub&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_sub_ps(a,b); }</span></a>
+<span class="lineNum">     127 </span>                :<span class="lineCov">     847926 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d psub&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_sub_pd(a,b); }</span>
+<span class="lineNum">     128 </span>                :<span class="lineCov">          4 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i psub&lt;Packet4i&gt;(const Packet4i&amp; a, const Packet4i&amp; b) { return _mm_sub_epi32(a,b); }</span>
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pnegate(const Packet4f&amp; a)
+<span class="lineNum">     131 </span>                :            : {
+<span class="lineNum">     132 </span>                :            :   const Packet4f mask = _mm_castsi128_ps(_mm_setr_epi32(0x80000000,0x80000000,0x80000000,0x80000000));
+<a name="133"><span class="lineNum">     133 </span>                :            :   return _mm_xor_ps(a,mask);</a>
+<span class="lineNum">     134 </span>                :            : }
+<span class="lineNum">     135 </span>                :<span class="lineCov">         27 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pnegate(const Packet2d&amp; a)</span>
+<span class="lineNum">     136 </span>                :            : {
+<span class="lineNum">     137 </span>                :<span class="lineCov">         54 :   const Packet2d mask = _mm_castsi128_pd(_mm_setr_epi32(0x0,0x80000000,0x0,0x80000000));</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">         27 :   return _mm_xor_pd(a,mask);</span>
+<span class="lineNum">     139 </span>                :            : }
+<span class="lineNum">     140 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pnegate(const Packet4i&amp; a)
+<span class="lineNum">     141 </span>                :            : {
+<span class="lineNum">     142 </span>                :            :   return psub(_mm_setr_epi32(0,0,0,0), a);
+<span class="lineNum">     143 </span>                :            : }
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pconj(const Packet4f&amp; a) { return a; }
+<span class="lineNum">     146 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pconj(const Packet2d&amp; a) { return a; }
+<a name="147"><span class="lineNum">     147 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pconj(const Packet4i&amp; a) { return a; }</a>
+<a name="148"><span class="lineNum">     148 </span>                :            : </a>
+<a name="149"><span class="lineNum">     149 </span>                :<span class="lineCov">      18916 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pmul&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_mul_ps(a,b); }</span></a>
+<span class="lineNum">     150 </span>                :<span class="lineCov">    1055664 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pmul&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_mul_pd(a,b); }</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pmul&lt;Packet4i&gt;(const Packet4i&amp; a, const Packet4i&amp; b)</span>
+<span class="lineNum">     152 </span>                :            : {
+<span class="lineNum">     153 </span>                :            : #ifdef EIGEN_VECTORIZE_SSE4_1
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :   return _mm_mullo_epi32(a,b);</span>
+<span class="lineNum">     155 </span>                :            : #else
+<span class="lineNum">     156 </span>                :            :   // this version is slightly faster than 4 scalar products
+<span class="lineNum">     157 </span>                :            :   return vec4i_swizzle1(
+<span class="lineNum">     158 </span>                :            :             vec4i_swizzle2(
+<span class="lineNum">     159 </span>                :            :               _mm_mul_epu32(a,b),
+<span class="lineNum">     160 </span>                :            :               _mm_mul_epu32(vec4i_swizzle1(a,1,0,3,2),
+<span class="lineNum">     161 </span>                :            :                             vec4i_swizzle1(b,1,0,3,2)),
+<span class="lineNum">     162 </span>                :            :               0,2,0,2),
+<span class="lineNum">     163 </span>                :            :             0,2,1,3);
+<span class="lineNum">     164 </span>                :            : #endif
+<a name="165"><span class="lineNum">     165 </span>                :            : }</a>
+<a name="166"><span class="lineNum">     166 </span>                :            : </a>
+<span class="lineNum">     167 </span>                :<span class="lineCov">        388 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pdiv&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_div_ps(a,b); }</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">      31062 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pdiv&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_div_pd(a,b); }</span>
+<span class="lineNum">     169 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pdiv&lt;Packet4i&gt;(const Packet4i&amp; /*a*/, const Packet4i&amp; /*b*/)
+<span class="lineNum">     170 </span>                :            : { eigen_assert(false &amp;&amp; &quot;packet integer division are not supported by SSE&quot;);
+<span class="lineNum">     171 </span>                :            :   return pset1&lt;Packet4i&gt;(0);
+<span class="lineNum">     172 </span>                :            : }
+<span class="lineNum">     173 </span>                :            : 
+<span class="lineNum">     174 </span>                :            : // for some weird raisons, it has to be overloaded for packet of integers
+<a name="175"><span class="lineNum">     175 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pmadd(const Packet4i&amp; a, const Packet4i&amp; b, const Packet4i&amp; c) { return padd(pmul(a,b), c); }</a>
+<a name="176"><span class="lineNum">     176 </span>                :            : </a>
+<span class="lineNum">     177 </span>                :<span class="lineCov">     225730 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pmin&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_min_ps(a,b); }</span>
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pmin&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_min_pd(a,b); }</span>
+<span class="lineNum">     179 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pmin&lt;Packet4i&gt;(const Packet4i&amp; a, const Packet4i&amp; b)
+<span class="lineNum">     180 </span>                :            : {
+<span class="lineNum">     181 </span>                :            : #ifdef EIGEN_VECTORIZE_SSE4_1
+<span class="lineNum">     182 </span>                :            :   return _mm_min_epi32(a,b);
+<span class="lineNum">     183 </span>                :            : #else
+<span class="lineNum">     184 </span>                :            :   // after some bench, this version *is* faster than a scalar implementation
+<span class="lineNum">     185 </span>                :            :   Packet4i mask = _mm_cmplt_epi32(a,b);
+<span class="lineNum">     186 </span>                :            :   return _mm_or_si128(_mm_and_si128(mask,a),_mm_andnot_si128(mask,b));
+<span class="lineNum">     187 </span>                :            : #endif
+<a name="188"><span class="lineNum">     188 </span>                :            : }</a>
+<a name="189"><span class="lineNum">     189 </span>                :            : </a>
+<span class="lineNum">     190 </span>                :<span class="lineCov">     225730 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pmax&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_max_ps(a,b); }</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">       2338 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pmax&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_max_pd(a,b); }</span>
+<span class="lineNum">     192 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pmax&lt;Packet4i&gt;(const Packet4i&amp; a, const Packet4i&amp; b)
+<span class="lineNum">     193 </span>                :            : {
+<span class="lineNum">     194 </span>                :            : #ifdef EIGEN_VECTORIZE_SSE4_1
+<span class="lineNum">     195 </span>                :            :   return _mm_max_epi32(a,b);
+<span class="lineNum">     196 </span>                :            : #else
+<span class="lineNum">     197 </span>                :            :   // after some bench, this version *is* faster than a scalar implementation
+<span class="lineNum">     198 </span>                :            :   Packet4i mask = _mm_cmpgt_epi32(a,b);
+<span class="lineNum">     199 </span>                :            :   return _mm_or_si128(_mm_and_si128(mask,a),_mm_andnot_si128(mask,b));
+<span class="lineNum">     200 </span>                :            : #endif
+<span class="lineNum">     201 </span>                :            : }
+<span class="lineNum">     202 </span>                :            : 
+<span class="lineNum">     203 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pand&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_and_ps(a,b); }
+<span class="lineNum">     204 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pand&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_and_pd(a,b); }
+<span class="lineNum">     205 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pand&lt;Packet4i&gt;(const Packet4i&amp; a, const Packet4i&amp; b) { return _mm_and_si128(a,b); }
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f por&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_or_ps(a,b); }
+<span class="lineNum">     208 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d por&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_or_pd(a,b); }
+<span class="lineNum">     209 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i por&lt;Packet4i&gt;(const Packet4i&amp; a, const Packet4i&amp; b) { return _mm_or_si128(a,b); }
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pxor&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_xor_ps(a,b); }
+<span class="lineNum">     212 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pxor&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_xor_pd(a,b); }
+<span class="lineNum">     213 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pxor&lt;Packet4i&gt;(const Packet4i&amp; a, const Packet4i&amp; b) { return _mm_xor_si128(a,b); }
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pandnot&lt;Packet4f&gt;(const Packet4f&amp; a, const Packet4f&amp; b) { return _mm_andnot_ps(a,b); }
+<span class="lineNum">     216 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pandnot&lt;Packet2d&gt;(const Packet2d&amp; a, const Packet2d&amp; b) { return _mm_andnot_pd(a,b); }
+<a name="217"><span class="lineNum">     217 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pandnot&lt;Packet4i&gt;(const Packet4i&amp; a, const Packet4i&amp; b) { return _mm_andnot_si128(a,b); }</a>
+<a name="218"><span class="lineNum">     218 </span>                :            : </a>
+<a name="219"><span class="lineNum">     219 </span>                :<span class="lineCov">    3801844 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pload&lt;Packet4f&gt;(const float*   from) { EIGEN_DEBUG_ALIGNED_LOAD return _mm_load_ps(from); }</span></a>
+<span class="lineNum">     220 </span>                :<span class="lineCov">    7343120 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pload&lt;Packet2d&gt;(const double*  from) { EIGEN_DEBUG_ALIGNED_LOAD return _mm_load_pd(from); }</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">          8 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pload&lt;Packet4i&gt;(const int*     from) { EIGEN_DEBUG_ALIGNED_LOAD return _mm_load_si128(reinterpret_cast&lt;const Packet4i*&gt;(from)); }</span>
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :            : #if defined(_MSC_VER)
+<span class="lineNum">     224 </span>                :            :   template&lt;&gt; EIGEN_STRONG_INLINE Packet4f ploadu&lt;Packet4f&gt;(const float*  from) {
+<span class="lineNum">     225 </span>                :            :     EIGEN_DEBUG_UNALIGNED_LOAD
+<span class="lineNum">     226 </span>                :            :     #if (_MSC_VER==1600)
+<span class="lineNum">     227 </span>                :            :     // NOTE Some version of MSVC10 generates bad code when using _mm_loadu_ps
+<span class="lineNum">     228 </span>                :            :     // (i.e., it does not generate an unaligned load!!
+<span class="lineNum">     229 </span>                :            :     // TODO On most architectures this version should also be faster than a single _mm_loadu_ps
+<span class="lineNum">     230 </span>                :            :     // so we could also enable it for MSVC08 but first we have to make this later does not generate crap when doing so...
+<span class="lineNum">     231 </span>                :            :     __m128 res = _mm_loadl_pi(_mm_set1_ps(0.0f), (const __m64*)(from));
+<span class="lineNum">     232 </span>                :            :     res = _mm_loadh_pi(res, (const __m64*)(from+2));
+<span class="lineNum">     233 </span>                :            :     return res;
+<span class="lineNum">     234 </span>                :            :     #else
+<span class="lineNum">     235 </span>                :            :     return _mm_loadu_ps(from);
+<span class="lineNum">     236 </span>                :            :     #endif
+<span class="lineNum">     237 </span>                :            :   }
+<span class="lineNum">     238 </span>                :            : #else
+<a name="239"><span class="lineNum">     239 </span>                :            : // NOTE: with the code below, MSVC's compiler crashes!</a>
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :<span class="lineCov">       1252 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f ploadu&lt;Packet4f&gt;(const float* from)</span>
+<span class="lineNum">     242 </span>                :            : {
+<span class="lineNum">     243 </span>                :            :   EIGEN_DEBUG_UNALIGNED_LOAD
+<span class="lineNum">     244 </span>                :<span class="lineCov">       1252 :   return _mm_loadu_ps(from);</span>
+<span class="lineNum">     245 </span>                :            : }
+<a name="246"><span class="lineNum">     246 </span>                :            : #endif</a>
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :<span class="lineCov">     317396 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d ploadu&lt;Packet2d&gt;(const double* from)</span>
+<span class="lineNum">     249 </span>                :            : {
+<span class="lineNum">     250 </span>                :            :   EIGEN_DEBUG_UNALIGNED_LOAD
+<a name="251"><span class="lineNum">     251 </span>                :<span class="lineCov">     317396 :   return _mm_loadu_pd(from);</span></a>
+<span class="lineNum">     252 </span>                :            : }
+<span class="lineNum">     253 </span>                :<span class="lineCov">          4 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i ploadu&lt;Packet4i&gt;(const int* from)</span>
+<span class="lineNum">     254 </span>                :            : {
+<span class="lineNum">     255 </span>                :            :   EIGEN_DEBUG_UNALIGNED_LOAD
+<span class="lineNum">     256 </span>                :<span class="lineCov">          4 :   return _mm_loadu_si128(reinterpret_cast&lt;const __m128i*&gt;(from));</span>
+<span class="lineNum">     257 </span>                :            : }
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f ploaddup&lt;Packet4f&gt;(const float*   from)
+<span class="lineNum">     261 </span>                :            : {
+<span class="lineNum">     262 </span>                :            :   return vec4f_swizzle1(_mm_castpd_ps(_mm_load_sd(reinterpret_cast&lt;const double*&gt;(from))), 0, 0, 1, 1);
+<span class="lineNum">     263 </span>                :            : }
+<span class="lineNum">     264 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d ploaddup&lt;Packet2d&gt;(const double*  from)
+<span class="lineNum">     265 </span>                :            : { return pset1&lt;Packet2d&gt;(from[0]); }
+<span class="lineNum">     266 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i ploaddup&lt;Packet4i&gt;(const int*     from)
+<span class="lineNum">     267 </span>                :            : {
+<span class="lineNum">     268 </span>                :            :   Packet4i tmp;
+<span class="lineNum">     269 </span>                :            :   tmp = _mm_loadl_epi64(reinterpret_cast&lt;const Packet4i*&gt;(from));
+<span class="lineNum">     270 </span>                :            :   return vec4i_swizzle1(tmp, 0, 0, 1, 1);
+<a name="271"><span class="lineNum">     271 </span>                :            : }</a>
+<a name="272"><span class="lineNum">     272 </span>                :            : </a>
+<a name="273"><span class="lineNum">     273 </span>                :<span class="lineCov">    2288132 : template&lt;&gt; EIGEN_STRONG_INLINE void pstore&lt;float&gt;(float*   to, const Packet4f&amp; from) { EIGEN_DEBUG_ALIGNED_STORE _mm_store_ps(to, from); }</span></a>
+<span class="lineNum">     274 </span>                :<span class="lineCov">    2524800 : template&lt;&gt; EIGEN_STRONG_INLINE void pstore&lt;double&gt;(double* to, const Packet2d&amp; from) { EIGEN_DEBUG_ALIGNED_STORE _mm_store_pd(to, from); }</span>
+<a name="275"><span class="lineNum">     275 </span>                :<span class="lineCov">         12 : template&lt;&gt; EIGEN_STRONG_INLINE void pstore&lt;int&gt;(int*       to, const Packet4i&amp; from) { EIGEN_DEBUG_ALIGNED_STORE _mm_store_si128(reinterpret_cast&lt;Packet4i*&gt;(to), from); }</span></a>
+<span class="lineNum">     276 </span>                :            : 
+<span class="lineNum">     277 </span>                :<span class="lineCov">       5627 : template&lt;&gt; EIGEN_STRONG_INLINE void pstoreu&lt;double&gt;(double* to, const Packet2d&amp; from) {</span>
+<span class="lineNum">     278 </span>                :            :   EIGEN_DEBUG_UNALIGNED_STORE
+<span class="lineNum">     279 </span>                :<span class="lineCov">       5627 :   _mm_storel_pd((to), from);</span>
+<a name="280"><span class="lineNum">     280 </span>                :<span class="lineCov">       5627 :   _mm_storeh_pd((to+1), from);</span></a>
+<span class="lineNum">     281 </span>                :<span class="lineCov">       5627 : }</span>
+<span class="lineNum">     282 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 : template&lt;&gt; EIGEN_STRONG_INLINE void pstoreu&lt;float&gt;(float*  to, const Packet4f&amp; from) { EIGEN_DEBUG_UNALIGNED_STORE pstoreu(reinterpret_cast&lt;double*&gt;(to), _mm_castps_pd(from)); }</span>
+<span class="lineNum">     283 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE void pstoreu&lt;int&gt;(int*      to, const Packet4i&amp; from) { EIGEN_DEBUG_UNALIGNED_STORE pstoreu(reinterpret_cast&lt;double*&gt;(to), _mm_castsi128_pd(from)); }
+<a name="284"><span class="lineNum">     284 </span>                :            : </a>
+<span class="lineNum">     285 </span>                :            : // some compilers might be tempted to perform multiple moves instead of using a vector path.
+<span class="lineNum">     286 </span>                :<span class="lineNoCov">          0 : template&lt;&gt; EIGEN_STRONG_INLINE void pstore1&lt;Packet4f&gt;(float* to, const float&amp; a)</span>
+<span class="lineNum">     287 </span>                :            : {
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :   Packet4f pa = _mm_set_ss(a);</span>
+<span class="lineNum">     289 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   pstore(to, vec4f_swizzle1(pa,0,0,0,0));</span>
+<a name="290"><span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     291 </span>                :            : // some compilers might be tempted to perform multiple moves instead of using a vector path.
+<span class="lineNum">     292 </span>                :<span class="lineCov">      16908 : template&lt;&gt; EIGEN_STRONG_INLINE void pstore1&lt;Packet2d&gt;(double* to, const double&amp; a)</span>
+<span class="lineNum">     293 </span>                :            : {
+<span class="lineNum">     294 </span>                :<span class="lineCov">      33816 :   Packet2d pa = _mm_set_sd(a);</span>
+<span class="lineNum">     295 </span>        [<span class="branchCov" title="Branch 2 was taken 16908 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">      33816 :   pstore(to, vec2d_swizzle1(pa,0,0));</span>
+<a name="296"><span class="lineNum">     296 </span>                :<span class="lineCov">      16908 : }</span></a>
+<a name="297"><span class="lineNum">     297 </span>                :            : </a>
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 : template&lt;&gt; EIGEN_STRONG_INLINE void prefetch&lt;float&gt;(const float*   addr) { _mm_prefetch((const char*)(addr), _MM_HINT_T0); }</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">       8070 : template&lt;&gt; EIGEN_STRONG_INLINE void prefetch&lt;double&gt;(const double* addr) { _mm_prefetch((const char*)(addr), _MM_HINT_T0); }</span>
+<span class="lineNum">     300 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE void prefetch&lt;int&gt;(const int*       addr) { _mm_prefetch((const char*)(addr), _MM_HINT_T0); }
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :            : #if defined(_MSC_VER) &amp;&amp; defined(_WIN64) &amp;&amp; !defined(__INTEL_COMPILER)
+<span class="lineNum">     303 </span>                :            : // The temporary variable fixes an internal compilation error in vs &lt;= 2008 and a wrong-result bug in vs 2010
+<span class="lineNum">     304 </span>                :            : // Direct of the struct members fixed bug #62.
+<span class="lineNum">     305 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE float  pfirst&lt;Packet4f&gt;(const Packet4f&amp; a) { return a.m128_f32[0]; }
+<span class="lineNum">     306 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE double pfirst&lt;Packet2d&gt;(const Packet2d&amp; a) { return a.m128d_f64[0]; }
+<span class="lineNum">     307 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE int    pfirst&lt;Packet4i&gt;(const Packet4i&amp; a) { int x = _mm_cvtsi128_si32(a); return x; }
+<span class="lineNum">     308 </span>                :            : #elif defined(_MSC_VER) &amp;&amp; !defined(__INTEL_COMPILER)
+<span class="lineNum">     309 </span>                :            : // The temporary variable fixes an internal compilation error in vs &lt;= 2008 and a wrong-result bug in vs 2010
+<span class="lineNum">     310 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE float  pfirst&lt;Packet4f&gt;(const Packet4f&amp; a) { float x = _mm_cvtss_f32(a); return x; }
+<span class="lineNum">     311 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE double pfirst&lt;Packet2d&gt;(const Packet2d&amp; a) { double x = _mm_cvtsd_f64(a); return x; }
+<a name="312"><span class="lineNum">     312 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE int    pfirst&lt;Packet4i&gt;(const Packet4i&amp; a) { int x = _mm_cvtsi128_si32(a); return x; }</a>
+<a name="313"><span class="lineNum">     313 </span>                :            : #else</a>
+<a name="314"><span class="lineNum">     314 </span>                :<span class="lineCov">    1433606 : template&lt;&gt; EIGEN_STRONG_INLINE float  pfirst&lt;Packet4f&gt;(const Packet4f&amp; a) { return _mm_cvtss_f32(a); }</span></a>
+<span class="lineNum">     315 </span>                :<span class="lineCov">      18524 : template&lt;&gt; EIGEN_STRONG_INLINE double pfirst&lt;Packet2d&gt;(const Packet2d&amp; a) { return _mm_cvtsd_f64(a); }</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 : template&lt;&gt; EIGEN_STRONG_INLINE int    pfirst&lt;Packet4i&gt;(const Packet4i&amp; a) { return _mm_cvtsi128_si32(a); }</span>
+<span class="lineNum">     317 </span>                :            : #endif
+<span class="lineNum">     318 </span>                :            : 
+<a name="319"><span class="lineNum">     319 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f preverse(const Packet4f&amp; a)</a>
+<span class="lineNum">     320 </span>                :            : { return _mm_shuffle_ps(a,a,0x1B); }
+<span class="lineNum">     321 </span>                :<span class="lineCov">         24 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d preverse(const Packet2d&amp; a)</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">         24 : { return _mm_shuffle_pd(a,a,0x1); }</span>
+<span class="lineNum">     323 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i preverse(const Packet4i&amp; a)
+<span class="lineNum">     324 </span>                :            : { return _mm_shuffle_epi32(a,0x1B); }
+<a name="325"><span class="lineNum">     325 </span>                :            : </a>
+<span class="lineNum">     326 </span>                :            : 
+<span class="lineNum">     327 </span>                :<span class="lineCov">     708964 : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f pabs(const Packet4f&amp; a)</span>
+<span class="lineNum">     328 </span>                :            : {
+<span class="lineNum">     329 </span>                :<span class="lineCov">    1417928 :   const Packet4f mask = _mm_castsi128_ps(_mm_setr_epi32(0x7FFFFFFF,0x7FFFFFFF,0x7FFFFFFF,0x7FFFFFFF));</span>
+<a name="330"><span class="lineNum">     330 </span>                :<span class="lineCov">     708964 :   return _mm_and_ps(a,mask);</span></a>
+<span class="lineNum">     331 </span>                :            : }
+<span class="lineNum">     332 </span>                :<span class="lineCov">        126 : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d pabs(const Packet2d&amp; a)</span>
+<span class="lineNum">     333 </span>                :            : {
+<span class="lineNum">     334 </span>                :<span class="lineCov">        252 :   const Packet2d mask = _mm_castsi128_pd(_mm_setr_epi32(0xFFFFFFFF,0x7FFFFFFF,0xFFFFFFFF,0x7FFFFFFF));</span>
+<span class="lineNum">     335 </span>                :<span class="lineCov">        126 :   return _mm_and_pd(a,mask);</span>
+<span class="lineNum">     336 </span>                :            : }
+<span class="lineNum">     337 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i pabs(const Packet4i&amp; a)
+<span class="lineNum">     338 </span>                :            : {
+<span class="lineNum">     339 </span>                :            :   #ifdef EIGEN_VECTORIZE_SSSE3
+<span class="lineNum">     340 </span>                :            :   return _mm_abs_epi32(a);
+<span class="lineNum">     341 </span>                :            :   #else
+<span class="lineNum">     342 </span>                :            :   Packet4i aux = _mm_srai_epi32(a,31);
+<span class="lineNum">     343 </span>                :            :   return _mm_sub_epi32(_mm_xor_si128(a,aux),aux);
+<span class="lineNum">     344 </span>                :            :   #endif
+<span class="lineNum">     345 </span>                :            : }
+<span class="lineNum">     346 </span>                :            : 
+<span class="lineNum">     347 </span>                :            : EIGEN_STRONG_INLINE void punpackp(Packet4f* vecs)
+<span class="lineNum">     348 </span>                :            : {
+<span class="lineNum">     349 </span>                :            :   vecs[1] = _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(vecs[0]), 0x55));
+<span class="lineNum">     350 </span>                :            :   vecs[2] = _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(vecs[0]), 0xAA));
+<span class="lineNum">     351 </span>                :            :   vecs[3] = _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(vecs[0]), 0xFF));
+<span class="lineNum">     352 </span>                :            :   vecs[0] = _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(vecs[0]), 0x00));
+<span class="lineNum">     353 </span>                :            : }
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :            : #ifdef EIGEN_VECTORIZE_SSE3
+<span class="lineNum">     356 </span>                :            : // TODO implement SSE2 versions as well as integer versions
+<span class="lineNum">     357 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f preduxp&lt;Packet4f&gt;(const Packet4f* vecs)
+<span class="lineNum">     358 </span>                :            : {
+<span class="lineNum">     359 </span>                :            :   return _mm_hadd_ps(_mm_hadd_ps(vecs[0], vecs[1]),_mm_hadd_ps(vecs[2], vecs[3]));
+<span class="lineNum">     360 </span>                :            : }
+<span class="lineNum">     361 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d preduxp&lt;Packet2d&gt;(const Packet2d* vecs)
+<span class="lineNum">     362 </span>                :            : {
+<span class="lineNum">     363 </span>                :            :   return _mm_hadd_pd(vecs[0], vecs[1]);
+<span class="lineNum">     364 </span>                :            : }
+<span class="lineNum">     365 </span>                :            : // SSSE3 version:
+<span class="lineNum">     366 </span>                :            : // EIGEN_STRONG_INLINE Packet4i preduxp(const Packet4i* vecs)
+<span class="lineNum">     367 </span>                :            : // {
+<span class="lineNum">     368 </span>                :            : //   return _mm_hadd_epi32(_mm_hadd_epi32(vecs[0], vecs[1]),_mm_hadd_epi32(vecs[2], vecs[3]));
+<a name="369"><span class="lineNum">     369 </span>                :            : // }</a>
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>                :<span class="lineCov">       7839 : template&lt;&gt; EIGEN_STRONG_INLINE float predux&lt;Packet4f&gt;(const Packet4f&amp; a)</span>
+<span class="lineNum">     372 </span>                :            : {
+<span class="lineNum">     373 </span>                :<span class="lineCov">      15678 :   Packet4f tmp0 = _mm_hadd_ps(a,a);</span>
+<span class="lineNum">     374 </span>        [<span class="branchCov" title="Branch 1 was taken 7839 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       7839 :   return pfirst(_mm_hadd_ps(tmp0, tmp0));</span>
+<a name="375"><span class="lineNum">     375 </span>                :            : }</a>
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>        [<span class="branchCov" title="Branch 1 was taken 9105 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       9105 : template&lt;&gt; EIGEN_STRONG_INLINE double predux&lt;Packet2d&gt;(const Packet2d&amp; a) { return pfirst(_mm_hadd_pd(a, a)); }</span>
+<span class="lineNum">     378 </span>                :            : 
+<span class="lineNum">     379 </span>                :            : // SSSE3 version:
+<span class="lineNum">     380 </span>                :            : // EIGEN_STRONG_INLINE float predux(const Packet4i&amp; a)
+<span class="lineNum">     381 </span>                :            : // {
+<span class="lineNum">     382 </span>                :            : //   Packet4i tmp0 = _mm_hadd_epi32(a,a);
+<span class="lineNum">     383 </span>                :            : //   return pfirst(_mm_hadd_epi32(tmp0, tmp0));
+<span class="lineNum">     384 </span>                :            : // }
+<span class="lineNum">     385 </span>                :            : #else
+<span class="lineNum">     386 </span>                :            : // SSE2 versions
+<span class="lineNum">     387 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE float predux&lt;Packet4f&gt;(const Packet4f&amp; a)
+<span class="lineNum">     388 </span>                :            : {
+<span class="lineNum">     389 </span>                :            :   Packet4f tmp = _mm_add_ps(a, _mm_movehl_ps(a,a));
+<span class="lineNum">     390 </span>                :            :   return pfirst(_mm_add_ss(tmp, _mm_shuffle_ps(tmp,tmp, 1)));
+<span class="lineNum">     391 </span>                :            : }
+<span class="lineNum">     392 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE double predux&lt;Packet2d&gt;(const Packet2d&amp; a)
+<span class="lineNum">     393 </span>                :            : {
+<span class="lineNum">     394 </span>                :            :   return pfirst(_mm_add_sd(a, _mm_unpackhi_pd(a,a)));
+<span class="lineNum">     395 </span>                :            : }
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4f preduxp&lt;Packet4f&gt;(const Packet4f* vecs)
+<span class="lineNum">     398 </span>                :            : {
+<span class="lineNum">     399 </span>                :            :   Packet4f tmp0, tmp1, tmp2;
+<span class="lineNum">     400 </span>                :            :   tmp0 = _mm_unpacklo_ps(vecs[0], vecs[1]);
+<span class="lineNum">     401 </span>                :            :   tmp1 = _mm_unpackhi_ps(vecs[0], vecs[1]);
+<span class="lineNum">     402 </span>                :            :   tmp2 = _mm_unpackhi_ps(vecs[2], vecs[3]);
+<span class="lineNum">     403 </span>                :            :   tmp0 = _mm_add_ps(tmp0, tmp1);
+<span class="lineNum">     404 </span>                :            :   tmp1 = _mm_unpacklo_ps(vecs[2], vecs[3]);
+<span class="lineNum">     405 </span>                :            :   tmp1 = _mm_add_ps(tmp1, tmp2);
+<span class="lineNum">     406 </span>                :            :   tmp2 = _mm_movehl_ps(tmp1, tmp0);
+<span class="lineNum">     407 </span>                :            :   tmp0 = _mm_movelh_ps(tmp0, tmp1);
+<span class="lineNum">     408 </span>                :            :   return _mm_add_ps(tmp0, tmp2);
+<span class="lineNum">     409 </span>                :            : }
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet2d preduxp&lt;Packet2d&gt;(const Packet2d* vecs)
+<span class="lineNum">     412 </span>                :            : {
+<span class="lineNum">     413 </span>                :            :   return _mm_add_pd(_mm_unpacklo_pd(vecs[0], vecs[1]), _mm_unpackhi_pd(vecs[0], vecs[1]));
+<span class="lineNum">     414 </span>                :            : }
+<a name="415"><span class="lineNum">     415 </span>                :            : #endif  // SSE3</a>
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :<span class="lineNoCov">          0 : template&lt;&gt; EIGEN_STRONG_INLINE int predux&lt;Packet4i&gt;(const Packet4i&amp; a)</span>
+<span class="lineNum">     418 </span>                :            : {
+<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :   Packet4i tmp = _mm_add_epi32(a, _mm_unpackhi_epi64(a,a));</span>
+<span class="lineNum">     420 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   return pfirst(tmp) + pfirst(_mm_shuffle_epi32(tmp, 1));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     421 </span>                :            : }
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE Packet4i preduxp&lt;Packet4i&gt;(const Packet4i* vecs)
+<span class="lineNum">     424 </span>                :            : {
+<span class="lineNum">     425 </span>                :            :   Packet4i tmp0, tmp1, tmp2;
+<span class="lineNum">     426 </span>                :            :   tmp0 = _mm_unpacklo_epi32(vecs[0], vecs[1]);
+<span class="lineNum">     427 </span>                :            :   tmp1 = _mm_unpackhi_epi32(vecs[0], vecs[1]);
+<span class="lineNum">     428 </span>                :            :   tmp2 = _mm_unpackhi_epi32(vecs[2], vecs[3]);
+<span class="lineNum">     429 </span>                :            :   tmp0 = _mm_add_epi32(tmp0, tmp1);
+<span class="lineNum">     430 </span>                :            :   tmp1 = _mm_unpacklo_epi32(vecs[2], vecs[3]);
+<span class="lineNum">     431 </span>                :            :   tmp1 = _mm_add_epi32(tmp1, tmp2);
+<span class="lineNum">     432 </span>                :            :   tmp2 = _mm_unpacklo_epi64(tmp0, tmp1);
+<span class="lineNum">     433 </span>                :            :   tmp0 = _mm_unpackhi_epi64(tmp0, tmp1);
+<span class="lineNum">     434 </span>                :            :   return _mm_add_epi32(tmp0, tmp2);
+<span class="lineNum">     435 </span>                :            : }
+<span class="lineNum">     436 </span>                :            : 
+<span class="lineNum">     437 </span>                :            : // Other reduction functions:
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :            : // mul
+<span class="lineNum">     440 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE float predux_mul&lt;Packet4f&gt;(const Packet4f&amp; a)
+<span class="lineNum">     441 </span>                :            : {
+<span class="lineNum">     442 </span>                :            :   Packet4f tmp = _mm_mul_ps(a, _mm_movehl_ps(a,a));
+<a name="443"><span class="lineNum">     443 </span>                :            :   return pfirst(_mm_mul_ss(tmp, _mm_shuffle_ps(tmp,tmp, 1)));</a>
+<span class="lineNum">     444 </span>                :            : }
+<span class="lineNum">     445 </span>                :<span class="lineNoCov">          0 : template&lt;&gt; EIGEN_STRONG_INLINE double predux_mul&lt;Packet2d&gt;(const Packet2d&amp; a)</span>
+<span class="lineNum">     446 </span>                :            : {
+<span class="lineNum">     447 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   return pfirst(_mm_mul_sd(a, _mm_unpackhi_pd(a,a)));</span>
+<span class="lineNum">     448 </span>                :            : }
+<span class="lineNum">     449 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE int predux_mul&lt;Packet4i&gt;(const Packet4i&amp; a)
+<span class="lineNum">     450 </span>                :            : {
+<span class="lineNum">     451 </span>                :            :   // after some experiments, it is seems this is the fastest way to implement it
+<span class="lineNum">     452 </span>                :            :   // for GCC (eg., reusing pmul is very slow !)
+<span class="lineNum">     453 </span>                :            :   // TODO try to call _mm_mul_epu32 directly
+<span class="lineNum">     454 </span>                :            :   EIGEN_ALIGN16 int aux[4];
+<span class="lineNum">     455 </span>                :            :   pstore(aux, a);
+<span class="lineNum">     456 </span>                :            :   return  (aux[0] * aux[1]) * (aux[2] * aux[3]);;
+<span class="lineNum">     457 </span>                :            : }
+<span class="lineNum">     458 </span>                :            : 
+<span class="lineNum">     459 </span>                :            : // min
+<span class="lineNum">     460 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE float predux_min&lt;Packet4f&gt;(const Packet4f&amp; a)
+<span class="lineNum">     461 </span>                :            : {
+<span class="lineNum">     462 </span>                :            :   Packet4f tmp = _mm_min_ps(a, _mm_movehl_ps(a,a));
+<span class="lineNum">     463 </span>                :            :   return pfirst(_mm_min_ss(tmp, _mm_shuffle_ps(tmp,tmp, 1)));
+<span class="lineNum">     464 </span>                :            : }
+<span class="lineNum">     465 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE double predux_min&lt;Packet2d&gt;(const Packet2d&amp; a)
+<span class="lineNum">     466 </span>                :            : {
+<span class="lineNum">     467 </span>                :            :   return pfirst(_mm_min_sd(a, _mm_unpackhi_pd(a,a)));
+<span class="lineNum">     468 </span>                :            : }
+<span class="lineNum">     469 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE int predux_min&lt;Packet4i&gt;(const Packet4i&amp; a)
+<span class="lineNum">     470 </span>                :            : {
+<span class="lineNum">     471 </span>                :            :   // after some experiments, it is seems this is the fastest way to implement it
+<span class="lineNum">     472 </span>                :            :   // for GCC (eg., it does not like using std::min after the pstore !!)
+<span class="lineNum">     473 </span>                :            :   EIGEN_ALIGN16 int aux[4];
+<span class="lineNum">     474 </span>                :            :   pstore(aux, a);
+<span class="lineNum">     475 </span>                :            :   int aux0 = aux[0]&lt;aux[1] ? aux[0] : aux[1];
+<span class="lineNum">     476 </span>                :            :   int aux2 = aux[2]&lt;aux[3] ? aux[2] : aux[3];
+<span class="lineNum">     477 </span>                :            :   return aux0&lt;aux2 ? aux0 : aux2;
+<span class="lineNum">     478 </span>                :            : }
+<a name="479"><span class="lineNum">     479 </span>                :            : </a>
+<span class="lineNum">     480 </span>                :            : // max
+<span class="lineNum">     481 </span>                :<span class="lineCov">     708964 : template&lt;&gt; EIGEN_STRONG_INLINE float predux_max&lt;Packet4f&gt;(const Packet4f&amp; a)</span>
+<span class="lineNum">     482 </span>                :            : {
+<span class="lineNum">     483 </span>                :<span class="lineCov">    2126892 :   Packet4f tmp = _mm_max_ps(a, _mm_movehl_ps(a,a));</span>
+<a name="484"><span class="lineNum">     484 </span>        [<span class="branchCov" title="Branch 2 was taken 708964 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">    1417928 :   return pfirst(_mm_max_ss(tmp, _mm_shuffle_ps(tmp,tmp, 1)));</span></a>
+<span class="lineNum">     485 </span>                :            : }
+<span class="lineNum">     486 </span>                :<span class="lineCov">        157 : template&lt;&gt; EIGEN_STRONG_INLINE double predux_max&lt;Packet2d&gt;(const Packet2d&amp; a)</span>
+<span class="lineNum">     487 </span>                :            : {
+<span class="lineNum">     488 </span>        [<span class="branchCov" title="Branch 1 was taken 157 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        157 :   return pfirst(_mm_max_sd(a, _mm_unpackhi_pd(a,a)));</span>
+<span class="lineNum">     489 </span>                :            : }
+<span class="lineNum">     490 </span>                :            : template&lt;&gt; EIGEN_STRONG_INLINE int predux_max&lt;Packet4i&gt;(const Packet4i&amp; a)
+<span class="lineNum">     491 </span>                :            : {
+<span class="lineNum">     492 </span>                :            :   // after some experiments, it is seems this is the fastest way to implement it
+<span class="lineNum">     493 </span>                :            :   // for GCC (eg., it does not like using std::min after the pstore !!)
+<span class="lineNum">     494 </span>                :            :   EIGEN_ALIGN16 int aux[4];
+<span class="lineNum">     495 </span>                :            :   pstore(aux, a);
+<span class="lineNum">     496 </span>                :            :   int aux0 = aux[0]&gt;aux[1] ? aux[0] : aux[1];
+<span class="lineNum">     497 </span>                :            :   int aux2 = aux[2]&gt;aux[3] ? aux[2] : aux[3];
+<span class="lineNum">     498 </span>                :            :   return aux0&gt;aux2 ? aux0 : aux2;
+<span class="lineNum">     499 </span>                :            : }
+<span class="lineNum">     500 </span>                :            : 
+<span class="lineNum">     501 </span>                :            : #if (defined __GNUC__)
+<span class="lineNum">     502 </span>                :            : // template &lt;&gt; EIGEN_STRONG_INLINE Packet4f pmadd(const Packet4f&amp;  a, const Packet4f&amp;  b, const Packet4f&amp;  c)
+<span class="lineNum">     503 </span>                :            : // {
+<span class="lineNum">     504 </span>                :            : //   Packet4f res = b;
+<span class="lineNum">     505 </span>                :            : //   asm(&quot;mulps %[a], %[b] \n\taddps %[c], %[b]&quot; : [b] &quot;+x&quot; (res) : [a] &quot;x&quot; (a), [c] &quot;x&quot; (c));
+<span class="lineNum">     506 </span>                :            : //   return res;
+<span class="lineNum">     507 </span>                :            : // }
+<span class="lineNum">     508 </span>                :            : // EIGEN_STRONG_INLINE Packet4i _mm_alignr_epi8(const Packet4i&amp;  a, const Packet4i&amp;  b, const int i)
+<span class="lineNum">     509 </span>                :            : // {
+<span class="lineNum">     510 </span>                :            : //   Packet4i res = a;
+<span class="lineNum">     511 </span>                :            : //   asm(&quot;palignr %[i], %[a], %[b] &quot; : [b] &quot;+x&quot; (res) : [a] &quot;x&quot; (a), [i] &quot;i&quot; (i));
+<span class="lineNum">     512 </span>                :            : //   return res;
+<span class="lineNum">     513 </span>                :            : // }
+<span class="lineNum">     514 </span>                :            : #endif
+<span class="lineNum">     515 </span>                :            : 
+<span class="lineNum">     516 </span>                :            : #ifdef EIGEN_VECTORIZE_SSSE3
+<span class="lineNum">     517 </span>                :            : // SSSE3 versions
+<span class="lineNum">     518 </span>                :            : template&lt;int Offset&gt;
+<a name="519"><span class="lineNum">     519 </span>                :            : struct palign_impl&lt;Offset,Packet4f&gt;</a>
+<span class="lineNum">     520 </span>                :            : {
+<span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :   static EIGEN_STRONG_INLINE void run(Packet4f&amp; first, const Packet4f&amp; second)</span>
+<span class="lineNum">     522 </span>                :            :   {
+<span class="lineNum">     523 </span>                :            :     if (Offset!=0)
+<span class="lineNum">     524 </span>                :<span class="lineNoCov">          0 :       first = _mm_castsi128_ps(_mm_alignr_epi8(_mm_castps_si128(second), _mm_castps_si128(first), Offset*4));</span>
+<span class="lineNum">     525 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     526 </span>                :            : };
+<span class="lineNum">     527 </span>                :            : 
+<span class="lineNum">     528 </span>                :            : template&lt;int Offset&gt;
+<span class="lineNum">     529 </span>                :            : struct palign_impl&lt;Offset,Packet4i&gt;
+<span class="lineNum">     530 </span>                :            : {
+<span class="lineNum">     531 </span>                :            :   static EIGEN_STRONG_INLINE void run(Packet4i&amp; first, const Packet4i&amp; second)
+<span class="lineNum">     532 </span>                :            :   {
+<span class="lineNum">     533 </span>                :            :     if (Offset!=0)
+<span class="lineNum">     534 </span>                :            :       first = _mm_alignr_epi8(second,first, Offset*4);
+<span class="lineNum">     535 </span>                :            :   }
+<span class="lineNum">     536 </span>                :            : };
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>                :            : template&lt;int Offset&gt;
+<a name="539"><span class="lineNum">     539 </span>                :            : struct palign_impl&lt;Offset,Packet2d&gt;</a>
+<span class="lineNum">     540 </span>                :            : {
+<span class="lineNum">     541 </span>                :<span class="lineNoCov">          0 :   static EIGEN_STRONG_INLINE void run(Packet2d&amp; first, const Packet2d&amp; second)</span>
+<span class="lineNum">     542 </span>                :            :   {
+<span class="lineNum">     543 </span>                :            :     if (Offset==1)
+<span class="lineNum">     544 </span>                :<span class="lineNoCov">          0 :       first = _mm_castsi128_pd(_mm_alignr_epi8(_mm_castpd_si128(second), _mm_castpd_si128(first), 8));</span>
+<span class="lineNum">     545 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     546 </span>                :            : };
+<span class="lineNum">     547 </span>                :            : #else
+<span class="lineNum">     548 </span>                :            : // SSE2 versions
+<span class="lineNum">     549 </span>                :            : template&lt;int Offset&gt;
+<span class="lineNum">     550 </span>                :            : struct palign_impl&lt;Offset,Packet4f&gt;
+<span class="lineNum">     551 </span>                :            : {
+<span class="lineNum">     552 </span>                :            :   static EIGEN_STRONG_INLINE void run(Packet4f&amp; first, const Packet4f&amp; second)
+<span class="lineNum">     553 </span>                :            :   {
+<span class="lineNum">     554 </span>                :            :     if (Offset==1)
+<span class="lineNum">     555 </span>                :            :     {
+<span class="lineNum">     556 </span>                :            :       first = _mm_move_ss(first,second);
+<span class="lineNum">     557 </span>                :            :       first = _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(first),0x39));
+<span class="lineNum">     558 </span>                :            :     }
+<span class="lineNum">     559 </span>                :            :     else if (Offset==2)
+<span class="lineNum">     560 </span>                :            :     {
+<span class="lineNum">     561 </span>                :            :       first = _mm_movehl_ps(first,first);
+<span class="lineNum">     562 </span>                :            :       first = _mm_movelh_ps(first,second);
+<span class="lineNum">     563 </span>                :            :     }
+<span class="lineNum">     564 </span>                :            :     else if (Offset==3)
+<span class="lineNum">     565 </span>                :            :     {
+<span class="lineNum">     566 </span>                :            :       first = _mm_move_ss(first,second);
+<span class="lineNum">     567 </span>                :            :       first = _mm_shuffle_ps(first,second,0x93);
+<span class="lineNum">     568 </span>                :            :     }
+<span class="lineNum">     569 </span>                :            :   }
+<span class="lineNum">     570 </span>                :            : };
+<span class="lineNum">     571 </span>                :            : 
+<span class="lineNum">     572 </span>                :            : template&lt;int Offset&gt;
+<span class="lineNum">     573 </span>                :            : struct palign_impl&lt;Offset,Packet4i&gt;
+<span class="lineNum">     574 </span>                :            : {
+<span class="lineNum">     575 </span>                :            :   static EIGEN_STRONG_INLINE void run(Packet4i&amp; first, const Packet4i&amp; second)
+<span class="lineNum">     576 </span>                :            :   {
+<span class="lineNum">     577 </span>                :            :     if (Offset==1)
+<span class="lineNum">     578 </span>                :            :     {
+<span class="lineNum">     579 </span>                :            :       first = _mm_castps_si128(_mm_move_ss(_mm_castsi128_ps(first),_mm_castsi128_ps(second)));
+<span class="lineNum">     580 </span>                :            :       first = _mm_shuffle_epi32(first,0x39);
+<span class="lineNum">     581 </span>                :            :     }
+<span class="lineNum">     582 </span>                :            :     else if (Offset==2)
+<span class="lineNum">     583 </span>                :            :     {
+<span class="lineNum">     584 </span>                :            :       first = _mm_castps_si128(_mm_movehl_ps(_mm_castsi128_ps(first),_mm_castsi128_ps(first)));
+<span class="lineNum">     585 </span>                :            :       first = _mm_castps_si128(_mm_movelh_ps(_mm_castsi128_ps(first),_mm_castsi128_ps(second)));
+<span class="lineNum">     586 </span>                :            :     }
+<span class="lineNum">     587 </span>                :            :     else if (Offset==3)
+<span class="lineNum">     588 </span>                :            :     {
+<span class="lineNum">     589 </span>                :            :       first = _mm_castps_si128(_mm_move_ss(_mm_castsi128_ps(first),_mm_castsi128_ps(second)));
+<span class="lineNum">     590 </span>                :            :       first = _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(first),_mm_castsi128_ps(second),0x93));
+<span class="lineNum">     591 </span>                :            :     }
+<span class="lineNum">     592 </span>                :            :   }
+<span class="lineNum">     593 </span>                :            : };
+<span class="lineNum">     594 </span>                :            : 
+<span class="lineNum">     595 </span>                :            : template&lt;int Offset&gt;
+<span class="lineNum">     596 </span>                :            : struct palign_impl&lt;Offset,Packet2d&gt;
+<span class="lineNum">     597 </span>                :            : {
+<span class="lineNum">     598 </span>                :            :   static EIGEN_STRONG_INLINE void run(Packet2d&amp; first, const Packet2d&amp; second)
+<span class="lineNum">     599 </span>                :            :   {
+<span class="lineNum">     600 </span>                :            :     if (Offset==1)
+<span class="lineNum">     601 </span>                :            :     {
+<span class="lineNum">     602 </span>                :            :       first = _mm_castps_pd(_mm_movehl_ps(_mm_castpd_ps(first),_mm_castpd_ps(first)));
+<span class="lineNum">     603 </span>                :            :       first = _mm_castps_pd(_mm_movelh_ps(_mm_castpd_ps(first),_mm_castpd_ps(second)));
+<span class="lineNum">     604 </span>                :            :     }
+<span class="lineNum">     605 </span>                :            :   }
+<span class="lineNum">     606 </span>                :            : };
+<span class="lineNum">     607 </span>                :            : #endif
+<span class="lineNum">     608 </span>                :            : 
+<span class="lineNum">     609 </span>                :            : } // end namespace internal
+<span class="lineNum">     610 </span>                :            : 
+<span class="lineNum">     611 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     612 </span>                :            : 
+<span class="lineNum">     613 </span>                :            : #endif // EIGEN_PACKET_MATH_SSE_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

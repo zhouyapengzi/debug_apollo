@@ -1,0 +1,482 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/localization/msf/local_integ/localization_gnss_process.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/localization/msf/local_integ</a> - localization_gnss_process.cc<span style="font-size: 80%;"> (source / <a href="localization_gnss_process.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">194</td>
+            <td class="headerCovTableEntryLo">11.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">38.5 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">270</td>
+            <td class="headerCovTableEntryLo">4.8 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;modules/localization/msf/local_integ/localization_gnss_process.h&quot;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &quot;yaml-cpp/yaml.h&quot;
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      22 </span>                :            : #include &quot;modules/common/time/time.h&quot;
+<span class="lineNum">      23 </span>                :            : #include &quot;modules/localization/msf/local_integ/gnss_msg_transfer.h&quot;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : namespace apollo {
+<span class="lineNum">      26 </span>                :            : namespace localization {
+<span class="lineNum">      27 </span>                :            : namespace msf {
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : using apollo::common::Status;
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :<span class="lineCov">          1 : LocalizationGnssProcess::LocalizationGnssProcess()</span>
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :     : gnss_solver_(new GnssSolver()),</span>
+<span class="lineNum">      33 </span>                :            :       enable_ins_aid_rtk_(true),
+<span class="lineNum">      34 </span>                :            :       gnss_lever_arm_{
+<span class="lineNum">      35 </span>                :            : 0.0, 0.0, 0.0},
+<span class="lineNum">      36 </span>                :            :       sins_align_finish_(false),
+<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :       double_antenna_solver_(new GnssSolver()),</span>
+<span class="lineNum">      38 </span>                :            :       current_obs_time_(0.0),
+<span class="lineNum">      39 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          1 :       gnss_state_(LocalizationMeasureState::NOT_VALID) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 9 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">      40 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :   SetDefaultOption();</span>
+<span class="lineNum">      41 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :<span class="lineCov">          2 : LocalizationGnssProcess::~LocalizationGnssProcess() {</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">          1 :   map_gnss_eph_.clear();</span>
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   delete gnss_solver_;</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">          1 :   gnss_solver_ = nullptr;</span>
+<span class="lineNum">      48 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :   delete double_antenna_solver_;</span>
+<span class="lineNum">      49 </span>                :<span class="lineCov">          1 :   double_antenna_solver_ = nullptr;</span>
+<span class="lineNum">      50 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 : Status LocalizationGnssProcess::Init(const LocalizationIntegParam &amp;param) {</span>
+<span class="lineNum">      53 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationGnssProcess::Init&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            :   // set launch parameter
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :   enable_ins_aid_rtk_ = param.enable_ins_aid_rtk;</span>
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :   gnss_solver_-&gt;set_enable_external_prediction(enable_ins_aid_rtk_);</span>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :   gnss_lever_arm_.arm_x = param.imu_to_ant_offset.offset_x;</span>
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :   gnss_lever_arm_.arm_y = param.imu_to_ant_offset.offset_y;</span>
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :   gnss_lever_arm_.arm_z = param.imu_to_ant_offset.offset_z;</span>
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :   map_gnss_eph_.clear();</span>
+<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 :   sins_align_finish_ = false;</span>
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :   return Status::OK();</span>
+<a name="67"><span class="lineNum">      67 </span>                :            : }</a>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineCov">          1 : void LocalizationGnssProcess::SetDefaultOption() {</span>
+<span class="lineNum">      70 </span>[<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationGnssProcess::SetDefaultOption&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            :   // set default process modes
+<span class="lineNum">      73 </span>                :<span class="lineCov">          1 :   gnss_solver_-&gt;set_position_option(3);</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">          1 :   gnss_solver_-&gt;set_tropsphere_option(0);</span>
+<span class="lineNum">      75 </span>                :<span class="lineCov">          1 :   gnss_solver_-&gt;enable_cycle_slip_fix();</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">          1 :   enable_ins_aid_rtk_ = false;</span>
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :<span class="lineCov">          1 :   gnss_lever_arm_.arm_x = -0.030;</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">          1 :   gnss_lever_arm_.arm_y = 0.338;</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">          1 :   gnss_lever_arm_.arm_z = 1.291;</span>
+<a name="81"><span class="lineNum">      81 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 : void LocalizationGnssProcess::RawObservationProcess(</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :     const drivers::gnss::EpochObservation &amp;raw_obs) {</span>
+<span class="lineNum">      85 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationGnssProcess::RawObservationProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!raw_obs.has_receiver_id()) {</span>
+<span class="lineNum">      88 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;Obs data being invalid if without receiver id!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">      90 </span>                :            :   }
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :   const double unix_to_gps = 315964800;</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :   const double sec_per_week = 604800;</span>
+<span class="lineNum">      93 </span>                :            :   double leap_second_s = gnss_solver_-&gt;get_leap_second(raw_obs.gnss_week(),
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :                                                        raw_obs.gnss_second_s());</span>
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :            :   double sys_secs_to_gnss =
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :       common::time::Clock::NowInSeconds() - unix_to_gps + leap_second_s;</span>
+<span class="lineNum">      98 </span>                :            :   double obs_secs =
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :       raw_obs.gnss_second_s() + raw_obs.gnss_week() * sec_per_week;</span>
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :   double obs_delay = sys_secs_to_gnss - obs_secs;</span>
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :   double obs_xyz[3] = {0.0};</span>
+<span class="lineNum">     103 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (raw_obs.has_position_x() &amp;&amp; raw_obs.has_position_y() &amp;&amp;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     104 </span>                :            :       raw_obs.has_position_z()) {
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :     obs_xyz[0] = raw_obs.position_x();</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :     obs_xyz[1] = raw_obs.position_y();</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :     obs_xyz[2] = raw_obs.position_z();</span>
+<span class="lineNum">     108 </span>                :            :   }
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :   const unsigned int max_msg_size = 256;</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :   char message[max_msg_size] = {'\0'};</span>
+<span class="lineNum">     111 </span>                :            :   snprintf(
+<span class="lineNum">     112 </span>                :            :       message, max_msg_size,
+<span class="lineNum">     113 </span>                :            :       &quot;user %u time:%12.3f sat_num:%d obs_delay:%12.3f%16.3f%16.3f%16.3f\n&quot;,
+<span class="lineNum">     114 </span>                :            :       raw_obs.receiver_id(), raw_obs.gnss_second_s(), raw_obs.sat_obs_num(),
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :       obs_delay, obs_xyz[0], obs_xyz[1], obs_xyz[2]);</span>
+<span class="lineNum">     116 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; message;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :   EpochObservationMsg raw_obs_msg;</span>
+<span class="lineNum">     119 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   GnssMagTransfer::Transfer(raw_obs, &amp;raw_obs_msg);</span>
+<span class="lineNum">     120 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (raw_obs.receiver_id() != 0) {</span>
+<span class="lineNum">     121 </span>                :            :     // Notice: the baser coordinate should be binded with obs together anytime.
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     gnss_solver_-&gt;save_baser_observation(raw_obs_msg);</span>
+<span class="lineNum">     123 </span>                :            :     // id - 0x80000000 = station_id from gnss_driver
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     125 </span>                :            :   }
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :   const unsigned int second_per_week = 604800;</span>
+<span class="lineNum">     128 </span>                :            :   double new_obs_time =
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :       raw_obs.gnss_second_s() + raw_obs.gnss_week() * second_per_week;</span>
+<span class="lineNum">     130 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (new_obs_time &lt;= current_obs_time_) {</span>
+<span class="lineNum">     131 </span>                :            :     return;
+<span class="lineNum">     132 </span>                :            :   }
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :   current_obs_time_ = new_obs_time;</span>
+<span class="lineNum">     134 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   GnssPosition(&amp;raw_obs_msg);</span>
+<a name="135"><span class="lineNum">     135 </span>                :            : }</a>
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 : void LocalizationGnssProcess::RawEphemerisProcess(</span>
+<span class="lineNum">     138 </span>                :            :     const drivers::gnss::GnssEphemeris &amp;msg) {
+<span class="lineNum">     139 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationGnssProcess::RawEphemerisProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!msg.has_gnss_type()) {</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     143 </span>                :            :   }
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :   auto gnss_orbit = msg;</span>
+<span class="lineNum">     145 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_orbit.gnss_type() == drivers::gnss::GnssType::GLO_SYS) {</span>
+<span class="lineNum">     146 </span>                :            :     /* caros driver (derived from rtklib src) set glonass eph toe as the GPST,
+<span class="lineNum">     147 </span>                :            :      * and here convert it back to UTC(+0), so leap seconds should be in
+<span class="lineNum">     148 </span>                :            :      * accordance with the GNSS-Driver
+<span class="lineNum">     149 </span>                :            :      */
+<span class="lineNum">     150 </span>                :            :     double leap_sec =
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :         gnss_solver_-&gt;get_leap_second(gnss_orbit.glonass_orbit().week_num(),</span>
+<span class="lineNum">     152 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                       gnss_orbit.glonass_orbit().toe());</span>
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :     double toe = gnss_orbit.glonass_orbit().toe() - leap_sec;</span>
+<span class="lineNum">     154 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     gnss_orbit.mutable_glonass_orbit()-&gt;set_toe(toe);</span>
+<span class="lineNum">     155 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     gnss_orbit.mutable_glonass_orbit()-&gt;set_week_second_s(toe);</span>
+<span class="lineNum">     156 </span>                :            :   }
+<span class="lineNum">     157 </span>                :            :   static int eph_counter = 0;
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :   ++eph_counter;</span>
+<span class="lineNum">     159 </span>                :            :   // printf(&quot;received a gnss ephemeris: %d!\n&quot;, eph_counter);
+<span class="lineNum">     160 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (DuplicateEph(gnss_orbit)) {</span>
+<span class="lineNum">     161 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO &lt;&lt; &quot;received an existed gnss ephemeris!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     163 </span>                :            :   }
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   GnssEphemerisMsg gnss_orbit_msg;</span>
+<span class="lineNum">     166 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   GnssMagTransfer::Transfer(gnss_orbit, &amp;gnss_orbit_msg);</span>
+<span class="lineNum">     167 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   gnss_solver_-&gt;save_gnss_ephemris(gnss_orbit_msg);</span>
+<a name="168"><span class="lineNum">     168 </span>                :            : }</a>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 : void LocalizationGnssProcess::IntegSinsPvaProcess(const InsPva &amp;sins_pva_msg,</span>
+<span class="lineNum">     171 </span>                :            :                                                   const double variance[9][9]) {
+<span class="lineNum">     172 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationGnssProcess::IntegSinsPvaProcess&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     173 </span>                :            : 
+<span class="lineNum">     174 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!sins_pva_msg.init_and_alignment) {</span>
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     176 </span>                :            :   }
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :   sins_align_finish_ = true;</span>
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :            :   // feed into GNSS-RTK Engine
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :   double sec_s = sins_pva_msg.time;</span>
+<span class="lineNum">     182 </span>                :            :   double llh[3] = {sins_pva_msg.pos.longitude, sins_pva_msg.pos.latitude,
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :                    sins_pva_msg.pos.height};</span>
+<span class="lineNum">     184 </span>                :            :   double velocity[3] = {sins_pva_msg.vel.ve, sins_pva_msg.vel.vn,
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :                         sins_pva_msg.vel.vu};</span>
+<span class="lineNum">     186 </span>                :            :   double lever_arm[3] = {gnss_lever_arm_.arm_x, gnss_lever_arm_.arm_y,
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :                          gnss_lever_arm_.arm_z};</span>
+<span class="lineNum">     188 </span>                :            :   double euler[3] = {sins_pva_msg.att.pitch, sins_pva_msg.att.roll,
+<span class="lineNum">     189 </span>                :<span class="lineNoCov">          0 :                      sins_pva_msg.att.yaw};</span>
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :   double std_pos[3][3] = {0.0};</span>
+<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :   double std_vel[3][3] = {0.0};</span>
+<span class="lineNum">     193 </span>                :            :   // const unsigned int dim = 9;
+<span class="lineNum">     194 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (unsigned int i = 0; i &lt; 3; ++i) {</span>
+<span class="lineNum">     195 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (unsigned int j = 0; j &lt; 3; ++j) {</span>
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :       std_pos[i][j] = variance[i][j];</span>
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :       std_vel[i][j] = variance[i + 3][j + 3];</span>
+<span class="lineNum">     198 </span>                :            :     }
+<span class="lineNum">     199 </span>                :            :   }
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :            :   gnss_solver_-&gt;motion_update(sec_s, llh, std_pos, velocity, std_vel, euler,
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :                               lever_arm);</span>
+<a name="203"><span class="lineNum">     203 </span>                :            : }</a>
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 : LocalizationMeasureState LocalizationGnssProcess::GetResult(</span>
+<span class="lineNum">     206 </span>                :            :     MeasureData *gnss_msg) {
+<span class="lineNum">     207 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationGnssProcess::GetResult&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(gnss_msg);</span>
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :            :   // convert GnssPntResult to IntegMeasure
+<span class="lineNum">     212 </span>                :            :   // double sec_s = Clock::NowInSeconds(); // ros::Time::now().toSec();
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :   const unsigned int second_per_week = 604800;</span>
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :   double sec_s = gnss_pnt_result_.gnss_week() * second_per_week +</span>
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :                  gnss_pnt_result_.gnss_second_s();</span>
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :   gnss_msg-&gt;time = sec_s;</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :   gnss_msg-&gt;frame_type = FrameType::ECEF;</span>
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :            :   // velocity must be in ENU frame and position in frame WGS84
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :   const int dim = 9;</span>
+<span class="lineNum">     221 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (int i = 0; i &lt; dim; ++i) {</span>
+<span class="lineNum">     222 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (int j = 0; j &lt; dim; ++j) {</span>
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :       gnss_msg-&gt;variance[i][j] = 0.0;</span>
+<span class="lineNum">     224 </span>                :            :     }
+<span class="lineNum">     225 </span>                :            :   }
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :   bool b_pos = false;</span>
+<span class="lineNum">     228 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_pnt_result_.has_pos_x_m() &amp;&amp; gnss_pnt_result_.has_pos_y_m() &amp;&amp;</span>
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :       gnss_pnt_result_.has_pos_z_m()) {</span>
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :     b_pos = true;</span>
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;gnss_pos.longitude = gnss_pnt_result_.pos_x_m();</span>
+<span class="lineNum">     232 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;gnss_pos.latitude = gnss_pnt_result_.pos_y_m();</span>
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;gnss_pos.height = gnss_pnt_result_.pos_z_m();</span>
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;measure_type = MeasureType::GNSS_POS_ONLY;</span>
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;is_have_variance = true;</span>
+<span class="lineNum">     237 </span>                :            :     // std
+<span class="lineNum">     238 </span>                :            :     gnss_msg-&gt;variance[0][0] =
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :         gnss_pnt_result_.std_pos_x_m() * gnss_pnt_result_.std_pos_x_m();</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;variance[1][1] =</span>
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         gnss_pnt_result_.std_pos_y_m() * gnss_pnt_result_.std_pos_y_m();</span>
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;variance[2][2] =</span>
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :         gnss_pnt_result_.std_pos_z_m() * gnss_pnt_result_.std_pos_z_m();</span>
+<span class="lineNum">     244 </span>                :            :   }
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :   bool b_vel = false;</span>
+<span class="lineNum">     246 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_pnt_result_.has_vel_x_m() &amp;&amp; gnss_pnt_result_.has_vel_y_m() &amp;&amp;</span>
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :       gnss_pnt_result_.has_vel_z_m()) {</span>
+<span class="lineNum">     248 </span>                :            :     // output velocity whenever possible.
+<span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :     b_vel = true;</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;gnss_vel.ve = gnss_pnt_result_.vel_x_m();</span>
+<span class="lineNum">     251 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;gnss_vel.vn = gnss_pnt_result_.vel_y_m();</span>
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;gnss_vel.vu = gnss_pnt_result_.vel_z_m();</span>
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;measure_type = MeasureType::ENU_VEL_ONLY;</span>
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;is_have_variance = true;</span>
+<span class="lineNum">     255 </span>                :            :     // std
+<span class="lineNum">     256 </span>                :            :     gnss_msg-&gt;variance[3][3] =
+<span class="lineNum">     257 </span>                :<span class="lineNoCov">          0 :         gnss_pnt_result_.std_vel_x_m() * gnss_pnt_result_.std_vel_x_m();</span>
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;variance[4][4] =</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :         gnss_pnt_result_.std_vel_y_m() * gnss_pnt_result_.std_vel_y_m();</span>
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;variance[5][5] =</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :         gnss_pnt_result_.std_vel_z_m() * gnss_pnt_result_.std_vel_z_m();</span>
+<span class="lineNum">     262 </span>                :            :   }
+<span class="lineNum">     263 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (b_pos &amp;&amp; b_vel) {</span>
+<span class="lineNum">     264 </span>                :<span class="lineNoCov">          0 :     gnss_msg-&gt;measure_type = MeasureType::GNSS_POS_VEL;</span>
+<span class="lineNum">     265 </span>                :            :   }
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :<span class="lineNoCov">          0 :   return gnss_state_;</span>
+<span class="lineNum">     268 </span>                :            : }
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 : bool LocalizationGnssProcess::DuplicateEph(</span>
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :     const drivers::gnss::GnssEphemeris &amp;raw_eph) {</span>
+<span class="lineNum">     272 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationGnssProcess::DuplicateEph&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :   drivers::gnss::GnssType t_type = raw_eph.gnss_type();</span>
+<span class="lineNum">     275 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (t_type != drivers::gnss::GnssType::GPS_SYS &amp;&amp;</span>
+<span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :       t_type != drivers::gnss::GnssType::BDS_SYS &amp;&amp;</span>
+<span class="lineNum">     277 </span>                :            :       t_type != drivers::gnss::GnssType::GLO_SYS) {
+<span class="lineNum">     278 </span>                :            :     return true;
+<span class="lineNum">     279 </span>                :            :   }
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :   unsigned int sat_prn = 0;</span>
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :   unsigned int week_num = 0;</span>
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :   double toe = -0.1;</span>
+<span class="lineNum">     283 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (t_type == drivers::gnss::GnssType::GLO_SYS) {</span>
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :     sat_prn = raw_eph.glonass_orbit().slot_prn();</span>
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :     week_num = raw_eph.glonass_orbit().week_num();</span>
+<span class="lineNum">     286 </span>                :<span class="lineNoCov">          0 :     toe = raw_eph.glonass_orbit().toe();</span>
+<span class="lineNum">     287 </span>                :            :   } else {
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :     sat_prn = raw_eph.keppler_orbit().sat_prn();</span>
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :     week_num = raw_eph.keppler_orbit().week_num();</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :     toe = raw_eph.keppler_orbit().toe();</span>
+<span class="lineNum">     291 </span>                :            :   }
+<span class="lineNum">     292 </span>                :            :   const EphKey temp(drivers::gnss::GnssType(t_type), sat_prn, week_num, toe);
+<span class="lineNum">     293 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (map_gnss_eph_.find(temp) != map_gnss_eph_.end()) {</span>
+<span class="lineNum">     294 </span>                :            :     return true;
+<span class="lineNum">     295 </span>                :            :   }
+<span class="lineNum">     296 </span>                :            :   map_gnss_eph_.insert(
+<span class="lineNum">     297 </span>                :            :       std::map&lt;EphKey, drivers::gnss::GnssEphemeris&gt;::value_type(temp,
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :                                                                  raw_eph));</span>
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :   return false;</span>
+<a name="300"><span class="lineNum">     300 </span>                :            : }</a>
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :<span class="lineNoCov">          0 : inline void LocalizationGnssProcess::LogPnt(const GnssPntResultMsg &amp;rover_pnt,</span>
+<span class="lineNum">     303 </span>                :            :                                             double ratio) {
+<span class="lineNum">     304 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationGnssProcess::LogPnt&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :   char print_infor[256] = {'\0'};</span>
+<span class="lineNum">     307 </span>                :            :   snprintf(print_infor, sizeof(print_infor),
+<span class="lineNum">     308 </span>                :            :            &quot;%6d%12.3f%4d%16.3f%16.3f%16.3f%4d%4.1f%6.1f%8.3f%8.3f%8.3f%8.3f%8.&quot;
+<span class="lineNum">     309 </span>                :            :            &quot;3f%8.3f\n&quot;,
+<span class="lineNum">     310 </span>                :            :            rover_pnt.gnss_week(), rover_pnt.gnss_second_s(),
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :            static_cast&lt;int&gt;(rover_pnt.pnt_type()), rover_pnt.pos_x_m(),</span>
+<span class="lineNum">     312 </span>                :            :            rover_pnt.pos_y_m(), rover_pnt.pos_z_m(), rover_pnt.sovled_sat_num(),
+<span class="lineNum">     313 </span>                :            :            rover_pnt.pdop(), ratio, rover_pnt.vel_x_m(), rover_pnt.vel_y_m(),
+<span class="lineNum">     314 </span>                :            :            rover_pnt.vel_z_m(), rover_pnt.std_pos_x_m(),
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :            rover_pnt.std_pos_y_m(), rover_pnt.std_pos_z_m());</span>
+<span class="lineNum">     316 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO &lt;&lt; print_infor;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<a name="317"><span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 : bool LocalizationGnssProcess::GnssPosition(EpochObservationMsg *raw_rover_obs) {</span>
+<span class="lineNum">     320 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: LocalizationGnssProcess::GnssPosition&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(raw_rover_obs);</span>
+<span class="lineNum">     323 </span>                :            : 
+<span class="lineNum">     324 </span>                :<span class="lineNoCov">          0 :   gnss_state_ = LocalizationMeasureState::NOT_VALID;</span>
+<span class="lineNum">     325 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (raw_rover_obs-&gt;receiver_id() != 0) {</span>
+<span class="lineNum">     326 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AERROR &lt;&lt; &quot;Wrong Rover Obs Data!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     328 </span>                :            :   }
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :   int b_solved = gnss_solver_-&gt;solve(raw_rover_obs, &amp;gnss_pnt_result_);</span>
+<span class="lineNum">     330 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (b_solved &lt; 0) {</span>
+<span class="lineNum">     331 </span>                :            :     return false;
+<span class="lineNum">     332 </span>                :            :   }
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :   LogPnt(gnss_pnt_result_, gnss_solver_-&gt;get_ratio());</span>
+<span class="lineNum">     334 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!sins_align_finish_) {</span>
+<span class="lineNum">     335 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AWARN &lt;&lt; &quot;Sins-ekf has not converged or finished its alignment!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">     336 </span>                :            :   }
+<span class="lineNum">     337 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (gnss_pnt_result_.has_std_pos_x_m() &amp;&amp;</span>
+<span class="lineNum">     338 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       gnss_pnt_result_.has_std_pos_y_m() &amp;&amp;</span>
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :       gnss_pnt_result_.has_std_pos_z_m()) {</span>
+<span class="lineNum">     340 </span>                :            :     double sigma =
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :         gnss_pnt_result_.std_pos_x_m() * gnss_pnt_result_.std_pos_x_m() +</span>
+<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 :         gnss_pnt_result_.std_pos_y_m() * gnss_pnt_result_.std_pos_y_m() +</span>
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :         gnss_pnt_result_.std_pos_z_m() * gnss_pnt_result_.std_pos_z_m();</span>
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :     sigma = std::sqrt(fabs(sigma));</span>
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :     const double sigma_threshold = 10.0;</span>
+<span class="lineNum">     346 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (fabs(sigma) &gt; sigma_threshold) {</span>
+<span class="lineNum">     347 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AWARN &lt;&lt; &quot;Position std exceeds the threshold &quot; &lt;&lt; sigma_threshold &lt;&lt; &quot;!&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :       return false;</span>
+<span class="lineNum">     349 </span>                :            :     }
+<span class="lineNum">     350 </span>                :            :   }
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :   gnss_state_ = LocalizationMeasureState::OK;</span>
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :   return true;</span>
+<span class="lineNum">     355 </span>                :            : }
+<span class="lineNum">     356 </span>                :            : 
+<a name="357"><span class="lineNum">     357 </span>                :            : }  // namespace msf</a>
+<span class="lineNum">     358 </span>                :            : }  // namespace localization
+<span class="lineNum">     359 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

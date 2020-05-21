@@ -1,0 +1,816 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/perception/common/graph/hungarian_optimizer.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/perception/common/graph</a> - hungarian_optimizer.h<span style="font-size: 80%;"> (source / <a href="hungarian_optimizer.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">243</td>
+            <td class="headerCovTableEntry">263</td>
+            <td class="headerCovTableEntryHi">92.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">73</td>
+            <td class="headerCovTableEntryLo">49.3 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">189</td>
+            <td class="headerCovTableEntry">268</td>
+            <td class="headerCovTableEntryLo">70.5 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #pragma once
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;limits&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : #include &quot;Eigen/Dense&quot;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : #include &quot;modules/perception/common/graph/secure_matrix.h&quot;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : namespace apollo {
+<span class="lineNum">      29 </span>                :            : namespace perception {
+<span class="lineNum">      30 </span>                :            : namespace common {
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      33 </span>                :            : class HungarianOptimizer {
+<span class="lineNum">      34 </span>                :            :   static const int kHungarianOptimizerRowNotFound = -1;
+<span class="lineNum">      35 </span>                :            :   static const int kHungarianOptimizerColNotFound = -2;
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            :  public:
+<span class="lineNum">      38 </span>                :            :   /* Setup the initial conditions for the algorithm. */
+<a name="39"><span class="lineNum">      39 </span>                :            :   HungarianOptimizer();</a>
+<span class="lineNum">      40 </span>                :            :   explicit HungarianOptimizer(const int max_optimization_size);
+<a name="41"><span class="lineNum">      41 </span>                :<span class="lineCov">         34 :   ~HungarianOptimizer() {}</span></a>
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :<span class="lineCov">        336 :   SecureMat&lt;T&gt;* costs() { return &amp;costs_; }</span>
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            :   T* costs(const size_t row, const size_t col) { return &amp;(costs_(row, col)); }
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            :   void Maximize(std::vector&lt;std::pair&lt;size_t, size_t&gt;&gt;* assignments);
+<span class="lineNum">      48 </span>                :            :   void Minimize(std::vector&lt;std::pair&lt;size_t, size_t&gt;&gt;* assignments);
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            :   void OptimizationInit();
+<span class="lineNum">      51 </span>                :            :   void OptimizationClear();
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            :   /* Print the matrix to stdout (for debugging.) */
+<span class="lineNum">      54 </span>                :            :   void PrintMatrix();
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            :  private:
+<span class="lineNum">      57 </span>                :            :   enum class Mark { NONE, PRIME, STAR };
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            :   /* Convert the final cost matrix into a set of assignments of agents to tasks.
+<span class="lineNum">      60 </span>                :            :    * Return the assignment in a vector of pair, the same as Minimize() and
+<span class="lineNum">      61 </span>                :            :    * Maximize() */
+<span class="lineNum">      62 </span>                :            :   void FindAssignments(std::vector&lt;std::pair&lt;size_t, size_t&gt;&gt;* assignments);
+<a name="63"><span class="lineNum">      63 </span>                :            : </a>
+<span class="lineNum">      64 </span>                :            :   /* Is the cell (row, col) starred? */
+<span class="lineNum">      65 </span>                :<span class="lineCov">        578 :   bool IsStarred(const size_t row, const size_t col) const {</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">        578 :     return marks_(row, col) == Mark::STAR;</span>
+<span class="lineNum">      67 </span>                :            :   }
+<a name="68"><span class="lineNum">      68 </span>                :            : </a>
+<span class="lineNum">      69 </span>                :            :   /* Mark cell (row, col) with a star */
+<span class="lineNum">      70 </span>                :<span class="lineCov">        101 :   void Star(const size_t row, const size_t col) {</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">        101 :     marks_(row, col) = Mark::STAR;</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">        101 :     ++stars_in_col_[col];</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">        101 :   }</span>
+<a name="74"><span class="lineNum">      74 </span>                :            : </a>
+<span class="lineNum">      75 </span>                :            :   /* Remove a star from cell (row, col) */
+<span class="lineNum">      76 </span>                :<span class="lineCov">         24 :   void Unstar(const size_t row, const size_t col) {</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">         24 :     marks_(row, col) = Mark::NONE;</span>
+<span class="lineNum">      78 </span>                :<span class="lineCov">         24 :     --stars_in_col_[col];</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">         24 :   }</span>
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :   /* Find a column in row 'row' containing a star, or return
+<span class="lineNum">      82 </span>                :            :    * kHungarianOptimizerColNotFound if no such column exists. */
+<span class="lineNum">      83 </span>                :            :   int FindStarInRow(const size_t row) const;
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            :   /* Find a row in column 'col' containing a star, or return
+<span class="lineNum">      86 </span>                :            :    * kHungarianOptimizerRowNotFound if no such row exists. */
+<span class="lineNum">      87 </span>                :            :   int FindStarInCol(const size_t col) const;
+<a name="88"><span class="lineNum">      88 </span>                :            : </a>
+<span class="lineNum">      89 </span>                :            :   /* Is cell (row, col) marked with a prime? */
+<span class="lineNum">      90 </span>                :<span class="lineCov">        785 :   bool IsPrimed(const size_t row, const size_t col) const {</span>
+<span class="lineNum">      91 </span>                :<span class="lineCov">        785 :     return marks_(row, col) == Mark::PRIME;</span>
+<span class="lineNum">      92 </span>                :            :   }
+<a name="93"><span class="lineNum">      93 </span>                :            : </a>
+<span class="lineNum">      94 </span>                :            :   /* Mark cell (row, col) with a prime. */
+<span class="lineNum">      95 </span>                :<span class="lineCov">         68 :   void Prime(const size_t row, const size_t col) {</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">         68 :     marks_(row, col) = Mark::PRIME;</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">         68 :   }</span>
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :            :   /* Find a column in row containing a prime, or return
+<span class="lineNum">     100 </span>                :            :    * kHungarianOptimizerColNotFound if no such column exists. */
+<span class="lineNum">     101 </span>                :            :   int FindPrimeInRow(const size_t row) const;
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :            :   /* Remove the prime marks_ from every cell in the matrix. */
+<span class="lineNum">     104 </span>                :            :   void ClearPrimes();
+<a name="105"><span class="lineNum">     105 </span>                :            : </a>
+<span class="lineNum">     106 </span>                :            :   /* Does column col contain a star? */
+<span class="lineNum">     107 </span>                :<span class="lineCov">        252 :   bool ColContainsStar(const size_t col) const {</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">        252 :     return stars_in_col_[col] &gt; 0;</span>
+<span class="lineNum">     109 </span>                :            :   }
+<a name="110"><span class="lineNum">     110 </span>                :            : </a>
+<span class="lineNum">     111 </span>                :            :   /* Is row 'row' covered? */
+<span class="lineNum">     112 </span>                :<span class="lineCov">       1770 :   bool RowCovered(const size_t row) const { return rows_covered_[row]; }</span>
+<a name="113"><span class="lineNum">     113 </span>                :            : </a>
+<span class="lineNum">     114 </span>                :            :   /* Cover row 'row'. */
+<span class="lineNum">     115 </span>                :<span class="lineCov">        190 :   void CoverRow(const size_t row) { rows_covered_[row] = true; }</span>
+<a name="116"><span class="lineNum">     116 </span>                :            : </a>
+<span class="lineNum">     117 </span>                :            :   /* Uncover row 'row'. */
+<span class="lineNum">     118 </span>                :<span class="lineCov">        406 :   void UncoverRow(const size_t row) { rows_covered_[row] = false; }</span>
+<a name="119"><span class="lineNum">     119 </span>                :            : </a>
+<span class="lineNum">     120 </span>                :            :   /* Is column col covered? */
+<span class="lineNum">     121 </span>                :<span class="lineCov">       2116 :   bool ColCovered(const size_t col) const { return cols_covered_[col]; }</span>
+<a name="122"><span class="lineNum">     122 </span>                :            : </a>
+<span class="lineNum">     123 </span>                :            :   /* Cover column col. */
+<span class="lineNum">     124 </span>                :<span class="lineCov">        410 :   void CoverCol(const size_t col) { cols_covered_[col] = true; }</span>
+<a name="125"><span class="lineNum">     125 </span>                :            : </a>
+<span class="lineNum">     126 </span>                :            :   /* Uncover column col. */
+<span class="lineNum">     127 </span>                :<span class="lineCov">        492 :   void UncoverCol(const size_t col) { cols_covered_[col] = false; }</span>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :            :   /* Uncover ever row and column in the matrix. */
+<span class="lineNum">     130 </span>                :            :   void ClearCovers();
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :   /* Find the smallest uncovered cell in the matrix. */
+<span class="lineNum">     133 </span>                :            :   T FindSmallestUncovered();
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            :   /* Find an uncovered zero and store its coordinates in (zeroRow_, zeroCol_)
+<span class="lineNum">     136 </span>                :            :    * and return true, or return false if no such cell exists. */
+<span class="lineNum">     137 </span>                :            :   bool FindZero(size_t* zero_row, size_t* zero_col);
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :            :   /* Run the Munkres algorithm! */
+<span class="lineNum">     140 </span>                :            :   void DoMunkres();
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            :   void CheckStar();
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :            :   /* Step 1:
+<span class="lineNum">     145 </span>                :            :    * For each row of the matrix, find the smallest element and subtract it from
+<span class="lineNum">     146 </span>                :            :    * every element in its row.  Go to Step 2. */
+<span class="lineNum">     147 </span>                :            :   void ReduceRows();
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :            :   /* Step 2:
+<span class="lineNum">     150 </span>                :            :    * Find a zero (Z) in the matrix. If there is no starred zero in its row or
+<span class="lineNum">     151 </span>                :            :    * column, star Z. Repeat for every element in the matrix. Go to Step 3.
+<span class="lineNum">     152 </span>                :            :    * Note: profiling shows this method to use 9.2% of the CPU - the next
+<span class="lineNum">     153 </span>                :            :    * slowest step takes 0.6%. It is hard to find a way further speed it up. */
+<span class="lineNum">     154 </span>                :            :   void StarZeroes();
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :            :   /* Step 3:
+<span class="lineNum">     157 </span>                :            :    * Cover each column containing a starred zero.  If all columns are covered,
+<span class="lineNum">     158 </span>                :            :    * the starred zeros describe a complete set of unique assignments.
+<span class="lineNum">     159 </span>                :            :    * In this case, terminate the algorithm.  Otherwise, go to Step 4. */
+<span class="lineNum">     160 </span>                :            :   void CoverStarredZeroes();
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            :   /* Step 4:
+<span class="lineNum">     163 </span>                :            :    * Find a noncovered zero and prime it.  If there is no starred zero in the
+<span class="lineNum">     164 </span>                :            :    * row containing this primed zero, Go to Step 5.  Otherwise, cover this row
+<span class="lineNum">     165 </span>                :            :    * and uncover the column containing the starred zero. Continue in this manner
+<span class="lineNum">     166 </span>                :            :    * until there are no uncovered zeros left, then go to Step 6. */
+<span class="lineNum">     167 </span>                :            :   void PrimeZeroes();
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            :   /* Step 5:
+<span class="lineNum">     170 </span>                :            :    * Construct a series of alternating primed and starred zeros as follows.
+<span class="lineNum">     171 </span>                :            :    * Let Z0 represent the uncovered primed zero found in Step 4. Let Z1 denote
+<span class="lineNum">     172 </span>                :            :    * the starred zero in the column of Z0 (if any). Let Z2 denote the primed
+<span class="lineNum">     173 </span>                :            :    * zero in the row of Z1 (there will always be one). Continue until the
+<span class="lineNum">     174 </span>                :            :    * series terminates at a primed zero that has no starred zero in its column.
+<span class="lineNum">     175 </span>                :            :    * Unstar each starred zero of the series, star each primed zero of the
+<span class="lineNum">     176 </span>                :            :    * series, erase all primes and uncover every line in the matrix. Return to
+<span class="lineNum">     177 </span>                :            :    * Step 3. */
+<span class="lineNum">     178 </span>                :            :   void MakeAugmentingPath();
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :            :   /* Step 6:
+<span class="lineNum">     181 </span>                :            :    * Add the smallest uncovered value in the matrix to every element of each
+<span class="lineNum">     182 </span>                :            :    * covered row, and subtract it from every element of each uncovered column.
+<span class="lineNum">     183 </span>                :            :    * Return to Step 4 without altering any stars, primes, or covered lines. */
+<span class="lineNum">     184 </span>                :            :   void AugmentPath();
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :            :   /* the max optimization size set to control memory */
+<span class="lineNum">     187 </span>                :            :   int max_optimization_size_ = 1000;
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            :   /* status of optimization initialization */
+<span class="lineNum">     190 </span>                :            :   bool optimization_initialized_ = false;
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            :   /* the size of the problem, i.e. std::max(#agents, #tasks). */
+<span class="lineNum">     193 </span>                :            :   int matrix_size_ = 0;
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :            :   /* the expanded cost matrix. */
+<span class="lineNum">     196 </span>                :            :   SecureMat&lt;T&gt; costs_;
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>                :            :   /* the greatest cost in the initial cost matrix. */
+<span class="lineNum">     199 </span>                :            :   T max_cost_{0};
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :            :   /* which rows and columns are currently covered. */
+<span class="lineNum">     202 </span>                :            :   std::vector&lt;bool&gt; rows_covered_;
+<span class="lineNum">     203 </span>                :            :   std::vector&lt;bool&gt; cols_covered_;
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :            :   /* the marks (star/prime/none) on each element of the cost matrix. */
+<span class="lineNum">     206 </span>                :            :   SecureMat&lt;Mark&gt; marks_;
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :            :   /* the number of stars in each column - used to speed up coverStarredZeroes.*/
+<span class="lineNum">     209 </span>                :            :   std::vector&lt;int&gt; stars_in_col_;
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :            :   /* representation of a path_ through the matrix - used in Step 5. */
+<span class="lineNum">     212 </span>                :            :   std::vector&lt;std::pair&lt;size_t, size_t&gt;&gt; assignments_;
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>                :            :   /* the locations of a zero found in Step 4. */
+<span class="lineNum">     215 </span>                :            :   int zero_col_ = 0;
+<span class="lineNum">     216 </span>                :            :   int zero_row_ = 0;
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :            :   /* the width_ and height_ of the initial (non-expanded) cost matrix. */
+<span class="lineNum">     219 </span>                :            :   int width_ = 0;
+<span class="lineNum">     220 </span>                :            :   int height_ = 0;
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :            :   /* The current state of the algorithm */
+<span class="lineNum">     223 </span>                :            :   std::function&lt;void()&gt; fn_state_ = nullptr;
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :            :   std::vector&lt;size_t&gt; uncov_col_;
+<span class="lineNum">     226 </span>                :            :   std::vector&lt;size_t&gt; uncov_row_;
+<span class="lineNum">     227 </span>                :            : };  // class HungarianOptimizer
+<a name="228"><span class="lineNum">     228 </span>                :            : </a>
+<span class="lineNum">     229 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     230 </span>                :<span class="lineCov">         34 : HungarianOptimizer&lt;T&gt;::HungarianOptimizer() : HungarianOptimizer(1000) {}</span>
+<a name="231"><span class="lineNum">     231 </span>                :            : </a>
+<span class="lineNum">     232 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     233 </span>                :<span class="lineCov">         17 : HungarianOptimizer&lt;T&gt;::HungarianOptimizer(const int max_optimization_size)</span>
+<span class="lineNum">     234 </span>[<span class="branchCov" title="Branch 2 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         17 :     : max_optimization_size_(max_optimization_size) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 21 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 22 was not taken"> - </span>]
+<span class="lineNum">     235 </span>        [<span class="branchCov" title="Branch 1 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         17 :   costs_.Reserve(max_optimization_size, max_optimization_size);</span>
+<span class="lineNum">     236 </span>        [<span class="branchCov" title="Branch 1 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         17 :   stars_in_col_.reserve(max_optimization_size);</span>
+<span class="lineNum">     237 </span>        [<span class="branchCov" title="Branch 1 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         17 :   rows_covered_.reserve(max_optimization_size);</span>
+<span class="lineNum">     238 </span>        [<span class="branchCov" title="Branch 1 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         17 :   cols_covered_.reserve(max_optimization_size);</span>
+<span class="lineNum">     239 </span>        [<span class="branchCov" title="Branch 1 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         17 :   assignments_.reserve(max_optimization_size);</span>
+<span class="lineNum">     240 </span>        [<span class="branchCov" title="Branch 1 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         17 :   uncov_row_.reserve(max_optimization_size);</span>
+<span class="lineNum">     241 </span>        [<span class="branchCov" title="Branch 1 was taken 17 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         17 :   uncov_col_.reserve(max_optimization_size);</span>
+<span class="lineNum">     242 </span>                :<span class="lineCov">         17 : }</span>
+<span class="lineNum">     243 </span>                :            : 
+<span class="lineNum">     244 </span>                :            : /* Find an assignment which maximizes the overall costs.
+<span class="lineNum">     245 </span>                :            :  * Return an array of pairs of integers. Each pair (i, j) corresponds to
+<a name="246"><span class="lineNum">     246 </span>                :            :  * assigning agent i to task j. */</a>
+<span class="lineNum">     247 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     248 </span>                :<span class="lineCov">         15 : void HungarianOptimizer&lt;T&gt;::Maximize(</span>
+<span class="lineNum">     249 </span>                :            :     std::vector&lt;std::pair&lt;size_t, size_t&gt;&gt;* assignments) {
+<span class="lineNum">     250 </span>                :<span class="lineCov">         15 :   OptimizationInit();</span>
+<span class="lineNum">     251 </span>                :            :   /* operate maximizing problem as a minimizing one via substrating original
+<span class="lineNum">     252 </span>                :            :    * cost from max_cost_ */
+<span class="lineNum">     253 </span>        [<span class="branchCov" title="Branch 0 was taken 35 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         50 :   for (size_t row = 0; row &lt; height_; ++row) {</span>
+<span class="lineNum">     254 </span>        [<span class="branchCov" title="Branch 0 was taken 111 times"> + </span><span class="branchCov" title="Branch 1 was taken 35 times"> + </span>]:<span class="lineCov">        146 :     for (size_t col = 0; col &lt; width_; ++col) {</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">        111 :       costs_(row, col) = max_cost_ - costs_(row, col);</span>
+<span class="lineNum">     256 </span>                :            :     }
+<span class="lineNum">     257 </span>                :            :   }
+<span class="lineNum">     258 </span>                :<span class="lineCov">         15 :   Minimize(assignments);</span>
+<span class="lineNum">     259 </span>                :<span class="lineCov">         15 : }</span>
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>                :            : /* Find an assignment which minimizes the overall costs.
+<span class="lineNum">     262 </span>                :            :  * Return an array of pairs of integers. Each pair (i, j) corresponds to
+<a name="263"><span class="lineNum">     263 </span>                :            :  * assigning agent i to task j. */</a>
+<span class="lineNum">     264 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     265 </span>                :<span class="lineCov">         27 : void HungarianOptimizer&lt;T&gt;::Minimize(</span>
+<span class="lineNum">     266 </span>                :            :     std::vector&lt;std::pair&lt;size_t, size_t&gt;&gt;* assignments) {
+<span class="lineNum">     267 </span>                :<span class="lineCov">         27 :   OptimizationInit();</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">         27 :   DoMunkres();</span>
+<span class="lineNum">     269 </span>                :<span class="lineCov">         27 :   FindAssignments(assignments);</span>
+<span class="lineNum">     270 </span>                :<span class="lineCov">         27 :   OptimizationClear();</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">         27 : }</span>
+<a name="272"><span class="lineNum">     272 </span>                :            : </a>
+<span class="lineNum">     273 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     274 </span>                :<span class="lineCov">         42 : void HungarianOptimizer&lt;T&gt;::OptimizationInit() {</span>
+<span class="lineNum">     275 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 27 times"> + </span>]:<span class="lineCov">         42 :   if (optimization_initialized_) {</span>
+<span class="lineNum">     276 </span>                :<span class="lineCov">         42 :     return;</span>
+<span class="lineNum">     277 </span>                :            :   }
+<span class="lineNum">     278 </span>                :<span class="lineCov">         27 :   width_ = static_cast&lt;int&gt;(costs_.width());</span>
+<span class="lineNum">     279 </span>        [<span class="branchCov" title="Branch 0 was taken 25 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         27 :   if (width_ &gt; 0) {</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">         25 :     height_ = static_cast&lt;int&gt;(costs_.height());</span>
+<span class="lineNum">     281 </span>                :            :   } else {
+<span class="lineNum">     282 </span>                :<span class="lineCov">          2 :     height_ = 0;</span>
+<span class="lineNum">     283 </span>                :            :   }
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :<span class="lineCov">         27 :   matrix_size_ = std::max(height_, width_);</span>
+<span class="lineNum">     286 </span>                :<span class="lineCov">         27 :   max_cost_ = 0;</span>
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>                :            :   /* generate the expanded cost matrix by adding extra 0s in order to make a
+<span class="lineNum">     289 </span>                :            :    * square matrix. Meanwhile, find the max cost in the matrix. It may be used
+<span class="lineNum">     290 </span>                :            :    * later, if we want to maximizing rather than minimizing the overall costs.*/
+<span class="lineNum">     291 </span>                :<span class="lineCov">         27 :   costs_.Resize(matrix_size_, matrix_size_);</span>
+<span class="lineNum">     292 </span>        [<span class="branchCov" title="Branch 0 was taken 77 times"> + </span><span class="branchCov" title="Branch 1 was taken 27 times"> + </span>]:<span class="lineCov">        104 :   for (size_t row = 0; row &lt; matrix_size_; ++row) {</span>
+<span class="lineNum">     293 </span>        [<span class="branchCov" title="Branch 0 was taken 301 times"> + </span><span class="branchCov" title="Branch 1 was taken 77 times"> + </span>]:<span class="lineCov">        378 :     for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     294 </span>[<span class="branchCov" title="Branch 0 was taken 279 times"> + </span><span class="branchCov" title="Branch 1 was taken 22 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 38 times"> + </span><span class="branchCov" title="Branch 3 was taken 241 times"> + </span>]:<span class="lineCov">        301 :       if ((row &gt;= height_) || (col &gt;= width_)) {</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">         60 :         costs_(row, col) = 0;</span>
+<span class="lineNum">     296 </span>                :            :       } else {
+<span class="lineNum">     297 </span>                :<span class="lineCov">        241 :         max_cost_ = std::max(max_cost_, costs_(row, col));</span>
+<span class="lineNum">     298 </span>                :            :       }
+<span class="lineNum">     299 </span>                :            :     }
+<span class="lineNum">     300 </span>                :            :   }
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :            :   /* initially, none of the cells of the matrix are marked. */
+<span class="lineNum">     303 </span>                :<span class="lineCov">         27 :   marks_.Resize(matrix_size_, matrix_size_);</span>
+<span class="lineNum">     304 </span>        [<span class="branchCov" title="Branch 0 was taken 77 times"> + </span><span class="branchCov" title="Branch 1 was taken 27 times"> + </span>]:<span class="lineCov">        104 :   for (size_t row = 0; row &lt; matrix_size_; ++row) {</span>
+<span class="lineNum">     305 </span>        [<span class="branchCov" title="Branch 0 was taken 301 times"> + </span><span class="branchCov" title="Branch 1 was taken 77 times"> + </span>]:<span class="lineCov">        378 :     for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     306 </span>                :<span class="lineCov">        301 :       marks_(row, col) = Mark::NONE;</span>
+<span class="lineNum">     307 </span>                :            :     }
+<span class="lineNum">     308 </span>                :            :   }
+<span class="lineNum">     309 </span>                :            : 
+<span class="lineNum">     310 </span>        [<span class="branchCov" title="Branch 1 was taken 27 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         27 :   stars_in_col_.assign(matrix_size_, 0);</span>
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>        [<span class="branchCov" title="Branch 1 was taken 27 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         27 :   rows_covered_.assign(matrix_size_, false);</span>
+<span class="lineNum">     313 </span>        [<span class="branchCov" title="Branch 1 was taken 27 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         27 :   cols_covered_.assign(matrix_size_, false);</span>
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :<span class="lineCov">         27 :   assignments_.resize(matrix_size_ * 2);</span>
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :<span class="lineCov">         27 :   optimization_initialized_ = true;</span>
+<span class="lineNum">     318 </span>                :            : }
+<a name="319"><span class="lineNum">     319 </span>                :            : </a>
+<span class="lineNum">     320 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     321 </span>                :<span class="lineCov">         27 : void HungarianOptimizer&lt;T&gt;::OptimizationClear() {</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">         27 :   optimization_initialized_ = false;</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">         27 : }</span>
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :            : /* Convert the final costs matrix into a set of assignments of agents to tasks.
+<span class="lineNum">     326 </span>                :            :  * Return an array of pairs of integers, the same as the return values of
+<a name="327"><span class="lineNum">     327 </span>                :            :  * Minimize() and Maximize() */</a>
+<span class="lineNum">     328 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     329 </span>                :<span class="lineCov">         27 : void HungarianOptimizer&lt;T&gt;::FindAssignments(</span>
+<span class="lineNum">     330 </span>                :            :     std::vector&lt;std::pair&lt;size_t, size_t&gt;&gt;* assignments) {
+<span class="lineNum">     331 </span>                :<span class="lineCov">         27 :   assignments-&gt;clear();</span>
+<span class="lineNum">     332 </span>        [<span class="branchCov" title="Branch 0 was taken 71 times"> + </span><span class="branchCov" title="Branch 1 was taken 27 times"> + </span>]:<span class="lineCov">         98 :   for (size_t row = 0; row &lt; height_; ++row) {</span>
+<span class="lineNum">     333 </span>        [<span class="branchCov" title="Branch 0 was taken 162 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">        169 :     for (size_t col = 0; col &lt; width_; ++col) {</span>
+<span class="lineNum">     334 </span>[<span class="branchCov" title="Branch 1 was taken 162 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 64 times"> + </span><span class="branchCov" title="Branch 4 was taken 98 times"> + </span>]:<span class="lineCov">        162 :       if (IsStarred(row, col)) {</span>
+<span class="lineNum">     335 </span>[<span class="branchCov" title="Branch 1 was taken 64 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 64 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         64 :         assignments-&gt;push_back(std::make_pair(row, col));</span>
+<span class="lineNum">     336 </span>                :<span class="lineCov">         64 :         break;</span>
+<span class="lineNum">     337 </span>                :            :       }
+<span class="lineNum">     338 </span>                :            :     }
+<span class="lineNum">     339 </span>                :            :   }
+<span class="lineNum">     340 </span>                :<span class="lineCov">         27 : }</span>
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>                :            : /* Find a column in row 'row' containing a star, or return
+<a name="343"><span class="lineNum">     343 </span>                :            :  * kHungarianOptimizerColNotFound if no such column exists. */</a>
+<span class="lineNum">     344 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     345 </span>                :<span class="lineCov">         68 : int HungarianOptimizer&lt;T&gt;::FindStarInRow(const size_t row) const {</span>
+<span class="lineNum">     346 </span>        [<span class="branchCov" title="Branch 0 was taken 284 times"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">        309 :   for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     347 </span>        [<span class="branchCov" title="Branch 1 was taken 43 times"> + </span><span class="branchCov" title="Branch 2 was taken 241 times"> + </span>]:<span class="lineCov">        284 :     if (IsStarred(row, col)) {</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">         43 :       return static_cast&lt;int&gt;(col);</span>
+<span class="lineNum">     349 </span>                :            :     }
+<span class="lineNum">     350 </span>                :            :   }
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :<span class="lineCov">         25 :   return kHungarianOptimizerColNotFound;</span>
+<span class="lineNum">     353 </span>                :            : }
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :            : /* Find a row in column 'col' containing a star, or return
+<a name="356"><span class="lineNum">     356 </span>                :            :  * kHungarianOptimizerRowNotFound if no such row exists. */</a>
+<span class="lineNum">     357 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     358 </span>                :<span class="lineCov">         49 : int HungarianOptimizer&lt;T&gt;::FindStarInCol(const size_t col) const {</span>
+<span class="lineNum">     359 </span>        [<span class="branchCov" title="Branch 1 was taken 25 times"> + </span><span class="branchCov" title="Branch 2 was taken 24 times"> + </span>]:<span class="lineCov">         49 :   if (!ColContainsStar(col)) {</span>
+<span class="lineNum">     360 </span>                :<span class="lineCov">         25 :     return kHungarianOptimizerRowNotFound;</span>
+<span class="lineNum">     361 </span>                :            :   }
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>        [<span class="branchCov" title="Branch 0 was taken 55 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         55 :   for (size_t row = 0; row &lt; matrix_size_; ++row) {</span>
+<span class="lineNum">     364 </span>        [<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchCov" title="Branch 2 was taken 31 times"> + </span>]:<span class="lineCov">         55 :     if (IsStarred(row, col)) {</span>
+<span class="lineNum">     365 </span>                :<span class="lineCov">         24 :       return static_cast&lt;int&gt;(row);</span>
+<span class="lineNum">     366 </span>                :            :     }
+<span class="lineNum">     367 </span>                :            :   }
+<span class="lineNum">     368 </span>                :            : 
+<span class="lineNum">     369 </span>                :            :   // NOT REACHED
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :   return kHungarianOptimizerRowNotFound;</span>
+<span class="lineNum">     371 </span>                :            : }
+<span class="lineNum">     372 </span>                :            : 
+<span class="lineNum">     373 </span>                :            : /* Find a column in row containing a prime, or return
+<a name="374"><span class="lineNum">     374 </span>                :            :  * kHungarianOptimizerColNotFound if no such column exists. */</a>
+<span class="lineNum">     375 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     376 </span>                :<span class="lineCov">         24 : int HungarianOptimizer&lt;T&gt;::FindPrimeInRow(const size_t row) const {</span>
+<span class="lineNum">     377 </span>        [<span class="branchCov" title="Branch 0 was taken 63 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         63 :   for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     378 </span>        [<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchCov" title="Branch 2 was taken 39 times"> + </span>]:<span class="lineCov">         63 :     if (IsPrimed(row, col)) {</span>
+<span class="lineNum">     379 </span>                :<span class="lineCov">         24 :       return static_cast&lt;int&gt;(col);</span>
+<span class="lineNum">     380 </span>                :            :     }
+<span class="lineNum">     381 </span>                :            :   }
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :   return kHungarianOptimizerColNotFound;</span>
+<span class="lineNum">     384 </span>                :            : }
+<span class="lineNum">     385 </span>                :            : 
+<a name="386"><span class="lineNum">     386 </span>                :            : /* Remove the prime marks from every cell in the matrix. */</a>
+<span class="lineNum">     387 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     388 </span>                :<span class="lineCov">         25 : void HungarianOptimizer&lt;T&gt;::ClearPrimes() {</span>
+<span class="lineNum">     389 </span>        [<span class="branchCov" title="Branch 0 was taken 126 times"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">        151 :   for (size_t row = 0; row &lt; matrix_size_; ++row) {</span>
+<span class="lineNum">     390 </span>        [<span class="branchCov" title="Branch 0 was taken 718 times"> + </span><span class="branchCov" title="Branch 1 was taken 126 times"> + </span>]:<span class="lineCov">        844 :     for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     391 </span>        [<span class="branchCov" title="Branch 1 was taken 19 times"> + </span><span class="branchCov" title="Branch 2 was taken 699 times"> + </span>]:<span class="lineCov">        718 :       if (IsPrimed(row, col)) {</span>
+<span class="lineNum">     392 </span>                :<span class="lineCov">         19 :         marks_(row, col) = Mark::NONE;</span>
+<span class="lineNum">     393 </span>                :            :       }
+<span class="lineNum">     394 </span>                :            :     }
+<span class="lineNum">     395 </span>                :            :   }
+<span class="lineNum">     396 </span>                :<span class="lineCov">         25 : }</span>
+<span class="lineNum">     397 </span>                :            : 
+<a name="398"><span class="lineNum">     398 </span>                :            : /* Uncover every row and column in the matrix. */</a>
+<span class="lineNum">     399 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     400 </span>                :<span class="lineCov">         52 : void HungarianOptimizer&lt;T&gt;::ClearCovers() {</span>
+<span class="lineNum">     401 </span>        [<span class="branchCov" title="Branch 0 was taken 203 times"> + </span><span class="branchCov" title="Branch 1 was taken 52 times"> + </span>]:<span class="lineCov">        255 :   for (size_t x = 0; x &lt; matrix_size_; x++) {</span>
+<span class="lineNum">     402 </span>                :<span class="lineCov">        203 :     UncoverRow(x);</span>
+<span class="lineNum">     403 </span>                :<span class="lineCov">        203 :     UncoverCol(x);</span>
+<span class="lineNum">     404 </span>                :            :   }
+<span class="lineNum">     405 </span>                :<span class="lineCov">         52 : }</span>
+<span class="lineNum">     406 </span>                :            : 
+<a name="407"><span class="lineNum">     407 </span>                :            : /* Find the smallest uncovered cell in the matrix. */</a>
+<span class="lineNum">     408 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     409 </span>                :<span class="lineCov">         30 : T HungarianOptimizer&lt;T&gt;::FindSmallestUncovered() {</span>
+<span class="lineNum">     410 </span>                :<span class="lineCov">         30 :   T minval = std::numeric_limits&lt;T&gt;::max();</span>
+<span class="lineNum">     411 </span>                :<span class="lineCov">         30 :   uncov_col_.clear();</span>
+<span class="lineNum">     412 </span>                :<span class="lineCov">         30 :   uncov_row_.clear();</span>
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>        [<span class="branchCov" title="Branch 0 was taken 150 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">        180 :   for (size_t i = 0; i &lt; matrix_size_; ++i) {</span>
+<span class="lineNum">     415 </span>[<span class="branchCov" title="Branch 1 was taken 150 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 131 times"> + </span><span class="branchCov" title="Branch 4 was taken 19 times"> + </span>]:<span class="lineCov">        150 :     if (!RowCovered(i)) {</span>
+<span class="lineNum">     416 </span>        [<span class="branchCov" title="Branch 1 was taken 131 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        131 :       uncov_row_.push_back(i);</span>
+<span class="lineNum">     417 </span>                :            :     }
+<span class="lineNum">     418 </span>[<span class="branchCov" title="Branch 1 was taken 150 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 70 times"> + </span><span class="branchCov" title="Branch 4 was taken 80 times"> + </span>]:<span class="lineCov">        150 :     if (!ColCovered(i)) {</span>
+<span class="lineNum">     419 </span>        [<span class="branchCov" title="Branch 1 was taken 70 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         70 :       uncov_col_.push_back(i);</span>
+<span class="lineNum">     420 </span>                :            :     }
+<span class="lineNum">     421 </span>                :            :   }
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>        [<span class="branchCov" title="Branch 1 was taken 131 times"> + </span><span class="branchCov" title="Branch 2 was taken 30 times"> + </span>]:<span class="lineCov">        161 :   for (size_t row = 0; row &lt; uncov_row_.size(); ++row) {</span>
+<span class="lineNum">     424 </span>        [<span class="branchCov" title="Branch 1 was taken 320 times"> + </span><span class="branchCov" title="Branch 2 was taken 131 times"> + </span>]:<span class="lineCov">        451 :     for (size_t col = 0; col &lt; uncov_col_.size(); ++col) {</span>
+<span class="lineNum">     425 </span>[<span class="branchCov" title="Branch 1 was taken 320 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 320 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        320 :       minval = std::min(minval, costs_(uncov_row_[row], uncov_col_[col]));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 320 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 320 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     426 </span>                :            :     }
+<span class="lineNum">     427 </span>                :            :   }
+<span class="lineNum">     428 </span>                :            : 
+<span class="lineNum">     429 </span>                :<span class="lineCov">         30 :   return minval;</span>
+<span class="lineNum">     430 </span>                :            : }
+<span class="lineNum">     431 </span>                :            : 
+<span class="lineNum">     432 </span>                :            : /* Find an uncovered zero and store its coordinates in (zeroRow, zeroCol)
+<a name="433"><span class="lineNum">     433 </span>                :            :  * and return true, or return false if no such cell exists. */</a>
+<span class="lineNum">     434 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     435 </span>                :<span class="lineCov">         98 : bool HungarianOptimizer&lt;T&gt;::FindZero(size_t* zero_row, size_t* zero_col) {</span>
+<span class="lineNum">     436 </span>                :<span class="lineCov">         98 :   uncov_col_.clear();</span>
+<span class="lineNum">     437 </span>                :<span class="lineCov">         98 :   uncov_row_.clear();</span>
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>        [<span class="branchCov" title="Branch 0 was taken 508 times"> + </span><span class="branchCov" title="Branch 1 was taken 98 times"> + </span>]:<span class="lineCov">        606 :   for (int i = 0; i &lt; matrix_size_; ++i) {</span>
+<span class="lineNum">     440 </span>        [<span class="branchCov" title="Branch 1 was taken 403 times"> + </span><span class="branchCov" title="Branch 2 was taken 105 times"> + </span>]:<span class="lineCov">        508 :     if (!RowCovered(i)) {</span>
+<span class="lineNum">     441 </span>        [<span class="branchCov" title="Branch 1 was taken 403 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        403 :       uncov_row_.push_back(i);</span>
+<span class="lineNum">     442 </span>                :            :     }
+<span class="lineNum">     443 </span>        [<span class="branchCov" title="Branch 1 was taken 275 times"> + </span><span class="branchCov" title="Branch 2 was taken 233 times"> + </span>]:<span class="lineCov">        508 :     if (!ColCovered(i)) {</span>
+<span class="lineNum">     444 </span>        [<span class="branchCov" title="Branch 1 was taken 275 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        275 :       uncov_col_.push_back(i);</span>
+<span class="lineNum">     445 </span>                :            :     }
+<span class="lineNum">     446 </span>                :            :   }
+<span class="lineNum">     447 </span>[<span class="branchCov" title="Branch 1 was taken 98 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 98 times"> + </span>]:<span class="lineCov">         98 :   if (uncov_row_.empty() || uncov_col_.empty()) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 98 times"> + </span>]
+<span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     449 </span>                :            :   }
+<span class="lineNum">     450 </span>                :            : 
+<span class="lineNum">     451 </span>        [<span class="branchCov" title="Branch 1 was taken 245 times"> + </span><span class="branchCov" title="Branch 2 was taken 30 times"> + </span>]:<span class="lineCov">        275 :   for (size_t i = 0; i &lt; uncov_row_.size(); ++i) {</span>
+<span class="lineNum">     452 </span>        [<span class="branchCov" title="Branch 1 was taken 601 times"> + </span><span class="branchCov" title="Branch 2 was taken 177 times"> + </span>]:<span class="lineCov">        778 :     for (size_t j = 0; j &lt; uncov_col_.size(); ++j) {</span>
+<span class="lineNum">     453 </span>        [<span class="branchCov" title="Branch 3 was taken 68 times"> + </span><span class="branchCov" title="Branch 4 was taken 533 times"> + </span>]:<span class="lineCov">        601 :       if (costs_(uncov_row_[i], uncov_col_[j]) == 0) {</span>
+<span class="lineNum">     454 </span>                :<span class="lineCov">         68 :         *zero_row = uncov_row_[i];</span>
+<span class="lineNum">     455 </span>                :<span class="lineCov">         68 :         *zero_col = uncov_col_[j];</span>
+<span class="lineNum">     456 </span>                :<span class="lineCov">         68 :         return true;</span>
+<span class="lineNum">     457 </span>                :            :       }
+<span class="lineNum">     458 </span>                :            :     }
+<span class="lineNum">     459 </span>                :            :   }
+<span class="lineNum">     460 </span>                :<span class="lineCov">         98 :   return false;</span>
+<span class="lineNum">     461 </span>                :            : }
+<span class="lineNum">     462 </span>                :            : 
+<a name="463"><span class="lineNum">     463 </span>                :            : /* Print the matrix to stdout (for debugging). */</a>
+<span class="lineNum">     464 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     465 </span>                :<span class="lineCov">          1 : void HungarianOptimizer&lt;T&gt;::PrintMatrix() {</span>
+<span class="lineNum">     466 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :   for (size_t row = 0; row &lt; matrix_size_; ++row) {</span>
+<span class="lineNum">     467 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          6 :     for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     468 </span>                :<span class="lineCov">          4 :       printf(&quot;%g &quot;, costs_(row, col));</span>
+<span class="lineNum">     469 </span>                :            : 
+<span class="lineNum">     470 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          4 :       if (IsStarred(row, col)) {</span>
+<span class="lineNum">     471 </span>                :<span class="lineCov">          2 :         printf(&quot;*&quot;);</span>
+<span class="lineNum">     472 </span>                :            :       }
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          4 :       if (IsPrimed(row, col)) {</span>
+<span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 :         printf(&quot;'&quot;);</span>
+<span class="lineNum">     476 </span>                :            :       }
+<span class="lineNum">     477 </span>                :            :     }
+<span class="lineNum">     478 </span>                :<span class="lineCov">          2 :     printf(&quot;\n&quot;);</span>
+<span class="lineNum">     479 </span>                :            :   }
+<span class="lineNum">     480 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     481 </span>                :            : 
+<a name="482"><span class="lineNum">     482 </span>                :            : /* Run the Munkres algorithm */</a>
+<span class="lineNum">     483 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     484 </span>                :<span class="lineCov">         27 : void HungarianOptimizer&lt;T&gt;::DoMunkres() {</span>
+<span class="lineNum">     485 </span>                :<span class="lineCov">         27 :   int max_num_iter = 1000;</span>
+<span class="lineNum">     486 </span>                :<span class="lineCov">         27 :   int num_iter = 0;</span>
+<span class="lineNum">     487 </span>[<span class="branchCov" title="Branch 1 was taken 27 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 27 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         27 :   fn_state_ = std::bind(&amp;HungarianOptimizer::ReduceRows, this);</span>
+<span class="lineNum">     488 </span>[<span class="branchCov" title="Branch 1 was taken 216 times"> + </span><span class="branchCov" title="Branch 2 was taken 27 times"> + </span>][<span class="branchCov" title="Branch 3 was taken 216 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">        243 :   while (fn_state_ != nullptr &amp;&amp; num_iter &lt; max_num_iter) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 5 was taken 216 times"> + </span><span class="branchCov" title="Branch 6 was taken 27 times"> + </span>]
+<span class="lineNum">     489 </span>                :<span class="lineCov">        216 :     fn_state_();</span>
+<span class="lineNum">     490 </span>                :<span class="lineCov">        216 :     ++num_iter;</span>
+<span class="lineNum">     491 </span>                :            :   }
+<span class="lineNum">     492 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 27 times"> + </span>]:<span class="lineCov">         27 :   if (num_iter &gt;= max_num_iter) {</span>
+<span class="lineNum">     493 </span>                :<span class="lineNoCov">          0 :     CheckStar();</span>
+<span class="lineNum">     494 </span>                :            :   }
+<span class="lineNum">     495 </span>                :<span class="lineCov">         27 : }</span>
+<a name="496"><span class="lineNum">     496 </span>                :            : </a>
+<span class="lineNum">     497 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     498 </span>                :<span class="lineNoCov">          0 : void HungarianOptimizer&lt;T&gt;::CheckStar() {</span>
+<span class="lineNum">     499 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t row = 0; row &lt; height_; ++row) {</span>
+<span class="lineNum">     500 </span>                :<span class="lineNoCov">          0 :     int star_col = -1;</span>
+<span class="lineNum">     501 </span>                :<span class="lineNoCov">          0 :     bool is_single = true;</span>
+<span class="lineNum">     502 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (int col = 0; col &lt; width_; ++col) {</span>
+<span class="lineNum">     503 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (IsStarred(row, col)) {</span>
+<span class="lineNum">     504 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (star_col == -1) {</span>
+<span class="lineNum">     505 </span>                :<span class="lineNoCov">          0 :           star_col = col;</span>
+<span class="lineNum">     506 </span>                :            :         } else {
+<span class="lineNum">     507 </span>                :<span class="lineNoCov">          0 :           is_single = false;</span>
+<span class="lineNum">     508 </span>                :<span class="lineNoCov">          0 :           break;</span>
+<span class="lineNum">     509 </span>                :            :         }
+<span class="lineNum">     510 </span>                :            :       }
+<span class="lineNum">     511 </span>                :            :     }
+<span class="lineNum">     512 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!is_single) {</span>
+<span class="lineNum">     513 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for (int col = 0; col &lt; width_; ++col) {</span>
+<span class="lineNum">     514 </span>                :<span class="lineNoCov">          0 :         Unstar(row, col);</span>
+<span class="lineNum">     515 </span>                :            :       }
+<span class="lineNum">     516 </span>                :            :     }
+<span class="lineNum">     517 </span>                :            :   }
+<span class="lineNum">     518 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     519 </span>                :            : 
+<span class="lineNum">     520 </span>                :            : /* Step 1:
+<span class="lineNum">     521 </span>                :            :  * For each row of the matrix, find the smallest element and substract it
+<a name="522"><span class="lineNum">     522 </span>                :            :  * from every element in its row. Then, go to Step 2. */</a>
+<span class="lineNum">     523 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     524 </span>                :<span class="lineCov">         27 : void HungarianOptimizer&lt;T&gt;::ReduceRows() {</span>
+<span class="lineNum">     525 </span>        [<span class="branchCov" title="Branch 0 was taken 77 times"> + </span><span class="branchCov" title="Branch 1 was taken 27 times"> + </span>]:<span class="lineCov">        104 :   for (size_t row = 0; row &lt; matrix_size_; ++row) {</span>
+<span class="lineNum">     526 </span>        [<span class="branchCov" title="Branch 1 was taken 77 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         77 :     T min_cost = costs_(row, 0);</span>
+<span class="lineNum">     527 </span>        [<span class="branchCov" title="Branch 0 was taken 224 times"> + </span><span class="branchCov" title="Branch 1 was taken 77 times"> + </span>]:<span class="lineCov">        301 :     for (size_t col = 1; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     528 </span>[<span class="branchCov" title="Branch 1 was taken 224 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 224 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        224 :       min_cost = std::min(min_cost, costs_(row, col));</span>
+<span class="lineNum">     529 </span>                :            :     }
+<span class="lineNum">     530 </span>        [<span class="branchCov" title="Branch 0 was taken 301 times"> + </span><span class="branchCov" title="Branch 1 was taken 77 times"> + </span>]:<span class="lineCov">        378 :     for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     531 </span>        [<span class="branchCov" title="Branch 1 was taken 301 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        301 :       costs_(row, col) -= min_cost;</span>
+<span class="lineNum">     532 </span>                :            :     }
+<span class="lineNum">     533 </span>                :            :   }
+<span class="lineNum">     534 </span>[<span class="branchCov" title="Branch 1 was taken 27 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 27 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         27 :   fn_state_ = std::bind(&amp;HungarianOptimizer::StarZeroes, this);</span>
+<span class="lineNum">     535 </span>                :<span class="lineCov">         27 : }</span>
+<span class="lineNum">     536 </span>                :            : 
+<span class="lineNum">     537 </span>                :            : /* Step 2:
+<span class="lineNum">     538 </span>                :            :  * Find a zero Z in the matrix. If there is no starred zero in its row
+<span class="lineNum">     539 </span>                :            :  * or column, star Z. Repeat for every element in the matrix. Then, go to
+<a name="540"><span class="lineNum">     540 </span>                :            :  * Step3. */</a>
+<span class="lineNum">     541 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     542 </span>                :<span class="lineCov">         27 : void HungarianOptimizer&lt;T&gt;::StarZeroes() {</span>
+<span class="lineNum">     543 </span>                :            :   /* since no rows or columns are covered on entry to this step, we use the
+<span class="lineNum">     544 </span>                :            :    * covers as a quick way of making which rows &amp; columns have stars in them */
+<span class="lineNum">     545 </span>        [<span class="branchCov" title="Branch 0 was taken 77 times"> + </span><span class="branchCov" title="Branch 1 was taken 27 times"> + </span>]:<span class="lineCov">        104 :   for (size_t row = 0; row &lt; matrix_size_; ++row) {</span>
+<span class="lineNum">     546 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 77 times"> + </span>]:<span class="lineCov">         77 :     if (RowCovered(row)) {</span>
+<span class="lineNum">     547 </span>                :<span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     548 </span>                :            :     }
+<span class="lineNum">     549 </span>        [<span class="branchCov" title="Branch 0 was taken 250 times"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">        275 :     for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     550 </span>        [<span class="branchCov" title="Branch 1 was taken 71 times"> + </span><span class="branchCov" title="Branch 2 was taken 179 times"> + </span>]:<span class="lineCov">        250 :       if (ColCovered(col)) {</span>
+<span class="lineNum">     551 </span>                :<span class="lineCov">         71 :         continue;</span>
+<span class="lineNum">     552 </span>                :            :       }
+<span class="lineNum">     553 </span>        [<span class="branchCov" title="Branch 1 was taken 52 times"> + </span><span class="branchCov" title="Branch 2 was taken 127 times"> + </span>]:<span class="lineCov">        179 :       if (costs_(row, col) == 0) {</span>
+<span class="lineNum">     554 </span>                :<span class="lineCov">         52 :         Star(row, col);</span>
+<span class="lineNum">     555 </span>                :<span class="lineCov">         52 :         CoverRow(row);</span>
+<span class="lineNum">     556 </span>                :<span class="lineCov">         52 :         CoverCol(col);</span>
+<span class="lineNum">     557 </span>                :<span class="lineCov">         52 :         break;</span>
+<span class="lineNum">     558 </span>                :            :       }
+<span class="lineNum">     559 </span>                :            :     }
+<span class="lineNum">     560 </span>                :            :   }
+<span class="lineNum">     561 </span>                :<span class="lineCov">         27 :   ClearCovers();</span>
+<span class="lineNum">     562 </span>[<span class="branchCov" title="Branch 1 was taken 27 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 27 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         27 :   fn_state_ = std::bind(&amp;HungarianOptimizer::CoverStarredZeroes, this);</span>
+<span class="lineNum">     563 </span>                :<span class="lineCov">         27 : }</span>
+<span class="lineNum">     564 </span>                :            : 
+<span class="lineNum">     565 </span>                :            : /* Step 3:
+<span class="lineNum">     566 </span>                :            :  * Cover each column containing a starred zero. If all columns are covered,
+<span class="lineNum">     567 </span>                :            :  * the starred zeros describe a complete set of unique assignments. In this
+<a name="568"><span class="lineNum">     568 </span>                :            :  * case, terminate the algorithm. Otherwise, go to Step 4. */</a>
+<span class="lineNum">     569 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     570 </span>                :<span class="lineCov">         52 : void HungarianOptimizer&lt;T&gt;::CoverStarredZeroes() {</span>
+<span class="lineNum">     571 </span>                :<span class="lineCov">         52 :   size_t num_covered = 0;</span>
+<span class="lineNum">     572 </span>                :            : 
+<span class="lineNum">     573 </span>        [<span class="branchCov" title="Branch 0 was taken 203 times"> + </span><span class="branchCov" title="Branch 1 was taken 52 times"> + </span>]:<span class="lineCov">        255 :   for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     574 </span>        [<span class="branchCov" title="Branch 1 was taken 153 times"> + </span><span class="branchCov" title="Branch 2 was taken 50 times"> + </span>]:<span class="lineCov">        203 :     if (ColContainsStar(col)) {</span>
+<span class="lineNum">     575 </span>                :<span class="lineCov">        153 :       CoverCol(col);</span>
+<span class="lineNum">     576 </span>                :<span class="lineCov">        153 :       num_covered++;</span>
+<span class="lineNum">     577 </span>                :            :     }
+<span class="lineNum">     578 </span>                :            :   }
+<span class="lineNum">     579 </span>                :            : 
+<span class="lineNum">     580 </span>        [<span class="branchCov" title="Branch 0 was taken 27 times"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">         52 :   if (num_covered &gt;= matrix_size_) {</span>
+<span class="lineNum">     581 </span>                :<span class="lineCov">         27 :     fn_state_ = nullptr;</span>
+<span class="lineNum">     582 </span>                :<span class="lineCov">         52 :     return;</span>
+<span class="lineNum">     583 </span>                :            :   }
+<span class="lineNum">     584 </span>[<span class="branchCov" title="Branch 1 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :   fn_state_ = std::bind(&amp;HungarianOptimizer::PrimeZeroes, this);</span>
+<span class="lineNum">     585 </span>                :            : }
+<span class="lineNum">     586 </span>                :            : 
+<span class="lineNum">     587 </span>                :            : /* Step 4:
+<span class="lineNum">     588 </span>                :            :  * Find a noncovered zero and prime it. If there is no starred zero in the
+<span class="lineNum">     589 </span>                :            :  * row containing this primed zero, go to Step 5. Otherwise, cover this row
+<span class="lineNum">     590 </span>                :            :  * and uncover the column containing the starred zero. Continue in this manner
+<a name="591"><span class="lineNum">     591 </span>                :            :  * until there are no uncovered zeros left, then go to Step 6. */</a>
+<span class="lineNum">     592 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     593 </span>                :<span class="lineCov">         55 : void HungarianOptimizer&lt;T&gt;::PrimeZeroes() {</span>
+<span class="lineNum">     594 </span>                :            :   // this loop is guaranteed to terminate in at most matrix_size_ iterations,
+<span class="lineNum">     595 </span>                :            :   // as FindZero() returns a location only if there is at least one uncovered
+<span class="lineNum">     596 </span>                :            :   // zero in the matrix.  Each iteration, either one row is covered or the
+<span class="lineNum">     597 </span>                :            :   // loop terminates.  Since there are matrix_size_ rows, after that many
+<span class="lineNum">     598 </span>                :            :   // iterations there are no uncovered cells and hence no uncovered zeroes,
+<span class="lineNum">     599 </span>                :            :   // so the loop terminates.
+<span class="lineNum">     600 </span>                :<span class="lineCov">         43 :   for (;;) {</span>
+<span class="lineNum">     601 </span>                :<span class="lineCov">         98 :     size_t zero_row = 0;</span>
+<span class="lineNum">     602 </span>                :<span class="lineCov">         98 :     size_t zero_col = 0;</span>
+<span class="lineNum">     603 </span>[<span class="branchCov" title="Branch 1 was taken 98 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 30 times"> + </span><span class="branchCov" title="Branch 4 was taken 68 times"> + </span>]:<span class="lineCov">         98 :     if (!FindZero(&amp;zero_row, &amp;zero_col)) {</span>
+<span class="lineNum">     604 </span>                :            :       // No uncovered zeroes.
+<span class="lineNum">     605 </span>[<span class="branchCov" title="Branch 1 was taken 30 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 30 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         30 :       fn_state_ = std::bind(&amp;HungarianOptimizer::AugmentPath, this);</span>
+<span class="lineNum">     606 </span>                :<span class="lineCov">         55 :       return;</span>
+<span class="lineNum">     607 </span>                :            :     }
+<span class="lineNum">     608 </span>                :            : 
+<span class="lineNum">     609 </span>        [<span class="branchCov" title="Branch 1 was taken 68 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         68 :     Prime(zero_row, zero_col);</span>
+<span class="lineNum">     610 </span>        [<span class="branchCov" title="Branch 1 was taken 68 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         68 :     size_t star_col = FindStarInRow(zero_row);</span>
+<span class="lineNum">     611 </span>                :            : 
+<span class="lineNum">     612 </span>        [<span class="branchCov" title="Branch 0 was taken 43 times"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">         68 :     if (star_col != kHungarianOptimizerColNotFound) {</span>
+<span class="lineNum">     613 </span>        [<span class="branchCov" title="Branch 1 was taken 43 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         43 :       CoverRow(zero_row);</span>
+<span class="lineNum">     614 </span>        [<span class="branchCov" title="Branch 1 was taken 43 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         43 :       UncoverCol(star_col);</span>
+<span class="lineNum">     615 </span>                :            :     } else {
+<span class="lineNum">     616 </span>                :            :       std::pair&lt;size_t, size_t&gt; first_assignment =
+<span class="lineNum">     617 </span>        [<span class="branchCov" title="Branch 1 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         25 :           std::make_pair(zero_row, zero_col);</span>
+<span class="lineNum">     618 </span>[<span class="branchCov" title="Branch 1 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :       assignments_[0] = first_assignment;</span>
+<span class="lineNum">     619 </span>[<span class="branchCov" title="Branch 1 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :       fn_state_ = std::bind(&amp;HungarianOptimizer::MakeAugmentingPath, this);</span>
+<span class="lineNum">     620 </span>                :<span class="lineCov">         25 :       return;</span>
+<span class="lineNum">     621 </span>                :            :     }
+<span class="lineNum">     622 </span>                :            :   }
+<span class="lineNum">     623 </span>                :            : }
+<span class="lineNum">     624 </span>                :            : 
+<span class="lineNum">     625 </span>                :            : /* Step 5:
+<span class="lineNum">     626 </span>                :            :  * Construct a series of alternating primed and starred zeros as follows.
+<span class="lineNum">     627 </span>                :            :  * Let Z0 represent the uncovered primed zero found in Step 4.  Let Z1 denote
+<span class="lineNum">     628 </span>                :            :  * the starred zero in the column of Z0 (if any). Let Z2 denote the primed
+<span class="lineNum">     629 </span>                :            :  * zero in the row of Z1 (there will always be one).  Continue until the
+<span class="lineNum">     630 </span>                :            :  * series terminates at a primed zero that has no starred zero in its column.
+<span class="lineNum">     631 </span>                :            :  * unstar each starred zero of the series, star each primed zero of the
+<span class="lineNum">     632 </span>                :            :  * series, erase all primes and uncover every line in the matrix. Return to
+<a name="633"><span class="lineNum">     633 </span>                :            :  * Step 3. */</a>
+<span class="lineNum">     634 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     635 </span>                :<span class="lineCov">         25 : void HungarianOptimizer&lt;T&gt;::MakeAugmentingPath() {</span>
+<span class="lineNum">     636 </span>                :<span class="lineCov">         25 :   bool done = false;</span>
+<span class="lineNum">     637 </span>                :<span class="lineCov">         25 :   size_t count = 0;</span>
+<span class="lineNum">     638 </span>                :            : 
+<span class="lineNum">     639 </span>                :            :   /* note: this loop is guaranteed to terminate within matrix_size_ iterations
+<span class="lineNum">     640 </span>                :            :    * because:
+<span class="lineNum">     641 </span>                :            :    * 1) on entry to this step, there is at least 1 column with no starred zero
+<span class="lineNum">     642 </span>                :            :    *    (otherwise we would have terminated the algorithm already.)
+<span class="lineNum">     643 </span>                :            :    * 2) each row containing a star also contains exactly one primed zero.
+<span class="lineNum">     644 </span>                :            :    * 4) each column contains at most one starred zero.
+<span class="lineNum">     645 </span>                :            :    *
+<span class="lineNum">     646 </span>                :            :    * Since the path_ we construct visits primed and starred zeroes alternately,
+<span class="lineNum">     647 </span>                :            :    * and terminates if we reach a primed zero in a column with no star, our
+<span class="lineNum">     648 </span>                :            :    * path_ must either contain matrix_size_ or fewer stars (in which case the
+<span class="lineNum">     649 </span>                :            :    * loop iterates fewer than matrix_size_ times), or it contains more.  In
+<span class="lineNum">     650 </span>                :            :    * that case, because (1) implies that there are fewer than matrix_size_
+<span class="lineNum">     651 </span>                :            :    * stars, we must have visited at least one star more than once. Consider
+<span class="lineNum">     652 </span>                :            :    * the first such star that we visit more than once; it must have been reached
+<span class="lineNum">     653 </span>                :            :    * immediately after visiting a prime in the same row.  By (2), this prime
+<span class="lineNum">     654 </span>                :            :    * is unique and so must have also been visited more than once.
+<span class="lineNum">     655 </span>                :            :    * Therefore, that prime must be in the same column as a star that has been
+<span class="lineNum">     656 </span>                :            :    * visited more than once, contradicting the assumption that we chose the
+<span class="lineNum">     657 </span>                :            :    * first multiply visited star, or it must be in the same column as more
+<span class="lineNum">     658 </span>                :            :    * than one star, contradicting (3). Therefore, we never visit any star
+<span class="lineNum">     659 </span>                :            :    * more than once and the loop terminates within matrix_size_ iterations. */
+<span class="lineNum">     660 </span>                :            : 
+<span class="lineNum">     661 </span>        [<span class="branchCov" title="Branch 0 was taken 49 times"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">         74 :   while (!done) {</span>
+<span class="lineNum">     662 </span>                :            :     /* first construct the alternating path... */
+<span class="lineNum">     663 </span>                :<span class="lineCov">         49 :     size_t row = FindStarInCol(assignments_[count].second);</span>
+<span class="lineNum">     664 </span>                :            : 
+<span class="lineNum">     665 </span>        [<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">         49 :     if (row != kHungarianOptimizerRowNotFound) {</span>
+<span class="lineNum">     666 </span>                :<span class="lineCov">         24 :       count++;</span>
+<span class="lineNum">     667 </span>                :<span class="lineCov">         24 :       assignments_[count].first = row;</span>
+<span class="lineNum">     668 </span>                :<span class="lineCov">         24 :       assignments_[count].second = assignments_[count - 1].second;</span>
+<span class="lineNum">     669 </span>                :            :     } else {
+<span class="lineNum">     670 </span>                :<span class="lineCov">         25 :       done = true;</span>
+<span class="lineNum">     671 </span>                :            :     }
+<span class="lineNum">     672 </span>                :            : 
+<span class="lineNum">     673 </span>        [<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">         49 :     if (!done) {</span>
+<span class="lineNum">     674 </span>                :<span class="lineCov">         24 :       size_t col = FindPrimeInRow(assignments_[count].first);</span>
+<span class="lineNum">     675 </span>                :<span class="lineCov">         24 :       count++;</span>
+<span class="lineNum">     676 </span>                :<span class="lineCov">         24 :       assignments_[count].first = assignments_[count - 1].first;</span>
+<span class="lineNum">     677 </span>                :<span class="lineCov">         24 :       assignments_[count].second = col;</span>
+<span class="lineNum">     678 </span>                :            :     }
+<span class="lineNum">     679 </span>                :            :   }
+<span class="lineNum">     680 </span>                :            : 
+<span class="lineNum">     681 </span>                :            :   /* then, modify it. */
+<span class="lineNum">     682 </span>        [<span class="branchCov" title="Branch 0 was taken 73 times"> + </span><span class="branchCov" title="Branch 1 was taken 25 times"> + </span>]:<span class="lineCov">         98 :   for (size_t i = 0; i &lt;= count; ++i) {</span>
+<span class="lineNum">     683 </span>                :<span class="lineCov">         73 :     size_t row = assignments_[i].first;</span>
+<span class="lineNum">     684 </span>                :<span class="lineCov">         73 :     size_t col = assignments_[i].second;</span>
+<span class="lineNum">     685 </span>                :            : 
+<span class="lineNum">     686 </span>        [<span class="branchCov" title="Branch 1 was taken 24 times"> + </span><span class="branchCov" title="Branch 2 was taken 49 times"> + </span>]:<span class="lineCov">         73 :     if (IsStarred(row, col)) {</span>
+<span class="lineNum">     687 </span>                :<span class="lineCov">         24 :       Unstar(row, col);</span>
+<span class="lineNum">     688 </span>                :            :     } else {
+<span class="lineNum">     689 </span>                :<span class="lineCov">         49 :       Star(row, col);</span>
+<span class="lineNum">     690 </span>                :            :     }
+<span class="lineNum">     691 </span>                :            :   }
+<span class="lineNum">     692 </span>                :            : 
+<span class="lineNum">     693 </span>                :<span class="lineCov">         25 :   ClearCovers();</span>
+<span class="lineNum">     694 </span>                :<span class="lineCov">         25 :   ClearPrimes();</span>
+<span class="lineNum">     695 </span>[<span class="branchCov" title="Branch 1 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 25 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         25 :   fn_state_ = std::bind(&amp;HungarianOptimizer::CoverStarredZeroes, this);</span>
+<span class="lineNum">     696 </span>                :<span class="lineCov">         25 : }</span>
+<span class="lineNum">     697 </span>                :            : 
+<span class="lineNum">     698 </span>                :            : /* Step 6:
+<span class="lineNum">     699 </span>                :            :  * Add the smallest uncovered value in the matrix to every element of each
+<span class="lineNum">     700 </span>                :            :  * covered row, and subtract it from every element of each uncovered column.
+<a name="701"><span class="lineNum">     701 </span>                :            :  * Return to Step 4 without altering any stars, primes, or covered lines. */</a>
+<span class="lineNum">     702 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     703 </span>                :<span class="lineCov">         30 : void HungarianOptimizer&lt;T&gt;::AugmentPath() {</span>
+<span class="lineNum">     704 </span>                :<span class="lineCov">         30 :   T minval = FindSmallestUncovered();</span>
+<span class="lineNum">     705 </span>                :            : 
+<span class="lineNum">     706 </span>        [<span class="branchCov" title="Branch 0 was taken 150 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">        180 :   for (size_t row = 0; row &lt; matrix_size_; ++row) {</span>
+<span class="lineNum">     707 </span>        [<span class="branchCov" title="Branch 1 was taken 19 times"> + </span><span class="branchCov" title="Branch 2 was taken 131 times"> + </span>]:<span class="lineCov">        150 :     if (RowCovered(row)) {</span>
+<span class="lineNum">     708 </span>        [<span class="branchCov" title="Branch 0 was taken 90 times"> + </span><span class="branchCov" title="Branch 1 was taken 19 times"> + </span>]:<span class="lineCov">        109 :       for (size_t c = 0; c &lt; matrix_size_; ++c) {</span>
+<span class="lineNum">     709 </span>                :<span class="lineCov">         90 :         costs_(row, c) += minval;</span>
+<span class="lineNum">     710 </span>                :            :       }
+<span class="lineNum">     711 </span>                :            :     }
+<span class="lineNum">     712 </span>                :            :   }
+<span class="lineNum">     713 </span>        [<span class="branchCov" title="Branch 0 was taken 150 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">        180 :   for (size_t col = 0; col &lt; matrix_size_; ++col) {</span>
+<span class="lineNum">     714 </span>        [<span class="branchCov" title="Branch 1 was taken 70 times"> + </span><span class="branchCov" title="Branch 2 was taken 80 times"> + </span>]:<span class="lineCov">        150 :     if (!ColCovered(col)) {</span>
+<span class="lineNum">     715 </span>        [<span class="branchCov" title="Branch 0 was taken 374 times"> + </span><span class="branchCov" title="Branch 1 was taken 70 times"> + </span>]:<span class="lineCov">        444 :       for (size_t r = 0; r &lt; matrix_size_; ++r) {</span>
+<span class="lineNum">     716 </span>                :<span class="lineCov">        374 :         costs_(r, col) -= minval;</span>
+<span class="lineNum">     717 </span>                :            :       }
+<span class="lineNum">     718 </span>                :            :     }
+<span class="lineNum">     719 </span>                :            :   }
+<span class="lineNum">     720 </span>[<span class="branchCov" title="Branch 1 was taken 30 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 30 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         30 :   fn_state_ = std::bind(&amp;HungarianOptimizer::PrimeZeroes, this);</span>
+<span class="lineNum">     721 </span>                :<span class="lineCov">         30 : }</span>
+<span class="lineNum">     722 </span>                :            : 
+<span class="lineNum">     723 </span>                :            : }  // namespace common
+<span class="lineNum">     724 </span>                :            : }  // namespace perception
+<span class="lineNum">     725 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

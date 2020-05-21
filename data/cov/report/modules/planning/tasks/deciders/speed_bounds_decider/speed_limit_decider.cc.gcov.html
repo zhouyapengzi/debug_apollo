@@ -1,0 +1,268 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/planning/tasks/deciders/speed_bounds_decider/speed_limit_decider.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">modules/planning/tasks/deciders/speed_bounds_decider</a> - speed_limit_decider.cc<span style="font-size: 80%;"> (source / <a href="speed_limit_decider.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">56</td>
+            <td class="headerCovTableEntryLo">1.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">136</td>
+            <td class="headerCovTableEntryLo">1.5 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2017 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /**
+<span class="lineNum">      18 </span>                :            :  * @file
+<span class="lineNum">      19 </span>                :            :  **/
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #include &quot;modules/planning/tasks/deciders/speed_bounds_decider/speed_limit_decider.h&quot;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;limits&gt;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : #include &quot;modules/common/proto/pnc_point.pb.h&quot;
+<span class="lineNum">      27 </span>                :            : #include &quot;modules/planning/proto/decision.pb.h&quot;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      30 </span>                :            : #include &quot;modules/common/configs/vehicle_config_helper.h&quot;
+<span class="lineNum">      31 </span>                :            : #include &quot;modules/planning/common/planning_gflags.h&quot;
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :            : namespace apollo {
+<span class="lineNum">      34 </span>                :            : namespace planning {
+<span class="lineNum">      35 </span>                :            : 
+<a name="36"><span class="lineNum">      36 </span>                :            : using apollo::common::Status;</a>
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 : SpeedLimitDecider::SpeedLimitDecider(const SpeedBoundsDeciderConfig&amp; config,</span>
+<span class="lineNum">      39 </span>                :            :                                      const ReferenceLine&amp; reference_line,
+<span class="lineNum">      40 </span>                :            :                                      const PathData&amp; path_data)
+<span class="lineNum">      41 </span>                :            :     : speed_bounds_config_(config),
+<span class="lineNum">      42 </span>                :            :       reference_line_(reference_line),
+<span class="lineNum">      43 </span>                :            :       path_data_(path_data),
+<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :       vehicle_param_(common::VehicleConfigHelper::GetConfig().vehicle_param()) {</span>
+<span class="lineNum">      45 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: SpeedLimitDecider::SpeedLimitDecider&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      46 </span>                :            : 
+<a name="47"><span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 : Status SpeedLimitDecider::GetSpeedLimits(</span>
+<span class="lineNum">      50 </span>                :            :     const IndexedList&lt;std::string, Obstacle&gt;&amp; obstacles,
+<span class="lineNum">      51 </span>                :            :     SpeedLimit* const speed_limit_data) const {
+<span class="lineNum">      52 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: SpeedLimitDecider::GetSpeedLimits&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :   CHECK_NOTNULL(speed_limit_data);</span>
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :   const auto&amp; discretized_path = path_data_.discretized_path();</span>
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :   const auto&amp; frenet_path = path_data_.frenet_frame_path();</span>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (uint32_t i = 0; i &lt; discretized_path.size(); ++i) {</span>
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :     const double path_s = discretized_path.at(i).s();</span>
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :     const double reference_line_s = frenet_path.at(i).s();</span>
+<span class="lineNum">      62 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (reference_line_s &gt; reference_line_.Length()) {</span>
+<span class="lineNum">      63 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :       AWARN &lt;&lt; &quot;path w.r.t. reference line at [&quot; &lt;&lt; reference_line_s</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">      64 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             &lt;&lt; &quot;] is LARGER than reference_line_ length [&quot;</span>
+<span class="lineNum">      65 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :             &lt;&lt; reference_line_.Length() &lt;&lt; &quot;]. Please debug before proceeding.&quot;;</span>
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">      67 </span>                :            :     }
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            :     // (1) speed limit from map
+<span class="lineNum">      70 </span>                :            :     double speed_limit_from_reference_line =
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :         reference_line_.GetSpeedLimitFromS(reference_line_s);</span>
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :            :     // (2) speed limit from path curvature
+<span class="lineNum">      74 </span>                :            :     //  -- 2.1: limit by centripetal force (acceleration)
+<span class="lineNum">      75 </span>                :            :     const double speed_limit_from_centripetal_acc =
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :         std::sqrt(speed_bounds_config_.max_centric_acceleration_limit() /</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :                   std::fmax(std::fabs(discretized_path.at(i).kappa()),</span>
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :                             speed_bounds_config_.minimal_kappa()));</span>
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            :     // (3) speed limit from nudge obstacles
+<span class="lineNum">      81 </span>                :            :     // TODO(all): in future, expand the speed limit not only to obstacles with
+<span class="lineNum">      82 </span>                :            :     // nudge decisions.
+<span class="lineNum">      83 </span>                :            :     double speed_limit_from_nearby_obstacles =
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :         std::numeric_limits&lt;double&gt;::max();</span>
+<span class="lineNum">      85 </span>                :            :     const double collision_safety_range =
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :         speed_bounds_config_.collision_safety_range();</span>
+<span class="lineNum">      87 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (const auto* ptr_obstacle : obstacles.Items()) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">      88 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (ptr_obstacle-&gt;IsVirtual()) {</span>
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">      90 </span>                :            :       }
+<span class="lineNum">      91 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (!ptr_obstacle-&gt;LateralDecision().has_nudge()) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">      93 </span>                :            :       }
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            :       /* ref line:
+<span class="lineNum">      96 </span>                :            :        * -------------------------------
+<span class="lineNum">      97 </span>                :            :        *    start_s   end_s
+<span class="lineNum">      98 </span>                :            :        * ------|  adc   |---------------
+<span class="lineNum">      99 </span>                :            :        * ------------|  obstacle |------
+<span class="lineNum">     100 </span>                :            :        */
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            :       // TODO(all): potential problem here;
+<span class="lineNum">     103 </span>                :            :       // frenet and cartesian coordinates are mixed.
+<span class="lineNum">     104 </span>                :            :       const double vehicle_front_s =
+<span class="lineNum">     105 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           reference_line_s + vehicle_param_.front_edge_to_center();</span>
+<span class="lineNum">     106 </span>                :            :       const double vehicle_back_s =
+<span class="lineNum">     107 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           reference_line_s - vehicle_param_.back_edge_to_center();</span>
+<span class="lineNum">     108 </span>                :            :       const double obstacle_front_s =
+<span class="lineNum">     109 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           ptr_obstacle-&gt;PerceptionSLBoundary().end_s();</span>
+<span class="lineNum">     110 </span>                :            :       const double obstacle_back_s =
+<span class="lineNum">     111 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           ptr_obstacle-&gt;PerceptionSLBoundary().start_s();</span>
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (vehicle_front_s &lt; obstacle_back_s ||</span>
+<span class="lineNum">     114 </span>                :            :           vehicle_back_s &gt; obstacle_front_s) {
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">     116 </span>                :            :       }
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const auto&amp; nudge_decision = ptr_obstacle-&gt;LateralDecision().nudge();</span>
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :            :       // Please notice the differences between adc_l and frenet_point_l
+<span class="lineNum">     121 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       const double frenet_point_l = frenet_path.at(i).l();</span>
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :            :       // obstacle is on the right of ego vehicle (at path point i)
+<span class="lineNum">     124 </span>                :            :       bool is_close_on_left =
+<span class="lineNum">     125 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :           (nudge_decision.type() == ObjectNudge::LEFT_NUDGE) &amp;&amp;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]
+<span class="lineNum">     126 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :           (frenet_point_l - vehicle_param_.right_edge_to_center() -</span>
+<span class="lineNum">     127 </span>                :            :                collision_safety_range &lt;
+<span class="lineNum">     128 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :            ptr_obstacle-&gt;PerceptionSLBoundary().end_l());</span>
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            :       // obstacle is on the left of ego vehicle (at path point i)
+<span class="lineNum">     131 </span>                :            :       bool is_close_on_right =
+<span class="lineNum">     132 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :           (nudge_decision.type() == ObjectNudge::RIGHT_NUDGE) &amp;&amp;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]
+<span class="lineNum">     133 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           (ptr_obstacle-&gt;PerceptionSLBoundary().start_l() -</span>
+<span class="lineNum">     134 </span>                :            :                collision_safety_range &lt;
+<span class="lineNum">     135 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :            frenet_point_l + vehicle_param_.left_edge_to_center());</span>
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :            :       // TODO(all): dynamic obstacles do not have nudge decision
+<span class="lineNum">     138 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (is_close_on_left || is_close_on_right) {</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :         double nudge_speed_ratio = 1.0;</span>
+<span class="lineNum">     140 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ptr_obstacle-&gt;IsStatic()) {</span>
+<span class="lineNum">     141 </span>                :            :           nudge_speed_ratio =
+<span class="lineNum">     142 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               speed_bounds_config_.static_obs_nudge_speed_ratio();</span>
+<span class="lineNum">     143 </span>                :            :         } else {
+<span class="lineNum">     144 </span>                :            :           nudge_speed_ratio =
+<span class="lineNum">     145 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :               speed_bounds_config_.dynamic_obs_nudge_speed_ratio();</span>
+<span class="lineNum">     146 </span>                :            :         }
+<span class="lineNum">     147 </span>                :            :         speed_limit_from_nearby_obstacles =
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :             nudge_speed_ratio * speed_limit_from_reference_line;</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     150 </span>                :            :       }
+<span class="lineNum">     151 </span>                :            :     }
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :     double curr_speed_limit = 0.0;</span>
+<span class="lineNum">     154 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (FLAGS_enable_nudge_slowdown) {</span>
+<span class="lineNum">     155 </span>                :            :       curr_speed_limit =
+<span class="lineNum">     156 </span>                :            :           std::fmax(speed_bounds_config_.lowest_speed(),
+<span class="lineNum">     157 </span>                :            :                     std::min({speed_limit_from_reference_line,
+<span class="lineNum">     158 </span>                :            :                               speed_limit_from_centripetal_acc,
+<span class="lineNum">     159 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                               speed_limit_from_nearby_obstacles}));</span>
+<span class="lineNum">     160 </span>                :            :     } else {
+<span class="lineNum">     161 </span>                :            :       curr_speed_limit =
+<span class="lineNum">     162 </span>                :            :           std::fmax(speed_bounds_config_.lowest_speed(),
+<span class="lineNum">     163 </span>                :            :                     std::min({speed_limit_from_reference_line,
+<span class="lineNum">     164 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                               speed_limit_from_centripetal_acc}));</span>
+<span class="lineNum">     165 </span>                :            :     }
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :     speed_limit_data-&gt;AppendSpeedLimit(path_s, curr_speed_limit);</span>
+<span class="lineNum">     167 </span>                :            :   }
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :   return Status::OK();</span>
+<span class="lineNum">     169 </span>                :            : }
+<a name="170"><span class="lineNum">     170 </span>                :            : </a>
+<span class="lineNum">     171 </span>                :            : }  // namespace planning
+<span class="lineNum">     172 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

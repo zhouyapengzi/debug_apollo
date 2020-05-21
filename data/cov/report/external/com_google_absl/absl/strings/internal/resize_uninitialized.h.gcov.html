@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/com_google_absl/absl/strings/internal/resize_uninitialized.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/com_google_absl/absl/strings/internal</a> - resize_uninitialized.h<span style="font-size: 80%;"> (source / <a href="resize_uninitialized.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : //</a>
+<span class="lineNum">       2 </span>                :            : // Copyright 2017 The Abseil Authors.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            : // you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            : // You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            : //
+<span class="lineNum">       8 </span>                :            : //      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            : //
+<span class="lineNum">      10 </span>                :            : // Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            : // distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            : // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            : // See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            : // limitations under the License.
+<span class="lineNum">      15 </span>                :            : //
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef ABSL_STRINGS_INTERNAL_RESIZE_UNINITIALIZED_H_
+<span class="lineNum">      18 </span>                :            : #define ABSL_STRINGS_INTERNAL_RESIZE_UNINITIALIZED_H_
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &quot;absl/base/port.h&quot;
+<span class="lineNum">      24 </span>                :            : #include &quot;absl/meta/type_traits.h&quot;  //  for void_t
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : namespace absl {
+<span class="lineNum">      27 </span>                :            : namespace strings_internal {
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : // Is a subclass of true_type or false_type, depending on whether or not
+<span class="lineNum">      30 </span>                :            : // T has a resize_uninitialized member.
+<span class="lineNum">      31 </span>                :            : template &lt;typename T, typename = void&gt;
+<span class="lineNum">      32 </span>                :            : struct HasResizeUninitialized : std::false_type {};
+<span class="lineNum">      33 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      34 </span>                :            : struct HasResizeUninitialized&lt;
+<span class="lineNum">      35 </span>                :            :     T, absl::void_t&lt;decltype(std::declval&lt;T&gt;().resize_uninitialized(237))&gt;&gt;
+<span class="lineNum">      36 </span>                :            :     : std::true_type {};
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : template &lt;typename string_type&gt;
+<span class="lineNum">      39 </span>                :            : void ResizeUninit(string_type* s, size_t new_size, std::true_type) {
+<span class="lineNum">      40 </span>                :            :   s-&gt;resize_uninitialized(new_size);
+<a name="41"><span class="lineNum">      41 </span>                :            : }</a>
+<span class="lineNum">      42 </span>                :            : template &lt;typename string_type&gt;
+<span class="lineNum">      43 </span>                :<span class="lineCov">        242 : void ResizeUninit(string_type* s, size_t new_size, std::false_type) {</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">        242 :   s-&gt;resize(new_size);</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">        242 : }</span>
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : // Returns true if the std::string implementation supports a resize where
+<span class="lineNum">      48 </span>                :            : // the new characters added to the std::string are left untouched.
+<span class="lineNum">      49 </span>                :            : //
+<span class="lineNum">      50 </span>                :            : // (A better name might be &quot;STLStringSupportsUninitializedResize&quot;, alluding to
+<span class="lineNum">      51 </span>                :            : // the previous function.)
+<span class="lineNum">      52 </span>                :            : template &lt;typename string_type&gt;
+<span class="lineNum">      53 </span>                :            : inline constexpr bool STLStringSupportsNontrashingResize(string_type*) {
+<span class="lineNum">      54 </span>                :            :   return HasResizeUninitialized&lt;string_type&gt;();
+<span class="lineNum">      55 </span>                :            : }
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : // Like str-&gt;resize(new_size), except any new characters added to &quot;*str&quot; as a
+<span class="lineNum">      58 </span>                :            : // result of resizing may be left uninitialized, rather than being filled with
+<span class="lineNum">      59 </span>                :            : // '0' bytes. Typically used when code is then going to overwrite the backing
+<a name="60"><span class="lineNum">      60 </span>                :            : // store of the std::string with known data. Uses a Google extension to std::string.</a>
+<span class="lineNum">      61 </span>                :            : template &lt;typename string_type, typename = void&gt;
+<span class="lineNum">      62 </span>                :<span class="lineCov">        242 : inline void STLStringResizeUninitialized(string_type* s, size_t new_size) {</span>
+<span class="lineNum">      63 </span>        [<span class="branchCov" title="Branch 1 was taken 242 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        242 :   ResizeUninit(s, new_size, HasResizeUninitialized&lt;string_type&gt;());</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">        242 : }</span>
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : }  // namespace strings_internal
+<span class="lineNum">      67 </span>                :            : }  // namespace absl
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            : #endif  // ABSL_STRINGS_INTERNAL_RESIZE_UNINITIALIZED_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/common/util/lru_cache.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">modules/common/util</a> - lru_cache.h<span style="font-size: 80%;"> (source / <a href="lru_cache.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntry">85</td>
+            <td class="headerCovTableEntryMed">83.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntryLo">59.5 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntry">64</td>
+            <td class="headerCovTableEntryLo">48.4 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2017 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #pragma once
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &lt;iostream&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;mutex&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;unordered_map&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : namespace apollo {
+<span class="lineNum">      26 </span>                :            : namespace common {
+<span class="lineNum">      27 </span>                :            : namespace util {
+<a name="28"><span class="lineNum">      28 </span>                :            : </a>
+<span class="lineNum">      29 </span>                :            : template &lt;class K, class V&gt;
+<span class="lineNum">      30 </span>                :<span class="lineCov">        344 : struct Node {</span>
+<span class="lineNum">      31 </span>                :            :   K key;
+<span class="lineNum">      32 </span>                :            :   V val;
+<a name="33"><span class="lineNum">      33 </span>                :            :   Node* prev;</a>
+<span class="lineNum">      34 </span>                :            :   Node* next;
+<span class="lineNum">      35 </span>                :<span class="lineCov">          4 :   Node() : prev(nullptr), next(nullptr) {</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">          4 :     key = {};</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">          4 :     val = {};</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">          4 :   }</span>
+<a name="39"><span class="lineNum">      39 </span>                :            : </a>
+<span class="lineNum">      40 </span>                :            :   template &lt;typename VV&gt;
+<span class="lineNum">      41 </span>                :<span class="lineCov">         10 :   Node(const K&amp; key, VV&amp;&amp; val)</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">         10 :       : key(key), val(std::forward&lt;VV&gt;(val)), prev(nullptr), next(nullptr) {}</span>
+<span class="lineNum">      43 </span>                :            : };
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : template &lt;class K, class V&gt;
+<a name="46"><span class="lineNum">      46 </span>                :            : class LRUCache {</a>
+<span class="lineNum">      47 </span>                :            :  public:
+<span class="lineNum">      48 </span>                :<span class="lineCov">          2 :   explicit LRUCache(const size_t capacity = kDefaultCapacity)</span>
+<span class="lineNum">      49 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          2 :       : capacity_(capacity), map_(0), head_(), tail_() {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>]
+<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     Init();</span>
+<a name="51"><span class="lineNum">      51 </span>                :<span class="lineCov">          2 :   }</span></a>
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :<span class="lineCov">         64 :   ~LRUCache() { Clear(); }</span>
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            :   void GetCache(std::unordered_map&lt;K, V&gt;* cache) {
+<span class="lineNum">      56 </span>                :            :     for (auto it = map_.begin(); it != map_.end(); ++it) {
+<span class="lineNum">      57 </span>                :            :       cache-&gt;emplace(it-&gt;first, it-&gt;second.val);
+<span class="lineNum">      58 </span>                :            :     }
+<span class="lineNum">      59 </span>                :            :   }
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            :   V&amp; operator[](const K&amp; key) {
+<span class="lineNum">      62 </span>                :            :     if (!Contains(key)) {
+<span class="lineNum">      63 </span>                :            :       K obsolete;
+<span class="lineNum">      64 </span>                :            :       GetObsolete(&amp;obsolete);
+<span class="lineNum">      65 </span>                :            :     }
+<span class="lineNum">      66 </span>                :            :     return map_[key].val;
+<span class="lineNum">      67 </span>                :            :   }
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            :   /*
+<span class="lineNum">      70 </span>                :            :    * Silently get all as vector
+<span class="lineNum">      71 </span>                :            :    */
+<span class="lineNum">      72 </span>                :            :   void GetAllSilently(std::vector&lt;V*&gt;* ret) {
+<span class="lineNum">      73 </span>                :            :     for (auto it = map_.begin(); it != map_.end(); ++it) {
+<span class="lineNum">      74 </span>                :            :       ret-&gt;push_back(&amp;it-&gt;second.val);
+<span class="lineNum">      75 </span>                :            :     }
+<span class="lineNum">      76 </span>                :            :   }
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            :   /*
+<span class="lineNum">      79 </span>                :            :    * for both add &amp; update purposes
+<a name="80"><span class="lineNum">      80 </span>                :            :    */</a>
+<span class="lineNum">      81 </span>                :            :   template &lt;typename VV&gt;
+<span class="lineNum">      82 </span>                :<span class="lineCov">          3 :   bool Put(const K&amp; key, VV&amp;&amp; val) {</span>
+<span class="lineNum">      83 </span>                :            :     K tmp;
+<span class="lineNum">      84 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          3 :     return Update(key, std::forward&lt;VV&gt;(val), &amp;tmp, false, false);</span>
+<span class="lineNum">      85 </span>                :            :   }
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            :   /*
+<span class="lineNum">      88 </span>                :            :    * update existing elements only
+<span class="lineNum">      89 </span>                :            :    */
+<span class="lineNum">      90 </span>                :            :   template &lt;typename VV&gt;
+<span class="lineNum">      91 </span>                :            :   bool Update(const K&amp; key, VV&amp;&amp; val) {
+<span class="lineNum">      92 </span>                :            :     if (!Contains(key)) {
+<span class="lineNum">      93 </span>                :            :       return false;
+<span class="lineNum">      94 </span>                :            :     }
+<span class="lineNum">      95 </span>                :            :     K tmp;
+<span class="lineNum">      96 </span>                :            :     return Update(key, std::forward&lt;VV&gt;(val), &amp;tmp, true, false);
+<span class="lineNum">      97 </span>                :            :   }
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :            :   /*
+<span class="lineNum">     100 </span>                :            :    * silently update existing elements only
+<span class="lineNum">     101 </span>                :            :    */
+<span class="lineNum">     102 </span>                :            :   template &lt;typename VV&gt;
+<span class="lineNum">     103 </span>                :            :   bool UpdateSilently(const K&amp; key, VV* val) {
+<span class="lineNum">     104 </span>                :            :     if (!Contains(key)) {
+<span class="lineNum">     105 </span>                :            :       return false;
+<span class="lineNum">     106 </span>                :            :     }
+<span class="lineNum">     107 </span>                :            :     K tmp;
+<span class="lineNum">     108 </span>                :            :     return Update(key, std::forward&lt;VV&gt;(*val), &amp;tmp, true, true);
+<span class="lineNum">     109 </span>                :            :   }
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>                :            :   /*
+<span class="lineNum">     112 </span>                :            :    * add new elements only
+<span class="lineNum">     113 </span>                :            :    */
+<span class="lineNum">     114 </span>                :            :   template &lt;typename VV&gt;
+<span class="lineNum">     115 </span>                :            :   bool Add(const K&amp; key, VV* val) {
+<span class="lineNum">     116 </span>                :            :     K tmp;
+<span class="lineNum">     117 </span>                :            :     return Update(key, std::forward&lt;VV&gt;(*val), &amp;tmp, true, false);
+<span class="lineNum">     118 </span>                :            :   }
+<a name="119"><span class="lineNum">     119 </span>                :            : </a>
+<span class="lineNum">     120 </span>                :            :   template &lt;typename VV&gt;
+<span class="lineNum">     121 </span>                :<span class="lineCov">         10 :   bool PutAndGetObsolete(const K&amp; key, VV* val, K* obs) {</span>
+<span class="lineNum">     122 </span>                :<span class="lineCov">         10 :     return Update(key, std::forward&lt;VV&gt;(*val), obs, false, false);</span>
+<span class="lineNum">     123 </span>                :            :   }
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :            :   template &lt;typename VV&gt;
+<span class="lineNum">     126 </span>                :            :   bool AddAndGetObsolete(const K&amp; key, VV* val, K* obs) {
+<span class="lineNum">     127 </span>                :            :     return Update(key, std::forward&lt;VV&gt;(*val), obs, true, false);
+<a name="128"><span class="lineNum">     128 </span>                :            :   }</a>
+<span class="lineNum">     129 </span>                :            : 
+<a name="130"><span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :   V* GetSilently(const K&amp; key) { return Get(key, true); }</span></a>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :   V* Get(const K&amp; key) { return Get(key, false); }</span>
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :            :   bool GetCopySilently(const K&amp; key, V* const val) {
+<span class="lineNum">     135 </span>                :            :     return GetCopy(key, val, true);
+<span class="lineNum">     136 </span>                :            :   }
+<span class="lineNum">     137 </span>                :            : 
+<a name="138"><span class="lineNum">     138 </span>                :            :   bool GetCopy(const K&amp; key, V* const val) { return GetCopy(key, val, false); }</a>
+<span class="lineNum">     139 </span>                :            : 
+<a name="140"><span class="lineNum">     140 </span>                :<span class="lineCov">        182 :   size_t size() { return size_; }</span></a>
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>[<span class="branchCov" title="Branch 1 was taken 10 times"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>][<span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchCov" title="Branch 5 was taken 4 times"> + </span>]:<span class="lineCov">         26 :   bool Full() { return size() &gt; 0 &amp;&amp; size() &gt;= capacity_; }</span>
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :            :   bool Empty() { return size() == 0; }
+<span class="lineNum">     145 </span>                :            : 
+<a name="146"><span class="lineNum">     146 </span>                :            :   size_t capacity() { return capacity_; }</a>
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :<span class="lineCov">         12 :   Node&lt;K, V&gt;* First() {</span>
+<span class="lineNum">     149 </span>        [<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         12 :     if (size()) {</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">         12 :       return head_.next;</span>
+<span class="lineNum">     151 </span>                :            :     }
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :     return nullptr;</span>
+<a name="153"><span class="lineNum">     153 </span>                :            :   }</a>
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>[<span class="branchCov" title="Branch 2 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         13 :   bool Contains(const K&amp; key) { return map_.find(key) != map_.end(); }</span>
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :            :   bool Prioritize(const K&amp; key) {
+<span class="lineNum">     158 </span>                :            :     if (Contains(key)) {
+<span class="lineNum">     159 </span>                :            :       auto* node = &amp;map_[key];
+<span class="lineNum">     160 </span>                :            :       Detach(node);
+<span class="lineNum">     161 </span>                :            :       Attach(node);
+<span class="lineNum">     162 </span>                :            :       return true;
+<span class="lineNum">     163 </span>                :            :     }
+<span class="lineNum">     164 </span>                :            :     return false;
+<a name="165"><span class="lineNum">     165 </span>                :            :   }</a>
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>                :<span class="lineCov">         55 :   void Clear() {</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">         55 :     map_.clear();</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">         55 :     Init();</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">         55 :   }</span>
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>                :            :  private:
+<span class="lineNum">     173 </span>                :            :   static constexpr size_t kDefaultCapacity = 10;
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            :   const size_t capacity_;
+<span class="lineNum">     176 </span>                :            :   size_t size_;
+<span class="lineNum">     177 </span>                :            :   std::unordered_map&lt;K, Node&lt;K, V&gt;&gt; map_;
+<span class="lineNum">     178 </span>                :            :   Node&lt;K, V&gt; head_;
+<a name="179"><span class="lineNum">     179 </span>                :            :   Node&lt;K, V&gt; tail_;</a>
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>                :<span class="lineCov">         87 :   void Init() {</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">         87 :     head_.prev = nullptr;</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">         87 :     head_.next = &amp;tail_;</span>
+<span class="lineNum">     184 </span>                :<span class="lineCov">         87 :     tail_.prev = &amp;head_;</span>
+<span class="lineNum">     185 </span>                :<span class="lineCov">         87 :     tail_.next = nullptr;</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">         87 :     size_ = 0;</span>
+<a name="187"><span class="lineNum">     187 </span>                :<span class="lineCov">         87 :   }</span></a>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineCov">          6 :   void Detach(Node&lt;K, V&gt;* node) {</span>
+<span class="lineNum">     190 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :     if (node-&gt;prev != nullptr) {</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">          6 :       node-&gt;prev-&gt;next = node-&gt;next;</span>
+<span class="lineNum">     192 </span>                :            :     }
+<span class="lineNum">     193 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :     if (node-&gt;next != nullptr) {</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">          6 :       node-&gt;next-&gt;prev = node-&gt;prev;</span>
+<span class="lineNum">     195 </span>                :            :     }
+<span class="lineNum">     196 </span>                :<span class="lineCov">          6 :     node-&gt;prev = nullptr;</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          6 :     node-&gt;next = nullptr;</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          6 :     --size_;</span>
+<a name="199"><span class="lineNum">     199 </span>                :<span class="lineCov">          6 :   }</span></a>
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :<span class="lineCov">         13 :   void Attach(Node&lt;K, V&gt;* node) {</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">         13 :     node-&gt;prev = &amp;head_;</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">         13 :     node-&gt;next = head_.next;</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">         13 :     head_.next = node;</span>
+<span class="lineNum">     205 </span>        [<span class="branchCov" title="Branch 0 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         13 :     if (node-&gt;next != nullptr) {</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">         13 :       node-&gt;next-&gt;prev = node;</span>
+<span class="lineNum">     207 </span>                :            :     }
+<span class="lineNum">     208 </span>                :<span class="lineCov">         13 :     ++size_;</span>
+<span class="lineNum">     209 </span>                :<span class="lineCov">         13 :   }</span>
+<a name="210"><span class="lineNum">     210 </span>                :            : </a>
+<span class="lineNum">     211 </span>                :            :   template &lt;typename VV&gt;
+<span class="lineNum">     212 </span>                :<span class="lineCov">         13 :   bool Update(const K&amp; key, VV&amp;&amp; val, K* obs, bool add_only,</span>
+<span class="lineNum">     213 </span>                :            :               bool silent_update) {
+<span class="lineNum">     214 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 10 times"> + </span>]:<span class="lineCov">         13 :     if (obs == nullptr) {</span>
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :       return false;</span>
+<span class="lineNum">     216 </span>                :            :     }
+<span class="lineNum">     217 </span>[<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>][<span class="branchCov" title="Branch 4 was taken 3 times"> + </span><span class="branchCov" title="Branch 5 was taken 7 times"> + </span>]:<span class="lineCov">         13 :     if (Contains(key)) {</span>
+<span class="lineNum">     218 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          3 :       if (!add_only) {</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">          3 :         map_[key].val = std::forward&lt;VV&gt;(val);</span>
+<span class="lineNum">     220 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          3 :         if (!silent_update) {</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">          3 :           auto* node = &amp;map_[key];</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">          3 :           Detach(node);</span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">          3 :           Attach(node);</span>
+<span class="lineNum">     224 </span>                :            :         } else {
+<span class="lineNum">     225 </span>                :<span class="lineCov">          3 :           return false;</span>
+<span class="lineNum">     226 </span>                :            :         }
+<span class="lineNum">     227 </span>                :            :       }
+<span class="lineNum">     228 </span>                :            :     } else {
+<span class="lineNum">     229 </span>[<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         10 :       if (Full() &amp;&amp; !GetObsolete(obs)) {</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 3 times"> + </span>][<span class="branchCov" title="Branch 9 was taken 3 times"> + </span><span class="branchCov" title="Branch 10 was taken 4 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 12 was not taken"> - </span><span class="branchCov" title="Branch 13 was taken 3 times"> + </span>][<span class="branchNoCov" title="Branch 14 was not taken"> - </span><span class="branchCov" title="Branch 15 was taken 7 times"> + </span>]
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     231 </span>                :            :       }
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>[<span class="branchCov" title="Branch 3 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]:<span class="lineCov">         10 :       map_.emplace(key, Node&lt;K, V&gt;(key, std::forward&lt;VV&gt;(val)));</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">         10 :       Attach(&amp;map_[key]);</span>
+<span class="lineNum">     235 </span>                :            :     }
+<span class="lineNum">     236 </span>                :<span class="lineCov">         13 :     return true;</span>
+<a name="237"><span class="lineNum">     237 </span>                :            :   }</a>
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :   V* Get(const K&amp; key, bool silent) {</span>
+<span class="lineNum">     240 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (Contains(key)) {</span>
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :       auto* node = &amp;map_[key];</span>
+<span class="lineNum">     242 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (!silent) {</span>
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :         Detach(node);</span>
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :         Attach(node);</span>
+<span class="lineNum">     245 </span>                :            :       }
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :       return &amp;node-&gt;val;</span>
+<span class="lineNum">     247 </span>                :            :     }
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :     return nullptr;</span>
+<span class="lineNum">     249 </span>                :            :   }
+<span class="lineNum">     250 </span>                :            : 
+<span class="lineNum">     251 </span>                :            :   bool GetCopy(const K&amp; key, V* const val, bool silent) {
+<span class="lineNum">     252 </span>                :            :     if (Contains(key)) {
+<span class="lineNum">     253 </span>                :            :       auto* node = &amp;map_[key];
+<span class="lineNum">     254 </span>                :            :       if (!silent) {
+<span class="lineNum">     255 </span>                :            :         Detach(node);
+<span class="lineNum">     256 </span>                :            :         Attach(node);
+<span class="lineNum">     257 </span>                :            :       }
+<span class="lineNum">     258 </span>                :            :       *val = node-&gt;val;
+<span class="lineNum">     259 </span>                :            :       return true;
+<span class="lineNum">     260 </span>                :            :     }
+<span class="lineNum">     261 </span>                :            :     return false;
+<a name="262"><span class="lineNum">     262 </span>                :            :   }</a>
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :<span class="lineCov">          3 :   bool GetObsolete(K* key) {</span>
+<span class="lineNum">     265 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          3 :     if (Full()) {</span>
+<span class="lineNum">     266 </span>                :<span class="lineCov">          3 :       auto* node = tail_.prev;</span>
+<span class="lineNum">     267 </span>                :<span class="lineCov">          3 :       Detach(node);</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">          3 :       *key = node-&gt;key;</span>
+<span class="lineNum">     269 </span>                :<span class="lineCov">          3 :       map_.erase(node-&gt;key);</span>
+<span class="lineNum">     270 </span>                :<span class="lineCov">          3 :       return true;</span>
+<span class="lineNum">     271 </span>                :            :     }
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :     return false;</span>
+<span class="lineNum">     273 </span>                :            :   }
+<span class="lineNum">     274 </span>                :            : };
+<span class="lineNum">     275 </span>                :            : 
+<span class="lineNum">     276 </span>                :            : }  // namespace util
+<span class="lineNum">     277 </span>                :            : }  // namespace common
+<span class="lineNum">     278 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/boost/boost/property_tree/string_path.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">external/boost/boost/property_tree</a> - string_path.hpp<span style="font-size: 80%;"> (source / <a href="string_path.hpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryMed">87.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntryLo">47.8 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // ----------------------------------------------------------------------------</a>
+<span class="lineNum">       2 </span>                :            : // Copyright (C) 2009 Sebastian Redl
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Distributed under the Boost Software License, Version 1.0. 
+<span class="lineNum">       5 </span>                :            : // (See accompanying file LICENSE_1_0.txt or copy at 
+<span class="lineNum">       6 </span>                :            : // http://www.boost.org/LICENSE_1_0.txt)
+<span class="lineNum">       7 </span>                :            : //
+<span class="lineNum">       8 </span>                :            : // For more information, see www.boost.org
+<span class="lineNum">       9 </span>                :            : // ----------------------------------------------------------------------------
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : #ifndef BOOST_PROPERTY_TREE_STRING_PATH_HPP_INCLUDED
+<span class="lineNum">      12 </span>                :            : #define BOOST_PROPERTY_TREE_STRING_PATH_HPP_INCLUDED
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : #include &lt;boost/property_tree/ptree_fwd.hpp&gt;
+<span class="lineNum">      15 </span>                :            : #include &lt;boost/property_tree/id_translator.hpp&gt;
+<span class="lineNum">      16 </span>                :            : #include &lt;boost/property_tree/exceptions.hpp&gt;
+<span class="lineNum">      17 </span>                :            : #include &lt;boost/property_tree/detail/ptree_utils.hpp&gt;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &lt;boost/static_assert.hpp&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;boost/assert.hpp&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;boost/type_traits/is_same.hpp&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;boost/optional.hpp&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;boost/throw_exception.hpp&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;iterator&gt;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : namespace boost { namespace property_tree
+<span class="lineNum">      29 </span>                :            : {
+<span class="lineNum">      30 </span>                :            :     namespace detail
+<span class="lineNum">      31 </span>                :            :     {
+<span class="lineNum">      32 </span>                :            :         template &lt;typename Sequence, typename Iterator&gt;
+<span class="lineNum">      33 </span>                :            :         void append_and_preserve_iter(Sequence &amp;s, const Sequence &amp;r,
+<span class="lineNum">      34 </span>                :            :                                       Iterator &amp;, std::forward_iterator_tag)
+<span class="lineNum">      35 </span>                :            :         {
+<span class="lineNum">      36 </span>                :            :             // Here we boldly assume that anything that is not random-access
+<span class="lineNum">      37 </span>                :            :             // preserves validity. This is valid for the STL sequences.
+<span class="lineNum">      38 </span>                :            :             s.insert(s.end(), r.begin(), r.end());
+<span class="lineNum">      39 </span>                :            :         }
+<span class="lineNum">      40 </span>                :            :         template &lt;typename Sequence, typename Iterator&gt;
+<span class="lineNum">      41 </span>                :            :         void append_and_preserve_iter(Sequence &amp;s, const Sequence &amp;r,
+<span class="lineNum">      42 </span>                :            :                                       Iterator &amp;it,
+<span class="lineNum">      43 </span>                :            :                                       std::random_access_iterator_tag)
+<span class="lineNum">      44 </span>                :            :         {
+<span class="lineNum">      45 </span>                :            :             // Convert the iterator to an index, and later back.
+<span class="lineNum">      46 </span>                :            :             typename std::iterator_traits&lt;Iterator&gt;::difference_type idx =
+<span class="lineNum">      47 </span>                :            :                 it - s.begin();
+<span class="lineNum">      48 </span>                :            :             s.insert(s.end(), r.begin(), r.end());
+<span class="lineNum">      49 </span>                :            :             it = s.begin() + idx;
+<span class="lineNum">      50 </span>                :            :         }
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            :         template &lt;typename Sequence&gt;
+<span class="lineNum">      53 </span>                :            :         inline std::string dump_sequence(const Sequence &amp;)
+<span class="lineNum">      54 </span>                :            :         {
+<a name="55"><span class="lineNum">      55 </span>                :            :             return &quot;&lt;undumpable sequence&gt;&quot;;</a>
+<span class="lineNum">      56 </span>                :            :         }
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :         inline std::string dump_sequence(const std::string &amp;s)</span>
+<span class="lineNum">      58 </span>                :            :         {
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :             return s;</span>
+<span class="lineNum">      60 </span>                :            :         }
+<span class="lineNum">      61 </span>                :            : #ifndef BOOST_NO_STD_WSTRING
+<span class="lineNum">      62 </span>                :            :         inline std::string dump_sequence(const std::wstring &amp;s)
+<span class="lineNum">      63 </span>                :            :         {
+<span class="lineNum">      64 </span>                :            :             return narrow(s.c_str());
+<span class="lineNum">      65 </span>                :            :         }
+<span class="lineNum">      66 </span>                :            : #endif
+<span class="lineNum">      67 </span>                :            :     }
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            :     /// Default path class. A path is a sequence of values. Groups of values
+<span class="lineNum">      70 </span>                :            :     /// are separated by the separator value, which defaults to '.' cast to
+<span class="lineNum">      71 </span>                :            :     /// the sequence's value type. The group of values is then passed to the
+<span class="lineNum">      72 </span>                :            :     /// translator to get a key.
+<span class="lineNum">      73 </span>                :            :     ///
+<span class="lineNum">      74 </span>                :            :     /// If instantiated with std::string and id_translator\&lt;std::string\&gt;,
+<span class="lineNum">      75 </span>                :            :     /// it accepts paths of the form &quot;one.two.three.four&quot;.
+<span class="lineNum">      76 </span>                :            :     ///
+<span class="lineNum">      77 </span>                :            :     /// @tparam String Any Sequence. If the sequence does not support random-
+<span class="lineNum">      78 </span>                :            :     ///                access iteration, concatenation of paths assumes that
+<span class="lineNum">      79 </span>                :            :     ///                insertions at the end preserve iterator validity.
+<a name="80"><span class="lineNum">      80 </span>                :            :     /// @tparam Translator A translator with internal_type == String.</a>
+<span class="lineNum">      81 </span>                :            :     template &lt;typename String, typename Translator&gt;
+<span class="lineNum">      82 </span>                :<span class="lineCov">        644 :     class string_path</span>
+<span class="lineNum">      83 </span>                :            :     {
+<span class="lineNum">      84 </span>                :            :         BOOST_STATIC_ASSERT((is_same&lt;String,
+<span class="lineNum">      85 </span>                :            :                                    typename Translator::internal_type&gt;::value));
+<span class="lineNum">      86 </span>                :            :     public:
+<span class="lineNum">      87 </span>                :            :         typedef typename Translator::external_type key_type;
+<span class="lineNum">      88 </span>                :            :         typedef typename String::value_type char_type;
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :            :         /// Create an empty path.
+<span class="lineNum">      91 </span>                :            :         explicit string_path(char_type separator = char_type('.'));
+<span class="lineNum">      92 </span>                :            :         /// Create a path by parsing the given string.
+<span class="lineNum">      93 </span>                :            :         /// @param value A sequence, possibly with separators, that describes
+<span class="lineNum">      94 </span>                :            :         ///              the path, e.g. &quot;one.two.three&quot;.
+<span class="lineNum">      95 </span>                :            :         /// @param separator The separator used in parsing. Defaults to '.'.
+<span class="lineNum">      96 </span>                :            :         /// @param tr The translator used by this path to convert the individual
+<span class="lineNum">      97 </span>                :            :         ///           parts to keys.
+<span class="lineNum">      98 </span>                :            :         string_path(const String &amp;value, char_type separator = char_type('.'),
+<span class="lineNum">      99 </span>                :            :                     Translator tr = Translator());
+<span class="lineNum">     100 </span>                :            :         /// Create a path by parsing the given string.
+<span class="lineNum">     101 </span>                :            :         /// @param value A zero-terminated array of values. Only use if zero-
+<span class="lineNum">     102 </span>                :            :         ///              termination makes sense for your type, and your
+<span class="lineNum">     103 </span>                :            :         ///              sequence supports construction from it. Intended for
+<span class="lineNum">     104 </span>                :            :         ///              string literals.
+<span class="lineNum">     105 </span>                :            :         /// @param separator The separator used in parsing. Defaults to '.'.
+<span class="lineNum">     106 </span>                :            :         /// @param tr The translator used by this path to convert the individual
+<span class="lineNum">     107 </span>                :            :         ///           parts to keys.
+<span class="lineNum">     108 </span>                :            :         string_path(const char_type *value,
+<span class="lineNum">     109 </span>                :            :                     char_type separator = char_type('.'),
+<span class="lineNum">     110 </span>                :            :                     Translator tr = Translator());
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            :         // Default copying doesn't do the right thing with the iterator
+<span class="lineNum">     113 </span>                :            :         string_path(const string_path &amp;o);
+<span class="lineNum">     114 </span>                :            :         string_path&amp; operator =(const string_path &amp;o);
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :            :         /// Take a single element off the path at the front and return it.
+<span class="lineNum">     117 </span>                :            :         key_type reduce();
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :            :         /// Test if the path is empty.
+<span class="lineNum">     120 </span>                :            :         bool empty() const;
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            :         /// Test if the path contains a single element, i.e. no separators.
+<span class="lineNum">     123 </span>                :            :         bool single() const;
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :            :         /// Get the separator used by this path.
+<a name="126"><span class="lineNum">     126 </span>                :            :         char_type separator() const { return m_separator; }</a>
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :         std::string dump() const {</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :             return detail::dump_sequence(m_value);</span>
+<span class="lineNum">     130 </span>                :            :         }
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :         /// Append a second path to this one.
+<span class="lineNum">     133 </span>                :            :         /// @pre o's separator is the same as this one's, or o has no separators
+<span class="lineNum">     134 </span>                :            :         string_path&amp; operator /=(const string_path &amp;o) {
+<span class="lineNum">     135 </span>                :            :             // If it's single, there's no separator. This allows to do
+<span class="lineNum">     136 </span>                :            :             // p /= &quot;piece&quot;;
+<span class="lineNum">     137 </span>                :            :             // even for non-default separators.
+<span class="lineNum">     138 </span>                :            :             BOOST_ASSERT((m_separator == o.m_separator
+<span class="lineNum">     139 </span>                :            :                           || o.empty()
+<span class="lineNum">     140 </span>                :            :                           || o.single())
+<span class="lineNum">     141 </span>                :            :                          &amp;&amp; &quot;Incompatible paths.&quot;);
+<span class="lineNum">     142 </span>                :            :             if(!o.empty()) {
+<span class="lineNum">     143 </span>                :            :                 String sub;
+<span class="lineNum">     144 </span>                :            :                 if(!this-&gt;empty()) {
+<span class="lineNum">     145 </span>                :            :                     sub.push_back(m_separator);
+<span class="lineNum">     146 </span>                :            :                 }
+<span class="lineNum">     147 </span>                :            :                 sub.insert(sub.end(), o.cstart(), o.m_value.end());
+<span class="lineNum">     148 </span>                :            :                 detail::append_and_preserve_iter(m_value, sub, m_start,
+<span class="lineNum">     149 </span>                :            :                     typename std::iterator_traits&lt;s_iter&gt;::iterator_category());
+<span class="lineNum">     150 </span>                :            :             }
+<span class="lineNum">     151 </span>                :            :             return *this;
+<span class="lineNum">     152 </span>                :            :         }
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            :     private:
+<span class="lineNum">     155 </span>                :            :         typedef typename String::iterator s_iter;
+<span class="lineNum">     156 </span>                :            :         typedef typename String::const_iterator s_c_iter;
+<span class="lineNum">     157 </span>                :            :         String m_value;
+<span class="lineNum">     158 </span>                :            :         char_type m_separator;
+<a name="159"><span class="lineNum">     159 </span>                :            :         Translator m_tr;</a>
+<span class="lineNum">     160 </span>                :            :         s_iter m_start;
+<span class="lineNum">     161 </span>                :<span class="lineCov">        350 :         s_c_iter cstart() const { return m_start; }</span>
+<span class="lineNum">     162 </span>                :            :     };
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     165 </span>                :            :     string_path&lt;String, Translator&gt;::string_path(char_type separator)
+<span class="lineNum">     166 </span>                :            :         : m_separator(separator), m_start(m_value.begin())
+<span class="lineNum">     167 </span>                :            :     {}
+<a name="168"><span class="lineNum">     168 </span>                :            : </a>
+<span class="lineNum">     169 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     170 </span>                :<span class="lineCov">         21 :     string_path&lt;String, Translator&gt;::string_path(const String &amp;value,</span>
+<span class="lineNum">     171 </span>                :            :                                                  char_type separator,
+<span class="lineNum">     172 </span>                :            :                                                  Translator tr)
+<span class="lineNum">     173 </span>                :            :         : m_value(value), m_separator(separator),
+<span class="lineNum">     174 </span>                :<span class="lineCov">         21 :           m_tr(tr), m_start(m_value.begin())</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">         21 :     {}</span>
+<a name="176"><span class="lineNum">     176 </span>                :            : </a>
+<span class="lineNum">     177 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     178 </span>                :<span class="lineCov">         85 :     string_path&lt;String, Translator&gt;::string_path(const char_type *value,</span>
+<span class="lineNum">     179 </span>                :            :                                                  char_type separator,
+<span class="lineNum">     180 </span>                :            :                                                  Translator tr)
+<span class="lineNum">     181 </span>                :            :         : m_value(value), m_separator(separator),
+<span class="lineNum">     182 </span>        [<span class="branchCov" title="Branch 2 was taken 85 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         85 :           m_tr(tr), m_start(m_value.begin())</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">         85 :     {}</span>
+<a name="184"><span class="lineNum">     184 </span>                :            : </a>
+<span class="lineNum">     185 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     186 </span>                :<span class="lineCov">        175 :     string_path&lt;String, Translator&gt;::string_path(const string_path &amp;o)</span>
+<span class="lineNum">     187 </span>                :            :         : m_value(o.m_value), m_separator(o.m_separator),
+<span class="lineNum">     188 </span>                :<span class="lineCov">        175 :           m_tr(o.m_tr), m_start(m_value.begin())</span>
+<span class="lineNum">     189 </span>                :            :     {
+<span class="lineNum">     190 </span>[<span class="branchCov" title="Branch 1 was taken 175 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 175 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">        175 :         std::advance(m_start, std::distance(o.m_value.begin(), o.cstart()));</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 175 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">     191 </span>                :<span class="lineCov">        175 :     }</span>
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     194 </span>                :            :     string_path&lt;String, Translator&gt;&amp;
+<span class="lineNum">     195 </span>                :            :     string_path&lt;String, Translator&gt;::operator =(const string_path &amp;o)
+<span class="lineNum">     196 </span>                :            :     {
+<span class="lineNum">     197 </span>                :            :         m_value = o.m_value;
+<span class="lineNum">     198 </span>                :            :         m_separator = o.m_separator;
+<span class="lineNum">     199 </span>                :            :         m_tr = o.m_tr;
+<span class="lineNum">     200 </span>                :            :         m_start = m_value.begin();
+<span class="lineNum">     201 </span>                :            :         std::advance(m_start, std::distance(o.m_value.begin(), o.cstart()));
+<span class="lineNum">     202 </span>                :            :         return *this;
+<span class="lineNum">     203 </span>                :            :     }
+<a name="204"><span class="lineNum">     204 </span>                :            : </a>
+<span class="lineNum">     205 </span>                :            :     template &lt;typename String, typename Translator&gt;
+<span class="lineNum">     206 </span>                :<span class="lineCov">        453 :     typename Translator::external_type string_path&lt;String, Translator&gt;::reduce()</span>
+<span class="lineNum">     207 </span>                :            :     {
+<span class="lineNum">     208 </span>[<span class="branchCov" title="Branch 1 was taken 453 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 453 times"> + </span>]:<span class="lineCov">        453 :         BOOST_ASSERT(!empty() &amp;&amp; &quot;Reducing empty path&quot;);</span>
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>        [<span class="branchCov" title="Branch 2 was taken 453 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        453 :         s_iter next_sep = std::find(m_start, m_value.end(), m_separator);</span>
+<span class="lineNum">     211 </span>        [<span class="branchCov" title="Branch 2 was taken 453 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        453 :         String part(m_start, next_sep);</span>
+<span class="lineNum">     212 </span>                :<span class="lineCov">        453 :         m_start = next_sep;</span>
+<span class="lineNum">     213 </span>[<span class="branchCov" title="Branch 1 was taken 453 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 291 times"> + </span><span class="branchCov" title="Branch 4 was taken 162 times"> + </span>]:<span class="lineCov">        453 :         if(!empty()) {</span>
+<span class="lineNum">     214 </span>                :            :           // Unless we're at the end, skip the separator we found.
+<span class="lineNum">     215 </span>        [<span class="branchCov" title="Branch 1 was taken 291 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        291 :           ++m_start;</span>
+<span class="lineNum">     216 </span>                :            :         }
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>[<span class="branchCov" title="Branch 1 was taken 453 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 453 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        453 :         if(optional&lt;key_type&gt; key = m_tr.get_value(part)) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 6 was taken 453 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
+<span class="lineNum">     219 </span>[<span class="branchCov" title="Branch 1 was taken 453 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 453 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        906 :             return *key;</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 453 times"> + </span>]
+<span class="lineNum">     220 </span>                :            :         }
+<span class="lineNum">     221 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineCov">        453 :         BOOST_PROPERTY_TREE_THROW(ptree_bad_path(&quot;Path syntax error&quot;, *this));</span>
+<span class="lineNum">     222 </span>                :            :     }
+<a name="223"><span class="lineNum">     223 </span>                :            : </a>
+<span class="lineNum">     224 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     225 </span>                :<span class="lineCov">       1406 :     bool string_path&lt;String, Translator&gt;::empty() const</span>
+<span class="lineNum">     226 </span>                :            :     {
+<span class="lineNum">     227 </span>        [<span class="branchCov" title="Branch 2 was taken 1406 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       1406 :         return m_start == m_value.end();</span>
+<span class="lineNum">     228 </span>                :            :     }
+<a name="229"><span class="lineNum">     229 </span>                :            : </a>
+<span class="lineNum">     230 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     231 </span>                :<span class="lineCov">        134 :     bool string_path&lt;String, Translator&gt;::single() const</span>
+<span class="lineNum">     232 </span>                :            :     {
+<span class="lineNum">     233 </span>                :            :         return std::find(static_cast&lt;s_c_iter&gt;(m_start),
+<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 2 was taken 134 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        134 :                          m_value.end(), m_separator)</span>
+<span class="lineNum">     235 </span>[<span class="branchCov" title="Branch 2 was taken 134 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 134 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">        268 :             == m_value.end();</span>
+<span class="lineNum">     236 </span>                :            :     }
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :            :     // By default, this is the path for strings. You can override this by
+<span class="lineNum">     239 </span>                :            :     // specializing path_of for a more specific form of std::basic_string.
+<span class="lineNum">     240 </span>                :            :     template &lt;typename Ch, typename Traits, typename Alloc&gt;
+<span class="lineNum">     241 </span>                :            :     struct path_of&lt; std::basic_string&lt;Ch, Traits, Alloc&gt; &gt;
+<span class="lineNum">     242 </span>                :            :     {
+<span class="lineNum">     243 </span>                :            :         typedef std::basic_string&lt;Ch, Traits, Alloc&gt; _string;
+<span class="lineNum">     244 </span>                :            :         typedef string_path&lt; _string, id_translator&lt;_string&gt; &gt; type;
+<span class="lineNum">     245 </span>                :            :     };
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     248 </span>                :            :     string_path&lt;String, Translator&gt; operator /(
+<span class="lineNum">     249 </span>                :            :                                   string_path&lt;String, Translator&gt; p1,
+<span class="lineNum">     250 </span>                :            :                                   const string_path&lt;String, Translator&gt; &amp;p2)
+<span class="lineNum">     251 </span>                :            :     {
+<span class="lineNum">     252 </span>                :            :         p1 /= p2;
+<span class="lineNum">     253 </span>                :            :         return p1;
+<span class="lineNum">     254 </span>                :            :     }
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :            :     // These shouldn't be necessary, but GCC won't find the one above.
+<span class="lineNum">     257 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     258 </span>                :            :     string_path&lt;String, Translator&gt; operator /(
+<span class="lineNum">     259 </span>                :            :                                   string_path&lt;String, Translator&gt; p1,
+<span class="lineNum">     260 </span>                :            :                                   const typename String::value_type *p2)
+<span class="lineNum">     261 </span>                :            :     {
+<span class="lineNum">     262 </span>                :            :         p1 /= p2;
+<span class="lineNum">     263 </span>                :            :         return p1;
+<span class="lineNum">     264 </span>                :            :     }
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :            :     template &lt;typename String, typename Translator&gt; inline
+<span class="lineNum">     267 </span>                :            :     string_path&lt;String, Translator&gt; operator /(
+<span class="lineNum">     268 </span>                :            :                                   const typename String::value_type *p1,
+<span class="lineNum">     269 </span>                :            :                                   const string_path&lt;String, Translator&gt; &amp;p2)
+<span class="lineNum">     270 </span>                :            :     {
+<span class="lineNum">     271 </span>                :            :         string_path&lt;String, Translator&gt; t(p1);
+<span class="lineNum">     272 </span>                :            :         t /= p2;
+<span class="lineNum">     273 </span>                :            :         return t;
+<span class="lineNum">     274 </span>                :            :     }
+<span class="lineNum">     275 </span>                :            : 
+<span class="lineNum">     276 </span>                :            : }}
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

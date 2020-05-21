@@ -1,0 +1,484 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/QR/HouseholderQR.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/QR</a> - HouseholderQR.h<span style="font-size: 80%;"> (source / <a href="HouseholderQR.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">77</td>
+            <td class="headerCovTableEntry">83</td>
+            <td class="headerCovTableEntryHi">92.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">83</td>
+            <td class="headerCovTableEntry">176</td>
+            <td class="headerCovTableEntryLo">47.2 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2008-2010 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       5 </span>                :            : // Copyright (C) 2009 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       6 </span>                :            : // Copyright (C) 2010 Vincent Lejeune
+<span class="lineNum">       7 </span>                :            : //
+<span class="lineNum">       8 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       9 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">      10 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">      11 </span>                :            : 
+<span class="lineNum">      12 </span>                :            : #ifndef EIGEN_QR_H
+<span class="lineNum">      13 </span>                :            : #define EIGEN_QR_H
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : namespace Eigen { 
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /** \ingroup QR_Module
+<span class="lineNum">      18 </span>                :            :   *
+<span class="lineNum">      19 </span>                :            :   *
+<span class="lineNum">      20 </span>                :            :   * \class HouseholderQR
+<span class="lineNum">      21 </span>                :            :   *
+<span class="lineNum">      22 </span>                :            :   * \brief Householder QR decomposition of a matrix
+<span class="lineNum">      23 </span>                :            :   *
+<span class="lineNum">      24 </span>                :            :   * \param MatrixType the type of the matrix of which we are computing the QR decomposition
+<span class="lineNum">      25 </span>                :            :   *
+<span class="lineNum">      26 </span>                :            :   * This class performs a QR decomposition of a matrix \b A into matrices \b Q and \b R
+<span class="lineNum">      27 </span>                :            :   * such that 
+<span class="lineNum">      28 </span>                :            :   * \f[
+<span class="lineNum">      29 </span>                :            :   *  \mathbf{A} = \mathbf{Q} \, \mathbf{R}
+<span class="lineNum">      30 </span>                :            :   * \f]
+<span class="lineNum">      31 </span>                :            :   * by using Householder transformations. Here, \b Q a unitary matrix and \b R an upper triangular matrix.
+<span class="lineNum">      32 </span>                :            :   * The result is stored in a compact way compatible with LAPACK.
+<span class="lineNum">      33 </span>                :            :   *
+<span class="lineNum">      34 </span>                :            :   * Note that no pivoting is performed. This is \b not a rank-revealing decomposition.
+<span class="lineNum">      35 </span>                :            :   * If you want that feature, use FullPivHouseholderQR or ColPivHouseholderQR instead.
+<span class="lineNum">      36 </span>                :            :   *
+<span class="lineNum">      37 </span>                :            :   * This Householder QR decomposition is faster, but less numerically stable and less feature-full than
+<span class="lineNum">      38 </span>                :            :   * FullPivHouseholderQR or ColPivHouseholderQR.
+<span class="lineNum">      39 </span>                :            :   *
+<a name="40"><span class="lineNum">      40 </span>                :            :   * \sa MatrixBase::householderQr()</a>
+<span class="lineNum">      41 </span>                :            :   */
+<span class="lineNum">      42 </span>                :<span class="lineCov">          8 : template&lt;typename _MatrixType&gt; class HouseholderQR</span>
+<span class="lineNum">      43 </span>                :            : {
+<span class="lineNum">      44 </span>                :            :   public:
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            :     typedef _MatrixType MatrixType;
+<span class="lineNum">      47 </span>                :            :     enum {
+<span class="lineNum">      48 </span>                :            :       RowsAtCompileTime = MatrixType::RowsAtCompileTime,
+<span class="lineNum">      49 </span>                :            :       ColsAtCompileTime = MatrixType::ColsAtCompileTime,
+<span class="lineNum">      50 </span>                :            :       Options = MatrixType::Options,
+<span class="lineNum">      51 </span>                :            :       MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
+<span class="lineNum">      52 </span>                :            :       MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime
+<span class="lineNum">      53 </span>                :            :     };
+<span class="lineNum">      54 </span>                :            :     typedef typename MatrixType::Scalar Scalar;
+<span class="lineNum">      55 </span>                :            :     typedef typename MatrixType::RealScalar RealScalar;
+<span class="lineNum">      56 </span>                :            :     typedef typename MatrixType::Index Index;
+<span class="lineNum">      57 </span>                :            :     typedef Matrix&lt;Scalar, RowsAtCompileTime, RowsAtCompileTime, (MatrixType::Flags&amp;RowMajorBit) ? RowMajor : ColMajor, MaxRowsAtCompileTime, MaxRowsAtCompileTime&gt; MatrixQType;
+<span class="lineNum">      58 </span>                :            :     typedef typename internal::plain_diag_type&lt;MatrixType&gt;::type HCoeffsType;
+<span class="lineNum">      59 </span>                :            :     typedef typename internal::plain_row_type&lt;MatrixType&gt;::type RowVectorType;
+<span class="lineNum">      60 </span>                :            :     typedef HouseholderSequence&lt;MatrixType,typename internal::remove_all&lt;typename HCoeffsType::ConjugateReturnType&gt;::type&gt; HouseholderSequenceType;
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            :     /**
+<span class="lineNum">      63 </span>                :            :       * \brief Default Constructor.
+<span class="lineNum">      64 </span>                :            :       *
+<span class="lineNum">      65 </span>                :            :       * The default constructor is useful in cases in which the user intends to
+<span class="lineNum">      66 </span>                :            :       * perform decompositions via HouseholderQR::compute(const MatrixType&amp;).
+<span class="lineNum">      67 </span>                :            :       */
+<span class="lineNum">      68 </span>                :            :     HouseholderQR() : m_qr(), m_hCoeffs(), m_temp(), m_isInitialized(false) {}
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :            :     /** \brief Default Constructor with memory preallocation
+<span class="lineNum">      71 </span>                :            :       *
+<span class="lineNum">      72 </span>                :            :       * Like the default constructor but with preallocation of the internal data
+<span class="lineNum">      73 </span>                :            :       * according to the specified problem \a size.
+<span class="lineNum">      74 </span>                :            :       * \sa HouseholderQR()
+<span class="lineNum">      75 </span>                :            :       */
+<span class="lineNum">      76 </span>                :            :     HouseholderQR(Index rows, Index cols)
+<span class="lineNum">      77 </span>                :            :       : m_qr(rows, cols),
+<span class="lineNum">      78 </span>                :            :         m_hCoeffs((std::min)(rows,cols)),
+<span class="lineNum">      79 </span>                :            :         m_temp(cols),
+<span class="lineNum">      80 </span>                :            :         m_isInitialized(false) {}
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :            :     /** \brief Constructs a QR factorization from a given matrix
+<span class="lineNum">      83 </span>                :            :       *
+<span class="lineNum">      84 </span>                :            :       * This constructor computes the QR factorization of the matrix \a matrix by calling
+<span class="lineNum">      85 </span>                :            :       * the method compute(). It is a short cut for:
+<span class="lineNum">      86 </span>                :            :       * 
+<span class="lineNum">      87 </span>                :            :       * \code
+<span class="lineNum">      88 </span>                :            :       * HouseholderQR&lt;MatrixType&gt; qr(matrix.rows(), matrix.cols());
+<span class="lineNum">      89 </span>                :            :       * qr.compute(matrix);
+<span class="lineNum">      90 </span>                :            :       * \endcode
+<span class="lineNum">      91 </span>                :            :       * 
+<a name="92"><span class="lineNum">      92 </span>                :            :       * \sa compute()</a>
+<span class="lineNum">      93 </span>                :            :       */
+<span class="lineNum">      94 </span>                :<span class="lineCov">          4 :     HouseholderQR(const MatrixType&amp; matrix)</span>
+<span class="lineNum">      95 </span>                :            :       : m_qr(matrix.rows(), matrix.cols()),
+<span class="lineNum">      96 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :         m_hCoeffs((std::min)(matrix.rows(),matrix.cols())),</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">      97 </span>                :            :         m_temp(matrix.cols()),
+<span class="lineNum">      98 </span>[<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          8 :         m_isInitialized(false)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 14 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">      99 </span>                :            :     {
+<span class="lineNum">     100 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :       compute(matrix);</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">          4 :     }</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :            :     /** This method finds a solution x to the equation Ax=b, where A is the matrix of which
+<span class="lineNum">     104 </span>                :            :       * *this is the QR decomposition, if any exists.
+<span class="lineNum">     105 </span>                :            :       *
+<span class="lineNum">     106 </span>                :            :       * \param b the right-hand-side of the equation to solve.
+<span class="lineNum">     107 </span>                :            :       *
+<span class="lineNum">     108 </span>                :            :       * \returns a solution.
+<span class="lineNum">     109 </span>                :            :       *
+<span class="lineNum">     110 </span>                :            :       * \note_about_checking_solutions
+<span class="lineNum">     111 </span>                :            :       *
+<span class="lineNum">     112 </span>                :            :       * \note_about_arbitrary_choice_of_solution
+<span class="lineNum">     113 </span>                :            :       *
+<span class="lineNum">     114 </span>                :            :       * Example: \include HouseholderQR_solve.cpp
+<span class="lineNum">     115 </span>                :            :       * Output: \verbinclude HouseholderQR_solve.out
+<span class="lineNum">     116 </span>                :            :       */
+<a name="117"><span class="lineNum">     117 </span>                :            :     template&lt;typename Rhs&gt;</a>
+<span class="lineNum">     118 </span>                :            :     inline const internal::solve_retval&lt;HouseholderQR, Rhs&gt;
+<span class="lineNum">     119 </span>                :<span class="lineCov">          4 :     solve(const MatrixBase&lt;Rhs&gt;&amp; b) const</span>
+<span class="lineNum">     120 </span>                :            :     {
+<span class="lineNum">     121 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :       eigen_assert(m_isInitialized &amp;&amp; &quot;HouseholderQR is not initialized.&quot;);</span>
+<span class="lineNum">     122 </span>                :<span class="lineCov">          4 :       return internal::solve_retval&lt;HouseholderQR, Rhs&gt;(*this, b.derived());</span>
+<span class="lineNum">     123 </span>                :            :     }
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :            :     /** This method returns an expression of the unitary matrix Q as a sequence of Householder transformations.
+<span class="lineNum">     126 </span>                :            :       *
+<span class="lineNum">     127 </span>                :            :       * The returned expression can directly be used to perform matrix products. It can also be assigned to a dense Matrix object.
+<span class="lineNum">     128 </span>                :            :       * Here is an example showing how to recover the full or thin matrix Q, as well as how to perform matrix products using operator*:
+<span class="lineNum">     129 </span>                :            :       *
+<span class="lineNum">     130 </span>                :            :       * Example: \include HouseholderQR_householderQ.cpp
+<span class="lineNum">     131 </span>                :            :       * Output: \verbinclude HouseholderQR_householderQ.out
+<span class="lineNum">     132 </span>                :            :       */
+<span class="lineNum">     133 </span>                :            :     HouseholderSequenceType householderQ() const
+<span class="lineNum">     134 </span>                :            :     {
+<span class="lineNum">     135 </span>                :            :       eigen_assert(m_isInitialized &amp;&amp; &quot;HouseholderQR is not initialized.&quot;);
+<span class="lineNum">     136 </span>                :            :       return HouseholderSequenceType(m_qr, m_hCoeffs.conjugate());
+<span class="lineNum">     137 </span>                :            :     }
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :            :     /** \returns a reference to the matrix where the Householder QR decomposition is stored
+<a name="140"><span class="lineNum">     140 </span>                :            :       * in a LAPACK-compatible way.</a>
+<span class="lineNum">     141 </span>                :            :       */
+<span class="lineNum">     142 </span>                :<span class="lineCov">          8 :     const MatrixType&amp; matrixQR() const</span>
+<span class="lineNum">     143 </span>                :            :     {
+<span class="lineNum">     144 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         eigen_assert(m_isInitialized &amp;&amp; &quot;HouseholderQR is not initialized.&quot;);</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">          8 :         return m_qr;</span>
+<span class="lineNum">     146 </span>                :            :     }
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :            :     HouseholderQR&amp; compute(const MatrixType&amp; matrix);
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            :     /** \returns the absolute value of the determinant of the matrix of which
+<span class="lineNum">     151 </span>                :            :       * *this is the QR decomposition. It has only linear complexity
+<span class="lineNum">     152 </span>                :            :       * (that is, O(n) where n is the dimension of the square matrix)
+<span class="lineNum">     153 </span>                :            :       * as the QR decomposition has already been computed.
+<span class="lineNum">     154 </span>                :            :       *
+<span class="lineNum">     155 </span>                :            :       * \note This is only for square matrices.
+<span class="lineNum">     156 </span>                :            :       *
+<span class="lineNum">     157 </span>                :            :       * \warning a determinant can be very big or small, so for matrices
+<span class="lineNum">     158 </span>                :            :       * of large enough dimension, there is a risk of overflow/underflow.
+<span class="lineNum">     159 </span>                :            :       * One way to work around that is to use logAbsDeterminant() instead.
+<span class="lineNum">     160 </span>                :            :       *
+<span class="lineNum">     161 </span>                :            :       * \sa logAbsDeterminant(), MatrixBase::determinant()
+<span class="lineNum">     162 </span>                :            :       */
+<span class="lineNum">     163 </span>                :            :     typename MatrixType::RealScalar absDeterminant() const;
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            :     /** \returns the natural log of the absolute value of the determinant of the matrix of which
+<span class="lineNum">     166 </span>                :            :       * *this is the QR decomposition. It has only linear complexity
+<span class="lineNum">     167 </span>                :            :       * (that is, O(n) where n is the dimension of the square matrix)
+<span class="lineNum">     168 </span>                :            :       * as the QR decomposition has already been computed.
+<span class="lineNum">     169 </span>                :            :       *
+<span class="lineNum">     170 </span>                :            :       * \note This is only for square matrices.
+<span class="lineNum">     171 </span>                :            :       *
+<span class="lineNum">     172 </span>                :            :       * \note This method is useful to work around the risk of overflow/underflow that's inherent
+<span class="lineNum">     173 </span>                :            :       * to determinant computation.
+<span class="lineNum">     174 </span>                :            :       *
+<span class="lineNum">     175 </span>                :            :       * \sa absDeterminant(), MatrixBase::determinant()
+<span class="lineNum">     176 </span>                :            :       */
+<a name="177"><span class="lineNum">     177 </span>                :            :     typename MatrixType::RealScalar logAbsDeterminant() const;</a>
+<a name="178"><span class="lineNum">     178 </span>                :            : </a>
+<span class="lineNum">     179 </span>                :<span class="lineCov">          8 :     inline Index rows() const { return m_qr.rows(); }</span>
+<span class="lineNum">     180 </span>                :<span class="lineCov">         16 :     inline Index cols() const { return m_qr.cols(); }</span>
+<span class="lineNum">     181 </span>                :            :     
+<span class="lineNum">     182 </span>                :            :     /** \returns a const reference to the vector of Householder coefficients used to represent the factor \c Q.
+<span class="lineNum">     183 </span>                :            :       * 
+<a name="184"><span class="lineNum">     184 </span>                :            :       * For advanced uses only.</a>
+<span class="lineNum">     185 </span>                :            :       */
+<span class="lineNum">     186 </span>                :<span class="lineCov">          8 :     const HCoeffsType&amp; hCoeffs() const { return m_hCoeffs; }</span>
+<span class="lineNum">     187 </span>                :            : 
+<a name="188"><span class="lineNum">     188 </span>                :            :   protected:</a>
+<span class="lineNum">     189 </span>                :            :     
+<span class="lineNum">     190 </span>                :<span class="lineCov">          4 :     static void check_template_parameters()</span>
+<span class="lineNum">     191 </span>                :            :     {
+<span class="lineNum">     192 </span>                :            :       EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar);
+<span class="lineNum">     193 </span>                :<span class="lineCov">          4 :     }</span>
+<span class="lineNum">     194 </span>                :            :     
+<span class="lineNum">     195 </span>                :            :     MatrixType m_qr;
+<span class="lineNum">     196 </span>                :            :     HCoeffsType m_hCoeffs;
+<span class="lineNum">     197 </span>                :            :     RowVectorType m_temp;
+<span class="lineNum">     198 </span>                :            :     bool m_isInitialized;
+<span class="lineNum">     199 </span>                :            : };
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     202 </span>                :            : typename MatrixType::RealScalar HouseholderQR&lt;MatrixType&gt;::absDeterminant() const
+<span class="lineNum">     203 </span>                :            : {
+<span class="lineNum">     204 </span>                :            :   using std::abs;
+<span class="lineNum">     205 </span>                :            :   eigen_assert(m_isInitialized &amp;&amp; &quot;HouseholderQR is not initialized.&quot;);
+<span class="lineNum">     206 </span>                :            :   eigen_assert(m_qr.rows() == m_qr.cols() &amp;&amp; &quot;You can't take the determinant of a non-square matrix!&quot;);
+<span class="lineNum">     207 </span>                :            :   return abs(m_qr.diagonal().prod());
+<span class="lineNum">     208 </span>                :            : }
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     211 </span>                :            : typename MatrixType::RealScalar HouseholderQR&lt;MatrixType&gt;::logAbsDeterminant() const
+<span class="lineNum">     212 </span>                :            : {
+<span class="lineNum">     213 </span>                :            :   eigen_assert(m_isInitialized &amp;&amp; &quot;HouseholderQR is not initialized.&quot;);
+<span class="lineNum">     214 </span>                :            :   eigen_assert(m_qr.rows() == m_qr.cols() &amp;&amp; &quot;You can't take the determinant of a non-square matrix!&quot;);
+<span class="lineNum">     215 </span>                :            :   return m_qr.diagonal().cwiseAbs().array().log().sum();
+<span class="lineNum">     216 </span>                :            : }
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :            : namespace internal {
+<span class="lineNum">     219 </span>                :            : 
+<a name="220"><span class="lineNum">     220 </span>                :            : /** \internal */</a>
+<span class="lineNum">     221 </span>                :            : template&lt;typename MatrixQR, typename HCoeffs&gt;
+<span class="lineNum">     222 </span>                :<span class="lineCov">          4 : void householder_qr_inplace_unblocked(MatrixQR&amp; mat, HCoeffs&amp; hCoeffs, typename MatrixQR::Scalar* tempData = 0)</span>
+<span class="lineNum">     223 </span>                :            : {
+<span class="lineNum">     224 </span>                :            :   typedef typename MatrixQR::Index Index;
+<span class="lineNum">     225 </span>                :            :   typedef typename MatrixQR::Scalar Scalar;
+<span class="lineNum">     226 </span>                :            :   typedef typename MatrixQR::RealScalar RealScalar;
+<span class="lineNum">     227 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   Index rows = mat.rows();</span>
+<span class="lineNum">     228 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   Index cols = mat.cols();</span>
+<span class="lineNum">     229 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   Index size = (std::min)(rows,cols);</span>
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 4 times"> + </span>]:<span class="lineCov">          4 :   eigen_assert(hCoeffs.size() == size);</span>
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            :   typedef Matrix&lt;Scalar,MatrixQR::ColsAtCompileTime,1&gt; TempType;
+<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   TempType tempVector;</span>
+<span class="lineNum">     235 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :   if(tempData==0)</span>
+<span class="lineNum">     236 </span>                :            :   {
+<span class="lineNum">     237 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     tempVector.resize(cols);</span>
+<span class="lineNum">     238 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     tempData = tempVector.data();</span>
+<span class="lineNum">     239 </span>                :            :   }
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         22 :   for(Index k = 0; k &lt; size; ++k)</span>
+<span class="lineNum">     242 </span>                :            :   {
+<span class="lineNum">     243 </span>                :<span class="lineCov">         18 :     Index remainingRows = rows - k;</span>
+<span class="lineNum">     244 </span>                :<span class="lineCov">         18 :     Index remainingCols = cols - k - 1;</span>
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :            :     RealScalar beta;
+<span class="lineNum">     247 </span>[<span class="branchCov" title="Branch 1 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         18 :     mat.col(k).tail(remainingRows).makeHouseholderInPlace(hCoeffs.coeffRef(k), beta);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     248 </span>        [<span class="branchCov" title="Branch 1 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         18 :     mat.coeffRef(k,k) = beta;</span>
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            :     // apply H to remaining part of m_qr from the left
+<span class="lineNum">     251 </span>[<span class="branchCov" title="Branch 1 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         18 :     mat.bottomRightCorner(remainingRows, remainingCols)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 13 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     252 </span>                :<span class="lineCov">         18 :         .applyHouseholderOnTheLeft(mat.col(k).tail(remainingRows-1), hCoeffs.coeffRef(k), tempData+k+1);</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">          4 :   }</span>
+<span class="lineNum">     254 </span>                :<span class="lineCov">          4 : }</span>
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :            : /** \internal */
+<span class="lineNum">     257 </span>                :            : template&lt;typename MatrixQR, typename HCoeffs,
+<span class="lineNum">     258 </span>                :            :   typename MatrixQRScalar = typename MatrixQR::Scalar,
+<span class="lineNum">     259 </span>                :            :   bool InnerStrideIsOne = (MatrixQR::InnerStrideAtCompileTime == 1 &amp;&amp; HCoeffs::InnerStrideAtCompileTime == 1)&gt;
+<span class="lineNum">     260 </span>                :            : struct householder_qr_inplace_blocked
+<a name="261"><span class="lineNum">     261 </span>                :            : {</a>
+<span class="lineNum">     262 </span>                :            :   // This is specialized for MKL-supported Scalar types in HouseholderQR_MKL.h
+<span class="lineNum">     263 </span>                :<span class="lineCov">          4 :   static void run(MatrixQR&amp; mat, HCoeffs&amp; hCoeffs,</span>
+<span class="lineNum">     264 </span>                :            :       typename MatrixQR::Index maxBlockSize=32,
+<span class="lineNum">     265 </span>                :            :       typename MatrixQR::Scalar* tempData = 0)
+<span class="lineNum">     266 </span>                :            :   {
+<span class="lineNum">     267 </span>                :            :     typedef typename MatrixQR::Index Index;
+<span class="lineNum">     268 </span>                :            :     typedef typename MatrixQR::Scalar Scalar;
+<span class="lineNum">     269 </span>                :            :     typedef Block&lt;MatrixQR,Dynamic,Dynamic&gt; BlockType;
+<span class="lineNum">     270 </span>                :            : 
+<span class="lineNum">     271 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     Index rows = mat.rows();</span>
+<span class="lineNum">     272 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     Index cols = mat.cols();</span>
+<span class="lineNum">     273 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     Index size = (std::min)(rows, cols);</span>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :            :     typedef Matrix&lt;Scalar,Dynamic,1,ColMajor,MatrixQR::MaxColsAtCompileTime,1&gt; TempType;
+<span class="lineNum">     276 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     TempType tempVector;</span>
+<span class="lineNum">     277 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :     if(tempData==0)</span>
+<span class="lineNum">     278 </span>                :            :     {
+<span class="lineNum">     279 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       tempVector.resize(cols);</span>
+<span class="lineNum">     280 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       tempData = tempVector.data();</span>
+<span class="lineNum">     281 </span>                :            :     }
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     Index blockSize = (std::min)(maxBlockSize,size);</span>
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :<span class="lineCov">          4 :     Index k = 0;</span>
+<span class="lineNum">     286 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          8 :     for (k = 0; k &lt; size; k += blockSize)</span>
+<span class="lineNum">     287 </span>                :            :     {
+<span class="lineNum">     288 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :       Index bs = (std::min)(size-k,blockSize);  // actual size of the block</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">          4 :       Index tcols = cols - k - bs;            // trailing columns</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">          4 :       Index brows = rows-k;                   // rows of the block</span>
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :            :       // partition the matrix:
+<span class="lineNum">     293 </span>                :            :       //        A00 | A01 | A02
+<span class="lineNum">     294 </span>                :            :       // mat  = A10 | A11 | A12
+<span class="lineNum">     295 </span>                :            :       //        A20 | A21 | A22
+<span class="lineNum">     296 </span>                :            :       // and performs the qr dec of [A11^T A12^T]^T
+<span class="lineNum">     297 </span>                :            :       // and update [A21^T A22^T]^T using level 3 operations.
+<span class="lineNum">     298 </span>                :            :       // Finally, the algorithm continue on A22
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :       BlockType A11_21 = mat.block(k,k,brows,bs);</span>
+<span class="lineNum">     301 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :       Block&lt;HCoeffs,Dynamic,1&gt; hCoeffsSegment = hCoeffs.segment(k,bs);</span>
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :       householder_qr_inplace_unblocked(A11_21, hCoeffsSegment, tempData);</span>
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :       if(tcols)</span>
+<span class="lineNum">     306 </span>                :            :       {
+<span class="lineNum">     307 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         BlockType A21_22 = mat.block(k,k+bs,brows,tcols);</span>
+<span class="lineNum">     308 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         apply_block_householder_on_the_left(A21_22,A11_21,hCoeffsSegment.adjoint());</span>
+<span class="lineNum">     309 </span>                :            :       }
+<span class="lineNum">     310 </span>                :<span class="lineCov">          4 :     }</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">          4 :   }</span>
+<span class="lineNum">     312 </span>                :            : };
+<span class="lineNum">     313 </span>                :            : 
+<span class="lineNum">     314 </span>                :            : template&lt;typename _MatrixType, typename Rhs&gt;
+<span class="lineNum">     315 </span>                :            : struct solve_retval&lt;HouseholderQR&lt;_MatrixType&gt;, Rhs&gt;
+<a name="316"><span class="lineNum">     316 </span>                :            :   : solve_retval_base&lt;HouseholderQR&lt;_MatrixType&gt;, Rhs&gt;</a>
+<span class="lineNum">     317 </span>                :            : {
+<a name="318"><span class="lineNum">     318 </span>                :<span class="lineCov">          8 :   EIGEN_MAKE_SOLVE_HELPERS(HouseholderQR&lt;_MatrixType&gt;,Rhs)</span></a>
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>                :<span class="lineCov">          4 :   template&lt;typename Dest&gt; void evalTo(Dest&amp; dst) const</span>
+<span class="lineNum">     321 </span>                :            :   {
+<span class="lineNum">     322 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :     const Index rows = dec().rows(), cols = dec().cols();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     323 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     const Index rank = (std::min)(rows, cols);</span>
+<span class="lineNum">     324 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :     eigen_assert(rhs().rows() == rows);</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 4 times"> + </span>]
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :     typename Rhs::PlainObject c(rhs());</span>
+<span class="lineNum">     327 </span>                :            : 
+<span class="lineNum">     328 </span>                :            :     // Note that the matrix Q = H_0^* H_1^*... so its inverse is Q^* = (H_0 H_1 ...)^T
+<span class="lineNum">     329 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          8 :     c.applyOnTheLeft(householderSequence(</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 13 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     330 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :       dec().matrixQR().leftCols(rank),</span>
+<span class="lineNum">     331 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          8 :       dec().hCoeffs().head(rank)).transpose()</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     332 </span>                :            :     );
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :     dec().matrixQR()</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     335 </span>                :            :        .topLeftCorner(rank, rank)
+<span class="lineNum">     336 </span>                :            :        .template triangularView&lt;Upper&gt;()
+<span class="lineNum">     337 </span>                :            :        .solveInPlace(c.topRows(rank));
+<span class="lineNum">     338 </span>                :            : 
+<span class="lineNum">     339 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :     dst.topRows(rank) = c.topRows(rank);</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     340 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :     dst.bottomRows(cols-rank).setZero();</span>
+<span class="lineNum">     341 </span>                :<span class="lineCov">          4 :   }</span>
+<span class="lineNum">     342 </span>                :            : };
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :            : } // end namespace internal
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :            : /** Performs the QR factorization of the given matrix \a matrix. The result of
+<span class="lineNum">     347 </span>                :            :   * the factorization is stored into \c *this, and a reference to \c *this
+<span class="lineNum">     348 </span>                :            :   * is returned.
+<span class="lineNum">     349 </span>                :            :   *
+<span class="lineNum">     350 </span>                :            :   * \sa class HouseholderQR, HouseholderQR(const MatrixType&amp;)
+<a name="351"><span class="lineNum">     351 </span>                :            :   */</a>
+<span class="lineNum">     352 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     353 </span>                :<span class="lineCov">          4 : HouseholderQR&lt;MatrixType&gt;&amp; HouseholderQR&lt;MatrixType&gt;::compute(const MatrixType&amp; matrix)</span>
+<span class="lineNum">     354 </span>                :            : {
+<span class="lineNum">     355 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   check_template_parameters();</span>
+<span class="lineNum">     356 </span>                :            :   
+<span class="lineNum">     357 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   Index rows = matrix.rows();</span>
+<span class="lineNum">     358 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   Index cols = matrix.cols();</span>
+<span class="lineNum">     359 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   Index size = (std::min)(rows,cols);</span>
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   m_qr = matrix;</span>
+<span class="lineNum">     362 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   m_hCoeffs.resize(size);</span>
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   m_temp.resize(cols);</span>
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :   internal::householder_qr_inplace_blocked&lt;MatrixType, HCoeffsType&gt;::run(m_qr, m_hCoeffs, 48, m_temp.data());</span>
+<span class="lineNum">     367 </span>                :            : 
+<span class="lineNum">     368 </span>                :<span class="lineCov">          4 :   m_isInitialized = true;</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">          4 :   return *this;</span>
+<span class="lineNum">     370 </span>                :            : }
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :            : /** \return the Householder QR decomposition of \c *this.
+<span class="lineNum">     373 </span>                :            :   *
+<span class="lineNum">     374 </span>                :            :   * \sa class HouseholderQR
+<span class="lineNum">     375 </span>                :            :   */
+<a name="376"><span class="lineNum">     376 </span>                :            : template&lt;typename Derived&gt;</a>
+<span class="lineNum">     377 </span>                :            : const HouseholderQR&lt;typename MatrixBase&lt;Derived&gt;::PlainObject&gt;
+<span class="lineNum">     378 </span>                :<span class="lineCov">          2 : MatrixBase&lt;Derived&gt;::householderQr() const</span>
+<span class="lineNum">     379 </span>                :            : {
+<span class="lineNum">     380 </span>                :<span class="lineCov">          2 :   return HouseholderQR&lt;PlainObject&gt;(eval());</span>
+<span class="lineNum">     381 </span>                :            : }
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     384 </span>                :            : 
+<span class="lineNum">     385 </span>                :            : #endif // EIGEN_QR_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

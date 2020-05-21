@@ -1,0 +1,241 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - cyber/base/concurrent_object_pool.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">cyber/base</a> - concurrent_object_pool.h<span style="font-size: 80%;"> (source / <a href="concurrent_object_pool.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntryHi">95.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryLo">64.5 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntryLo">59.3 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef CYBER_BASE_CONCURRENT_OBJECT_POOL_H_
+<span class="lineNum">      18 </span>                :            : #define CYBER_BASE_CONCURRENT_OBJECT_POOL_H_
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #include &lt;atomic&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;cstdlib&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;cstring&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;iostream&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;memory&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;stdexcept&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : #include &quot;cyber/base/for_each.h&quot;
+<span class="lineNum">      29 </span>                :            : #include &quot;cyber/base/macros.h&quot;
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : namespace apollo {
+<span class="lineNum">      32 </span>                :            : namespace cyber {
+<span class="lineNum">      33 </span>                :            : namespace base {
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      36 </span>                :            : class CCObjectPool : public std::enable_shared_from_this&lt;CCObjectPool&lt;T&gt;&gt; {
+<span class="lineNum">      37 </span>                :            :  public:
+<span class="lineNum">      38 </span>                :            :   explicit CCObjectPool(uint32_t size);
+<span class="lineNum">      39 </span>                :            :   virtual ~CCObjectPool();
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            :   template &lt;typename... Args&gt;
+<span class="lineNum">      42 </span>                :            :   void ConstructAll(Args &amp;&amp;... args);
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            :   template &lt;typename... Args&gt;
+<span class="lineNum">      45 </span>                :            :   std::shared_ptr&lt;T&gt; ConstructObject(Args &amp;&amp;... args);
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            :   std::shared_ptr&lt;T&gt; GetObject();
+<span class="lineNum">      48 </span>                :            :   void ReleaseObject(T *);
+<span class="lineNum">      49 </span>                :            :   uint32_t size() const;
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            :  private:
+<span class="lineNum">      52 </span>                :            :   struct Node {
+<span class="lineNum">      53 </span>                :            :     T object;
+<span class="lineNum">      54 </span>                :            :     Node *next;
+<span class="lineNum">      55 </span>                :            :   };
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            :   struct alignas(2 * sizeof(Node *)) Head {
+<span class="lineNum">      58 </span>                :            :     uintptr_t count;
+<span class="lineNum">      59 </span>                :            :     Node *node;
+<span class="lineNum">      60 </span>                :            :   };
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            :  private:
+<span class="lineNum">      63 </span>                :            :   CCObjectPool(CCObjectPool &amp;) = delete;
+<span class="lineNum">      64 </span>                :            :   CCObjectPool &amp;operator=(CCObjectPool &amp;) = delete;
+<span class="lineNum">      65 </span>                :            :   bool FindFreeHead(Head *head);
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :            :   std::atomic&lt;Head&gt; free_head_;
+<span class="lineNum">      68 </span>                :            :   Node *node_arena_ = nullptr;
+<span class="lineNum">      69 </span>                :            :   uint32_t capacity_ = 0;
+<span class="lineNum">      70 </span>                :            : };
+<a name="71"><span class="lineNum">      71 </span>                :            : </a>
+<span class="lineNum">      72 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      73 </span>                :<span class="lineCov">          8 : CCObjectPool&lt;T&gt;::CCObjectPool(uint32_t size) : capacity_(size) {</span>
+<span class="lineNum">      74 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   node_arena_ = static_cast&lt;Node *&gt;(CheckedCalloc(capacity_, sizeof(Node)));</span>
+<span class="lineNum">      75 </span>[<span class="branchCov" title="Branch 1 was taken 4096 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 4092 times"> + </span><span class="branchCov" title="Branch 4 was taken 4 times"> + </span>]:<span class="lineCov">       4096 :   FOR_EACH(i, 0, capacity_ - 1) { node_arena_[i].next = node_arena_ + 1 + i; }</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">          4 :   node_arena_[capacity_ - 1].next = nullptr;</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">          4 :   free_head_.store({0, node_arena_}, std::memory_order_relaxed);</span>
+<span class="lineNum">      78 </span>                :<span class="lineCov">          4 : }</span>
+<span class="lineNum">      79 </span>                :            : 
+<a name="80"><span class="lineNum">      80 </span>                :            : template &lt;typename T&gt;</a>
+<span class="lineNum">      81 </span>                :            : template &lt;typename... Args&gt;
+<span class="lineNum">      82 </span>                :<span class="lineCov">          1 : void CCObjectPool&lt;T&gt;::ConstructAll(Args &amp;&amp;... args) {</span>
+<span class="lineNum">      83 </span>[<span class="branchCov" title="Branch 1 was taken 1025 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1024 times"> + </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span>]:<span class="lineCov">       1025 :   FOR_EACH(i, 0, capacity_) {</span>
+<span class="lineNum">      84 </span>[<span class="branchCov" title="Branch 1 was taken 1024 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 1024 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       1024 :     new (node_arena_ + i) T(std::forward&lt;Args&gt;(args)...);</span>
+<span class="lineNum">      85 </span>                :            :   }
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 : }</span>
+<a name="87"><span class="lineNum">      87 </span>                :            : </a>
+<span class="lineNum">      88 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      89 </span>                :<span class="lineCov">          4 : CCObjectPool&lt;T&gt;::~CCObjectPool() {</span>
+<span class="lineNum">      90 </span>                :<span class="lineCov">          4 :   std::free(node_arena_);</span>
+<span class="lineNum">      91 </span>        [<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 4 times"> + </span>]:<span class="lineCov">          4 : }</span>
+<a name="92"><span class="lineNum">      92 </span>                :            : </a>
+<span class="lineNum">      93 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      94 </span>                :<span class="lineCov">    1510672 : bool CCObjectPool&lt;T&gt;::FindFreeHead(Head *head) {</span>
+<span class="lineNum">      95 </span>                :            :   Head new_head;
+<span class="lineNum">      96 </span>                :<span class="lineCov">    1510672 :   Head old_head = free_head_.load(std::memory_order_acquire);</span>
+<span class="lineNum">      97 </span>        [<span class="branchCov" title="Branch 0 was taken 212484 times"> + </span><span class="branchCov" title="Branch 1 was taken 1600938 times"> + </span>]:<span class="lineCov">    1813422 :   do {</span>
+<span class="lineNum">      98 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchCov" title="Branch 1 was taken 1815093 times"> + </span>]:<span class="lineCov">    1814084 :     if (cyber_unlikely(old_head.node == nullptr)) {</span>
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :       return false;</span>
+<span class="lineNum">     100 </span>                :            :     }
+<span class="lineNum">     101 </span>                :<span class="lineCov">    1815093 :     new_head.node = old_head.node-&gt;next;</span>
+<span class="lineNum">     102 </span>                :<span class="lineCov">    1815093 :     new_head.count = old_head.count + 1;</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">    1815093 :   } while (!free_head_.compare_exchange_weak(old_head, new_head,</span>
+<span class="lineNum">     104 </span>                :            :                                              std::memory_order_acq_rel,
+<span class="lineNum">     105 </span>                :            :                                              std::memory_order_acquire));
+<span class="lineNum">     106 </span>                :<span class="lineCov">    1600938 :   *head = old_head;</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">    1599929 :   return true;</span>
+<span class="lineNum">     108 </span>                :            : }
+<a name="109"><span class="lineNum">     109 </span>                :            : </a>
+<span class="lineNum">     110 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     111 </span>                :<span class="lineCov">       1024 : std::shared_ptr&lt;T&gt; CCObjectPool&lt;T&gt;::GetObject() {</span>
+<span class="lineNum">     112 </span>                :            :   Head free_head;
+<span class="lineNum">     113 </span>[<span class="branchCov" title="Branch 1 was taken 1024 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 1024 times"> + </span>]:<span class="lineCov">       1024 :   if (cyber_unlikely(!FindFreeHead(&amp;free_head))) {</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :     return nullptr;</span>
+<span class="lineNum">     115 </span>                :            :   }
+<a name="116"><span class="lineNum">     116 </span>        [<span class="branchCov" title="Branch 1 was taken 1024 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       1024 :   auto self = this-&gt;shared_from_this();</span></a>
+<span class="lineNum">     117 </span>                :            :   return std::shared_ptr&lt;T&gt;(reinterpret_cast&lt;T *&gt;(free_head.node),
+<span class="lineNum">     118 </span>        [<span class="branchCov" title="Branch 3 was taken 1024 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">      29696 :                             [self](T *object) { self-&gt;ReleaseObject(object); });</span>
+<span class="lineNum">     119 </span>                :            : }
+<span class="lineNum">     120 </span>                :            : 
+<a name="121"><span class="lineNum">     121 </span>                :            : template &lt;typename T&gt;</a>
+<span class="lineNum">     122 </span>                :            : template &lt;typename... Args&gt;
+<span class="lineNum">     123 </span>                :<span class="lineCov">    1515683 : std::shared_ptr&lt;T&gt; CCObjectPool&lt;T&gt;::ConstructObject(Args &amp;&amp;... args) {</span>
+<span class="lineNum">     124 </span>                :            :   Head free_head;
+<span class="lineNum">     125 </span>[<span class="branchCov" title="Branch 1 was taken 1595824 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 20 times"> + </span><span class="branchCov" title="Branch 4 was taken 1595804 times"> + </span>]:<span class="lineCov">    1515683 :   if (cyber_unlikely(!FindFreeHead(&amp;free_head))) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 3072 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchNoCov" title="Branch 8 was not taken"> - </span><span class="branchCov" title="Branch 9 was taken 3072 times"> + </span>]
+<span class="lineNum">     126 </span>                :<span class="lineCov">         20 :     return nullptr;</span>
+<span class="lineNum">     127 </span>                :            :   }
+<a name="128"><span class="lineNum">     128 </span>[<span class="branchCov" title="Branch 1 was taken 1592640 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 3072 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">    1598876 :   auto self = this-&gt;shared_from_this();</span></a>
+<span class="lineNum">     129 </span>[<span class="branchCov" title="Branch 2 was taken 1582136 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1571899 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">    1595712 :   T *ptr = new (free_head.node) T(std::forward&lt;Args&gt;(args)...);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 10 was taken 3072 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>][<span class="branchCov" title="Branch 13 was taken 3072 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     130 </span>                :<span class="lineCov">   38636459 :   return std::shared_ptr&lt;T&gt;(ptr, [self](T *object) {</span>
+<span class="lineNum">     131 </span>                :<span class="lineCov">    1538585 :     object-&gt;~T();</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">    1529448 :     self-&gt;ReleaseObject(object);</span>
+<span class="lineNum">     133 </span>[<span class="branchCov" title="Branch 2 was taken 1535673 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 3072 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]:<span class="lineCov">    1577131 :   });</span>
+<span class="lineNum">     134 </span>                :            : }
+<a name="135"><span class="lineNum">     135 </span>                :            : </a>
+<span class="lineNum">     136 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     137 </span>                :<span class="lineCov">    1513058 : void CCObjectPool&lt;T&gt;::ReleaseObject(T *object) {</span>
+<span class="lineNum">     138 </span>                :            :   Head new_head;
+<span class="lineNum">     139 </span>                :<span class="lineCov">    1513058 :   Node *node = reinterpret_cast&lt;Node *&gt;(object);</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">    1513058 :   Head old_head = free_head_.load(std::memory_order_acquire);</span>
+<span class="lineNum">     141 </span>        [<span class="branchCov" title="Branch 0 was taken 231271 times"> + </span><span class="branchCov" title="Branch 1 was taken 1600455 times"> + </span>]:<span class="lineCov">    1831726 :   do {</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">    1828343 :     node-&gt;next = old_head.node;</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">    1828343 :     new_head.node = node;</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">    1828343 :     new_head.count = old_head.count + 1;</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">    1828343 :   } while (!free_head_.compare_exchange_weak(old_head, new_head,</span>
+<span class="lineNum">     146 </span>                :            :                                              std::memory_order_acq_rel,
+<span class="lineNum">     147 </span>                :            :                                              std::memory_order_acquire));
+<span class="lineNum">     148 </span>                :<span class="lineCov">    1600455 : }</span>
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            : }  // namespace base
+<span class="lineNum">     151 </span>                :            : }  // namespace cyber
+<span class="lineNum">     152 </span>                :            : }  // namespace apollo
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            : #endif  // CYBER_BASE_CONCURRENT_OBJECT_POOL_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

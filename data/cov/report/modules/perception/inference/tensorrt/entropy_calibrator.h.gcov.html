@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/perception/inference/tensorrt/entropy_calibrator.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/perception/inference/tensorrt</a> - entropy_calibrator.h<span style="font-size: 80%;"> (source / <a href="entropy_calibrator.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntryMed">87.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntry">74</td>
+            <td class="headerCovTableEntryLo">54.1 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #pragma once
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &lt;cuda_runtime_api.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;fstream&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : #include &quot;NvCaffeParser.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;NvInfer.h&quot;
+<span class="lineNum">      27 </span>                :            : #include &quot;NvInferPlugin.h&quot;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : #include &quot;modules/perception/inference/tensorrt/batch_stream.h&quot;
+<span class="lineNum">      30 </span>                :            : #include &quot;modules/perception/inference/tensorrt/rt_utils.h&quot;
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : namespace nvinfer1 {
+<a name="33"><span class="lineNum">      33 </span>                :            : class ICaffePoolOutputDimensionsFormula : public IOutputDimensionsFormula {</a>
+<span class="lineNum">      34 </span>                :            :  public:
+<span class="lineNum">      35 </span>                :<span class="lineCov">          6 :   virtual DimsHW compute(DimsHW input_dims, DimsHW kernel_size, DimsHW stride,</span>
+<span class="lineNum">      36 </span>                :            :                          DimsHW padding, DimsHW dilation,
+<span class="lineNum">      37 </span>                :            :                          const char *layerName) const {
+<span class="lineNum">      38 </span>                :<span class="lineCov">          6 :     const int kernel_extent_h = dilation.d[0] * (kernel_size.d[0] - 1) + 1;</span>
+<span class="lineNum">      39 </span>                :<span class="lineCov">          6 :     const int kernel_extent_w = dilation.d[1] * (kernel_size.d[1] - 1) + 1;</span>
+<span class="lineNum">      40 </span>                :<span class="lineCov">          6 :     auto &amp;&amp;h_temp = (input_dims.d[0] + 2 * padding.d[0] - kernel_extent_h) *</span>
+<span class="lineNum">      41 </span>                :<span class="lineCov">          6 :                     1.0 / stride.d[0];</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">          6 :     auto &amp;&amp;w_temp = (input_dims.d[1] + 2 * padding.d[1] - kernel_extent_w) *</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">          6 :                     1.0 / stride.d[1];</span>
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>        [<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :     std::string str_name(layerName);</span>
+<span class="lineNum">      46 </span>[<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 5 times"> + </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span>]:<span class="lineCov">          6 :     if (str_name.find(&quot;as_conv&quot;) == std::string::npos) {</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">          5 :       return DimsHW(static_cast&lt;int&gt;(ceil(h_temp)) + 1,</span>
+<span class="lineNum">      48 </span>        [<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          5 :                     static_cast&lt;int&gt;(ceil(w_temp)) + 1);</span>
+<span class="lineNum">      49 </span>                :            :     } else {
+<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :       return DimsHW(static_cast&lt;int&gt;(h_temp) + 1, static_cast&lt;int&gt;(w_temp) + 1);</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">          6 :     }</span>
+<a name="52"><span class="lineNum">      52 </span>                :            :   }</a>
+<a name="53"><span class="lineNum">      53 </span>                :            : </a>
+<span class="lineNum">      54 </span>                :<span class="lineCov">          4 :   ICaffePoolOutputDimensionsFormula() {}</span>
+<span class="lineNum">      55 </span>        [<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 2 times"> + </span>]:<span class="lineCov">          4 :   ~ICaffePoolOutputDimensionsFormula() {}</span>
+<span class="lineNum">      56 </span>                :            : };
+<span class="lineNum">      57 </span>                :            : 
+<a name="58"><span class="lineNum">      58 </span>                :            : class Int8EntropyCalibrator : public IInt8EntropyCalibrator {</a>
+<span class="lineNum">      59 </span>                :            :  public:
+<span class="lineNum">      60 </span>                :<span class="lineCov">          6 :   Int8EntropyCalibrator(</span>
+<span class="lineNum">      61 </span>                :            :       const apollo::perception::inference::BatchStream &amp;stream, int first_batch,
+<span class="lineNum">      62 </span>                :            :       bool read_cache, std::string network)
+<span class="lineNum">      63 </span>[<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          6 :       : stream_(stream), read_cache_(read_cache), network_(network) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">      64 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          6 :     DimsNCHW dims = stream_.getDims();</span>
+<span class="lineNum">      65 </span>[<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          6 :     input_count_ = stream_.getBatchSize() * dims.c() * dims.h() * dims.w();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">      66 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          6 :     cudaMalloc(&amp;device_input_, input_count_ * sizeof(float));</span>
+<span class="lineNum">      67 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          6 :     stream_.reset(first_batch);</span>
+<a name="68"><span class="lineNum">      68 </span>                :<span class="lineCov">          6 :   }</span></a>
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :<span class="lineCov">         12 :   virtual ~Int8EntropyCalibrator() {</span>
+<span class="lineNum">      71 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          6 :     if (device_input_) {</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">          5 :       (cudaFree(device_input_));</span>
+<span class="lineNum">      73 </span>                :            :     }
+<a name="74"><span class="lineNum">      74 </span>        [<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">          6 :   }</span></a>
+<span class="lineNum">      75 </span>                :            : 
+<a name="76"><span class="lineNum">      76 </span>                :<span class="lineCov">          4 :   int getBatchSize() const override { return stream_.getBatchSize(); }</span></a>
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :<span class="lineCov">          5 :   bool getBatch(void *bindings[], const char *names[],</span>
+<span class="lineNum">      79 </span>                :            :                 int nbBindings) override {
+<span class="lineNum">      80 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          5 :     if (!stream_.next()) {</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">          1 :       return false;</span>
+<span class="lineNum">      82 </span>                :            :     }
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :<span class="lineCov">          4 :     (cudaMemcpy(device_input_, stream_.getBatch(), input_count_ * sizeof(float),</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">          4 :                 cudaMemcpyHostToDevice));</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          4 :     bindings[0] = device_input_;</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">          4 :     return true;</span>
+<a name="88"><span class="lineNum">      88 </span>                :            :   }</a>
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :<span class="lineCov">          4 :   const void *readCalibrationCache(size_t &amp;length) override {</span>
+<span class="lineNum">      91 </span>                :<span class="lineCov">          4 :     calibration_cache_.clear();</span>
+<span class="lineNum">      92 </span>                :            :     std::ifstream input(
+<span class="lineNum">      93 </span>                :            :         apollo::perception::inference::locateFile(network_, &quot;CalibrationTable&quot;),
+<span class="lineNum">      94 </span>[<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          4 :         std::ios::binary);</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">      95 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     input &gt;&gt; std::noskipws;</span>
+<span class="lineNum">      96 </span>[<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 3 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 :     if (read_cache_ &amp;&amp; input.good()) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchCov" title="Branch 6 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 7 was taken 2 times"> + </span><span class="branchCov" title="Branch 8 was taken 2 times"> + </span>]
+<span class="lineNum">      97 </span>                :            :       std::copy(std::istream_iterator&lt;char&gt;(input),
+<span class="lineNum">      98 </span>                :            :                 std::istream_iterator&lt;char&gt;(),
+<span class="lineNum">      99 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :                 std::back_inserter(calibration_cache_));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     100 </span>                :            :     }
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :<span class="lineCov">          4 :     length = calibration_cache_.size();</span>
+<span class="lineNum">     103 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 :     return length ? &amp;calibration_cache_[0] : nullptr;</span>
+<a name="104"><span class="lineNum">     104 </span>                :            :   }</a>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :   void writeCalibrationCache(const void *cache, size_t length) override {</span>
+<span class="lineNum">     107 </span>                :            :     std::ofstream output(
+<span class="lineNum">     108 </span>                :            :         apollo::perception::inference::locateFile(network_, &quot;CalibrationTable&quot;),
+<span class="lineNum">     109 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :         std::ios::binary);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     110 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     output.write(reinterpret_cast&lt;const char *&gt;(cache), length);</span>
+<a name="111"><span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :   }</span></a>
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :   virtual CalibrationAlgoType getAlgorithm() {</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :     return CalibrationAlgoType::kENTROPY_CALIBRATION;</span>
+<span class="lineNum">     115 </span>                :            :   }
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>                :            :  private:
+<span class="lineNum">     118 </span>                :            :   apollo::perception::inference::BatchStream stream_;
+<span class="lineNum">     119 </span>                :            :   bool read_cache_ = true;
+<span class="lineNum">     120 </span>                :            :   std::string network_ = &quot;yolo&quot;;
+<span class="lineNum">     121 </span>                :            :   size_t input_count_;
+<span class="lineNum">     122 </span>                :            :   void *device_input_ = nullptr;
+<span class="lineNum">     123 </span>                :            :   std::vector&lt;char&gt; calibration_cache_;
+<span class="lineNum">     124 </span>                :            : };
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :            : }  //  namespace nvinfer1
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

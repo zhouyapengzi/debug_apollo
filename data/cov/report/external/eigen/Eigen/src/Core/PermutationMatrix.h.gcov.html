@@ -1,0 +1,808 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Core/PermutationMatrix.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Core</a> - PermutationMatrix.h<span style="font-size: 80%;"> (source / <a href="PermutationMatrix.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryLo">63.6 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2009 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       5 </span>                :            : // Copyright (C) 2009-2011 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       6 </span>                :            : //
+<span class="lineNum">       7 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       8 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       9 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : #ifndef EIGEN_PERMUTATIONMATRIX_H
+<span class="lineNum">      12 </span>                :            : #define EIGEN_PERMUTATIONMATRIX_H
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : namespace Eigen { 
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : template&lt;int RowCol,typename IndicesType,typename MatrixType, typename StorageKind&gt; class PermutedImpl;
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : /** \class PermutationBase
+<span class="lineNum">      19 </span>                :            :   * \ingroup Core_Module
+<span class="lineNum">      20 </span>                :            :   *
+<span class="lineNum">      21 </span>                :            :   * \brief Base class for permutations
+<span class="lineNum">      22 </span>                :            :   *
+<span class="lineNum">      23 </span>                :            :   * \param Derived the derived class
+<span class="lineNum">      24 </span>                :            :   *
+<span class="lineNum">      25 </span>                :            :   * This class is the base class for all expressions representing a permutation matrix,
+<span class="lineNum">      26 </span>                :            :   * internally stored as a vector of integers.
+<span class="lineNum">      27 </span>                :            :   * The convention followed here is that if \f$ \sigma \f$ is a permutation, the corresponding permutation matrix
+<span class="lineNum">      28 </span>                :            :   * \f$ P_\sigma \f$ is such that if \f$ (e_1,\ldots,e_p) \f$ is the canonical basis, we have:
+<span class="lineNum">      29 </span>                :            :   *  \f[ P_\sigma(e_i) = e_{\sigma(i)}. \f]
+<span class="lineNum">      30 </span>                :            :   * This convention ensures that for any two permutations \f$ \sigma, \tau \f$, we have:
+<span class="lineNum">      31 </span>                :            :   *  \f[ P_{\sigma\circ\tau} = P_\sigma P_\tau. \f]
+<span class="lineNum">      32 </span>                :            :   *
+<span class="lineNum">      33 </span>                :            :   * Permutation matrices are square and invertible.
+<span class="lineNum">      34 </span>                :            :   *
+<span class="lineNum">      35 </span>                :            :   * Notice that in addition to the member functions and operators listed here, there also are non-member
+<span class="lineNum">      36 </span>                :            :   * operator* to multiply any kind of permutation object with any kind of matrix expression (MatrixBase)
+<span class="lineNum">      37 </span>                :            :   * on either side.
+<span class="lineNum">      38 </span>                :            :   *
+<span class="lineNum">      39 </span>                :            :   * \sa class PermutationMatrix, class PermutationWrapper
+<span class="lineNum">      40 </span>                :            :   */
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            : namespace internal {
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : template&lt;typename PermutationType, typename MatrixType, int Side, bool Transposed=false&gt;
+<span class="lineNum">      45 </span>                :            : struct permut_matrix_product_retval;
+<span class="lineNum">      46 </span>                :            : template&lt;typename PermutationType, typename MatrixType, int Side, bool Transposed=false&gt;
+<span class="lineNum">      47 </span>                :            : struct permut_sparsematrix_product_retval;
+<span class="lineNum">      48 </span>                :            : enum PermPermProduct_t {PermPermProduct};
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            : } // end namespace internal
+<a name="51"><span class="lineNum">      51 </span>                :            : </a>
+<span class="lineNum">      52 </span>                :            : template&lt;typename Derived&gt;
+<span class="lineNum">      53 </span>                :<span class="lineCov">        364 : class PermutationBase : public EigenBase&lt;Derived&gt;</span>
+<span class="lineNum">      54 </span>                :            : {
+<span class="lineNum">      55 </span>                :            :     typedef internal::traits&lt;Derived&gt; Traits;
+<span class="lineNum">      56 </span>                :            :     typedef EigenBase&lt;Derived&gt; Base;
+<span class="lineNum">      57 </span>                :            :   public:
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">      60 </span>                :            :     typedef typename Traits::IndicesType IndicesType;
+<span class="lineNum">      61 </span>                :            :     enum {
+<span class="lineNum">      62 </span>                :            :       Flags = Traits::Flags,
+<span class="lineNum">      63 </span>                :            :       CoeffReadCost = Traits::CoeffReadCost,
+<span class="lineNum">      64 </span>                :            :       RowsAtCompileTime = Traits::RowsAtCompileTime,
+<span class="lineNum">      65 </span>                :            :       ColsAtCompileTime = Traits::ColsAtCompileTime,
+<span class="lineNum">      66 </span>                :            :       MaxRowsAtCompileTime = Traits::MaxRowsAtCompileTime,
+<span class="lineNum">      67 </span>                :            :       MaxColsAtCompileTime = Traits::MaxColsAtCompileTime
+<span class="lineNum">      68 </span>                :            :     };
+<span class="lineNum">      69 </span>                :            :     typedef typename Traits::Scalar Scalar;
+<span class="lineNum">      70 </span>                :            :     typedef typename Traits::Index Index;
+<span class="lineNum">      71 </span>                :            :     typedef Matrix&lt;Scalar,RowsAtCompileTime,ColsAtCompileTime,0,MaxRowsAtCompileTime,MaxColsAtCompileTime&gt;
+<span class="lineNum">      72 </span>                :            :             DenseMatrixType;
+<span class="lineNum">      73 </span>                :            :     typedef PermutationMatrix&lt;IndicesType::SizeAtCompileTime,IndicesType::MaxSizeAtCompileTime,Index&gt;
+<span class="lineNum">      74 </span>                :            :             PlainPermutationType;
+<span class="lineNum">      75 </span>                :            :     using Base::derived;
+<span class="lineNum">      76 </span>                :            :     #endif
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            :     /** Copies the other permutation into *this */
+<span class="lineNum">      79 </span>                :            :     template&lt;typename OtherDerived&gt;
+<span class="lineNum">      80 </span>                :            :     Derived&amp; operator=(const PermutationBase&lt;OtherDerived&gt;&amp; other)
+<span class="lineNum">      81 </span>                :            :     {
+<span class="lineNum">      82 </span>                :            :       indices() = other.indices();
+<span class="lineNum">      83 </span>                :            :       return derived();
+<span class="lineNum">      84 </span>                :            :     }
+<span class="lineNum">      85 </span>                :            : 
+<a name="86"><span class="lineNum">      86 </span>                :            :     /** Assignment from the Transpositions \a tr */</a>
+<span class="lineNum">      87 </span>                :            :     template&lt;typename OtherDerived&gt;
+<span class="lineNum">      88 </span>                :<span class="lineCov">        182 :     Derived&amp; operator=(const TranspositionsBase&lt;OtherDerived&gt;&amp; tr)</span>
+<span class="lineNum">      89 </span>                :            :     {
+<span class="lineNum">      90 </span>                :<span class="lineCov">        182 :       setIdentity(tr.size());</span>
+<span class="lineNum">      91 </span>        [<span class="branchCov" title="Branch 1 was taken 265 times"> + </span><span class="branchCov" title="Branch 2 was taken 182 times"> + </span>]:<span class="lineCov">        447 :       for(Index k=size()-1; k&gt;=0; --k)</span>
+<span class="lineNum">      92 </span>                :<span class="lineCov">        265 :         applyTranspositionOnTheRight(k,tr.coeff(k));</span>
+<span class="lineNum">      93 </span>                :<span class="lineCov">        182 :       return derived();</span>
+<span class="lineNum">      94 </span>                :            :     }
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">      97 </span>                :            :     /** This is a special case of the templated operator=. Its purpose is to
+<span class="lineNum">      98 </span>                :            :       * prevent a default operator= from hiding the templated operator=.
+<span class="lineNum">      99 </span>                :            :       */
+<span class="lineNum">     100 </span>                :            :     Derived&amp; operator=(const PermutationBase&amp; other)
+<span class="lineNum">     101 </span>                :            :     {
+<span class="lineNum">     102 </span>                :            :       indices() = other.indices();
+<span class="lineNum">     103 </span>                :            :       return derived();
+<span class="lineNum">     104 </span>                :            :     }
+<span class="lineNum">     105 </span>                :            :     #endif
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            :     /** \returns the number of rows */
+<span class="lineNum">     108 </span>                :            :     inline Index rows() const { return Index(indices().size()); }
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            :     /** \returns the number of columns */
+<span class="lineNum">     111 </span>                :            :     inline Index cols() const { return Index(indices().size()); }
+<a name="112"><span class="lineNum">     112 </span>                :            : </a>
+<span class="lineNum">     113 </span>                :            :     /** \returns the size of a side of the respective square matrix, i.e., the number of indices */
+<span class="lineNum">     114 </span>                :<span class="lineCov">       2318 :     inline Index size() const { return Index(indices().size()); }</span>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     117 </span>                :            :     template&lt;typename DenseDerived&gt;
+<span class="lineNum">     118 </span>                :            :     void evalTo(MatrixBase&lt;DenseDerived&gt;&amp; other) const
+<span class="lineNum">     119 </span>                :            :     {
+<span class="lineNum">     120 </span>                :            :       other.setZero();
+<span class="lineNum">     121 </span>                :            :       for (int i=0; i&lt;rows();++i)
+<span class="lineNum">     122 </span>                :            :         other.coeffRef(indices().coeff(i),i) = typename DenseDerived::Scalar(1);
+<span class="lineNum">     123 </span>                :            :     }
+<span class="lineNum">     124 </span>                :            :     #endif
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :            :     /** \returns a Matrix object initialized from this permutation matrix. Notice that it
+<span class="lineNum">     127 </span>                :            :       * is inefficient to return this Matrix object by value. For efficiency, favor using
+<span class="lineNum">     128 </span>                :            :       * the Matrix constructor taking EigenBase objects.
+<span class="lineNum">     129 </span>                :            :       */
+<span class="lineNum">     130 </span>                :            :     DenseMatrixType toDenseMatrix() const
+<span class="lineNum">     131 </span>                :            :     {
+<span class="lineNum">     132 </span>                :            :       return derived();
+<span class="lineNum">     133 </span>                :            :     }
+<a name="134"><span class="lineNum">     134 </span>                :            : </a>
+<span class="lineNum">     135 </span>                :            :     /** const version of indices(). */
+<a name="136"><span class="lineNum">     136 </span>                :<span class="lineCov">       2318 :     const IndicesType&amp; indices() const { return derived().indices(); }</span></a>
+<span class="lineNum">     137 </span>                :            :     /** \returns a reference to the stored array representing the permutation. */
+<span class="lineNum">     138 </span>                :<span class="lineCov">       1954 :     IndicesType&amp; indices() { return derived().indices(); }</span>
+<span class="lineNum">     139 </span>                :            : 
+<a name="140"><span class="lineNum">     140 </span>                :            :     /** Resizes to given size.</a>
+<span class="lineNum">     141 </span>                :            :       */
+<span class="lineNum">     142 </span>                :<span class="lineCov">        182 :     inline void resize(Index newSize)</span>
+<span class="lineNum">     143 </span>                :            :     {
+<span class="lineNum">     144 </span>                :<span class="lineCov">        182 :       indices().resize(newSize);</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">        182 :     }</span>
+<a name="146"><span class="lineNum">     146 </span>                :            : </a>
+<span class="lineNum">     147 </span>                :            :     /** Sets *this to be the identity permutation matrix */
+<span class="lineNum">     148 </span>                :<span class="lineCov">        182 :     void setIdentity()</span>
+<span class="lineNum">     149 </span>                :            :     {
+<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 1 was taken 265 times"> + </span><span class="branchCov" title="Branch 2 was taken 182 times"> + </span>]:<span class="lineCov">        447 :       for(Index i = 0; i &lt; size(); ++i)</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">        265 :         indices().coeffRef(i) = i;</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">        182 :     }</span>
+<span class="lineNum">     153 </span>                :            : 
+<a name="154"><span class="lineNum">     154 </span>                :            :     /** Sets *this to be the identity permutation matrix of given size.</a>
+<span class="lineNum">     155 </span>                :            :       */
+<span class="lineNum">     156 </span>                :<span class="lineCov">        182 :     void setIdentity(Index newSize)</span>
+<span class="lineNum">     157 </span>                :            :     {
+<span class="lineNum">     158 </span>                :<span class="lineCov">        182 :       resize(newSize);</span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">        182 :       setIdentity();</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">        182 :     }</span>
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            :     /** Multiplies *this by the transposition \f$(ij)\f$ on the left.
+<span class="lineNum">     163 </span>                :            :       *
+<span class="lineNum">     164 </span>                :            :       * \returns a reference to *this.
+<span class="lineNum">     165 </span>                :            :       *
+<span class="lineNum">     166 </span>                :            :       * \warning This is much slower than applyTranspositionOnTheRight(int,int):
+<span class="lineNum">     167 </span>                :            :       * this has linear complexity and requires a lot of branching.
+<span class="lineNum">     168 </span>                :            :       *
+<span class="lineNum">     169 </span>                :            :       * \sa applyTranspositionOnTheRight(int,int)
+<span class="lineNum">     170 </span>                :            :       */
+<span class="lineNum">     171 </span>                :            :     Derived&amp; applyTranspositionOnTheLeft(Index i, Index j)
+<span class="lineNum">     172 </span>                :            :     {
+<span class="lineNum">     173 </span>                :            :       eigen_assert(i&gt;=0 &amp;&amp; j&gt;=0 &amp;&amp; i&lt;size() &amp;&amp; j&lt;size());
+<span class="lineNum">     174 </span>                :            :       for(Index k = 0; k &lt; size(); ++k)
+<span class="lineNum">     175 </span>                :            :       {
+<span class="lineNum">     176 </span>                :            :         if(indices().coeff(k) == i) indices().coeffRef(k) = j;
+<span class="lineNum">     177 </span>                :            :         else if(indices().coeff(k) == j) indices().coeffRef(k) = i;
+<span class="lineNum">     178 </span>                :            :       }
+<span class="lineNum">     179 </span>                :            :       return derived();
+<span class="lineNum">     180 </span>                :            :     }
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :            :     /** Multiplies *this by the transposition \f$(ij)\f$ on the right.
+<span class="lineNum">     183 </span>                :            :       *
+<span class="lineNum">     184 </span>                :            :       * \returns a reference to *this.
+<span class="lineNum">     185 </span>                :            :       *
+<span class="lineNum">     186 </span>                :            :       * This is a fast operation, it only consists in swapping two indices.
+<span class="lineNum">     187 </span>                :            :       *
+<a name="188"><span class="lineNum">     188 </span>                :            :       * \sa applyTranspositionOnTheLeft(int,int)</a>
+<span class="lineNum">     189 </span>                :            :       */
+<span class="lineNum">     190 </span>                :<span class="lineCov">        265 :     Derived&amp; applyTranspositionOnTheRight(Index i, Index j)</span>
+<span class="lineNum">     191 </span>                :            :     {
+<span class="lineNum">     192 </span>[<span class="branchCov" title="Branch 0 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        265 :       eigen_assert(i&gt;=0 &amp;&amp; j&gt;=0 &amp;&amp; i&lt;size() &amp;&amp; j&lt;size());</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchNoCov" title="Branch 8 was not taken"> - </span><span class="branchCov" title="Branch 9 was taken 265 times"> + </span>]
+<span class="lineNum">     193 </span>                :<span class="lineCov">        265 :       std::swap(indices().coeffRef(i), indices().coeffRef(j));</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">        265 :       return derived();</span>
+<span class="lineNum">     195 </span>                :            :     }
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :            :     /** \returns the inverse permutation matrix.
+<span class="lineNum">     198 </span>                :            :       *
+<span class="lineNum">     199 </span>                :            :       * \note \note_try_to_help_rvo
+<span class="lineNum">     200 </span>                :            :       */
+<span class="lineNum">     201 </span>                :            :     inline Transpose&lt;PermutationBase&gt; inverse() const
+<span class="lineNum">     202 </span>                :            :     { return derived(); }
+<span class="lineNum">     203 </span>                :            :     /** \returns the tranpose permutation matrix.
+<span class="lineNum">     204 </span>                :            :       *
+<span class="lineNum">     205 </span>                :            :       * \note \note_try_to_help_rvo
+<span class="lineNum">     206 </span>                :            :       */
+<span class="lineNum">     207 </span>                :            :     inline Transpose&lt;PermutationBase&gt; transpose() const
+<span class="lineNum">     208 </span>                :            :     { return derived(); }
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :            :     /**** multiplication helpers to hopefully get RVO ****/
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :            :   
+<span class="lineNum">     213 </span>                :            : #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     214 </span>                :            :   protected:
+<span class="lineNum">     215 </span>                :            :     template&lt;typename OtherDerived&gt;
+<span class="lineNum">     216 </span>                :            :     void assignTranspose(const PermutationBase&lt;OtherDerived&gt;&amp; other)
+<span class="lineNum">     217 </span>                :            :     {
+<span class="lineNum">     218 </span>                :            :       for (int i=0; i&lt;rows();++i) indices().coeffRef(other.indices().coeff(i)) = i;
+<span class="lineNum">     219 </span>                :            :     }
+<span class="lineNum">     220 </span>                :            :     template&lt;typename Lhs,typename Rhs&gt;
+<span class="lineNum">     221 </span>                :            :     void assignProduct(const Lhs&amp; lhs, const Rhs&amp; rhs)
+<span class="lineNum">     222 </span>                :            :     {
+<span class="lineNum">     223 </span>                :            :       eigen_assert(lhs.cols() == rhs.rows());
+<span class="lineNum">     224 </span>                :            :       for (int i=0; i&lt;rows();++i) indices().coeffRef(i) = lhs.indices().coeff(rhs.indices().coeff(i));
+<span class="lineNum">     225 </span>                :            :     }
+<span class="lineNum">     226 </span>                :            : #endif
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :            :   public:
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :            :     /** \returns the product permutation matrix.
+<span class="lineNum">     231 </span>                :            :       *
+<span class="lineNum">     232 </span>                :            :       * \note \note_try_to_help_rvo
+<span class="lineNum">     233 </span>                :            :       */
+<span class="lineNum">     234 </span>                :            :     template&lt;typename Other&gt;
+<span class="lineNum">     235 </span>                :            :     inline PlainPermutationType operator*(const PermutationBase&lt;Other&gt;&amp; other) const
+<span class="lineNum">     236 </span>                :            :     { return PlainPermutationType(internal::PermPermProduct, derived(), other.derived()); }
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :            :     /** \returns the product of a permutation with another inverse permutation.
+<span class="lineNum">     239 </span>                :            :       *
+<span class="lineNum">     240 </span>                :            :       * \note \note_try_to_help_rvo
+<span class="lineNum">     241 </span>                :            :       */
+<span class="lineNum">     242 </span>                :            :     template&lt;typename Other&gt;
+<span class="lineNum">     243 </span>                :            :     inline PlainPermutationType operator*(const Transpose&lt;PermutationBase&lt;Other&gt; &gt;&amp; other) const
+<span class="lineNum">     244 </span>                :            :     { return PlainPermutationType(internal::PermPermProduct, *this, other.eval()); }
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :            :     /** \returns the product of an inverse permutation with another permutation.
+<span class="lineNum">     247 </span>                :            :       *
+<span class="lineNum">     248 </span>                :            :       * \note \note_try_to_help_rvo
+<span class="lineNum">     249 </span>                :            :       */
+<span class="lineNum">     250 </span>                :            :     template&lt;typename Other&gt; friend
+<span class="lineNum">     251 </span>                :            :     inline PlainPermutationType operator*(const Transpose&lt;PermutationBase&lt;Other&gt; &gt;&amp; other, const PermutationBase&amp; perm)
+<span class="lineNum">     252 </span>                :            :     { return PlainPermutationType(internal::PermPermProduct, other.eval(), perm); }
+<span class="lineNum">     253 </span>                :            :     
+<span class="lineNum">     254 </span>                :            :     /** \returns the determinant of the permutation matrix, which is either 1 or -1 depending on the parity of the permutation.
+<span class="lineNum">     255 </span>                :            :       *
+<span class="lineNum">     256 </span>                :            :       * This function is O(\c n) procedure allocating a buffer of \c n booleans.
+<span class="lineNum">     257 </span>                :            :       */
+<span class="lineNum">     258 </span>                :            :     Index determinant() const
+<span class="lineNum">     259 </span>                :            :     {
+<span class="lineNum">     260 </span>                :            :       Index res = 1;
+<span class="lineNum">     261 </span>                :            :       Index n = size();
+<span class="lineNum">     262 </span>                :            :       Matrix&lt;bool,RowsAtCompileTime,1,0,MaxRowsAtCompileTime&gt; mask(n);
+<span class="lineNum">     263 </span>                :            :       mask.fill(false);
+<span class="lineNum">     264 </span>                :            :       Index r = 0;
+<span class="lineNum">     265 </span>                :            :       while(r &lt; n)
+<span class="lineNum">     266 </span>                :            :       {
+<span class="lineNum">     267 </span>                :            :         // search for the next seed
+<span class="lineNum">     268 </span>                :            :         while(r&lt;n &amp;&amp; mask[r]) r++;
+<span class="lineNum">     269 </span>                :            :         if(r&gt;=n)
+<span class="lineNum">     270 </span>                :            :           break;
+<span class="lineNum">     271 </span>                :            :         // we got one, let's follow it until we are back to the seed
+<span class="lineNum">     272 </span>                :            :         Index k0 = r++;
+<span class="lineNum">     273 </span>                :            :         mask.coeffRef(k0) = true;
+<span class="lineNum">     274 </span>                :            :         for(Index k=indices().coeff(k0); k!=k0; k=indices().coeff(k))
+<span class="lineNum">     275 </span>                :            :         {
+<span class="lineNum">     276 </span>                :            :           mask.coeffRef(k) = true;
+<span class="lineNum">     277 </span>                :            :           res = -res;
+<span class="lineNum">     278 </span>                :            :         }
+<span class="lineNum">     279 </span>                :            :       }
+<span class="lineNum">     280 </span>                :            :       return res;
+<span class="lineNum">     281 </span>                :            :     }
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>                :            :   protected:
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :            : };
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :            : /** \class PermutationMatrix
+<span class="lineNum">     288 </span>                :            :   * \ingroup Core_Module
+<span class="lineNum">     289 </span>                :            :   *
+<span class="lineNum">     290 </span>                :            :   * \brief Permutation matrix
+<span class="lineNum">     291 </span>                :            :   *
+<span class="lineNum">     292 </span>                :            :   * \param SizeAtCompileTime the number of rows/cols, or Dynamic
+<span class="lineNum">     293 </span>                :            :   * \param MaxSizeAtCompileTime the maximum number of rows/cols, or Dynamic. This optional parameter defaults to SizeAtCompileTime. Most of the time, you should not have to specify it.
+<span class="lineNum">     294 </span>                :            :   * \param IndexType the interger type of the indices
+<span class="lineNum">     295 </span>                :            :   *
+<span class="lineNum">     296 </span>                :            :   * This class represents a permutation matrix, internally stored as a vector of integers.
+<span class="lineNum">     297 </span>                :            :   *
+<span class="lineNum">     298 </span>                :            :   * \sa class PermutationBase, class PermutationWrapper, class DiagonalMatrix
+<span class="lineNum">     299 </span>                :            :   */
+<span class="lineNum">     300 </span>                :            : 
+<span class="lineNum">     301 </span>                :            : namespace internal {
+<span class="lineNum">     302 </span>                :            : template&lt;int SizeAtCompileTime, int MaxSizeAtCompileTime, typename IndexType&gt;
+<span class="lineNum">     303 </span>                :            : struct traits&lt;PermutationMatrix&lt;SizeAtCompileTime, MaxSizeAtCompileTime, IndexType&gt; &gt;
+<span class="lineNum">     304 </span>                :            :  : traits&lt;Matrix&lt;IndexType,SizeAtCompileTime,SizeAtCompileTime,0,MaxSizeAtCompileTime,MaxSizeAtCompileTime&gt; &gt;
+<span class="lineNum">     305 </span>                :            : {
+<span class="lineNum">     306 </span>                :            :   typedef IndexType Index;
+<span class="lineNum">     307 </span>                :            :   typedef Matrix&lt;IndexType, SizeAtCompileTime, 1, 0, MaxSizeAtCompileTime, 1&gt; IndicesType;
+<span class="lineNum">     308 </span>                :            : };
+<span class="lineNum">     309 </span>                :            : }
+<a name="310"><span class="lineNum">     310 </span>                :            : </a>
+<span class="lineNum">     311 </span>                :            : template&lt;int SizeAtCompileTime, int MaxSizeAtCompileTime, typename IndexType&gt;
+<span class="lineNum">     312 </span>                :<span class="lineCov">        328 : class PermutationMatrix : public PermutationBase&lt;PermutationMatrix&lt;SizeAtCompileTime, MaxSizeAtCompileTime, IndexType&gt; &gt;</span>
+<span class="lineNum">     313 </span>                :            : {
+<span class="lineNum">     314 </span>                :            :     typedef PermutationBase&lt;PermutationMatrix&gt; Base;
+<span class="lineNum">     315 </span>                :            :     typedef internal::traits&lt;PermutationMatrix&gt; Traits;
+<span class="lineNum">     316 </span>                :            :   public:
+<span class="lineNum">     317 </span>                :            : 
+<span class="lineNum">     318 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     319 </span>                :            :     typedef typename Traits::IndicesType IndicesType;
+<span class="lineNum">     320 </span>                :            :     #endif
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :            :     inline PermutationMatrix()
+<span class="lineNum">     323 </span>                :            :     {}
+<span class="lineNum">     324 </span>                :            : 
+<a name="325"><span class="lineNum">     325 </span>                :            :     /** Constructs an uninitialized permutation matrix of given size.</a>
+<span class="lineNum">     326 </span>                :            :       */
+<span class="lineNum">     327 </span>                :<span class="lineCov">        364 :     inline PermutationMatrix(int size) : m_indices(size)</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">        182 :     {}</span>
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :            :     /** Copy constructor. */
+<span class="lineNum">     331 </span>                :            :     template&lt;typename OtherDerived&gt;
+<span class="lineNum">     332 </span>                :            :     inline PermutationMatrix(const PermutationBase&lt;OtherDerived&gt;&amp; other)
+<span class="lineNum">     333 </span>                :            :       : m_indices(other.indices()) {}
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     336 </span>                :            :     /** Standard copy constructor. Defined only to prevent a default copy constructor
+<span class="lineNum">     337 </span>                :            :       * from hiding the other templated constructor */
+<span class="lineNum">     338 </span>                :            :     inline PermutationMatrix(const PermutationMatrix&amp; other) : m_indices(other.indices()) {}
+<span class="lineNum">     339 </span>                :            :     #endif
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :            :     /** Generic constructor from expression of the indices. The indices
+<span class="lineNum">     342 </span>                :            :       * array has the meaning that the permutations sends each integer i to indices[i].
+<span class="lineNum">     343 </span>                :            :       *
+<span class="lineNum">     344 </span>                :            :       * \warning It is your responsibility to check that the indices array that you passes actually
+<span class="lineNum">     345 </span>                :            :       * describes a permutation, i.e., each value between 0 and n-1 occurs exactly once, where n is the
+<span class="lineNum">     346 </span>                :            :       * array's size.
+<span class="lineNum">     347 </span>                :            :       */
+<span class="lineNum">     348 </span>                :            :     template&lt;typename Other&gt;
+<span class="lineNum">     349 </span>                :            :     explicit inline PermutationMatrix(const MatrixBase&lt;Other&gt;&amp; a_indices) : m_indices(a_indices)
+<span class="lineNum">     350 </span>                :            :     {}
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :            :     /** Convert the Transpositions \a tr to a permutation matrix */
+<span class="lineNum">     353 </span>                :            :     template&lt;typename Other&gt;
+<span class="lineNum">     354 </span>                :            :     explicit PermutationMatrix(const TranspositionsBase&lt;Other&gt;&amp; tr)
+<span class="lineNum">     355 </span>                :            :       : m_indices(tr.size())
+<span class="lineNum">     356 </span>                :            :     {
+<span class="lineNum">     357 </span>                :            :       *this = tr;
+<span class="lineNum">     358 </span>                :            :     }
+<span class="lineNum">     359 </span>                :            : 
+<span class="lineNum">     360 </span>                :            :     /** Copies the other permutation into *this */
+<span class="lineNum">     361 </span>                :            :     template&lt;typename Other&gt;
+<span class="lineNum">     362 </span>                :            :     PermutationMatrix&amp; operator=(const PermutationBase&lt;Other&gt;&amp; other)
+<span class="lineNum">     363 </span>                :            :     {
+<span class="lineNum">     364 </span>                :            :       m_indices = other.indices();
+<span class="lineNum">     365 </span>                :            :       return *this;
+<span class="lineNum">     366 </span>                :            :     }
+<span class="lineNum">     367 </span>                :            : 
+<a name="368"><span class="lineNum">     368 </span>                :            :     /** Assignment from the Transpositions \a tr */</a>
+<span class="lineNum">     369 </span>                :            :     template&lt;typename Other&gt;
+<span class="lineNum">     370 </span>                :<span class="lineCov">        182 :     PermutationMatrix&amp; operator=(const TranspositionsBase&lt;Other&gt;&amp; tr)</span>
+<span class="lineNum">     371 </span>                :            :     {
+<span class="lineNum">     372 </span>                :<span class="lineCov">        182 :       return Base::operator=(tr.derived());</span>
+<span class="lineNum">     373 </span>                :            :     }
+<span class="lineNum">     374 </span>                :            : 
+<span class="lineNum">     375 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     376 </span>                :            :     /** This is a special case of the templated operator=. Its purpose is to
+<span class="lineNum">     377 </span>                :            :       * prevent a default operator= from hiding the templated operator=.
+<span class="lineNum">     378 </span>                :            :       */
+<span class="lineNum">     379 </span>                :            :     PermutationMatrix&amp; operator=(const PermutationMatrix&amp; other)
+<span class="lineNum">     380 </span>                :            :     {
+<span class="lineNum">     381 </span>                :            :       m_indices = other.m_indices;
+<span class="lineNum">     382 </span>                :            :       return *this;
+<span class="lineNum">     383 </span>                :            :     }
+<span class="lineNum">     384 </span>                :            :     #endif
+<a name="385"><span class="lineNum">     385 </span>                :            : </a>
+<span class="lineNum">     386 </span>                :            :     /** const version of indices(). */
+<a name="387"><span class="lineNum">     387 </span>                :<span class="lineCov">       2848 :     const IndicesType&amp; indices() const { return m_indices; }</span></a>
+<span class="lineNum">     388 </span>                :            :     /** \returns a reference to the stored array representing the permutation. */
+<span class="lineNum">     389 </span>                :<span class="lineCov">       1954 :     IndicesType&amp; indices() { return m_indices; }</span>
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>                :            :     /**** multiplication helpers to hopefully get RVO ****/
+<span class="lineNum">     393 </span>                :            : 
+<span class="lineNum">     394 </span>                :            : #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     395 </span>                :            :     template&lt;typename Other&gt;
+<span class="lineNum">     396 </span>                :            :     PermutationMatrix(const Transpose&lt;PermutationBase&lt;Other&gt; &gt;&amp; other)
+<span class="lineNum">     397 </span>                :            :       : m_indices(other.nestedPermutation().size())
+<span class="lineNum">     398 </span>                :            :     {
+<span class="lineNum">     399 </span>                :            :       for (int i=0; i&lt;m_indices.size();++i) m_indices.coeffRef(other.nestedPermutation().indices().coeff(i)) = i;
+<span class="lineNum">     400 </span>                :            :     }
+<span class="lineNum">     401 </span>                :            :     template&lt;typename Lhs,typename Rhs&gt;
+<span class="lineNum">     402 </span>                :            :     PermutationMatrix(internal::PermPermProduct_t, const Lhs&amp; lhs, const Rhs&amp; rhs)
+<span class="lineNum">     403 </span>                :            :       : m_indices(lhs.indices().size())
+<span class="lineNum">     404 </span>                :            :     {
+<span class="lineNum">     405 </span>                :            :       Base::assignProduct(lhs,rhs);
+<span class="lineNum">     406 </span>                :            :     }
+<span class="lineNum">     407 </span>                :            : #endif
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>                :            :   protected:
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :            :     IndicesType m_indices;
+<span class="lineNum">     412 </span>                :            : };
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :            : 
+<span class="lineNum">     415 </span>                :            : namespace internal {
+<span class="lineNum">     416 </span>                :            : template&lt;int SizeAtCompileTime, int MaxSizeAtCompileTime, typename IndexType, int _PacketAccess&gt;
+<span class="lineNum">     417 </span>                :            : struct traits&lt;Map&lt;PermutationMatrix&lt;SizeAtCompileTime, MaxSizeAtCompileTime, IndexType&gt;,_PacketAccess&gt; &gt;
+<span class="lineNum">     418 </span>                :            :  : traits&lt;Matrix&lt;IndexType,SizeAtCompileTime,SizeAtCompileTime,0,MaxSizeAtCompileTime,MaxSizeAtCompileTime&gt; &gt;
+<span class="lineNum">     419 </span>                :            : {
+<span class="lineNum">     420 </span>                :            :   typedef IndexType Index;
+<span class="lineNum">     421 </span>                :            :   typedef Map&lt;const Matrix&lt;IndexType, SizeAtCompileTime, 1, 0, MaxSizeAtCompileTime, 1&gt;, _PacketAccess&gt; IndicesType;
+<span class="lineNum">     422 </span>                :            : };
+<span class="lineNum">     423 </span>                :            : }
+<span class="lineNum">     424 </span>                :            : 
+<span class="lineNum">     425 </span>                :            : template&lt;int SizeAtCompileTime, int MaxSizeAtCompileTime, typename IndexType, int _PacketAccess&gt;
+<span class="lineNum">     426 </span>                :            : class Map&lt;PermutationMatrix&lt;SizeAtCompileTime, MaxSizeAtCompileTime, IndexType&gt;,_PacketAccess&gt;
+<span class="lineNum">     427 </span>                :            :   : public PermutationBase&lt;Map&lt;PermutationMatrix&lt;SizeAtCompileTime, MaxSizeAtCompileTime, IndexType&gt;,_PacketAccess&gt; &gt;
+<span class="lineNum">     428 </span>                :            : {
+<span class="lineNum">     429 </span>                :            :     typedef PermutationBase&lt;Map&gt; Base;
+<span class="lineNum">     430 </span>                :            :     typedef internal::traits&lt;Map&gt; Traits;
+<span class="lineNum">     431 </span>                :            :   public:
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     434 </span>                :            :     typedef typename Traits::IndicesType IndicesType;
+<span class="lineNum">     435 </span>                :            :     typedef typename IndicesType::Scalar Index;
+<span class="lineNum">     436 </span>                :            :     #endif
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :            :     inline Map(const Index* indicesPtr)
+<span class="lineNum">     439 </span>                :            :       : m_indices(indicesPtr)
+<span class="lineNum">     440 </span>                :            :     {}
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>                :            :     inline Map(const Index* indicesPtr, Index size)
+<span class="lineNum">     443 </span>                :            :       : m_indices(indicesPtr,size)
+<span class="lineNum">     444 </span>                :            :     {}
+<span class="lineNum">     445 </span>                :            : 
+<span class="lineNum">     446 </span>                :            :     /** Copies the other permutation into *this */
+<span class="lineNum">     447 </span>                :            :     template&lt;typename Other&gt;
+<span class="lineNum">     448 </span>                :            :     Map&amp; operator=(const PermutationBase&lt;Other&gt;&amp; other)
+<span class="lineNum">     449 </span>                :            :     { return Base::operator=(other.derived()); }
+<span class="lineNum">     450 </span>                :            : 
+<span class="lineNum">     451 </span>                :            :     /** Assignment from the Transpositions \a tr */
+<span class="lineNum">     452 </span>                :            :     template&lt;typename Other&gt;
+<span class="lineNum">     453 </span>                :            :     Map&amp; operator=(const TranspositionsBase&lt;Other&gt;&amp; tr)
+<span class="lineNum">     454 </span>                :            :     { return Base::operator=(tr.derived()); }
+<span class="lineNum">     455 </span>                :            : 
+<span class="lineNum">     456 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     457 </span>                :            :     /** This is a special case of the templated operator=. Its purpose is to
+<span class="lineNum">     458 </span>                :            :       * prevent a default operator= from hiding the templated operator=.
+<span class="lineNum">     459 </span>                :            :       */
+<span class="lineNum">     460 </span>                :            :     Map&amp; operator=(const Map&amp; other)
+<span class="lineNum">     461 </span>                :            :     {
+<span class="lineNum">     462 </span>                :            :       m_indices = other.m_indices;
+<span class="lineNum">     463 </span>                :            :       return *this;
+<span class="lineNum">     464 </span>                :            :     }
+<span class="lineNum">     465 </span>                :            :     #endif
+<span class="lineNum">     466 </span>                :            : 
+<span class="lineNum">     467 </span>                :            :     /** const version of indices(). */
+<span class="lineNum">     468 </span>                :            :     const IndicesType&amp; indices() const { return m_indices; }
+<span class="lineNum">     469 </span>                :            :     /** \returns a reference to the stored array representing the permutation. */
+<span class="lineNum">     470 </span>                :            :     IndicesType&amp; indices() { return m_indices; }
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>                :            :   protected:
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :            :     IndicesType m_indices;
+<span class="lineNum">     475 </span>                :            : };
+<span class="lineNum">     476 </span>                :            : 
+<span class="lineNum">     477 </span>                :            : /** \class PermutationWrapper
+<span class="lineNum">     478 </span>                :            :   * \ingroup Core_Module
+<span class="lineNum">     479 </span>                :            :   *
+<span class="lineNum">     480 </span>                :            :   * \brief Class to view a vector of integers as a permutation matrix
+<span class="lineNum">     481 </span>                :            :   *
+<span class="lineNum">     482 </span>                :            :   * \param _IndicesType the type of the vector of integer (can be any compatible expression)
+<span class="lineNum">     483 </span>                :            :   *
+<span class="lineNum">     484 </span>                :            :   * This class allows to view any vector expression of integers as a permutation matrix.
+<span class="lineNum">     485 </span>                :            :   *
+<span class="lineNum">     486 </span>                :            :   * \sa class PermutationBase, class PermutationMatrix
+<span class="lineNum">     487 </span>                :            :   */
+<span class="lineNum">     488 </span>                :            : 
+<span class="lineNum">     489 </span>                :            : struct PermutationStorage {};
+<span class="lineNum">     490 </span>                :            : 
+<span class="lineNum">     491 </span>                :            : template&lt;typename _IndicesType&gt; class TranspositionsWrapper;
+<span class="lineNum">     492 </span>                :            : namespace internal {
+<span class="lineNum">     493 </span>                :            : template&lt;typename _IndicesType&gt;
+<span class="lineNum">     494 </span>                :            : struct traits&lt;PermutationWrapper&lt;_IndicesType&gt; &gt;
+<span class="lineNum">     495 </span>                :            : {
+<span class="lineNum">     496 </span>                :            :   typedef PermutationStorage StorageKind;
+<span class="lineNum">     497 </span>                :            :   typedef typename _IndicesType::Scalar Scalar;
+<span class="lineNum">     498 </span>                :            :   typedef typename _IndicesType::Scalar Index;
+<span class="lineNum">     499 </span>                :            :   typedef _IndicesType IndicesType;
+<span class="lineNum">     500 </span>                :            :   enum {
+<span class="lineNum">     501 </span>                :            :     RowsAtCompileTime = _IndicesType::SizeAtCompileTime,
+<span class="lineNum">     502 </span>                :            :     ColsAtCompileTime = _IndicesType::SizeAtCompileTime,
+<span class="lineNum">     503 </span>                :            :     MaxRowsAtCompileTime = IndicesType::MaxRowsAtCompileTime,
+<span class="lineNum">     504 </span>                :            :     MaxColsAtCompileTime = IndicesType::MaxColsAtCompileTime,
+<span class="lineNum">     505 </span>                :            :     Flags = 0,
+<span class="lineNum">     506 </span>                :            :     CoeffReadCost = _IndicesType::CoeffReadCost
+<span class="lineNum">     507 </span>                :            :   };
+<span class="lineNum">     508 </span>                :            : };
+<span class="lineNum">     509 </span>                :            : }
+<span class="lineNum">     510 </span>                :            : 
+<span class="lineNum">     511 </span>                :            : template&lt;typename _IndicesType&gt;
+<span class="lineNum">     512 </span>                :            : class PermutationWrapper : public PermutationBase&lt;PermutationWrapper&lt;_IndicesType&gt; &gt;
+<span class="lineNum">     513 </span>                :            : {
+<span class="lineNum">     514 </span>                :            :     typedef PermutationBase&lt;PermutationWrapper&gt; Base;
+<span class="lineNum">     515 </span>                :            :     typedef internal::traits&lt;PermutationWrapper&gt; Traits;
+<span class="lineNum">     516 </span>                :            :   public:
+<span class="lineNum">     517 </span>                :            : 
+<span class="lineNum">     518 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     519 </span>                :            :     typedef typename Traits::IndicesType IndicesType;
+<span class="lineNum">     520 </span>                :            :     #endif
+<span class="lineNum">     521 </span>                :            : 
+<span class="lineNum">     522 </span>                :            :     inline PermutationWrapper(const IndicesType&amp; a_indices)
+<span class="lineNum">     523 </span>                :            :       : m_indices(a_indices)
+<span class="lineNum">     524 </span>                :            :     {}
+<span class="lineNum">     525 </span>                :            : 
+<span class="lineNum">     526 </span>                :            :     /** const version of indices(). */
+<span class="lineNum">     527 </span>                :            :     const typename internal::remove_all&lt;typename IndicesType::Nested&gt;::type&amp;
+<span class="lineNum">     528 </span>                :            :     indices() const { return m_indices; }
+<span class="lineNum">     529 </span>                :            : 
+<span class="lineNum">     530 </span>                :            :   protected:
+<span class="lineNum">     531 </span>                :            : 
+<span class="lineNum">     532 </span>                :            :     typename IndicesType::Nested m_indices;
+<span class="lineNum">     533 </span>                :            : };
+<span class="lineNum">     534 </span>                :            : 
+<span class="lineNum">     535 </span>                :            : /** \returns the matrix with the permutation applied to the columns.
+<span class="lineNum">     536 </span>                :            :   */
+<span class="lineNum">     537 </span>                :            : template&lt;typename Derived, typename PermutationDerived&gt;
+<span class="lineNum">     538 </span>                :            : inline const internal::permut_matrix_product_retval&lt;PermutationDerived, Derived, OnTheRight&gt;
+<span class="lineNum">     539 </span>                :            : operator*(const MatrixBase&lt;Derived&gt;&amp; matrix,
+<span class="lineNum">     540 </span>                :            :           const PermutationBase&lt;PermutationDerived&gt; &amp;permutation)
+<span class="lineNum">     541 </span>                :            : {
+<span class="lineNum">     542 </span>                :            :   return internal::permut_matrix_product_retval
+<span class="lineNum">     543 </span>                :            :            &lt;PermutationDerived, Derived, OnTheRight&gt;
+<span class="lineNum">     544 </span>                :            :            (permutation.derived(), matrix.derived());
+<span class="lineNum">     545 </span>                :            : }
+<span class="lineNum">     546 </span>                :            : 
+<span class="lineNum">     547 </span>                :            : /** \returns the matrix with the permutation applied to the rows.
+<span class="lineNum">     548 </span>                :            :   */
+<span class="lineNum">     549 </span>                :            : template&lt;typename Derived, typename PermutationDerived&gt;
+<a name="550"><span class="lineNum">     550 </span>                :            : inline const internal::permut_matrix_product_retval</a>
+<span class="lineNum">     551 </span>                :            :                &lt;PermutationDerived, Derived, OnTheLeft&gt;
+<span class="lineNum">     552 </span>                :<span class="lineCov">        182 : operator*(const PermutationBase&lt;PermutationDerived&gt; &amp;permutation,</span>
+<span class="lineNum">     553 </span>                :            :           const MatrixBase&lt;Derived&gt;&amp; matrix)
+<span class="lineNum">     554 </span>                :            : {
+<span class="lineNum">     555 </span>                :            :   return internal::permut_matrix_product_retval
+<span class="lineNum">     556 </span>                :            :            &lt;PermutationDerived, Derived, OnTheLeft&gt;
+<span class="lineNum">     557 </span>                :<span class="lineCov">        182 :            (permutation.derived(), matrix.derived());</span>
+<span class="lineNum">     558 </span>                :            : }
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :            : namespace internal {
+<span class="lineNum">     561 </span>                :            : 
+<span class="lineNum">     562 </span>                :            : template&lt;typename PermutationType, typename MatrixType, int Side, bool Transposed&gt;
+<span class="lineNum">     563 </span>                :            : struct traits&lt;permut_matrix_product_retval&lt;PermutationType, MatrixType, Side, Transposed&gt; &gt;
+<span class="lineNum">     564 </span>                :            : {
+<span class="lineNum">     565 </span>                :            :   typedef typename MatrixType::PlainObject ReturnType;
+<span class="lineNum">     566 </span>                :            : };
+<span class="lineNum">     567 </span>                :            : 
+<span class="lineNum">     568 </span>                :            : template&lt;typename PermutationType, typename MatrixType, int Side, bool Transposed&gt;
+<span class="lineNum">     569 </span>                :            : struct permut_matrix_product_retval
+<span class="lineNum">     570 </span>                :            :  : public ReturnByValue&lt;permut_matrix_product_retval&lt;PermutationType, MatrixType, Side, Transposed&gt; &gt;
+<span class="lineNum">     571 </span>                :            : {
+<span class="lineNum">     572 </span>                :            :     typedef typename remove_all&lt;typename MatrixType::Nested&gt;::type MatrixTypeNestedCleaned;
+<a name="573"><span class="lineNum">     573 </span>                :            :     typedef typename MatrixType::Index Index;</a>
+<span class="lineNum">     574 </span>                :            : 
+<span class="lineNum">     575 </span>                :<span class="lineCov">        182 :     permut_matrix_product_retval(const PermutationType&amp; perm, const MatrixType&amp; matrix)</span>
+<span class="lineNum">     576 </span>                :<span class="lineCov">        182 :       : m_permutation(perm), m_matrix(matrix)</span>
+<a name="577"><span class="lineNum">     577 </span>                :<span class="lineCov">        182 :     {}</span></a>
+<a name="578"><span class="lineNum">     578 </span>                :            : </a>
+<span class="lineNum">     579 </span>                :<span class="lineCov">        728 :     inline Index rows() const { return m_matrix.rows(); }</span>
+<a name="580"><span class="lineNum">     580 </span>                :<span class="lineCov">        364 :     inline Index cols() const { return m_matrix.cols(); }</span></a>
+<span class="lineNum">     581 </span>                :            : 
+<span class="lineNum">     582 </span>                :<span class="lineCov">        182 :     template&lt;typename Dest&gt; inline void evalTo(Dest&amp; dst) const</span>
+<span class="lineNum">     583 </span>                :            :     {
+<span class="lineNum">     584 </span>                :<span class="lineCov">        182 :       const Index n = Side==OnTheLeft ? rows() : cols();</span>
+<span class="lineNum">     585 </span>                :            :       // FIXME we need an is_same for expression that is not sensitive to constness. For instance
+<span class="lineNum">     586 </span>                :            :       // is_same_xpr&lt;Block&lt;const Matrix&gt;, Block&lt;Matrix&gt; &gt;::value should be true.
+<span class="lineNum">     587 </span>                :<span class="lineCov">        182 :       const typename Dest::Scalar *dst_data = internal::extract_data(dst);</span>
+<span class="lineNum">     588 </span>                :            :       if(    is_same&lt;MatrixTypeNestedCleaned,Dest&gt;::value
+<span class="lineNum">     589 </span>                :            :           &amp;&amp; blas_traits&lt;MatrixTypeNestedCleaned&gt;::HasUsableDirectAccess
+<span class="lineNum">     590 </span>                :            :           &amp;&amp; blas_traits&lt;Dest&gt;::HasUsableDirectAccess
+<span class="lineNum">     591 </span>                :            :           &amp;&amp; dst_data!=0 &amp;&amp; dst_data == extract_data(m_matrix))
+<span class="lineNum">     592 </span>                :            :       {
+<span class="lineNum">     593 </span>                :            :         // apply the permutation inplace
+<span class="lineNum">     594 </span>                :            :         Matrix&lt;bool,PermutationType::RowsAtCompileTime,1,0,PermutationType::MaxRowsAtCompileTime&gt; mask(m_permutation.size());
+<span class="lineNum">     595 </span>                :            :         mask.fill(false);
+<span class="lineNum">     596 </span>                :            :         Index r = 0;
+<span class="lineNum">     597 </span>                :            :         while(r &lt; m_permutation.size())
+<span class="lineNum">     598 </span>                :            :         {
+<span class="lineNum">     599 </span>                :            :           // search for the next seed
+<span class="lineNum">     600 </span>                :            :           while(r&lt;m_permutation.size() &amp;&amp; mask[r]) r++;
+<span class="lineNum">     601 </span>                :            :           if(r&gt;=m_permutation.size())
+<span class="lineNum">     602 </span>                :            :             break;
+<span class="lineNum">     603 </span>                :            :           // we got one, let's follow it until we are back to the seed
+<span class="lineNum">     604 </span>                :            :           Index k0 = r++;
+<span class="lineNum">     605 </span>                :            :           Index kPrev = k0;
+<span class="lineNum">     606 </span>                :            :           mask.coeffRef(k0) = true;
+<span class="lineNum">     607 </span>                :            :           for(Index k=m_permutation.indices().coeff(k0); k!=k0; k=m_permutation.indices().coeff(k))
+<span class="lineNum">     608 </span>                :            :           {
+<span class="lineNum">     609 </span>                :            :                   Block&lt;Dest, Side==OnTheLeft ? 1 : Dest::RowsAtCompileTime, Side==OnTheRight ? 1 : Dest::ColsAtCompileTime&gt;(dst, k)
+<span class="lineNum">     610 </span>                :            :             .swap(Block&lt;Dest, Side==OnTheLeft ? 1 : Dest::RowsAtCompileTime, Side==OnTheRight ? 1 : Dest::ColsAtCompileTime&gt;
+<span class="lineNum">     611 </span>                :            :                        (dst,((Side==OnTheLeft) ^ Transposed) ? k0 : kPrev));
+<span class="lineNum">     612 </span>                :            : 
+<span class="lineNum">     613 </span>                :            :             mask.coeffRef(k) = true;
+<span class="lineNum">     614 </span>                :            :             kPrev = k;
+<span class="lineNum">     615 </span>                :            :           }
+<span class="lineNum">     616 </span>                :            :         }
+<span class="lineNum">     617 </span>                :            :       }
+<span class="lineNum">     618 </span>                :            :       else
+<span class="lineNum">     619 </span>                :            :       {
+<span class="lineNum">     620 </span>        [<span class="branchCov" title="Branch 0 was taken 265 times"> + </span><span class="branchCov" title="Branch 1 was taken 182 times"> + </span>]:<span class="lineCov">        447 :         for(int i = 0; i &lt; n; ++i)</span>
+<span class="lineNum">     621 </span>                :            :         {
+<span class="lineNum">     622 </span>        [<span class="branchCov" title="Branch 1 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        265 :           Block&lt;Dest, Side==OnTheLeft ? 1 : Dest::RowsAtCompileTime, Side==OnTheRight ? 1 : Dest::ColsAtCompileTime&gt;</span>
+<span class="lineNum">     623 </span>[<span class="branchCov" title="Branch 1 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        265 :                (dst, ((Side==OnTheLeft) ^ Transposed) ? m_permutation.indices().coeff(i) : i)</span>
+<span class="lineNum">     624 </span>                :            : 
+<span class="lineNum">     625 </span>        [<span class="branchCov" title="Branch 2 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        530 :           =</span>
+<span class="lineNum">     626 </span>                :            : 
+<span class="lineNum">     627 </span>                :            :           Block&lt;const MatrixTypeNestedCleaned,Side==OnTheLeft ? 1 : MatrixType::RowsAtCompileTime,Side==OnTheRight ? 1 : MatrixType::ColsAtCompileTime&gt;
+<span class="lineNum">     628 </span>                :            :                (m_matrix, ((Side==OnTheRight) ^ Transposed) ? m_permutation.indices().coeff(i) : i);
+<span class="lineNum">     629 </span>                :            :         }
+<span class="lineNum">     630 </span>                :            :       }
+<span class="lineNum">     631 </span>                :<span class="lineCov">        182 :     }</span>
+<span class="lineNum">     632 </span>                :            : 
+<span class="lineNum">     633 </span>                :            :   protected:
+<span class="lineNum">     634 </span>                :            :     const PermutationType&amp; m_permutation;
+<span class="lineNum">     635 </span>                :            :     typename MatrixType::Nested m_matrix;
+<span class="lineNum">     636 </span>                :            : };
+<span class="lineNum">     637 </span>                :            : 
+<span class="lineNum">     638 </span>                :            : /* Template partial specialization for transposed/inverse permutations */
+<span class="lineNum">     639 </span>                :            : 
+<span class="lineNum">     640 </span>                :            : template&lt;typename Derived&gt;
+<span class="lineNum">     641 </span>                :            : struct traits&lt;Transpose&lt;PermutationBase&lt;Derived&gt; &gt; &gt;
+<span class="lineNum">     642 </span>                :            :  : traits&lt;Derived&gt;
+<span class="lineNum">     643 </span>                :            : {};
+<span class="lineNum">     644 </span>                :            : 
+<span class="lineNum">     645 </span>                :            : } // end namespace internal
+<span class="lineNum">     646 </span>                :            : 
+<span class="lineNum">     647 </span>                :            : template&lt;typename Derived&gt;
+<span class="lineNum">     648 </span>                :            : class Transpose&lt;PermutationBase&lt;Derived&gt; &gt;
+<span class="lineNum">     649 </span>                :            :   : public EigenBase&lt;Transpose&lt;PermutationBase&lt;Derived&gt; &gt; &gt;
+<span class="lineNum">     650 </span>                :            : {
+<span class="lineNum">     651 </span>                :            :     typedef Derived PermutationType;
+<span class="lineNum">     652 </span>                :            :     typedef typename PermutationType::IndicesType IndicesType;
+<span class="lineNum">     653 </span>                :            :     typedef typename PermutationType::PlainPermutationType PlainPermutationType;
+<span class="lineNum">     654 </span>                :            :   public:
+<span class="lineNum">     655 </span>                :            : 
+<span class="lineNum">     656 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     657 </span>                :            :     typedef internal::traits&lt;PermutationType&gt; Traits;
+<span class="lineNum">     658 </span>                :            :     typedef typename Derived::DenseMatrixType DenseMatrixType;
+<span class="lineNum">     659 </span>                :            :     enum {
+<span class="lineNum">     660 </span>                :            :       Flags = Traits::Flags,
+<span class="lineNum">     661 </span>                :            :       CoeffReadCost = Traits::CoeffReadCost,
+<span class="lineNum">     662 </span>                :            :       RowsAtCompileTime = Traits::RowsAtCompileTime,
+<span class="lineNum">     663 </span>                :            :       ColsAtCompileTime = Traits::ColsAtCompileTime,
+<span class="lineNum">     664 </span>                :            :       MaxRowsAtCompileTime = Traits::MaxRowsAtCompileTime,
+<span class="lineNum">     665 </span>                :            :       MaxColsAtCompileTime = Traits::MaxColsAtCompileTime
+<span class="lineNum">     666 </span>                :            :     };
+<span class="lineNum">     667 </span>                :            :     typedef typename Traits::Scalar Scalar;
+<span class="lineNum">     668 </span>                :            :     #endif
+<span class="lineNum">     669 </span>                :            : 
+<span class="lineNum">     670 </span>                :            :     Transpose(const PermutationType&amp; p) : m_permutation(p) {}
+<span class="lineNum">     671 </span>                :            : 
+<span class="lineNum">     672 </span>                :            :     inline int rows() const { return m_permutation.rows(); }
+<span class="lineNum">     673 </span>                :            :     inline int cols() const { return m_permutation.cols(); }
+<span class="lineNum">     674 </span>                :            : 
+<span class="lineNum">     675 </span>                :            :     #ifndef EIGEN_PARSED_BY_DOXYGEN
+<span class="lineNum">     676 </span>                :            :     template&lt;typename DenseDerived&gt;
+<span class="lineNum">     677 </span>                :            :     void evalTo(MatrixBase&lt;DenseDerived&gt;&amp; other) const
+<span class="lineNum">     678 </span>                :            :     {
+<span class="lineNum">     679 </span>                :            :       other.setZero();
+<span class="lineNum">     680 </span>                :            :       for (int i=0; i&lt;rows();++i)
+<span class="lineNum">     681 </span>                :            :         other.coeffRef(i, m_permutation.indices().coeff(i)) = typename DenseDerived::Scalar(1);
+<span class="lineNum">     682 </span>                :            :     }
+<span class="lineNum">     683 </span>                :            :     #endif
+<span class="lineNum">     684 </span>                :            : 
+<span class="lineNum">     685 </span>                :            :     /** \return the equivalent permutation matrix */
+<span class="lineNum">     686 </span>                :            :     PlainPermutationType eval() const { return *this; }
+<span class="lineNum">     687 </span>                :            : 
+<span class="lineNum">     688 </span>                :            :     DenseMatrixType toDenseMatrix() const { return *this; }
+<span class="lineNum">     689 </span>                :            : 
+<span class="lineNum">     690 </span>                :            :     /** \returns the matrix with the inverse permutation applied to the columns.
+<span class="lineNum">     691 </span>                :            :       */
+<span class="lineNum">     692 </span>                :            :     template&lt;typename OtherDerived&gt; friend
+<span class="lineNum">     693 </span>                :            :     inline const internal::permut_matrix_product_retval&lt;PermutationType, OtherDerived, OnTheRight, true&gt;
+<span class="lineNum">     694 </span>                :            :     operator*(const MatrixBase&lt;OtherDerived&gt;&amp; matrix, const Transpose&amp; trPerm)
+<span class="lineNum">     695 </span>                :            :     {
+<span class="lineNum">     696 </span>                :            :       return internal::permut_matrix_product_retval&lt;PermutationType, OtherDerived, OnTheRight, true&gt;(trPerm.m_permutation, matrix.derived());
+<span class="lineNum">     697 </span>                :            :     }
+<span class="lineNum">     698 </span>                :            : 
+<span class="lineNum">     699 </span>                :            :     /** \returns the matrix with the inverse permutation applied to the rows.
+<span class="lineNum">     700 </span>                :            :       */
+<span class="lineNum">     701 </span>                :            :     template&lt;typename OtherDerived&gt;
+<span class="lineNum">     702 </span>                :            :     inline const internal::permut_matrix_product_retval&lt;PermutationType, OtherDerived, OnTheLeft, true&gt;
+<span class="lineNum">     703 </span>                :            :     operator*(const MatrixBase&lt;OtherDerived&gt;&amp; matrix) const
+<span class="lineNum">     704 </span>                :            :     {
+<span class="lineNum">     705 </span>                :            :       return internal::permut_matrix_product_retval&lt;PermutationType, OtherDerived, OnTheLeft, true&gt;(m_permutation, matrix.derived());
+<span class="lineNum">     706 </span>                :            :     }
+<span class="lineNum">     707 </span>                :            : 
+<span class="lineNum">     708 </span>                :            :     const PermutationType&amp; nestedPermutation() const { return m_permutation; }
+<span class="lineNum">     709 </span>                :            : 
+<span class="lineNum">     710 </span>                :            :   protected:
+<span class="lineNum">     711 </span>                :            :     const PermutationType&amp; m_permutation;
+<span class="lineNum">     712 </span>                :            : };
+<span class="lineNum">     713 </span>                :            : 
+<span class="lineNum">     714 </span>                :            : template&lt;typename Derived&gt;
+<span class="lineNum">     715 </span>                :            : const PermutationWrapper&lt;const Derived&gt; MatrixBase&lt;Derived&gt;::asPermutation() const
+<span class="lineNum">     716 </span>                :            : {
+<span class="lineNum">     717 </span>                :            :   return derived();
+<span class="lineNum">     718 </span>                :            : }
+<span class="lineNum">     719 </span>                :            : 
+<span class="lineNum">     720 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     721 </span>                :            : 
+<span class="lineNum">     722 </span>                :            : #endif // EIGEN_PERMUTATIONMATRIX_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

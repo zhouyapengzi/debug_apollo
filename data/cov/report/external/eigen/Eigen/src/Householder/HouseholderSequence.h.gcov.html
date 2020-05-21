@@ -1,0 +1,529 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Householder/HouseholderSequence.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Householder</a> - HouseholderSequence.h<span style="font-size: 80%;"> (source / <a href="HouseholderSequence.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntryMed">86.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntryLo">74.4 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">74</td>
+            <td class="headerCovTableEntryLo">43.2 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2009 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       5 </span>                :            : // Copyright (C) 2010 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       6 </span>                :            : //
+<span class="lineNum">       7 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       8 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       9 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : #ifndef EIGEN_HOUSEHOLDER_SEQUENCE_H
+<span class="lineNum">      12 </span>                :            : #define EIGEN_HOUSEHOLDER_SEQUENCE_H
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : namespace Eigen { 
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : /** \ingroup Householder_Module
+<span class="lineNum">      17 </span>                :            :   * \householder_module
+<span class="lineNum">      18 </span>                :            :   * \class HouseholderSequence
+<span class="lineNum">      19 </span>                :            :   * \brief Sequence of Householder reflections acting on subspaces with decreasing size
+<span class="lineNum">      20 </span>                :            :   * \tparam VectorsType type of matrix containing the Householder vectors
+<span class="lineNum">      21 </span>                :            :   * \tparam CoeffsType  type of vector containing the Householder coefficients
+<span class="lineNum">      22 </span>                :            :   * \tparam Side        either OnTheLeft (the default) or OnTheRight
+<span class="lineNum">      23 </span>                :            :   *
+<span class="lineNum">      24 </span>                :            :   * This class represents a product sequence of Householder reflections where the first Householder reflection
+<span class="lineNum">      25 </span>                :            :   * acts on the whole space, the second Householder reflection leaves the one-dimensional subspace spanned by
+<span class="lineNum">      26 </span>                :            :   * the first unit vector invariant, the third Householder reflection leaves the two-dimensional subspace
+<span class="lineNum">      27 </span>                :            :   * spanned by the first two unit vectors invariant, and so on up to the last reflection which leaves all but
+<span class="lineNum">      28 </span>                :            :   * one dimensions invariant and acts only on the last dimension. Such sequences of Householder reflections
+<span class="lineNum">      29 </span>                :            :   * are used in several algorithms to zero out certain parts of a matrix. Indeed, the methods
+<span class="lineNum">      30 </span>                :            :   * HessenbergDecomposition::matrixQ(), Tridiagonalization::matrixQ(), HouseholderQR::householderQ(),
+<span class="lineNum">      31 </span>                :            :   * and ColPivHouseholderQR::householderQ() all return a %HouseholderSequence.
+<span class="lineNum">      32 </span>                :            :   *
+<span class="lineNum">      33 </span>                :            :   * More precisely, the class %HouseholderSequence represents an \f$ n \times n \f$ matrix \f$ H \f$ of the
+<span class="lineNum">      34 </span>                :            :   * form \f$ H = \prod_{i=0}^{n-1} H_i \f$ where the i-th Householder reflection is \f$ H_i = I - h_i v_i
+<span class="lineNum">      35 </span>                :            :   * v_i^* \f$. The i-th Householder coefficient \f$ h_i \f$ is a scalar and the i-th Householder vector \f$
+<span class="lineNum">      36 </span>                :            :   * v_i \f$ is a vector of the form
+<span class="lineNum">      37 </span>                :            :   * \f[ 
+<span class="lineNum">      38 </span>                :            :   * v_i = [\underbrace{0, \ldots, 0}_{i-1\mbox{ zeros}}, 1, \underbrace{*, \ldots,*}_{n-i\mbox{ arbitrary entries}} ]. 
+<span class="lineNum">      39 </span>                :            :   * \f]
+<span class="lineNum">      40 </span>                :            :   * The last \f$ n-i \f$ entries of \f$ v_i \f$ are called the essential part of the Householder vector.
+<span class="lineNum">      41 </span>                :            :   *
+<span class="lineNum">      42 </span>                :            :   * Typical usages are listed below, where H is a HouseholderSequence:
+<span class="lineNum">      43 </span>                :            :   * \code
+<span class="lineNum">      44 </span>                :            :   * A.applyOnTheRight(H);             // A = A * H
+<span class="lineNum">      45 </span>                :            :   * A.applyOnTheLeft(H);              // A = H * A
+<span class="lineNum">      46 </span>                :            :   * A.applyOnTheRight(H.adjoint());   // A = A * H^*
+<span class="lineNum">      47 </span>                :            :   * A.applyOnTheLeft(H.adjoint());    // A = H^* * A
+<span class="lineNum">      48 </span>                :            :   * MatrixXd Q = H;                   // conversion to a dense matrix
+<span class="lineNum">      49 </span>                :            :   * \endcode
+<span class="lineNum">      50 </span>                :            :   * In addition to the adjoint, you can also apply the inverse (=adjoint), the transpose, and the conjugate operators.
+<span class="lineNum">      51 </span>                :            :   *
+<span class="lineNum">      52 </span>                :            :   * See the documentation for HouseholderSequence(const VectorsType&amp;, const CoeffsType&amp;) for an example.
+<span class="lineNum">      53 </span>                :            :   *
+<span class="lineNum">      54 </span>                :            :   * \sa MatrixBase::applyOnTheLeft(), MatrixBase::applyOnTheRight()
+<span class="lineNum">      55 </span>                :            :   */
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : namespace internal {
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            : template&lt;typename VectorsType, typename CoeffsType, int Side&gt;
+<span class="lineNum">      60 </span>                :            : struct traits&lt;HouseholderSequence&lt;VectorsType,CoeffsType,Side&gt; &gt;
+<span class="lineNum">      61 </span>                :            : {
+<span class="lineNum">      62 </span>                :            :   typedef typename VectorsType::Scalar Scalar;
+<span class="lineNum">      63 </span>                :            :   typedef typename VectorsType::Index Index;
+<span class="lineNum">      64 </span>                :            :   typedef typename VectorsType::StorageKind StorageKind;
+<span class="lineNum">      65 </span>                :            :   enum {
+<span class="lineNum">      66 </span>                :            :     RowsAtCompileTime = Side==OnTheLeft ? traits&lt;VectorsType&gt;::RowsAtCompileTime
+<span class="lineNum">      67 </span>                :            :                                         : traits&lt;VectorsType&gt;::ColsAtCompileTime,
+<span class="lineNum">      68 </span>                :            :     ColsAtCompileTime = RowsAtCompileTime,
+<span class="lineNum">      69 </span>                :            :     MaxRowsAtCompileTime = Side==OnTheLeft ? traits&lt;VectorsType&gt;::MaxRowsAtCompileTime
+<span class="lineNum">      70 </span>                :            :                                            : traits&lt;VectorsType&gt;::MaxColsAtCompileTime,
+<span class="lineNum">      71 </span>                :            :     MaxColsAtCompileTime = MaxRowsAtCompileTime,
+<span class="lineNum">      72 </span>                :            :     Flags = 0
+<span class="lineNum">      73 </span>                :            :   };
+<span class="lineNum">      74 </span>                :            : };
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : template&lt;typename VectorsType, typename CoeffsType, int Side&gt;
+<span class="lineNum">      77 </span>                :            : struct hseq_side_dependent_impl
+<span class="lineNum">      78 </span>                :            : {
+<span class="lineNum">      79 </span>                :            :   typedef Block&lt;const VectorsType, Dynamic, 1&gt; EssentialVectorType;
+<a name="80"><span class="lineNum">      80 </span>                :            :   typedef HouseholderSequence&lt;VectorsType, CoeffsType, OnTheLeft&gt; HouseholderSequenceType;</a>
+<span class="lineNum">      81 </span>                :            :   typedef typename VectorsType::Index Index;
+<span class="lineNum">      82 </span>                :<span class="lineCov">     708968 :   static inline const EssentialVectorType essentialVector(const HouseholderSequenceType&amp; h, Index k)</span>
+<span class="lineNum">      83 </span>                :            :   {
+<span class="lineNum">      84 </span>                :<span class="lineCov">     708968 :     Index start = k+1+h.m_shift;</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">     708968 :     return Block&lt;const VectorsType,Dynamic,1&gt;(h.m_vectors, start, k, h.rows()-start, 1);</span>
+<span class="lineNum">      86 </span>                :            :   }
+<span class="lineNum">      87 </span>                :            : };
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :            : template&lt;typename VectorsType, typename CoeffsType&gt;
+<span class="lineNum">      90 </span>                :            : struct hseq_side_dependent_impl&lt;VectorsType, CoeffsType, OnTheRight&gt;
+<span class="lineNum">      91 </span>                :            : {
+<span class="lineNum">      92 </span>                :            :   typedef Transpose&lt;Block&lt;const VectorsType, 1, Dynamic&gt; &gt; EssentialVectorType;
+<span class="lineNum">      93 </span>                :            :   typedef HouseholderSequence&lt;VectorsType, CoeffsType, OnTheRight&gt; HouseholderSequenceType;
+<span class="lineNum">      94 </span>                :            :   typedef typename VectorsType::Index Index;
+<span class="lineNum">      95 </span>                :            :   static inline const EssentialVectorType essentialVector(const HouseholderSequenceType&amp; h, Index k)
+<span class="lineNum">      96 </span>                :            :   {
+<span class="lineNum">      97 </span>                :            :     Index start = k+1+h.m_shift;
+<span class="lineNum">      98 </span>                :            :     return Block&lt;const VectorsType,1,Dynamic&gt;(h.m_vectors, k, start, 1, h.rows()-start).transpose();
+<span class="lineNum">      99 </span>                :            :   }
+<span class="lineNum">     100 </span>                :            : };
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            : template&lt;typename OtherScalarType, typename MatrixType&gt; struct matrix_type_times_scalar_type
+<span class="lineNum">     103 </span>                :            : {
+<span class="lineNum">     104 </span>                :            :   typedef typename scalar_product_traits&lt;OtherScalarType, typename MatrixType::Scalar&gt;::ReturnType
+<span class="lineNum">     105 </span>                :            :     ResultScalar;
+<span class="lineNum">     106 </span>                :            :   typedef Matrix&lt;ResultScalar, MatrixType::RowsAtCompileTime, MatrixType::ColsAtCompileTime,
+<span class="lineNum">     107 </span>                :            :                  0, MatrixType::MaxRowsAtCompileTime, MatrixType::MaxColsAtCompileTime&gt; Type;
+<span class="lineNum">     108 </span>                :            : };
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            : } // end namespace internal
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            : template&lt;typename VectorsType, typename CoeffsType, int Side&gt; class HouseholderSequence
+<span class="lineNum">     113 </span>                :            :   : public EigenBase&lt;HouseholderSequence&lt;VectorsType,CoeffsType,Side&gt; &gt;
+<span class="lineNum">     114 </span>                :            : {
+<span class="lineNum">     115 </span>                :            :     typedef typename internal::hseq_side_dependent_impl&lt;VectorsType,CoeffsType,Side&gt;::EssentialVectorType EssentialVectorType;
+<span class="lineNum">     116 </span>                :            :   
+<span class="lineNum">     117 </span>                :            :   public:
+<span class="lineNum">     118 </span>                :            :     enum {
+<span class="lineNum">     119 </span>                :            :       RowsAtCompileTime = internal::traits&lt;HouseholderSequence&gt;::RowsAtCompileTime,
+<span class="lineNum">     120 </span>                :            :       ColsAtCompileTime = internal::traits&lt;HouseholderSequence&gt;::ColsAtCompileTime,
+<span class="lineNum">     121 </span>                :            :       MaxRowsAtCompileTime = internal::traits&lt;HouseholderSequence&gt;::MaxRowsAtCompileTime,
+<span class="lineNum">     122 </span>                :            :       MaxColsAtCompileTime = internal::traits&lt;HouseholderSequence&gt;::MaxColsAtCompileTime
+<span class="lineNum">     123 </span>                :            :     };
+<span class="lineNum">     124 </span>                :            :     typedef typename internal::traits&lt;HouseholderSequence&gt;::Scalar Scalar;
+<span class="lineNum">     125 </span>                :            :     typedef typename VectorsType::Index Index;
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :            :     typedef HouseholderSequence&lt;
+<span class="lineNum">     128 </span>                :            :       typename internal::conditional&lt;NumTraits&lt;Scalar&gt;::IsComplex,
+<span class="lineNum">     129 </span>                :            :         typename internal::remove_all&lt;typename VectorsType::ConjugateReturnType&gt;::type,
+<span class="lineNum">     130 </span>                :            :         VectorsType&gt;::type,
+<span class="lineNum">     131 </span>                :            :       typename internal::conditional&lt;NumTraits&lt;Scalar&gt;::IsComplex,
+<span class="lineNum">     132 </span>                :            :         typename internal::remove_all&lt;typename CoeffsType::ConjugateReturnType&gt;::type,
+<span class="lineNum">     133 </span>                :            :         CoeffsType&gt;::type,
+<span class="lineNum">     134 </span>                :            :       Side
+<span class="lineNum">     135 </span>                :            :     &gt; ConjugateReturnType;
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :            :     /** \brief Constructor.
+<span class="lineNum">     138 </span>                :            :       * \param[in]  v      %Matrix containing the essential parts of the Householder vectors
+<span class="lineNum">     139 </span>                :            :       * \param[in]  h      Vector containing the Householder coefficients
+<span class="lineNum">     140 </span>                :            :       *
+<span class="lineNum">     141 </span>                :            :       * Constructs the Householder sequence with coefficients given by \p h and vectors given by \p v. The
+<span class="lineNum">     142 </span>                :            :       * i-th Householder coefficient \f$ h_i \f$ is given by \p h(i) and the essential part of the i-th
+<span class="lineNum">     143 </span>                :            :       * Householder vector \f$ v_i \f$ is given by \p v(k,i) with \p k &gt; \p i (the subdiagonal part of the
+<span class="lineNum">     144 </span>                :            :       * i-th column). If \p v has fewer columns than rows, then the Householder sequence contains as many
+<span class="lineNum">     145 </span>                :            :       * Householder reflections as there are columns.
+<span class="lineNum">     146 </span>                :            :       *
+<span class="lineNum">     147 </span>                :            :       * \note The %HouseholderSequence object stores \p v and \p h by reference.
+<span class="lineNum">     148 </span>                :            :       *
+<span class="lineNum">     149 </span>                :            :       * Example: \include HouseholderSequence_HouseholderSequence.cpp
+<span class="lineNum">     150 </span>                :            :       * Output: \verbinclude HouseholderSequence_HouseholderSequence.out
+<span class="lineNum">     151 </span>                :            :       *
+<a name="152"><span class="lineNum">     152 </span>                :            :       * \sa setLength(), setShift()</a>
+<span class="lineNum">     153 </span>                :            :       */
+<span class="lineNum">     154 </span>                :<span class="lineCov">     708954 :     HouseholderSequence(const VectorsType&amp; v, const CoeffsType&amp; h)</span>
+<span class="lineNum">     155 </span>                :            :       : m_vectors(v), m_coeffs(h), m_trans(false), m_length(v.diagonalSize()),
+<span class="lineNum">     156 </span>                :<span class="lineCov">     708954 :         m_shift(0)</span>
+<span class="lineNum">     157 </span>                :            :     {
+<span class="lineNum">     158 </span>                :<span class="lineCov">     708954 :     }</span>
+<a name="159"><span class="lineNum">     159 </span>                :            : </a>
+<span class="lineNum">     160 </span>                :            :     /** \brief Copy constructor. */
+<span class="lineNum">     161 </span>                :<span class="lineCov">          8 :     HouseholderSequence(const HouseholderSequence&amp; other)</span>
+<span class="lineNum">     162 </span>                :            :       : m_vectors(other.m_vectors),
+<span class="lineNum">     163 </span>                :            :         m_coeffs(other.m_coeffs),
+<span class="lineNum">     164 </span>                :            :         m_trans(other.m_trans),
+<span class="lineNum">     165 </span>                :            :         m_length(other.m_length),
+<span class="lineNum">     166 </span>                :<span class="lineCov">          8 :         m_shift(other.m_shift)</span>
+<span class="lineNum">     167 </span>                :            :     {
+<span class="lineNum">     168 </span>                :<span class="lineCov">          8 :     }</span>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :            :     /** \brief Number of rows of transformation viewed as a matrix.
+<span class="lineNum">     171 </span>                :            :       * \returns Number of rows 
+<a name="172"><span class="lineNum">     172 </span>                :            :       * \details This equals the dimension of the space that the transformation acts on.</a>
+<span class="lineNum">     173 </span>                :            :       */
+<span class="lineNum">     174 </span>                :<span class="lineCov">   19850672 :     Index rows() const { return Side==OnTheLeft ? m_vectors.rows() : m_vectors.cols(); }</span>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :            :     /** \brief Number of columns of transformation viewed as a matrix.
+<span class="lineNum">     177 </span>                :            :       * \returns Number of columns
+<a name="178"><span class="lineNum">     178 </span>                :            :       * \details This equals the dimension of the space that the transformation acts on.</a>
+<span class="lineNum">     179 </span>                :            :       */
+<span class="lineNum">     180 </span>                :<span class="lineCov">    7089500 :     Index cols() const { return rows(); }</span>
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :            :     /** \brief Essential part of a Householder vector.
+<span class="lineNum">     183 </span>                :            :       * \param[in]  k  Index of Householder reflection
+<span class="lineNum">     184 </span>                :            :       * \returns    Vector containing non-trivial entries of k-th Householder vector
+<span class="lineNum">     185 </span>                :            :       *
+<span class="lineNum">     186 </span>                :            :       * This function returns the essential part of the Householder vector \f$ v_i \f$. This is a vector of
+<span class="lineNum">     187 </span>                :            :       * length \f$ n-i \f$ containing the last \f$ n-i \f$ entries of the vector
+<span class="lineNum">     188 </span>                :            :       * \f[ 
+<span class="lineNum">     189 </span>                :            :       * v_i = [\underbrace{0, \ldots, 0}_{i-1\mbox{ zeros}}, 1, \underbrace{*, \ldots,*}_{n-i\mbox{ arbitrary entries}} ]. 
+<span class="lineNum">     190 </span>                :            :       * \f]
+<span class="lineNum">     191 </span>                :            :       * The index \f$ i \f$ equals \p k + shift(), corresponding to the k-th column of the matrix \p v
+<span class="lineNum">     192 </span>                :            :       * passed to the constructor.
+<span class="lineNum">     193 </span>                :            :       *
+<a name="194"><span class="lineNum">     194 </span>                :            :       * \sa setShift(), shift()</a>
+<span class="lineNum">     195 </span>                :            :       */
+<span class="lineNum">     196 </span>                :<span class="lineCov">     708968 :     const EssentialVectorType essentialVector(Index k) const</span>
+<span class="lineNum">     197 </span>                :            :     {
+<span class="lineNum">     198 </span>[<span class="branchCov" title="Branch 0 was taken 708968 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 708968 times"> + </span>]:<span class="lineCov">     708968 :       eigen_assert(k &gt;= 0 &amp;&amp; k &lt; m_length);</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">     708968 :       return internal::hseq_side_dependent_impl&lt;VectorsType,CoeffsType,Side&gt;::essentialVector(*this, k);</span>
+<span class="lineNum">     200 </span>                :            :     }
+<a name="201"><span class="lineNum">     201 </span>                :            : </a>
+<span class="lineNum">     202 </span>                :            :     /** \brief %Transpose of the Householder sequence. */
+<span class="lineNum">     203 </span>                :<span class="lineCov">          4 :     HouseholderSequence transpose() const</span>
+<span class="lineNum">     204 </span>                :            :     {
+<span class="lineNum">     205 </span>[<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          4 :       return HouseholderSequence(*this).setTrans(!m_trans);</span>
+<span class="lineNum">     206 </span>                :            :     }
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :            :     /** \brief Complex conjugate of the Householder sequence. */
+<span class="lineNum">     209 </span>                :            :     ConjugateReturnType conjugate() const
+<span class="lineNum">     210 </span>                :            :     {
+<span class="lineNum">     211 </span>                :            :       return ConjugateReturnType(m_vectors.conjugate(), m_coeffs.conjugate())
+<span class="lineNum">     212 </span>                :            :              .setTrans(m_trans)
+<span class="lineNum">     213 </span>                :            :              .setLength(m_length)
+<span class="lineNum">     214 </span>                :            :              .setShift(m_shift);
+<span class="lineNum">     215 </span>                :            :     }
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            :     /** \brief Adjoint (conjugate transpose) of the Householder sequence. */
+<span class="lineNum">     218 </span>                :            :     ConjugateReturnType adjoint() const
+<span class="lineNum">     219 </span>                :            :     {
+<span class="lineNum">     220 </span>                :            :       return conjugate().setTrans(!m_trans);
+<span class="lineNum">     221 </span>                :            :     }
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :            :     /** \brief Inverse of the Householder sequence (equals the adjoint). */
+<span class="lineNum">     224 </span>                :            :     ConjugateReturnType inverse() const { return adjoint(); }
+<a name="225"><span class="lineNum">     225 </span>                :            : </a>
+<span class="lineNum">     226 </span>                :            :     /** \internal */
+<span class="lineNum">     227 </span>                :<span class="lineCov">     708950 :     template&lt;typename DestType&gt; inline void evalTo(DestType&amp; dst) const</span>
+<span class="lineNum">     228 </span>                :            :     {
+<span class="lineNum">     229 </span>                :            :       Matrix&lt;Scalar, DestType::RowsAtCompileTime, 1,
+<span class="lineNum">     230 </span>[<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     708950 :              AutoAlign|ColMajor, DestType::MaxRowsAtCompileTime, 1&gt; workspace(rows());</span>
+<span class="lineNum">     231 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :       evalTo(dst, workspace);</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">     708950 :     }</span>
+<span class="lineNum">     233 </span>                :            : 
+<a name="234"><span class="lineNum">     234 </span>                :            :     /** \internal */</a>
+<span class="lineNum">     235 </span>                :            :     template&lt;typename Dest, typename Workspace&gt;
+<span class="lineNum">     236 </span>                :<span class="lineCov">     708950 :     void evalTo(Dest&amp; dst, Workspace&amp; workspace) const</span>
+<span class="lineNum">     237 </span>                :            :     {
+<span class="lineNum">     238 </span>                :<span class="lineCov">     708950 :       workspace.resize(rows());</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">     708950 :       Index vecs = m_length;</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">     708950 :       const typename Dest::Scalar *dst_data = internal::extract_data(dst);</span>
+<span class="lineNum">     241 </span>  [<span class="branchCov" title="Branch 0 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">    1417900 :       if(    internal::is_same&lt;typename internal::remove_all&lt;VectorsType&gt;::type,Dest&gt;::value</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">     242 </span>                :<span class="lineCov">     708950 :           &amp;&amp; dst_data!=0 &amp;&amp; dst_data == internal::extract_data(m_vectors))</span>
+<span class="lineNum">     243 </span>                :            :       {
+<span class="lineNum">     244 </span>                :            :         // in-place
+<span class="lineNum">     245 </span>        [<span class="branchCov" title="Branch 2 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">     708950 :         dst.diagonal().setOnes();</span>
+<span class="lineNum">     246 </span>        [<span class="branchCov" title="Branch 2 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">     708950 :         dst.template triangularView&lt;StrictlyUpper&gt;().setZero();</span>
+<span class="lineNum">     247 </span>        [<span class="branchCov" title="Branch 0 was taken 708950 times"> + </span><span class="branchCov" title="Branch 1 was taken 708950 times"> + </span>]:<span class="lineCov">    1417900 :         for(Index k = vecs-1; k &gt;= 0; --k)</span>
+<span class="lineNum">     248 </span>                :            :         {
+<span class="lineNum">     249 </span>                :<span class="lineCov">     708950 :           Index cornerSize = rows() - k - m_shift;</span>
+<span class="lineNum">     250 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 708950 times"> + </span>]:<span class="lineCov">     708950 :           if(m_trans)</span>
+<span class="lineNum">     251 </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]:<span class="lineNoCov">          0 :             dst.bottomRightCorner(cornerSize, cornerSize)</span>
+<span class="lineNum">     252 </span>                :            :                .applyHouseholderOnTheRight(essentialVector(k), m_coeffs.coeff(k), workspace.data());
+<span class="lineNum">     253 </span>                :            :           else
+<span class="lineNum">     254 </span>[<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 7 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]:<span class="lineCov">     708950 :             dst.bottomRightCorner(cornerSize, cornerSize)</span>
+<span class="lineNum">     255 </span>                :            :                .applyHouseholderOnTheLeft(essentialVector(k), m_coeffs.coeff(k), workspace.data());
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :            :           // clear the off diagonal vector
+<span class="lineNum">     258 </span>[<span class="branchCov" title="Branch 3 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">     708950 :           dst.col(k).tail(rows()-k-1).setZero();</span>
+<span class="lineNum">     259 </span>                :            :         }
+<span class="lineNum">     260 </span>                :            :         // clear the remaining columns if needed
+<span class="lineNum">     261 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchCov" title="Branch 2 was taken 708950 times"> + </span>]:<span class="lineCov">    1417900 :         for(Index k = 0; k&lt;cols()-vecs ; ++k)</span>
+<span class="lineNum">     262 </span>[<span class="branchCov" title="Branch 3 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">     708950 :           dst.col(k).tail(rows()-k-1).setZero();</span>
+<span class="lineNum">     263 </span>                :            :       }
+<span class="lineNum">     264 </span>                :            :       else
+<span class="lineNum">     265 </span>                :            :       {
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 :         dst.setIdentity(rows(), rows());</span>
+<span class="lineNum">     267 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(Index k = vecs-1; k &gt;= 0; --k)</span>
+<span class="lineNum">     268 </span>                :            :         {
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :           Index cornerSize = rows() - k - m_shift;</span>
+<span class="lineNum">     270 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :           if(m_trans)</span>
+<span class="lineNum">     271 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :             dst.bottomRightCorner(cornerSize, cornerSize)</span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :                .applyHouseholderOnTheRight(essentialVector(k), m_coeffs.coeff(k), &amp;workspace.coeffRef(0));</span>
+<span class="lineNum">     273 </span>                :            :           else
+<span class="lineNum">     274 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :             dst.bottomRightCorner(cornerSize, cornerSize)</span>
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :                .applyHouseholderOnTheLeft(essentialVector(k), m_coeffs.coeff(k), &amp;workspace.coeffRef(0));</span>
+<span class="lineNum">     276 </span>                :            :         }
+<span class="lineNum">     277 </span>                :            :       }
+<span class="lineNum">     278 </span>                :<span class="lineCov">     708950 :     }</span>
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>                :            :     /** \internal */
+<span class="lineNum">     281 </span>                :            :     template&lt;typename Dest&gt; inline void applyThisOnTheRight(Dest&amp; dst) const
+<span class="lineNum">     282 </span>                :            :     {
+<span class="lineNum">     283 </span>                :            :       Matrix&lt;Scalar,1,Dest::RowsAtCompileTime,RowMajor,1,Dest::MaxRowsAtCompileTime&gt; workspace(dst.rows());
+<span class="lineNum">     284 </span>                :            :       applyThisOnTheRight(dst, workspace);
+<span class="lineNum">     285 </span>                :            :     }
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :            :     /** \internal */
+<span class="lineNum">     288 </span>                :            :     template&lt;typename Dest, typename Workspace&gt;
+<span class="lineNum">     289 </span>                :            :     inline void applyThisOnTheRight(Dest&amp; dst, Workspace&amp; workspace) const
+<span class="lineNum">     290 </span>                :            :     {
+<span class="lineNum">     291 </span>                :            :       workspace.resize(dst.rows());
+<span class="lineNum">     292 </span>                :            :       for(Index k = 0; k &lt; m_length; ++k)
+<span class="lineNum">     293 </span>                :            :       {
+<span class="lineNum">     294 </span>                :            :         Index actual_k = m_trans ? m_length-k-1 : k;
+<span class="lineNum">     295 </span>                :            :         dst.rightCols(rows()-m_shift-actual_k)
+<span class="lineNum">     296 </span>                :            :            .applyHouseholderOnTheRight(essentialVector(actual_k), m_coeffs.coeff(actual_k), workspace.data());
+<span class="lineNum">     297 </span>                :            :       }
+<span class="lineNum">     298 </span>                :            :     }
+<a name="299"><span class="lineNum">     299 </span>                :            : </a>
+<span class="lineNum">     300 </span>                :            :     /** \internal */
+<span class="lineNum">     301 </span>                :<span class="lineCov">          4 :     template&lt;typename Dest&gt; inline void applyThisOnTheLeft(Dest&amp; dst) const</span>
+<span class="lineNum">     302 </span>                :            :     {
+<span class="lineNum">     303 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :       Matrix&lt;Scalar,1,Dest::ColsAtCompileTime,RowMajor,1,Dest::MaxColsAtCompileTime&gt; workspace(dst.cols());</span>
+<span class="lineNum">     304 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :       applyThisOnTheLeft(dst, workspace);</span>
+<span class="lineNum">     305 </span>                :<span class="lineCov">          4 :     }</span>
+<span class="lineNum">     306 </span>                :            : 
+<a name="307"><span class="lineNum">     307 </span>                :            :     /** \internal */</a>
+<span class="lineNum">     308 </span>                :            :     template&lt;typename Dest, typename Workspace&gt;
+<span class="lineNum">     309 </span>                :<span class="lineCov">          4 :     inline void applyThisOnTheLeft(Dest&amp; dst, Workspace&amp; workspace) const</span>
+<span class="lineNum">     310 </span>                :            :     {
+<span class="lineNum">     311 </span>                :<span class="lineCov">          4 :       workspace.resize(dst.cols());</span>
+<span class="lineNum">     312 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         22 :       for(Index k = 0; k &lt; m_length; ++k)</span>
+<span class="lineNum">     313 </span>                :            :       {
+<span class="lineNum">     314 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         18 :         Index actual_k = m_trans ? k : m_length-k-1;</span>
+<span class="lineNum">     315 </span>[<span class="branchCov" title="Branch 4 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 7 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]:<span class="lineCov">         18 :         dst.bottomRows(rows()-m_shift-actual_k)</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 10 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     316 </span>                :            :            .applyHouseholderOnTheLeft(essentialVector(actual_k), m_coeffs.coeff(actual_k), workspace.data());
+<span class="lineNum">     317 </span>                :            :       }
+<span class="lineNum">     318 </span>                :<span class="lineCov">          4 :     }</span>
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>                :            :     /** \brief Computes the product of a Householder sequence with a matrix.
+<span class="lineNum">     321 </span>                :            :       * \param[in]  other  %Matrix being multiplied.
+<span class="lineNum">     322 </span>                :            :       * \returns    Expression object representing the product.
+<span class="lineNum">     323 </span>                :            :       *
+<span class="lineNum">     324 </span>                :            :       * This function computes \f$ HM \f$ where \f$ H \f$ is the Householder sequence represented by \p *this
+<span class="lineNum">     325 </span>                :            :       * and \f$ M \f$ is the matrix \p other.
+<span class="lineNum">     326 </span>                :            :       */
+<span class="lineNum">     327 </span>                :            :     template&lt;typename OtherDerived&gt;
+<span class="lineNum">     328 </span>                :            :     typename internal::matrix_type_times_scalar_type&lt;Scalar, OtherDerived&gt;::Type operator*(const MatrixBase&lt;OtherDerived&gt;&amp; other) const
+<span class="lineNum">     329 </span>                :            :     {
+<span class="lineNum">     330 </span>                :            :       typename internal::matrix_type_times_scalar_type&lt;Scalar, OtherDerived&gt;::Type
+<span class="lineNum">     331 </span>                :            :         res(other.template cast&lt;typename internal::matrix_type_times_scalar_type&lt;Scalar,OtherDerived&gt;::ResultScalar&gt;());
+<span class="lineNum">     332 </span>                :            :       applyThisOnTheLeft(res);
+<span class="lineNum">     333 </span>                :            :       return res;
+<span class="lineNum">     334 </span>                :            :     }
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>                :            :     template&lt;typename _VectorsType, typename _CoeffsType, int _Side&gt; friend struct internal::hseq_side_dependent_impl;
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>                :            :     /** \brief Sets the length of the Householder sequence.
+<span class="lineNum">     339 </span>                :            :       * \param [in]  length  New value for the length.
+<span class="lineNum">     340 </span>                :            :       *
+<span class="lineNum">     341 </span>                :            :       * By default, the length \f$ n \f$ of the Householder sequence \f$ H = H_0 H_1 \ldots H_{n-1} \f$ is set
+<span class="lineNum">     342 </span>                :            :       * to the number of columns of the matrix \p v passed to the constructor, or the number of rows if that
+<span class="lineNum">     343 </span>                :            :       * is smaller. After this function is called, the length equals \p length.
+<span class="lineNum">     344 </span>                :            :       *
+<a name="345"><span class="lineNum">     345 </span>                :            :       * \sa length()</a>
+<span class="lineNum">     346 </span>                :            :       */
+<span class="lineNum">     347 </span>                :<span class="lineCov">     708950 :     HouseholderSequence&amp; setLength(Index length)</span>
+<span class="lineNum">     348 </span>                :            :     {
+<span class="lineNum">     349 </span>                :<span class="lineCov">     708950 :       m_length = length;</span>
+<span class="lineNum">     350 </span>                :<span class="lineCov">     708950 :       return *this;</span>
+<span class="lineNum">     351 </span>                :            :     }
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :            :     /** \brief Sets the shift of the Householder sequence.
+<span class="lineNum">     354 </span>                :            :       * \param [in]  shift  New value for the shift.
+<span class="lineNum">     355 </span>                :            :       *
+<span class="lineNum">     356 </span>                :            :       * By default, a %HouseholderSequence object represents \f$ H = H_0 H_1 \ldots H_{n-1} \f$ and the i-th
+<span class="lineNum">     357 </span>                :            :       * column of the matrix \p v passed to the constructor corresponds to the i-th Householder
+<span class="lineNum">     358 </span>                :            :       * reflection. After this function is called, the object represents \f$ H = H_{\mathrm{shift}}
+<span class="lineNum">     359 </span>                :            :       * H_{\mathrm{shift}+1} \ldots H_{n-1} \f$ and the i-th column of \p v corresponds to the (shift+i)-th
+<span class="lineNum">     360 </span>                :            :       * Householder reflection.
+<span class="lineNum">     361 </span>                :            :       *
+<a name="362"><span class="lineNum">     362 </span>                :            :       * \sa shift()</a>
+<span class="lineNum">     363 </span>                :            :       */
+<span class="lineNum">     364 </span>                :<span class="lineCov">     708950 :     HouseholderSequence&amp; setShift(Index shift)</span>
+<span class="lineNum">     365 </span>                :            :     {
+<span class="lineNum">     366 </span>                :<span class="lineCov">     708950 :       m_shift = shift;</span>
+<span class="lineNum">     367 </span>                :<span class="lineCov">     708950 :       return *this;</span>
+<span class="lineNum">     368 </span>                :            :     }
+<span class="lineNum">     369 </span>                :            : 
+<span class="lineNum">     370 </span>                :            :     Index length() const { return m_length; }  /**&lt; \brief Returns the length of the Householder sequence. */
+<span class="lineNum">     371 </span>                :            :     Index shift() const { return m_shift; }    /**&lt; \brief Returns the shift of the Householder sequence. */
+<span class="lineNum">     372 </span>                :            : 
+<span class="lineNum">     373 </span>                :            :     /* Necessary for .adjoint() and .conjugate() */
+<span class="lineNum">     374 </span>                :            :     template &lt;typename VectorsType2, typename CoeffsType2, int Side2&gt; friend class HouseholderSequence;
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :            :   protected:
+<span class="lineNum">     377 </span>                :            : 
+<span class="lineNum">     378 </span>                :            :     /** \brief Sets the transpose flag.
+<span class="lineNum">     379 </span>                :            :       * \param [in]  trans  New value of the transpose flag.
+<span class="lineNum">     380 </span>                :            :       *
+<span class="lineNum">     381 </span>                :            :       * By default, the transpose flag is not set. If the transpose flag is set, then this object represents 
+<span class="lineNum">     382 </span>                :            :       * \f$ H^T = H_{n-1}^T \ldots H_1^T H_0^T \f$ instead of \f$ H = H_0 H_1 \ldots H_{n-1} \f$.
+<span class="lineNum">     383 </span>                :            :       *
+<a name="384"><span class="lineNum">     384 </span>                :            :       * \sa trans()</a>
+<span class="lineNum">     385 </span>                :            :       */
+<span class="lineNum">     386 </span>                :<span class="lineCov">          4 :     HouseholderSequence&amp; setTrans(bool trans)</span>
+<span class="lineNum">     387 </span>                :            :     {
+<span class="lineNum">     388 </span>                :<span class="lineCov">          4 :       m_trans = trans;</span>
+<span class="lineNum">     389 </span>                :<span class="lineCov">          4 :       return *this;</span>
+<span class="lineNum">     390 </span>                :            :     }
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>                :            :     bool trans() const { return m_trans; }     /**&lt; \brief Returns the transpose flag. */
+<span class="lineNum">     393 </span>                :            : 
+<span class="lineNum">     394 </span>                :            :     typename VectorsType::Nested m_vectors;
+<span class="lineNum">     395 </span>                :            :     typename CoeffsType::Nested m_coeffs;
+<span class="lineNum">     396 </span>                :            :     bool m_trans;
+<span class="lineNum">     397 </span>                :            :     Index m_length;
+<span class="lineNum">     398 </span>                :            :     Index m_shift;
+<span class="lineNum">     399 </span>                :            : };
+<span class="lineNum">     400 </span>                :            : 
+<span class="lineNum">     401 </span>                :            : /** \brief Computes the product of a matrix with a Householder sequence.
+<span class="lineNum">     402 </span>                :            :   * \param[in]  other  %Matrix being multiplied.
+<span class="lineNum">     403 </span>                :            :   * \param[in]  h      %HouseholderSequence being multiplied.
+<span class="lineNum">     404 </span>                :            :   * \returns    Expression object representing the product.
+<span class="lineNum">     405 </span>                :            :   *
+<span class="lineNum">     406 </span>                :            :   * This function computes \f$ MH \f$ where \f$ M \f$ is the matrix \p other and \f$ H \f$ is the
+<span class="lineNum">     407 </span>                :            :   * Householder sequence represented by \p h.
+<span class="lineNum">     408 </span>                :            :   */
+<span class="lineNum">     409 </span>                :            : template&lt;typename OtherDerived, typename VectorsType, typename CoeffsType, int Side&gt;
+<span class="lineNum">     410 </span>                :            : typename internal::matrix_type_times_scalar_type&lt;typename VectorsType::Scalar,OtherDerived&gt;::Type operator*(const MatrixBase&lt;OtherDerived&gt;&amp; other, const HouseholderSequence&lt;VectorsType,CoeffsType,Side&gt;&amp; h)
+<span class="lineNum">     411 </span>                :            : {
+<span class="lineNum">     412 </span>                :            :   typename internal::matrix_type_times_scalar_type&lt;typename VectorsType::Scalar,OtherDerived&gt;::Type
+<span class="lineNum">     413 </span>                :            :     res(other.template cast&lt;typename internal::matrix_type_times_scalar_type&lt;typename VectorsType::Scalar,OtherDerived&gt;::ResultScalar&gt;());
+<span class="lineNum">     414 </span>                :            :   h.applyThisOnTheRight(res);
+<span class="lineNum">     415 </span>                :            :   return res;
+<span class="lineNum">     416 </span>                :            : }
+<span class="lineNum">     417 </span>                :            : 
+<span class="lineNum">     418 </span>                :            : /** \ingroup Householder_Module \householder_module
+<span class="lineNum">     419 </span>                :            :   * \brief Convenience function for constructing a Householder sequence. 
+<span class="lineNum">     420 </span>                :            :   * \returns A HouseholderSequence constructed from the specified arguments.
+<a name="421"><span class="lineNum">     421 </span>                :            :   */</a>
+<span class="lineNum">     422 </span>                :            : template&lt;typename VectorsType, typename CoeffsType&gt;
+<span class="lineNum">     423 </span>                :<span class="lineCov">          4 : HouseholderSequence&lt;VectorsType,CoeffsType&gt; householderSequence(const VectorsType&amp; v, const CoeffsType&amp; h)</span>
+<span class="lineNum">     424 </span>                :            : {
+<span class="lineNum">     425 </span>                :<span class="lineCov">          4 :   return HouseholderSequence&lt;VectorsType,CoeffsType,OnTheLeft&gt;(v, h);</span>
+<span class="lineNum">     426 </span>                :            : }
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>                :            : /** \ingroup Householder_Module \householder_module
+<span class="lineNum">     429 </span>                :            :   * \brief Convenience function for constructing a Householder sequence. 
+<span class="lineNum">     430 </span>                :            :   * \returns A HouseholderSequence constructed from the specified arguments.
+<span class="lineNum">     431 </span>                :            :   * \details This function differs from householderSequence() in that the template argument \p OnTheSide of
+<span class="lineNum">     432 </span>                :            :   * the constructed HouseholderSequence is set to OnTheRight, instead of the default OnTheLeft.
+<span class="lineNum">     433 </span>                :            :   */
+<span class="lineNum">     434 </span>                :            : template&lt;typename VectorsType, typename CoeffsType&gt;
+<span class="lineNum">     435 </span>                :            : HouseholderSequence&lt;VectorsType,CoeffsType,OnTheRight&gt; rightHouseholderSequence(const VectorsType&amp; v, const CoeffsType&amp; h)
+<span class="lineNum">     436 </span>                :            : {
+<span class="lineNum">     437 </span>                :            :   return HouseholderSequence&lt;VectorsType,CoeffsType,OnTheRight&gt;(v, h);
+<span class="lineNum">     438 </span>                :            : }
+<span class="lineNum">     439 </span>                :            : 
+<span class="lineNum">     440 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>                :            : #endif // EIGEN_HOUSEHOLDER_SEQUENCE_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

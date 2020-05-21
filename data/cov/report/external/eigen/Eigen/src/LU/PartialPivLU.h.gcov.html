@@ -1,0 +1,607 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/LU/PartialPivLU.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/LU</a> - PartialPivLU.h<span style="font-size: 80%;"> (source / <a href="PartialPivLU.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">69</td>
+            <td class="headerCovTableEntry">101</td>
+            <td class="headerCovTableEntryLo">68.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">61</td>
+            <td class="headerCovTableEntry">182</td>
+            <td class="headerCovTableEntryLo">33.5 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2006-2009 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       5 </span>                :            : // Copyright (C) 2009 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       6 </span>                :            : //
+<span class="lineNum">       7 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       8 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       9 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : #ifndef EIGEN_PARTIALLU_H
+<span class="lineNum">      12 </span>                :            : #define EIGEN_PARTIALLU_H
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : namespace Eigen { 
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : /** \ingroup LU_Module
+<span class="lineNum">      17 </span>                :            :   *
+<span class="lineNum">      18 </span>                :            :   * \class PartialPivLU
+<span class="lineNum">      19 </span>                :            :   *
+<span class="lineNum">      20 </span>                :            :   * \brief LU decomposition of a matrix with partial pivoting, and related features
+<span class="lineNum">      21 </span>                :            :   *
+<span class="lineNum">      22 </span>                :            :   * \param MatrixType the type of the matrix of which we are computing the LU decomposition
+<span class="lineNum">      23 </span>                :            :   *
+<span class="lineNum">      24 </span>                :            :   * This class represents a LU decomposition of a \b square \b invertible matrix, with partial pivoting: the matrix A
+<span class="lineNum">      25 </span>                :            :   * is decomposed as A = PLU where L is unit-lower-triangular, U is upper-triangular, and P
+<span class="lineNum">      26 </span>                :            :   * is a permutation matrix.
+<span class="lineNum">      27 </span>                :            :   *
+<span class="lineNum">      28 </span>                :            :   * Typically, partial pivoting LU decomposition is only considered numerically stable for square invertible
+<span class="lineNum">      29 </span>                :            :   * matrices. Thus LAPACK's dgesv and dgesvx require the matrix to be square and invertible. The present class
+<span class="lineNum">      30 </span>                :            :   * does the same. It will assert that the matrix is square, but it won't (actually it can't) check that the
+<span class="lineNum">      31 </span>                :            :   * matrix is invertible: it is your task to check that you only use this decomposition on invertible matrices.
+<span class="lineNum">      32 </span>                :            :   *
+<span class="lineNum">      33 </span>                :            :   * The guaranteed safe alternative, working for all matrices, is the full pivoting LU decomposition, provided
+<span class="lineNum">      34 </span>                :            :   * by class FullPivLU.
+<span class="lineNum">      35 </span>                :            :   *
+<span class="lineNum">      36 </span>                :            :   * This is \b not a rank-revealing LU decomposition. Many features are intentionally absent from this class,
+<span class="lineNum">      37 </span>                :            :   * such as rank computation. If you need these features, use class FullPivLU.
+<span class="lineNum">      38 </span>                :            :   *
+<span class="lineNum">      39 </span>                :            :   * This LU decomposition is suitable to invert invertible matrices. It is what MatrixBase::inverse() uses
+<span class="lineNum">      40 </span>                :            :   * in the general case.
+<span class="lineNum">      41 </span>                :            :   * On the other hand, it is \b not suitable to determine whether a given matrix is invertible.
+<span class="lineNum">      42 </span>                :            :   *
+<span class="lineNum">      43 </span>                :            :   * The data of the LU decomposition can be directly accessed through the methods matrixLU(), permutationP().
+<span class="lineNum">      44 </span>                :            :   *
+<a name="45"><span class="lineNum">      45 </span>                :            :   * \sa MatrixBase::partialPivLu(), MatrixBase::determinant(), MatrixBase::inverse(), MatrixBase::computeInverse(), class FullPivLU</a>
+<span class="lineNum">      46 </span>                :            :   */
+<span class="lineNum">      47 </span>                :<span class="lineCov">        328 : template&lt;typename _MatrixType&gt; class PartialPivLU</span>
+<span class="lineNum">      48 </span>                :            : {
+<span class="lineNum">      49 </span>                :            :   public:
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            :     typedef _MatrixType MatrixType;
+<span class="lineNum">      52 </span>                :            :     enum {
+<span class="lineNum">      53 </span>                :            :       RowsAtCompileTime = MatrixType::RowsAtCompileTime,
+<span class="lineNum">      54 </span>                :            :       ColsAtCompileTime = MatrixType::ColsAtCompileTime,
+<span class="lineNum">      55 </span>                :            :       Options = MatrixType::Options,
+<span class="lineNum">      56 </span>                :            :       MaxRowsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
+<span class="lineNum">      57 </span>                :            :       MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime
+<span class="lineNum">      58 </span>                :            :     };
+<span class="lineNum">      59 </span>                :            :     typedef typename MatrixType::Scalar Scalar;
+<span class="lineNum">      60 </span>                :            :     typedef typename NumTraits&lt;typename MatrixType::Scalar&gt;::Real RealScalar;
+<span class="lineNum">      61 </span>                :            :     typedef typename internal::traits&lt;MatrixType&gt;::StorageKind StorageKind;
+<span class="lineNum">      62 </span>                :            :     typedef typename MatrixType::Index Index;
+<span class="lineNum">      63 </span>                :            :     typedef PermutationMatrix&lt;RowsAtCompileTime, MaxRowsAtCompileTime&gt; PermutationType;
+<span class="lineNum">      64 </span>                :            :     typedef Transpositions&lt;RowsAtCompileTime, MaxRowsAtCompileTime&gt; TranspositionType;
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :            :     /**
+<span class="lineNum">      68 </span>                :            :     * \brief Default Constructor.
+<span class="lineNum">      69 </span>                :            :     *
+<span class="lineNum">      70 </span>                :            :     * The default constructor is useful in cases in which the user intends to
+<span class="lineNum">      71 </span>                :            :     * perform decompositions via PartialPivLU::compute(const MatrixType&amp;).
+<span class="lineNum">      72 </span>                :            :     */
+<span class="lineNum">      73 </span>                :            :     PartialPivLU();
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            :     /** \brief Default Constructor with memory preallocation
+<span class="lineNum">      76 </span>                :            :       *
+<span class="lineNum">      77 </span>                :            :       * Like the default constructor but with preallocation of the internal data
+<span class="lineNum">      78 </span>                :            :       * according to the specified problem \a size.
+<span class="lineNum">      79 </span>                :            :       * \sa PartialPivLU()
+<span class="lineNum">      80 </span>                :            :       */
+<span class="lineNum">      81 </span>                :            :     PartialPivLU(Index size);
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            :     /** Constructor.
+<span class="lineNum">      84 </span>                :            :       *
+<span class="lineNum">      85 </span>                :            :       * \param matrix the matrix of which to compute the LU decomposition.
+<span class="lineNum">      86 </span>                :            :       *
+<span class="lineNum">      87 </span>                :            :       * \warning The matrix should have full rank (e.g. if it's square, it should be invertible).
+<span class="lineNum">      88 </span>                :            :       * If you need to deal with non-full rank, use class FullPivLU instead.
+<span class="lineNum">      89 </span>                :            :       */
+<span class="lineNum">      90 </span>                :            :     PartialPivLU(const MatrixType&amp; matrix);
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :     PartialPivLU&amp; compute(const MatrixType&amp; matrix);
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :            :     /** \returns the LU decomposition matrix: the upper-triangular part is U, the
+<span class="lineNum">      95 </span>                :            :       * unit-lower-triangular part is L (at least for square matrices; in the non-square
+<span class="lineNum">      96 </span>                :            :       * case, special care is needed, see the documentation of class FullPivLU).
+<span class="lineNum">      97 </span>                :            :       *
+<a name="98"><span class="lineNum">      98 </span>                :            :       * \sa matrixL(), matrixU()</a>
+<span class="lineNum">      99 </span>                :            :       */
+<span class="lineNum">     100 </span>                :<span class="lineCov">        546 :     inline const MatrixType&amp; matrixLU() const</span>
+<span class="lineNum">     101 </span>                :            :     {
+<span class="lineNum">     102 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 546 times"> + </span>]:<span class="lineCov">        546 :       eigen_assert(m_isInitialized &amp;&amp; &quot;PartialPivLU is not initialized.&quot;);</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">        546 :       return m_lu;</span>
+<span class="lineNum">     104 </span>                :            :     }
+<span class="lineNum">     105 </span>                :            : 
+<a name="106"><span class="lineNum">     106 </span>                :            :     /** \returns the permutation matrix P.</a>
+<span class="lineNum">     107 </span>                :            :       */
+<span class="lineNum">     108 </span>                :<span class="lineCov">        182 :     inline const PermutationType&amp; permutationP() const</span>
+<span class="lineNum">     109 </span>                :            :     {
+<span class="lineNum">     110 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 182 times"> + </span>]:<span class="lineCov">        182 :       eigen_assert(m_isInitialized &amp;&amp; &quot;PartialPivLU is not initialized.&quot;);</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">        182 :       return m_p;</span>
+<span class="lineNum">     112 </span>                :            :     }
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :            :     /** This method returns the solution x to the equation Ax=b, where A is the matrix of which
+<span class="lineNum">     115 </span>                :            :       * *this is the LU decomposition.
+<span class="lineNum">     116 </span>                :            :       *
+<span class="lineNum">     117 </span>                :            :       * \param b the right-hand-side of the equation to solve. Can be a vector or a matrix,
+<span class="lineNum">     118 </span>                :            :       *          the only requirement in order for the equation to make sense is that
+<span class="lineNum">     119 </span>                :            :       *          b.rows()==A.rows(), where A is the matrix of which *this is the LU decomposition.
+<span class="lineNum">     120 </span>                :            :       *
+<span class="lineNum">     121 </span>                :            :       * \returns the solution.
+<span class="lineNum">     122 </span>                :            :       *
+<span class="lineNum">     123 </span>                :            :       * Example: \include PartialPivLU_solve.cpp
+<span class="lineNum">     124 </span>                :            :       * Output: \verbinclude PartialPivLU_solve.out
+<span class="lineNum">     125 </span>                :            :       *
+<span class="lineNum">     126 </span>                :            :       * Since this PartialPivLU class assumes anyway that the matrix A is invertible, the solution
+<span class="lineNum">     127 </span>                :            :       * theoretically exists and is unique regardless of b.
+<span class="lineNum">     128 </span>                :            :       *
+<span class="lineNum">     129 </span>                :            :       * \sa TriangularView::solve(), inverse(), computeInverse()
+<span class="lineNum">     130 </span>                :            :       */
+<span class="lineNum">     131 </span>                :            :     template&lt;typename Rhs&gt;
+<span class="lineNum">     132 </span>                :            :     inline const internal::solve_retval&lt;PartialPivLU, Rhs&gt;
+<span class="lineNum">     133 </span>                :            :     solve(const MatrixBase&lt;Rhs&gt;&amp; b) const
+<span class="lineNum">     134 </span>                :            :     {
+<span class="lineNum">     135 </span>                :            :       eigen_assert(m_isInitialized &amp;&amp; &quot;PartialPivLU is not initialized.&quot;);
+<span class="lineNum">     136 </span>                :            :       return internal::solve_retval&lt;PartialPivLU, Rhs&gt;(*this, b.derived());
+<span class="lineNum">     137 </span>                :            :     }
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :            :     /** \returns the inverse of the matrix of which *this is the LU decomposition.
+<span class="lineNum">     140 </span>                :            :       *
+<span class="lineNum">     141 </span>                :            :       * \warning The matrix being decomposed here is assumed to be invertible. If you need to check for
+<span class="lineNum">     142 </span>                :            :       *          invertibility, use class FullPivLU instead.
+<span class="lineNum">     143 </span>                :            :       *
+<a name="144"><span class="lineNum">     144 </span>                :            :       * \sa MatrixBase::inverse(), LU::inverse()</a>
+<span class="lineNum">     145 </span>                :            :       */
+<span class="lineNum">     146 </span>                :<span class="lineCov">        182 :     inline const internal::solve_retval&lt;PartialPivLU,typename MatrixType::IdentityReturnType&gt; inverse() const</span>
+<span class="lineNum">     147 </span>                :            :     {
+<span class="lineNum">     148 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 182 times"> + </span>]:<span class="lineCov">        182 :       eigen_assert(m_isInitialized &amp;&amp; &quot;PartialPivLU is not initialized.&quot;);</span>
+<span class="lineNum">     149 </span>                :            :       return internal::solve_retval&lt;PartialPivLU,typename MatrixType::IdentityReturnType&gt;
+<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        182 :                (*this, MatrixType::Identity(m_lu.rows(), m_lu.cols()));</span>
+<span class="lineNum">     151 </span>                :            :     }
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :            :     /** \returns the determinant of the matrix of which
+<span class="lineNum">     154 </span>                :            :       * *this is the LU decomposition. It has only linear complexity
+<span class="lineNum">     155 </span>                :            :       * (that is, O(n) where n is the dimension of the square matrix)
+<span class="lineNum">     156 </span>                :            :       * as the LU decomposition has already been computed.
+<span class="lineNum">     157 </span>                :            :       *
+<span class="lineNum">     158 </span>                :            :       * \note For fixed-size matrices of size up to 4, MatrixBase::determinant() offers
+<span class="lineNum">     159 </span>                :            :       *       optimized paths.
+<span class="lineNum">     160 </span>                :            :       *
+<span class="lineNum">     161 </span>                :            :       * \warning a determinant can be very big or small, so for matrices
+<span class="lineNum">     162 </span>                :            :       * of large enough dimension, there is a risk of overflow/underflow.
+<span class="lineNum">     163 </span>                :            :       *
+<span class="lineNum">     164 </span>                :            :       * \sa MatrixBase::determinant()
+<span class="lineNum">     165 </span>                :            :       */
+<span class="lineNum">     166 </span>                :            :     typename internal::traits&lt;MatrixType&gt;::Scalar determinant() const;
+<span class="lineNum">     167 </span>                :            : 
+<span class="lineNum">     168 </span>                :            :     MatrixType reconstructedMatrix() const;
+<a name="169"><span class="lineNum">     169 </span>                :            : </a>
+<span class="lineNum">     170 </span>                :            :     inline Index rows() const { return m_lu.rows(); }
+<span class="lineNum">     171 </span>                :<span class="lineCov">        364 :     inline Index cols() const { return m_lu.cols(); }</span>
+<span class="lineNum">     172 </span>                :            : 
+<a name="173"><span class="lineNum">     173 </span>                :            :   protected:</a>
+<span class="lineNum">     174 </span>                :            :     
+<span class="lineNum">     175 </span>                :<span class="lineCov">        182 :     static void check_template_parameters()</span>
+<span class="lineNum">     176 </span>                :            :     {
+<span class="lineNum">     177 </span>                :            :       EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar);
+<span class="lineNum">     178 </span>                :<span class="lineCov">        182 :     }</span>
+<span class="lineNum">     179 </span>                :            :     
+<span class="lineNum">     180 </span>                :            :     MatrixType m_lu;
+<span class="lineNum">     181 </span>                :            :     PermutationType m_p;
+<span class="lineNum">     182 </span>                :            :     TranspositionType m_rowsTranspositions;
+<span class="lineNum">     183 </span>                :            :     Index m_det_p;
+<span class="lineNum">     184 </span>                :            :     bool m_isInitialized;
+<span class="lineNum">     185 </span>                :            : };
+<span class="lineNum">     186 </span>                :            : 
+<span class="lineNum">     187 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     188 </span>                :            : PartialPivLU&lt;MatrixType&gt;::PartialPivLU()
+<span class="lineNum">     189 </span>                :            :   : m_lu(),
+<span class="lineNum">     190 </span>                :            :     m_p(),
+<span class="lineNum">     191 </span>                :            :     m_rowsTranspositions(),
+<span class="lineNum">     192 </span>                :            :     m_det_p(0),
+<span class="lineNum">     193 </span>                :            :     m_isInitialized(false)
+<span class="lineNum">     194 </span>                :            : {
+<span class="lineNum">     195 </span>                :            : }
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     198 </span>                :            : PartialPivLU&lt;MatrixType&gt;::PartialPivLU(Index size)
+<span class="lineNum">     199 </span>                :            :   : m_lu(size, size),
+<span class="lineNum">     200 </span>                :            :     m_p(size),
+<span class="lineNum">     201 </span>                :            :     m_rowsTranspositions(size),
+<span class="lineNum">     202 </span>                :            :     m_det_p(0),
+<span class="lineNum">     203 </span>                :            :     m_isInitialized(false)
+<span class="lineNum">     204 </span>                :            : {
+<span class="lineNum">     205 </span>                :            : }
+<a name="206"><span class="lineNum">     206 </span>                :            : </a>
+<span class="lineNum">     207 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     208 </span>                :<span class="lineCov">        182 : PartialPivLU&lt;MatrixType&gt;::PartialPivLU(const MatrixType&amp; matrix)</span>
+<span class="lineNum">     209 </span>                :            :   : m_lu(matrix.rows(), matrix.rows()),
+<span class="lineNum">     210 </span>                :            :     m_p(matrix.rows()),
+<span class="lineNum">     211 </span>                :            :     m_rowsTranspositions(matrix.rows()),
+<span class="lineNum">     212 </span>                :            :     m_det_p(0),
+<span class="lineNum">     213 </span>[<span class="branchCov" title="Branch 2 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">        182 :     m_isInitialized(false)</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">     214 </span>                :            : {
+<span class="lineNum">     215 </span>        [<span class="branchCov" title="Branch 1 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :   compute(matrix);</span>
+<span class="lineNum">     216 </span>                :<span class="lineCov">        182 : }</span>
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :            : namespace internal {
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :            : /** \internal This is the blocked version of fullpivlu_unblocked() */
+<span class="lineNum">     221 </span>                :            : template&lt;typename Scalar, int StorageOrder, typename PivIndex&gt;
+<span class="lineNum">     222 </span>                :            : struct partial_lu_impl
+<span class="lineNum">     223 </span>                :            : {
+<span class="lineNum">     224 </span>                :            :   // FIXME add a stride to Map, so that the following mapping becomes easier,
+<span class="lineNum">     225 </span>                :            :   // another option would be to create an expression being able to automatically
+<span class="lineNum">     226 </span>                :            :   // warp any Map, Matrix, and Block expressions as a unique type, but since that's exactly
+<span class="lineNum">     227 </span>                :            :   // a Map + stride, why not adding a stride to Map, and convenient ctors from a Matrix,
+<span class="lineNum">     228 </span>                :            :   // and Block.
+<span class="lineNum">     229 </span>                :            :   typedef Map&lt;Matrix&lt;Scalar, Dynamic, Dynamic, StorageOrder&gt; &gt; MapLU;
+<span class="lineNum">     230 </span>                :            :   typedef Block&lt;MapLU, Dynamic, Dynamic&gt; MatrixType;
+<span class="lineNum">     231 </span>                :            :   typedef Block&lt;MatrixType,Dynamic,Dynamic&gt; BlockType;
+<span class="lineNum">     232 </span>                :            :   typedef typename MatrixType::RealScalar RealScalar;
+<span class="lineNum">     233 </span>                :            :   typedef typename MatrixType::Index Index;
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :            :   /** \internal performs the LU decomposition in-place of the matrix \a lu
+<span class="lineNum">     236 </span>                :            :     * using an unblocked algorithm.
+<span class="lineNum">     237 </span>                :            :     *
+<span class="lineNum">     238 </span>                :            :     * In addition, this function returns the row transpositions in the
+<span class="lineNum">     239 </span>                :            :     * vector \a row_transpositions which must have a size equal to the number
+<span class="lineNum">     240 </span>                :            :     * of columns of the matrix \a lu, and an integer \a nb_transpositions
+<span class="lineNum">     241 </span>                :            :     * which returns the actual number of transpositions.
+<span class="lineNum">     242 </span>                :            :     *
+<a name="243"><span class="lineNum">     243 </span>                :            :     * \returns The index of the first pivot which is exactly zero if any, or a negative number otherwise.</a>
+<span class="lineNum">     244 </span>                :            :     */
+<span class="lineNum">     245 </span>                :<span class="lineCov">        182 :   static Index unblocked_lu(MatrixType&amp; lu, PivIndex* row_transpositions, PivIndex&amp; nb_transpositions)</span>
+<span class="lineNum">     246 </span>                :            :   {
+<span class="lineNum">     247 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :     const Index rows = lu.rows();</span>
+<span class="lineNum">     248 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :     const Index cols = lu.cols();</span>
+<span class="lineNum">     249 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :     const Index size = (std::min)(rows,cols);</span>
+<span class="lineNum">     250 </span>                :<span class="lineCov">        182 :     nb_transpositions = 0;</span>
+<span class="lineNum">     251 </span>                :<span class="lineCov">        182 :     Index first_zero_pivot = -1;</span>
+<span class="lineNum">     252 </span>        [<span class="branchCov" title="Branch 0 was taken 265 times"> + </span><span class="branchCov" title="Branch 1 was taken 182 times"> + </span>]:<span class="lineCov">        447 :     for(Index k = 0; k &lt; size; ++k)</span>
+<span class="lineNum">     253 </span>                :            :     {
+<span class="lineNum">     254 </span>                :<span class="lineCov">        265 :       Index rrows = rows-k-1;</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">        265 :       Index rcols = cols-k-1;</span>
+<span class="lineNum">     256 </span>                :            :         
+<span class="lineNum">     257 </span>                :            :       Index row_of_biggest_in_col;
+<span class="lineNum">     258 </span>                :            :       RealScalar biggest_in_corner
+<span class="lineNum">     259 </span>[<span class="branchCov" title="Branch 1 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        265 :         = lu.col(k).tail(rows-k).cwiseAbs().maxCoeff(&amp;row_of_biggest_in_col);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     260 </span>                :<span class="lineCov">        265 :       row_of_biggest_in_col += k;</span>
+<span class="lineNum">     261 </span>                :            : 
+<span class="lineNum">     262 </span>                :<span class="lineCov">        265 :       row_transpositions[k] = PivIndex(row_of_biggest_in_col);</span>
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>        [<span class="branchCov" title="Branch 0 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        265 :       if(biggest_in_corner != RealScalar(0))</span>
+<span class="lineNum">     265 </span>                :            :       {
+<span class="lineNum">     266 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 265 times"> + </span>]:<span class="lineCov">        265 :         if(k != row_of_biggest_in_col)</span>
+<span class="lineNum">     267 </span>                :            :         {
+<span class="lineNum">     268 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           lu.row(k).swap(lu.row(row_of_biggest_in_col));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :           ++nb_transpositions;</span>
+<span class="lineNum">     270 </span>                :            :         }
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :            :         // FIXME shall we introduce a safe quotient expression in cas 1/lu.coeff(k,k)
+<span class="lineNum">     273 </span>                :            :         // overflow but not the actual quotient?
+<span class="lineNum">     274 </span>[<span class="branchCov" title="Branch 1 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        265 :         lu.col(k).tail(rrows) /= lu.coeff(k,k);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 265 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     275 </span>                :            :       }
+<span class="lineNum">     276 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       else if(first_zero_pivot==-1)</span>
+<span class="lineNum">     277 </span>                :            :       {
+<span class="lineNum">     278 </span>                :            :         // the pivot is exactly zero, we record the index of the first pivot which is exactly 0,
+<span class="lineNum">     279 </span>                :            :         // and continue the factorization such we still have A = PLU
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :         first_zero_pivot = k;</span>
+<span class="lineNum">     281 </span>                :            :       }
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>        [<span class="branchCov" title="Branch 0 was taken 83 times"> + </span><span class="branchCov" title="Branch 1 was taken 182 times"> + </span>]:<span class="lineCov">        265 :       if(k&lt;rows-1)</span>
+<span class="lineNum">     284 </span>[<span class="branchCov" title="Branch 1 was taken 83 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 83 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">         83 :         lu.bottomRightCorner(rrows,rcols).noalias() -= lu.col(k).tail(rrows) * lu.row(k).tail(rcols);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 83 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 83 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 83 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 83 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 83 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 83 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">     285 </span>                :            :     }
+<span class="lineNum">     286 </span>                :<span class="lineCov">        182 :     return first_zero_pivot;</span>
+<span class="lineNum">     287 </span>                :            :   }
+<span class="lineNum">     288 </span>                :            : 
+<span class="lineNum">     289 </span>                :            :   /** \internal performs the LU decomposition in-place of the matrix represented
+<span class="lineNum">     290 </span>                :            :     * by the variables \a rows, \a cols, \a lu_data, and \a lu_stride using a
+<span class="lineNum">     291 </span>                :            :     * recursive, blocked algorithm.
+<span class="lineNum">     292 </span>                :            :     *
+<span class="lineNum">     293 </span>                :            :     * In addition, this function returns the row transpositions in the
+<span class="lineNum">     294 </span>                :            :     * vector \a row_transpositions which must have a size equal to the number
+<span class="lineNum">     295 </span>                :            :     * of columns of the matrix \a lu, and an integer \a nb_transpositions
+<span class="lineNum">     296 </span>                :            :     * which returns the actual number of transpositions.
+<span class="lineNum">     297 </span>                :            :     *
+<span class="lineNum">     298 </span>                :            :     * \returns The index of the first pivot which is exactly zero if any, or a negative number otherwise.
+<span class="lineNum">     299 </span>                :            :     *
+<span class="lineNum">     300 </span>                :            :     * \note This very low level interface using pointers, etc. is to:
+<span class="lineNum">     301 </span>                :            :     *   1 - reduce the number of instanciations to the strict minimum
+<a name="302"><span class="lineNum">     302 </span>                :            :     *   2 - avoid infinite recursion of the instanciations with Block&lt;Block&lt;Block&lt;...&gt; &gt; &gt;</a>
+<span class="lineNum">     303 </span>                :            :     */
+<span class="lineNum">     304 </span>                :<span class="lineCov">        182 :   static Index blocked_lu(Index rows, Index cols, Scalar* lu_data, Index luStride, PivIndex* row_transpositions, PivIndex&amp; nb_transpositions, Index maxBlockSize=256)</span>
+<span class="lineNum">     305 </span>                :            :   {
+<span class="lineNum">     306 </span>[<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        182 :     MapLU lu1(lu_data,StorageOrder==RowMajor?rows:luStride,StorageOrder==RowMajor?luStride:cols);</span>
+<span class="lineNum">     307 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :     MatrixType lu(lu1,0,0,rows,cols);</span>
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :     const Index size = (std::min)(rows,cols);</span>
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :            :     // if the matrix is too small, no blocking:
+<span class="lineNum">     312 </span>        [<span class="branchCov" title="Branch 0 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        182 :     if(size&lt;=16)</span>
+<span class="lineNum">     313 </span>                :            :     {
+<span class="lineNum">     314 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :       return unblocked_lu(lu, row_transpositions, nb_transpositions);</span>
+<span class="lineNum">     315 </span>                :            :     }
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :            :     // automatically adjust the number of subdivisions to the size
+<span class="lineNum">     318 </span>                :            :     // of the matrix so that there is enough sub blocks:
+<span class="lineNum">     319 </span>                :            :     Index blockSize;
+<span class="lineNum">     320 </span>                :            :     {
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :       blockSize = size/8;</span>
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :       blockSize = (blockSize/16)*16;</span>
+<span class="lineNum">     323 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       blockSize = (std::min)((std::max)(blockSize,Index(8)), maxBlockSize);</span>
+<span class="lineNum">     324 </span>                :            :     }
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :     nb_transpositions = 0;</span>
+<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :     Index first_zero_pivot = -1;</span>
+<span class="lineNum">     328 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for(Index k = 0; k &lt; size; k+=blockSize)</span>
+<span class="lineNum">     329 </span>                :            :     {
+<span class="lineNum">     330 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       Index bs = (std::min)(size-k,blockSize); // actual size of the block</span>
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :       Index trows = rows - k - bs; // trailing rows</span>
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :       Index tsize = size - k - bs; // trailing size</span>
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :            :       // partition the matrix:
+<span class="lineNum">     335 </span>                :            :       //                          A00 | A01 | A02
+<span class="lineNum">     336 </span>                :            :       // lu  = A_0 | A_1 | A_2 =  A10 | A11 | A12
+<span class="lineNum">     337 </span>                :            :       //                          A20 | A21 | A22
+<span class="lineNum">     338 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       BlockType A_0(lu,0,0,rows,k);</span>
+<span class="lineNum">     339 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       BlockType A_2(lu,0,k+bs,rows,tsize);</span>
+<span class="lineNum">     340 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       BlockType A11(lu,k,k,bs,bs);</span>
+<span class="lineNum">     341 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       BlockType A12(lu,k,k+bs,bs,tsize);</span>
+<span class="lineNum">     342 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       BlockType A21(lu,k+bs,k,trows,bs);</span>
+<span class="lineNum">     343 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       BlockType A22(lu,k+bs,k+bs,trows,tsize);</span>
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>                :            :       PivIndex nb_transpositions_in_panel;
+<span class="lineNum">     346 </span>                :            :       // recursively call the blocked LU algorithm on [A11^T A21^T]^T
+<span class="lineNum">     347 </span>                :            :       // with a very small blocking size:
+<span class="lineNum">     348 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       Index ret = blocked_lu(trows+bs, bs, &amp;lu.coeffRef(k,k), luStride,</span>
+<span class="lineNum">     349 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                    row_transpositions+k, nb_transpositions_in_panel, 16);</span>
+<span class="lineNum">     350 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(ret&gt;=0 &amp;&amp; first_zero_pivot==-1)</span>
+<span class="lineNum">     351 </span>                :<span class="lineNoCov">          0 :         first_zero_pivot = k+ret;</span>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 :       nb_transpositions += nb_transpositions_in_panel;</span>
+<span class="lineNum">     354 </span>                :            :       // update permutations and apply them to A_0
+<span class="lineNum">     355 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for(Index i=k; i&lt;k+bs; ++i)</span>
+<span class="lineNum">     356 </span>                :            :       {
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :         Index piv = (row_transpositions[i] += k);</span>
+<span class="lineNum">     358 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         A_0.row(i).swap(A_0.row(piv));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     359 </span>                :            :       }
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if(trows)</span>
+<span class="lineNum">     362 </span>                :            :       {
+<span class="lineNum">     363 </span>                :            :         // apply permutations to A_2
+<span class="lineNum">     364 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(Index i=k;i&lt;k+bs; ++i)</span>
+<span class="lineNum">     365 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :           A_2.row(i).swap(A_2.row(row_transpositions[i]));</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :            :         // A12 = A11^-1 A12
+<span class="lineNum">     368 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         A11.template triangularView&lt;UnitLower&gt;().solveInPlace(A12);</span>
+<span class="lineNum">     369 </span>                :            : 
+<span class="lineNum">     370 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         A22.noalias() -= A21 * A12;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     371 </span>                :            :       }
+<span class="lineNum">     372 </span>                :            :     }
+<span class="lineNum">     373 </span>                :<span class="lineCov">        182 :     return first_zero_pivot;</span>
+<span class="lineNum">     374 </span>                :            :   }
+<span class="lineNum">     375 </span>                :            : };
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :            : /** \internal performs the LU decomposition with partial pivoting in-place.
+<a name="378"><span class="lineNum">     378 </span>                :            :   */</a>
+<span class="lineNum">     379 </span>                :            : template&lt;typename MatrixType, typename TranspositionType&gt;
+<span class="lineNum">     380 </span>                :<span class="lineCov">        182 : void partial_lu_inplace(MatrixType&amp; lu, TranspositionType&amp; row_transpositions, typename TranspositionType::Index&amp; nb_transpositions)</span>
+<span class="lineNum">     381 </span>                :            : {
+<span class="lineNum">     382 </span>        [<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 182 times"> + </span>]:<span class="lineCov">        182 :   eigen_assert(lu.cols() == row_transpositions.size());</span>
+<span class="lineNum">     383 </span>        [<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 182 times"> + </span>]:<span class="lineCov">        182 :   eigen_assert((&amp;row_transpositions.coeffRef(1)-&amp;row_transpositions.coeffRef(0)) == 1);</span>
+<span class="lineNum">     384 </span>                :            : 
+<span class="lineNum">     385 </span>                :<span class="lineCov">        182 :   partial_lu_impl</span>
+<span class="lineNum">     386 </span>                :            :     &lt;typename MatrixType::Scalar, MatrixType::Flags&amp;RowMajorBit?RowMajor:ColMajor, typename TranspositionType::Index&gt;
+<span class="lineNum">     387 </span>                :<span class="lineCov">        182 :     ::blocked_lu(lu.rows(), lu.cols(), &amp;lu.coeffRef(0,0), lu.outerStride(), &amp;row_transpositions.coeffRef(0), nb_transpositions);</span>
+<span class="lineNum">     388 </span>                :<span class="lineCov">        182 : }</span>
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>                :            : } // end namespace internal
+<a name="391"><span class="lineNum">     391 </span>                :            : </a>
+<span class="lineNum">     392 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     393 </span>                :<span class="lineCov">        182 : PartialPivLU&lt;MatrixType&gt;&amp; PartialPivLU&lt;MatrixType&gt;::compute(const MatrixType&amp; matrix)</span>
+<span class="lineNum">     394 </span>                :            : {
+<span class="lineNum">     395 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :   check_template_parameters();</span>
+<span class="lineNum">     396 </span>                :            :   
+<span class="lineNum">     397 </span>                :            :   // the row permutation is stored as int indices, so just to be sure:
+<span class="lineNum">     398 </span>[<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        182 :   eigen_assert(matrix.rows()&lt;NumTraits&lt;int&gt;::highest());</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 182 times"> + </span>]
+<span class="lineNum">     399 </span>                :            :   
+<span class="lineNum">     400 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :   m_lu = matrix;</span>
+<span class="lineNum">     401 </span>                :            : 
+<span class="lineNum">     402 </span>[<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        182 :   eigen_assert(matrix.rows() == matrix.cols() &amp;&amp; &quot;PartialPivLU is only for square (and moreover invertible) matrices&quot;);</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 182 times"> + </span>]
+<span class="lineNum">     403 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :   const Index size = matrix.rows();</span>
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :   m_rowsTranspositions.resize(size);</span>
+<span class="lineNum">     406 </span>                :            : 
+<span class="lineNum">     407 </span>                :            :   typename TranspositionType::Index nb_transpositions;
+<span class="lineNum">     408 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :   internal::partial_lu_inplace(m_lu, m_rowsTranspositions, nb_transpositions);</span>
+<span class="lineNum">     409 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 182 times"> + </span>]:<span class="lineCov">        182 :   m_det_p = (nb_transpositions%2) ? -1 : 1;</span>
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>        [<span class="branchCov" title="Branch 1 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        182 :   m_p = m_rowsTranspositions;</span>
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>                :<span class="lineCov">        182 :   m_isInitialized = true;</span>
+<span class="lineNum">     414 </span>                :<span class="lineCov">        182 :   return *this;</span>
+<span class="lineNum">     415 </span>                :            : }
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     418 </span>                :            : typename internal::traits&lt;MatrixType&gt;::Scalar PartialPivLU&lt;MatrixType&gt;::determinant() const
+<span class="lineNum">     419 </span>                :            : {
+<span class="lineNum">     420 </span>                :            :   eigen_assert(m_isInitialized &amp;&amp; &quot;PartialPivLU is not initialized.&quot;);
+<span class="lineNum">     421 </span>                :            :   return Scalar(m_det_p) * m_lu.diagonal().prod();
+<span class="lineNum">     422 </span>                :            : }
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>                :            : /** \returns the matrix represented by the decomposition,
+<span class="lineNum">     425 </span>                :            :  * i.e., it returns the product: P^{-1} L U.
+<span class="lineNum">     426 </span>                :            :  * This function is provided for debug purpose. */
+<span class="lineNum">     427 </span>                :            : template&lt;typename MatrixType&gt;
+<span class="lineNum">     428 </span>                :            : MatrixType PartialPivLU&lt;MatrixType&gt;::reconstructedMatrix() const
+<span class="lineNum">     429 </span>                :            : {
+<span class="lineNum">     430 </span>                :            :   eigen_assert(m_isInitialized &amp;&amp; &quot;LU is not initialized.&quot;);
+<span class="lineNum">     431 </span>                :            :   // LU
+<span class="lineNum">     432 </span>                :            :   MatrixType res = m_lu.template triangularView&lt;UnitLower&gt;().toDenseMatrix()
+<span class="lineNum">     433 </span>                :            :                  * m_lu.template triangularView&lt;Upper&gt;();
+<span class="lineNum">     434 </span>                :            : 
+<span class="lineNum">     435 </span>                :            :   // P^{-1}(LU)
+<span class="lineNum">     436 </span>                :            :   res = m_p.inverse() * res;
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :            :   return res;
+<span class="lineNum">     439 </span>                :            : }
+<span class="lineNum">     440 </span>                :            : 
+<span class="lineNum">     441 </span>                :            : /***** Implementation of solve() *****************************************************/
+<span class="lineNum">     442 </span>                :            : 
+<span class="lineNum">     443 </span>                :            : namespace internal {
+<span class="lineNum">     444 </span>                :            : 
+<span class="lineNum">     445 </span>                :            : template&lt;typename _MatrixType, typename Rhs&gt;
+<span class="lineNum">     446 </span>                :            : struct solve_retval&lt;PartialPivLU&lt;_MatrixType&gt;, Rhs&gt;
+<a name="447"><span class="lineNum">     447 </span>                :            :   : solve_retval_base&lt;PartialPivLU&lt;_MatrixType&gt;, Rhs&gt;</a>
+<span class="lineNum">     448 </span>                :            : {
+<a name="449"><span class="lineNum">     449 </span>                :<span class="lineCov">        364 :   EIGEN_MAKE_SOLVE_HELPERS(PartialPivLU&lt;_MatrixType&gt;,Rhs)</span></a>
+<span class="lineNum">     450 </span>                :            : 
+<span class="lineNum">     451 </span>                :<span class="lineCov">        182 :   template&lt;typename Dest&gt; void evalTo(Dest&amp; dst) const</span>
+<span class="lineNum">     452 </span>                :            :   {
+<span class="lineNum">     453 </span>                :            :     /* The decomposition PA = LU can be rewritten as A = P^{-1} L U.
+<span class="lineNum">     454 </span>                :            :     * So we proceed as follows:
+<span class="lineNum">     455 </span>                :            :     * Step 1: compute c = Pb.
+<span class="lineNum">     456 </span>                :            :     * Step 2: replace c by the solution x to Lx = c.
+<span class="lineNum">     457 </span>                :            :     * Step 3: replace c by the solution x to Ux = c.
+<span class="lineNum">     458 </span>                :            :     */
+<span class="lineNum">     459 </span>                :            : 
+<span class="lineNum">     460 </span>        [<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 182 times"> + </span>]:<span class="lineCov">        182 :     eigen_assert(rhs().rows() == dec().matrixLU().rows());</span>
+<span class="lineNum">     461 </span>                :            : 
+<span class="lineNum">     462 </span>                :            :     // Step 1
+<span class="lineNum">     463 </span>        [<span class="branchCov" title="Branch 5 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">        182 :     dst = dec().permutationP() * rhs();</span>
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :            :     // Step 2
+<span class="lineNum">     466 </span>        [<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        182 :     dec().matrixLU().template triangularView&lt;UnitLower&gt;().solveInPlace(dst);</span>
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>                :            :     // Step 3
+<span class="lineNum">     469 </span>        [<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        182 :     dec().matrixLU().template triangularView&lt;Upper&gt;().solveInPlace(dst);</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">        182 :   }</span>
+<span class="lineNum">     471 </span>                :            : };
+<span class="lineNum">     472 </span>                :            : 
+<span class="lineNum">     473 </span>                :            : } // end namespace internal
+<span class="lineNum">     474 </span>                :            : 
+<span class="lineNum">     475 </span>                :            : /******** MatrixBase methods *******/
+<span class="lineNum">     476 </span>                :            : 
+<span class="lineNum">     477 </span>                :            : /** \lu_module
+<span class="lineNum">     478 </span>                :            :   *
+<span class="lineNum">     479 </span>                :            :   * \return the partial-pivoting LU decomposition of \c *this.
+<span class="lineNum">     480 </span>                :            :   *
+<span class="lineNum">     481 </span>                :            :   * \sa class PartialPivLU
+<span class="lineNum">     482 </span>                :            :   */
+<a name="483"><span class="lineNum">     483 </span>                :            : template&lt;typename Derived&gt;</a>
+<span class="lineNum">     484 </span>                :            : inline const PartialPivLU&lt;typename MatrixBase&lt;Derived&gt;::PlainObject&gt;
+<span class="lineNum">     485 </span>                :<span class="lineCov">        182 : MatrixBase&lt;Derived&gt;::partialPivLu() const</span>
+<span class="lineNum">     486 </span>                :            : {
+<span class="lineNum">     487 </span>                :<span class="lineCov">        182 :   return PartialPivLU&lt;PlainObject&gt;(eval());</span>
+<span class="lineNum">     488 </span>                :            : }
+<span class="lineNum">     489 </span>                :            : 
+<span class="lineNum">     490 </span>                :            : #if EIGEN2_SUPPORT_STAGE &gt; STAGE20_RESOLVE_API_CONFLICTS
+<span class="lineNum">     491 </span>                :            : /** \lu_module
+<span class="lineNum">     492 </span>                :            :   *
+<span class="lineNum">     493 </span>                :            :   * Synonym of partialPivLu().
+<span class="lineNum">     494 </span>                :            :   *
+<span class="lineNum">     495 </span>                :            :   * \return the partial-pivoting LU decomposition of \c *this.
+<span class="lineNum">     496 </span>                :            :   *
+<span class="lineNum">     497 </span>                :            :   * \sa class PartialPivLU
+<span class="lineNum">     498 </span>                :            :   */
+<span class="lineNum">     499 </span>                :            : template&lt;typename Derived&gt;
+<span class="lineNum">     500 </span>                :            : inline const PartialPivLU&lt;typename MatrixBase&lt;Derived&gt;::PlainObject&gt;
+<span class="lineNum">     501 </span>                :            : MatrixBase&lt;Derived&gt;::lu() const
+<span class="lineNum">     502 </span>                :            : {
+<span class="lineNum">     503 </span>                :            :   return PartialPivLU&lt;PlainObject&gt;(eval());
+<span class="lineNum">     504 </span>                :            : }
+<span class="lineNum">     505 </span>                :            : #endif
+<span class="lineNum">     506 </span>                :            : 
+<span class="lineNum">     507 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     508 </span>                :            : 
+<span class="lineNum">     509 </span>                :            : #endif // EIGEN_PARTIALLU_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

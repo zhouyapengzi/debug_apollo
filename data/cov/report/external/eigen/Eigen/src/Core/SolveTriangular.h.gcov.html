@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Core/SolveTriangular.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Core</a> - SolveTriangular.h<span style="font-size: 80%;"> (source / <a href="SolveTriangular.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntryHi">96.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntry">184</td>
+            <td class="headerCovTableEntryLo">26.6 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2008-2009 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       5 </span>                :            : //
+<span class="lineNum">       6 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       7 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       8 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            : #ifndef EIGEN_SOLVETRIANGULAR_H
+<span class="lineNum">      11 </span>                :            : #define EIGEN_SOLVETRIANGULAR_H
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : namespace Eigen { 
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : namespace internal {
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : // Forward declarations:
+<span class="lineNum">      18 </span>                :            : // The following two routines are implemented in the products/TriangularSolver*.h files
+<span class="lineNum">      19 </span>                :            : template&lt;typename LhsScalar, typename RhsScalar, typename Index, int Side, int Mode, bool Conjugate, int StorageOrder&gt;
+<span class="lineNum">      20 </span>                :            : struct triangular_solve_vector;
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : template &lt;typename Scalar, typename Index, int Side, int Mode, bool Conjugate, int TriStorageOrder, int OtherStorageOrder&gt;
+<span class="lineNum">      23 </span>                :            : struct triangular_solve_matrix;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : // small helper struct extracting some traits on the underlying solver operation
+<span class="lineNum">      26 </span>                :            : template&lt;typename Lhs, typename Rhs, int Side&gt;
+<span class="lineNum">      27 </span>                :            : class trsolve_traits
+<span class="lineNum">      28 </span>                :            : {
+<span class="lineNum">      29 </span>                :            :   private:
+<span class="lineNum">      30 </span>                :            :     enum {
+<span class="lineNum">      31 </span>                :            :       RhsIsVectorAtCompileTime = (Side==OnTheLeft ? Rhs::ColsAtCompileTime : Rhs::RowsAtCompileTime)==1
+<span class="lineNum">      32 </span>                :            :     };
+<span class="lineNum">      33 </span>                :            :   public:
+<span class="lineNum">      34 </span>                :            :     enum {
+<span class="lineNum">      35 </span>                :            :       Unrolling   = (RhsIsVectorAtCompileTime &amp;&amp; Rhs::SizeAtCompileTime != Dynamic &amp;&amp; Rhs::SizeAtCompileTime &lt;= 8)
+<span class="lineNum">      36 </span>                :            :                   ? CompleteUnrolling : NoUnrolling,
+<span class="lineNum">      37 </span>                :            :       RhsVectors  = RhsIsVectorAtCompileTime ? 1 : Dynamic
+<span class="lineNum">      38 </span>                :            :     };
+<span class="lineNum">      39 </span>                :            : };
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : template&lt;typename Lhs, typename Rhs,
+<span class="lineNum">      42 </span>                :            :   int Side, // can be OnTheLeft/OnTheRight
+<span class="lineNum">      43 </span>                :            :   int Mode, // can be Upper/Lower | UnitDiag
+<span class="lineNum">      44 </span>                :            :   int Unrolling = trsolve_traits&lt;Lhs,Rhs,Side&gt;::Unrolling,
+<span class="lineNum">      45 </span>                :            :   int RhsVectors = trsolve_traits&lt;Lhs,Rhs,Side&gt;::RhsVectors
+<span class="lineNum">      46 </span>                :            :   &gt;
+<span class="lineNum">      47 </span>                :            : struct triangular_solver_selector;
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            : template&lt;typename Lhs, typename Rhs, int Side, int Mode&gt;
+<span class="lineNum">      50 </span>                :            : struct triangular_solver_selector&lt;Lhs,Rhs,Side,Mode,NoUnrolling,1&gt;
+<span class="lineNum">      51 </span>                :            : {
+<span class="lineNum">      52 </span>                :            :   typedef typename Lhs::Scalar LhsScalar;
+<span class="lineNum">      53 </span>                :            :   typedef typename Rhs::Scalar RhsScalar;
+<span class="lineNum">      54 </span>                :            :   typedef blas_traits&lt;Lhs&gt; LhsProductTraits;
+<a name="55"><span class="lineNum">      55 </span>                :            :   typedef typename LhsProductTraits::ExtractType ActualLhsType;</a>
+<span class="lineNum">      56 </span>                :            :   typedef Map&lt;Matrix&lt;RhsScalar,Dynamic,1&gt;, Aligned&gt; MappedRhs;
+<span class="lineNum">      57 </span>                :<span class="lineCov">          2 :   static void run(const Lhs&amp; lhs, Rhs&amp; rhs)</span>
+<span class="lineNum">      58 </span>                :            :   {
+<span class="lineNum">      59 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     ActualLhsType actualLhs = LhsProductTraits::extract(lhs);</span>
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            :     // FIXME find a way to allow an inner stride if packet_traits&lt;Scalar&gt;::size==1
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :<span class="lineCov">          2 :     bool useRhsDirectly = Rhs::InnerStrideAtCompileTime==1 || rhs.innerStride()==1;</span>
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 :     ei_declare_aligned_stack_constructed_variable(RhsScalar,actualRhs,rhs.size(),</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>][<span class="branchCov" title="Branch 8 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>][<span class="branchCov" title="Branch 13 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>][<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 27 was not executed"> # </span><span class="branchNoExec" title="Branch 28 was not executed"> # </span>][<span class="branchCov" title="Branch 30 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 31 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 33 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 34 was not taken"> - </span>][<span class="branchCov" title="Branch 35 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 36 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 38 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 39 was not taken"> - </span>][<span class="branchNoCov" title="Branch 40 was not taken"> - </span><span class="branchCov" title="Branch 41 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 43 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 44 was not taken"> - </span>]
+<span class="lineNum">      66 </span>                :            :                                                   (useRhsDirectly ? rhs.data() : 0));
+<span class="lineNum">      67 </span>                :            :                                                   
+<span class="lineNum">      68 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if(!useRhsDirectly)</span>
+<span class="lineNum">      69 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       MappedRhs(actualRhs,rhs.size()) = rhs;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     triangular_solve_vector&lt;LhsScalar, RhsScalar, typename Lhs::Index, Side, Mode, LhsProductTraits::NeedToConjugate,</span>
+<span class="lineNum">      72 </span>                :            :                             (int(Lhs::Flags) &amp; RowMajorBit) ? RowMajor : ColMajor&gt;
+<span class="lineNum">      73 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          2 :       ::run(actualLhs.cols(), actualLhs.data(), actualLhs.outerStride(), actualRhs);</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if(!useRhsDirectly)</span>
+<span class="lineNum">      76 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          2 :       rhs = MappedRhs(actualRhs, rhs.size());</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">      77 </span>                :<span class="lineCov">          2 :   }</span>
+<span class="lineNum">      78 </span>                :            : };
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            : // the rhs is a matrix
+<span class="lineNum">      81 </span>                :            : template&lt;typename Lhs, typename Rhs, int Side, int Mode&gt;
+<span class="lineNum">      82 </span>                :            : struct triangular_solver_selector&lt;Lhs,Rhs,Side,Mode,NoUnrolling,Dynamic&gt;
+<span class="lineNum">      83 </span>                :            : {
+<span class="lineNum">      84 </span>                :            :   typedef typename Rhs::Scalar Scalar;
+<span class="lineNum">      85 </span>                :            :   typedef typename Rhs::Index Index;
+<span class="lineNum">      86 </span>                :            :   typedef blas_traits&lt;Lhs&gt; LhsProductTraits;
+<a name="87"><span class="lineNum">      87 </span>                :            :   typedef typename LhsProductTraits::DirectLinearAccessType ActualLhsType;</a>
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :<span class="lineCov">        366 :   static void run(const Lhs&amp; lhs, Rhs&amp; rhs)</span>
+<span class="lineNum">      90 </span>                :            :   {
+<span class="lineNum">      91 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     typename internal::add_const_on_value_type&lt;ActualLhsType&gt;::type actualLhs = LhsProductTraits::extract(lhs);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     const Index size = lhs.rows();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">      94 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     const Index othersize = Side==OnTheLeft? rhs.cols() : rhs.rows();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :            :     typedef internal::gemm_blocking_space&lt;(Rhs::Flags&amp;RowMajorBit) ? RowMajor : ColMajor,Scalar,Scalar,
+<span class="lineNum">      97 </span>                :            :               Rhs::MaxRowsAtCompileTime, Rhs::MaxColsAtCompileTime, Lhs::MaxRowsAtCompileTime,4&gt; BlockingType;
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     BlockingType blocking(rhs.rows(), rhs.cols(), size);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>][<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>][<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>]
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        366 :     triangular_solve_matrix&lt;Scalar,Index,Side,Mode,LhsProductTraits::NeedToConjugate,(int(Lhs::Flags) &amp; RowMajorBit) ? RowMajor : ColMajor,</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     102 </span>                :            :                                (Rhs::Flags&amp;RowMajorBit) ? RowMajor : ColMajor&gt;
+<span class="lineNum">     103 </span>[<span class="branchCov" title="Branch 1 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        696 :       ::run(size, othersize, &amp;actualLhs.coeffRef(0,0), actualLhs.outerStride(), &amp;rhs.coeffRef(0,0), rhs.outerStride(), blocking);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 184 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 21 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 22 was not taken"> - </span>][<span class="branchCov" title="Branch 24 was taken 164 times"> + </span><span class="branchNoCov" title="Branch 25 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>][<span class="branchNoExec" title="Branch 32 was not executed"> # </span><span class="branchNoExec" title="Branch 33 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 35 was not executed"> # </span><span class="branchNoExec" title="Branch 36 was not executed"> # </span>][<span class="branchNoExec" title="Branch 38 was not executed"> # </span><span class="branchNoExec" title="Branch 39 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>][<span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 49 was not executed"> # </span><span class="branchNoExec" title="Branch 50 was not executed"> # </span>][<span class="branchNoExec" title="Branch 52 was not executed"> # </span><span class="branchNoExec" title="Branch 53 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>][<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>][<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>]
+<span class="lineNum">     104 </span>                :<span class="lineCov">        366 :   }</span>
+<span class="lineNum">     105 </span>                :            : };
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            : /***************************************************************************
+<span class="lineNum">     108 </span>                :            : * meta-unrolling implementation
+<span class="lineNum">     109 </span>                :            : ***************************************************************************/
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>                :            : template&lt;typename Lhs, typename Rhs, int Mode, int Index, int Size,
+<span class="lineNum">     112 </span>                :            :          bool Stop = Index==Size&gt;
+<span class="lineNum">     113 </span>                :            : struct triangular_solver_unroller;
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            : template&lt;typename Lhs, typename Rhs, int Mode, int Index, int Size&gt;
+<span class="lineNum">     116 </span>                :            : struct triangular_solver_unroller&lt;Lhs,Rhs,Mode,Index,Size,false&gt; {
+<span class="lineNum">     117 </span>                :            :   enum {
+<span class="lineNum">     118 </span>                :            :     IsLower = ((Mode&amp;Lower)==Lower),
+<span class="lineNum">     119 </span>                :            :     RowIndex = IsLower ? Index : Size - Index - 1,
+<span class="lineNum">     120 </span>                :            :     S = IsLower ? 0     : RowIndex+1
+<span class="lineNum">     121 </span>                :            :   };
+<span class="lineNum">     122 </span>                :            :   static void run(const Lhs&amp; lhs, Rhs&amp; rhs)
+<span class="lineNum">     123 </span>                :            :   {
+<span class="lineNum">     124 </span>                :            :     if (Index&gt;0)
+<span class="lineNum">     125 </span>                :            :       rhs.coeffRef(RowIndex) -= lhs.row(RowIndex).template segment&lt;Index&gt;(S).transpose()
+<span class="lineNum">     126 </span>                :            :                          .cwiseProduct(rhs.template segment&lt;Index&gt;(S)).sum();
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            :     if(!(Mode &amp; UnitDiag))
+<span class="lineNum">     129 </span>                :            :       rhs.coeffRef(RowIndex) /= lhs.coeff(RowIndex,RowIndex);
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :            :     triangular_solver_unroller&lt;Lhs,Rhs,Mode,Index+1,Size&gt;::run(lhs,rhs);
+<span class="lineNum">     132 </span>                :            :   }
+<span class="lineNum">     133 </span>                :            : };
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            : template&lt;typename Lhs, typename Rhs, int Mode, int Index, int Size&gt;
+<span class="lineNum">     136 </span>                :            : struct triangular_solver_unroller&lt;Lhs,Rhs,Mode,Index,Size,true&gt; {
+<span class="lineNum">     137 </span>                :            :   static void run(const Lhs&amp;, Rhs&amp;) {}
+<span class="lineNum">     138 </span>                :            : };
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            : template&lt;typename Lhs, typename Rhs, int Mode&gt;
+<span class="lineNum">     141 </span>                :            : struct triangular_solver_selector&lt;Lhs,Rhs,OnTheLeft,Mode,CompleteUnrolling,1&gt; {
+<span class="lineNum">     142 </span>                :            :   static void run(const Lhs&amp; lhs, Rhs&amp; rhs)
+<span class="lineNum">     143 </span>                :            :   { triangular_solver_unroller&lt;Lhs,Rhs,Mode,0,Rhs::SizeAtCompileTime&gt;::run(lhs,rhs); }
+<span class="lineNum">     144 </span>                :            : };
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            : template&lt;typename Lhs, typename Rhs, int Mode&gt;
+<span class="lineNum">     147 </span>                :            : struct triangular_solver_selector&lt;Lhs,Rhs,OnTheRight,Mode,CompleteUnrolling,1&gt; {
+<span class="lineNum">     148 </span>                :            :   static void run(const Lhs&amp; lhs, Rhs&amp; rhs)
+<span class="lineNum">     149 </span>                :            :   {
+<span class="lineNum">     150 </span>                :            :     Transpose&lt;const Lhs&gt; trLhs(lhs);
+<span class="lineNum">     151 </span>                :            :     Transpose&lt;Rhs&gt; trRhs(rhs);
+<span class="lineNum">     152 </span>                :            :     
+<span class="lineNum">     153 </span>                :            :     triangular_solver_unroller&lt;Transpose&lt;const Lhs&gt;,Transpose&lt;Rhs&gt;,
+<span class="lineNum">     154 </span>                :            :                               ((Mode&amp;Upper)==Upper ? Lower : Upper) | (Mode&amp;UnitDiag),
+<span class="lineNum">     155 </span>                :            :                               0,Rhs::SizeAtCompileTime&gt;::run(trLhs,trRhs);
+<span class="lineNum">     156 </span>                :            :   }
+<span class="lineNum">     157 </span>                :            : };
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :            : } // end namespace internal
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :            : /***************************************************************************
+<span class="lineNum">     162 </span>                :            : * TriangularView methods
+<span class="lineNum">     163 </span>                :            : ***************************************************************************/
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            : /** &quot;in-place&quot; version of TriangularView::solve() where the result is written in \a other
+<span class="lineNum">     166 </span>                :            :   *
+<span class="lineNum">     167 </span>                :            :   * \warning The parameter is only marked 'const' to make the C++ compiler accept a temporary expression here.
+<span class="lineNum">     168 </span>                :            :   * This function will const_cast it, so constness isn't honored here.
+<span class="lineNum">     169 </span>                :            :   *
+<span class="lineNum">     170 </span>                :            :   * See TriangularView:solve() for the details.
+<span class="lineNum">     171 </span>                :            :   */
+<a name="172"><span class="lineNum">     172 </span>                :            : template&lt;typename MatrixType, unsigned int Mode&gt;</a>
+<span class="lineNum">     173 </span>                :            : template&lt;int Side, typename OtherDerived&gt;
+<span class="lineNum">     174 </span>                :<span class="lineCov">        368 : void TriangularView&lt;MatrixType,Mode&gt;::solveInPlace(const MatrixBase&lt;OtherDerived&gt;&amp; _other) const</span>
+<span class="lineNum">     175 </span>                :            : {
+<span class="lineNum">     176 </span>                :<span class="lineCov">        368 :   OtherDerived&amp; other = _other.const_cast_derived();</span>
+<span class="lineNum">     177 </span>[<span class="branchCov" title="Branch 2 was taken 186 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchNoCov" title="Branch 6 was not taken"> - </span><span class="branchCov" title="Branch 7 was taken 186 times"> + </span>]:<span class="lineCov">        368 :   eigen_assert( cols() == rows() &amp;&amp; ((Side==OnTheLeft &amp;&amp; cols() == other.rows()) || (Side==OnTheRight &amp;&amp; cols() == other.cols())) );</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 11 was taken 182 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>][<span class="branchNoCov" title="Branch 15 was not taken"> - </span><span class="branchCov" title="Branch 16 was taken 182 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>][<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 29 was not executed"> # </span><span class="branchNoExec" title="Branch 30 was not executed"> # </span>][<span class="branchNoExec" title="Branch 33 was not executed"> # </span><span class="branchNoExec" title="Branch 34 was not executed"> # </span>]
+<span class="lineNum">     178 </span>                :            :   eigen_assert((!(Mode &amp; ZeroDiag)) &amp;&amp; bool(Mode &amp; (Upper|Lower)));
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :            :   enum { copy = internal::traits&lt;OtherDerived&gt;::Flags &amp; RowMajorBit  &amp;&amp; OtherDerived::IsVectorAtCompileTime };
+<span class="lineNum">     181 </span>                :            :   typedef typename internal::conditional&lt;copy,
+<span class="lineNum">     182 </span>                :            :     typename internal::plain_matrix_type_column_major&lt;OtherDerived&gt;::type, OtherDerived&amp;&gt;::type OtherCopy;
+<span class="lineNum">     183 </span>                :<span class="lineCov">        368 :   OtherCopy otherCopy(other);</span>
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :<span class="lineCov">        368 :   internal::triangular_solver_selector&lt;MatrixType, typename internal::remove_reference&lt;OtherCopy&gt;::type,</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">        368 :     Side, Mode&gt;::run(nestedExpression(), otherCopy);</span>
+<span class="lineNum">     187 </span>                :            : 
+<span class="lineNum">     188 </span>                :            :   if (copy)
+<span class="lineNum">     189 </span>                :            :     other = otherCopy;
+<span class="lineNum">     190 </span>                :<span class="lineCov">        368 : }</span>
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            : /** \returns the product of the inverse of \c *this with \a other, \a *this being triangular.
+<span class="lineNum">     193 </span>                :            :   *
+<span class="lineNum">     194 </span>                :            :   * This function computes the inverse-matrix matrix product inverse(\c *this) * \a other if
+<span class="lineNum">     195 </span>                :            :   * \a Side==OnTheLeft (the default), or the right-inverse-multiply  \a other * inverse(\c *this) if
+<span class="lineNum">     196 </span>                :            :   * \a Side==OnTheRight.
+<span class="lineNum">     197 </span>                :            :   *
+<span class="lineNum">     198 </span>                :            :   * The matrix \c *this must be triangular and invertible (i.e., all the coefficients of the
+<span class="lineNum">     199 </span>                :            :   * diagonal must be non zero). It works as a forward (resp. backward) substitution if \c *this
+<span class="lineNum">     200 </span>                :            :   * is an upper (resp. lower) triangular matrix.
+<span class="lineNum">     201 </span>                :            :   *
+<span class="lineNum">     202 </span>                :            :   * Example: \include MatrixBase_marked.cpp
+<span class="lineNum">     203 </span>                :            :   * Output: \verbinclude MatrixBase_marked.out
+<span class="lineNum">     204 </span>                :            :   *
+<span class="lineNum">     205 </span>                :            :   * This function returns an expression of the inverse-multiply and can works in-place if it is assigned
+<span class="lineNum">     206 </span>                :            :   * to the same matrix or vector \a other.
+<span class="lineNum">     207 </span>                :            :   *
+<span class="lineNum">     208 </span>                :            :   * For users coming from BLAS, this function (and more specifically solveInPlace()) offer
+<span class="lineNum">     209 </span>                :            :   * all the operations supported by the \c *TRSV and \c *TRSM BLAS routines.
+<span class="lineNum">     210 </span>                :            :   *
+<span class="lineNum">     211 </span>                :            :   * \sa TriangularView::solveInPlace()
+<span class="lineNum">     212 </span>                :            :   */
+<span class="lineNum">     213 </span>                :            : template&lt;typename Derived, unsigned int Mode&gt;
+<span class="lineNum">     214 </span>                :            : template&lt;int Side, typename Other&gt;
+<span class="lineNum">     215 </span>                :            : const internal::triangular_solve_retval&lt;Side,TriangularView&lt;Derived,Mode&gt;,Other&gt;
+<span class="lineNum">     216 </span>                :            : TriangularView&lt;Derived,Mode&gt;::solve(const MatrixBase&lt;Other&gt;&amp; other) const
+<span class="lineNum">     217 </span>                :            : {
+<span class="lineNum">     218 </span>                :            :   return internal::triangular_solve_retval&lt;Side,TriangularView,Other&gt;(*this, other.derived());
+<span class="lineNum">     219 </span>                :            : }
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :            : namespace internal {
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :            : template&lt;int Side, typename TriangularType, typename Rhs&gt;
+<span class="lineNum">     225 </span>                :            : struct traits&lt;triangular_solve_retval&lt;Side, TriangularType, Rhs&gt; &gt;
+<span class="lineNum">     226 </span>                :            : {
+<span class="lineNum">     227 </span>                :            :   typedef typename internal::plain_matrix_type_column_major&lt;Rhs&gt;::type ReturnType;
+<span class="lineNum">     228 </span>                :            : };
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :            : template&lt;int Side, typename TriangularType, typename Rhs&gt; struct triangular_solve_retval
+<span class="lineNum">     231 </span>                :            :  : public ReturnByValue&lt;triangular_solve_retval&lt;Side, TriangularType, Rhs&gt; &gt;
+<span class="lineNum">     232 </span>                :            : {
+<span class="lineNum">     233 </span>                :            :   typedef typename remove_all&lt;typename Rhs::Nested&gt;::type RhsNestedCleaned;
+<span class="lineNum">     234 </span>                :            :   typedef ReturnByValue&lt;triangular_solve_retval&gt; Base;
+<span class="lineNum">     235 </span>                :            :   typedef typename Base::Index Index;
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>                :            :   triangular_solve_retval(const TriangularType&amp; tri, const Rhs&amp; rhs)
+<span class="lineNum">     238 </span>                :            :     : m_triangularMatrix(tri), m_rhs(rhs)
+<span class="lineNum">     239 </span>                :            :   {}
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :            :   inline Index rows() const { return m_rhs.rows(); }
+<span class="lineNum">     242 </span>                :            :   inline Index cols() const { return m_rhs.cols(); }
+<span class="lineNum">     243 </span>                :            : 
+<span class="lineNum">     244 </span>                :            :   template&lt;typename Dest&gt; inline void evalTo(Dest&amp; dst) const
+<span class="lineNum">     245 </span>                :            :   {
+<span class="lineNum">     246 </span>                :            :     const typename Dest::Scalar *dst_data = internal::extract_data(dst);
+<span class="lineNum">     247 </span>                :            :     if(!(is_same&lt;RhsNestedCleaned,Dest&gt;::value &amp;&amp; dst_data!=0 &amp;&amp; extract_data(dst) == extract_data(m_rhs)))
+<span class="lineNum">     248 </span>                :            :       dst = m_rhs;
+<span class="lineNum">     249 </span>                :            :     m_triangularMatrix.template solveInPlace&lt;Side&gt;(dst);
+<span class="lineNum">     250 </span>                :            :   }
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :            :   protected:
+<span class="lineNum">     253 </span>                :            :     const TriangularType&amp; m_triangularMatrix;
+<span class="lineNum">     254 </span>                :            :     typename Rhs::Nested m_rhs;
+<span class="lineNum">     255 </span>                :            : };
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :            : } // namespace internal
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>                :            : #endif // EIGEN_SOLVETRIANGULAR_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

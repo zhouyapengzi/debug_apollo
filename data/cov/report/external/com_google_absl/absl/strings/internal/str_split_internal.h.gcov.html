@@ -1,0 +1,523 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/com_google_absl/absl/strings/internal/str_split_internal.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/com_google_absl/absl/strings/internal</a> - str_split_internal.h<span style="font-size: 80%;"> (source / <a href="str_split_internal.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntry">68</td>
+            <td class="headerCovTableEntryHi">91.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">70</td>
+            <td class="headerCovTableEntryLo">54.3 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // Copyright 2017 The Abseil Authors.</a>
+<span class="lineNum">       2 </span>                :            : //
+<span class="lineNum">       3 </span>                :            : // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            : // you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            : // You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            : //
+<span class="lineNum">       7 </span>                :            : //      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            : //
+<span class="lineNum">       9 </span>                :            : // Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            : // distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            : // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      12 </span>                :            : // See the License for the specific language governing permissions and
+<span class="lineNum">      13 </span>                :            : // limitations under the License.
+<span class="lineNum">      14 </span>                :            : //
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : // This file declares INTERNAL parts of the Split API that are inline/templated
+<span class="lineNum">      17 </span>                :            : // or otherwise need to be available at compile time. The main abstractions
+<span class="lineNum">      18 </span>                :            : // defined in here are
+<span class="lineNum">      19 </span>                :            : //
+<span class="lineNum">      20 </span>                :            : //   - ConvertibleToStringView
+<span class="lineNum">      21 </span>                :            : //   - SplitIterator&lt;&gt;
+<span class="lineNum">      22 </span>                :            : //   - Splitter&lt;&gt;
+<span class="lineNum">      23 </span>                :            : //
+<span class="lineNum">      24 </span>                :            : // DO NOT INCLUDE THIS FILE DIRECTLY. Use this file by including
+<span class="lineNum">      25 </span>                :            : // absl/strings/str_split.h.
+<span class="lineNum">      26 </span>                :            : //
+<span class="lineNum">      27 </span>                :            : // IWYU pragma: private, include &quot;absl/strings/str_split.h&quot;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : #ifndef ABSL_STRINGS_INTERNAL_STR_SPLIT_INTERNAL_H_
+<span class="lineNum">      30 </span>                :            : #define ABSL_STRINGS_INTERNAL_STR_SPLIT_INTERNAL_H_
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : #include &lt;array&gt;
+<span class="lineNum">      33 </span>                :            : #include &lt;initializer_list&gt;
+<span class="lineNum">      34 </span>                :            : #include &lt;iterator&gt;
+<span class="lineNum">      35 </span>                :            : #include &lt;map&gt;
+<span class="lineNum">      36 </span>                :            : #include &lt;type_traits&gt;
+<span class="lineNum">      37 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      38 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : #include &quot;absl/base/macros.h&quot;
+<span class="lineNum">      41 </span>                :            : #include &quot;absl/base/port.h&quot;
+<span class="lineNum">      42 </span>                :            : #include &quot;absl/meta/type_traits.h&quot;
+<span class="lineNum">      43 </span>                :            : #include &quot;absl/strings/string_view.h&quot;
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : #ifdef _GLIBCXX_DEBUG
+<span class="lineNum">      46 </span>                :            : #include &quot;absl/strings/internal/stl_type_traits.h&quot;
+<span class="lineNum">      47 </span>                :            : #endif  // _GLIBCXX_DEBUG
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            : namespace absl {
+<span class="lineNum">      50 </span>                :            : namespace strings_internal {
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            : // This class is implicitly constructible from everything that absl::string_view
+<span class="lineNum">      53 </span>                :            : // is implicitly constructible from. If it's constructed from a temporary
+<a name="54"><span class="lineNum">      54 </span>                :            : // std::string, the data is moved into a data member so its lifetime matches that of</a>
+<span class="lineNum">      55 </span>                :            : // the ConvertibleToStringView instance.
+<span class="lineNum">      56 </span>                :<span class="lineCov">      12630 : class ConvertibleToStringView {</span>
+<span class="lineNum">      57 </span>                :            :  public:
+<span class="lineNum">      58 </span>                :            :   ConvertibleToStringView(const char* s)  // NOLINT(runtime/explicit)
+<a name="59"><span class="lineNum">      59 </span>                :            :       : value_(s) {}</a>
+<span class="lineNum">      60 </span>                :            :   ConvertibleToStringView(char* s) : value_(s) {}  // NOLINT(runtime/explicit)
+<a name="61"><span class="lineNum">      61 </span>                :<span class="lineCov">         20 :   ConvertibleToStringView(absl::string_view s)     // NOLINT(runtime/explicit)</span></a>
+<span class="lineNum">      62 </span>                :<span class="lineCov">         20 :       : value_(s) {}</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">       2085 :   ConvertibleToStringView(const std::string&amp; s)  // NOLINT(runtime/explicit)</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">       2085 :       : value_(s) {}</span>
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            :   // Matches rvalue strings and moves their data to a member.
+<span class="lineNum">      67 </span>                :            : ConvertibleToStringView(std::string&amp;&amp; s)  // NOLINT(runtime/explicit)
+<span class="lineNum">      68 </span>                :            :     : copy_(std::move(s)), value_(copy_) {}
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :            :   ConvertibleToStringView(const ConvertibleToStringView&amp; other)
+<span class="lineNum">      71 </span>                :            :       : copy_(other.copy_),
+<a name="72"><span class="lineNum">      72 </span>                :            :         value_(other.IsSelfReferential() ? copy_ : other.value_) {}</a>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineCov">       8420 :   ConvertibleToStringView(ConvertibleToStringView&amp;&amp; other) {</span>
+<span class="lineNum">      75 </span>        [<span class="branchCov" title="Branch 2 was taken 4210 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       4210 :     StealMembers(std::move(other));</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">       4210 :   }</span>
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            :   ConvertibleToStringView&amp; operator=(ConvertibleToStringView other) {
+<span class="lineNum">      79 </span>                :            :     StealMembers(std::move(other));
+<span class="lineNum">      80 </span>                :            :     return *this;
+<a name="81"><span class="lineNum">      81 </span>                :            :   }</a>
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :<span class="lineCov">      62658 :   absl::string_view value() const { return value_; }</span>
+<span class="lineNum">      84 </span>                :            : 
+<a name="85"><span class="lineNum">      85 </span>                :            :  private:</a>
+<span class="lineNum">      86 </span>                :            :   // Returns true if ctsp's value refers to its internal copy_ member.
+<a name="87"><span class="lineNum">      87 </span>                :<span class="lineCov">       8420 :   bool IsSelfReferential() const { return value_.data() == copy_.data(); }</span></a>
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :<span class="lineCov">       4210 :   void StealMembers(ConvertibleToStringView&amp;&amp; other) {</span>
+<span class="lineNum">      90 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 4210 times"> + </span>]:<span class="lineCov">       4210 :     if (other.IsSelfReferential()) {</span>
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :       copy_ = std::move(other.copy_);</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :       value_ = copy_;</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :       other.value_ = other.copy_;</span>
+<span class="lineNum">      94 </span>                :            :     } else {
+<span class="lineNum">      95 </span>                :<span class="lineCov">       4210 :       value_ = other.value_;</span>
+<span class="lineNum">      96 </span>                :            :     }
+<span class="lineNum">      97 </span>                :<span class="lineCov">       4210 :   }</span>
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :            :   // Holds the data moved from temporary std::string arguments. Declared first so
+<span class="lineNum">     100 </span>                :            :   // that 'value' can refer to 'copy_'.
+<span class="lineNum">     101 </span>                :            :   std::string copy_;
+<span class="lineNum">     102 </span>                :            :   absl::string_view value_;
+<span class="lineNum">     103 </span>                :            : };
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            : // An iterator that enumerates the parts of a std::string from a Splitter. The text
+<span class="lineNum">     106 </span>                :            : // to be split, the Delimiter, and the Predicate are all taken from the given
+<span class="lineNum">     107 </span>                :            : // Splitter object. Iterators may only be compared if they refer to the same
+<span class="lineNum">     108 </span>                :            : // Splitter instance.
+<span class="lineNum">     109 </span>                :            : //
+<a name="110"><span class="lineNum">     110 </span>                :            : // This class is NOT part of the public splitting API.</a>
+<span class="lineNum">     111 </span>                :            : template &lt;typename Splitter&gt;
+<span class="lineNum">     112 </span>                :<span class="lineCov">       4168 : class SplitIterator {</span>
+<span class="lineNum">     113 </span>                :            :  public:
+<span class="lineNum">     114 </span>                :            :   using iterator_category = std::input_iterator_tag;
+<span class="lineNum">     115 </span>                :            :   using value_type = absl::string_view;
+<span class="lineNum">     116 </span>                :            :   using difference_type = ptrdiff_t;
+<span class="lineNum">     117 </span>                :            :   using pointer = const value_type*;
+<span class="lineNum">     118 </span>                :            :   using reference = const value_type&amp;;
+<a name="119"><span class="lineNum">     119 </span>                :            : </a>
+<span class="lineNum">     120 </span>                :            :   enum State { kInitState, kLastState, kEndState };
+<span class="lineNum">     121 </span>                :<span class="lineCov">       2105 :   SplitIterator(State state, const Splitter* splitter)</span>
+<span class="lineNum">     122 </span>                :            :       : pos_(0),
+<span class="lineNum">     123 </span>                :            :         state_(state),
+<span class="lineNum">     124 </span>                :            :         splitter_(splitter),
+<span class="lineNum">     125 </span>                :            :         delimiter_(splitter-&gt;delimiter()),
+<span class="lineNum">     126 </span>        [<span class="branchCov" title="Branch 3 was taken 2084 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">       2105 :         predicate_(splitter-&gt;predicate()) {</span>
+<span class="lineNum">     127 </span>                :            :     // Hack to maintain backward compatibility. This one block makes it so an
+<span class="lineNum">     128 </span>                :            :     // empty absl::string_view whose .data() happens to be nullptr behaves
+<span class="lineNum">     129 </span>                :            :     // *differently* from an otherwise empty absl::string_view whose .data() is
+<span class="lineNum">     130 </span>                :            :     // not nullptr. This is an undesirable difference in general, but this
+<span class="lineNum">     131 </span>                :            :     // behavior is maintained to avoid breaking existing code that happens to
+<span class="lineNum">     132 </span>                :            :     // depend on this old behavior/bug. Perhaps it will be fixed one day. The
+<span class="lineNum">     133 </span>                :            :     // difference in behavior is as follows:
+<span class="lineNum">     134 </span>                :            :     //   Split(absl::string_view(&quot;&quot;), '-');  // {&quot;&quot;}
+<span class="lineNum">     135 </span>                :            :     //   Split(absl::string_view(), '-');    // {}
+<span class="lineNum">     136 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 21 times"> + </span>][<span class="branchCov" title="Branch 1 was taken 2084 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       2105 :     if (splitter_-&gt;text().data() == nullptr) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 2084 times"> + </span>]
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :       state_ = kEndState;</span>
+<span class="lineNum">     138 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       pos_ = splitter_-&gt;text().size();</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">       2084 :       return;</span>
+<span class="lineNum">     140 </span>                :            :     }
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2105 times"> + </span>]:<span class="lineCov">       2105 :     if (state_ == kEndState) {</span>
+<span class="lineNum">     143 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       pos_ = splitter_-&gt;text().size();</span>
+<span class="lineNum">     144 </span>                :            :     } else {
+<span class="lineNum">     145 </span>        [<span class="branchCov" title="Branch 1 was taken 2084 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       2105 :       ++(*this);</span>
+<span class="lineNum">     146 </span>                :            :     }
+<a name="147"><span class="lineNum">     147 </span>                :            :   }</a>
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :<span class="lineCov">      66868 :   bool at_end() const { return state_ == kEndState; }</span>
+<a name="150"><span class="lineNum">     150 </span>                :            : </a>
+<span class="lineNum">     151 </span>                :            :   reference operator*() const { return curr_; }
+<a name="152"><span class="lineNum">     152 </span>                :<span class="lineCov">     116896 :   pointer operator-&gt;() const { return &amp;curr_; }</span></a>
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :<span class="lineCov">      31329 :   SplitIterator&amp; operator++() {</span>
+<span class="lineNum">     155 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 29224 times"> + </span>]:<span class="lineCov">      29224 :     do {</span>
+<span class="lineNum">     156 </span>        [<span class="branchCov" title="Branch 0 was taken 2105 times"> + </span><span class="branchCov" title="Branch 1 was taken 29224 times"> + </span>]:<span class="lineCov">      31329 :       if (state_ == kLastState) {</span>
+<span class="lineNum">     157 </span>                :<span class="lineCov">       2105 :         state_ = kEndState;</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">       2105 :         return *this;</span>
+<span class="lineNum">     159 </span>                :            :       }
+<span class="lineNum">     160 </span>        [<span class="branchCov" title="Branch 1 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">      29224 :       const absl::string_view text = splitter_-&gt;text();</span>
+<span class="lineNum">     161 </span>        [<span class="branchCov" title="Branch 1 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">      29224 :       const absl::string_view d = delimiter_.Find(text, pos_);</span>
+<span class="lineNum">     162 </span>        [<span class="branchCov" title="Branch 2 was taken 2105 times"> + </span><span class="branchCov" title="Branch 3 was taken 27119 times"> + </span>]:<span class="lineCov">      29224 :       if (d.data() == text.end()) state_ = kLastState;</span>
+<span class="lineNum">     163 </span>        [<span class="branchCov" title="Branch 3 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">      29224 :       curr_ = text.substr(pos_, d.data() - (text.data() + pos_));</span>
+<span class="lineNum">     164 </span>                :<span class="lineCov">      29224 :       pos_ += curr_.size() + d.size();</span>
+<span class="lineNum">     165 </span>                :<span class="lineCov">      29224 :     } while (!predicate_(curr_));</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">      31329 :     return *this;</span>
+<span class="lineNum">     167 </span>                :            :   }
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            :   SplitIterator operator++(int) {
+<span class="lineNum">     170 </span>                :            :     SplitIterator old(*this);
+<span class="lineNum">     171 </span>                :            :     ++(*this);
+<span class="lineNum">     172 </span>                :            :     return old;
+<span class="lineNum">     173 </span>                :            :   }
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            :   friend bool operator==(const SplitIterator&amp; a, const SplitIterator&amp; b) {
+<span class="lineNum">     176 </span>                :            :     return a.state_ == b.state_ &amp;&amp; a.pos_ == b.pos_;
+<span class="lineNum">     177 </span>                :            :   }
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>                :            :   friend bool operator!=(const SplitIterator&amp; a, const SplitIterator&amp; b) {
+<span class="lineNum">     180 </span>                :            :     return !(a == b);
+<span class="lineNum">     181 </span>                :            :   }
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :            :  private:
+<span class="lineNum">     184 </span>                :            :   size_t pos_;
+<span class="lineNum">     185 </span>                :            :   State state_;
+<span class="lineNum">     186 </span>                :            :   absl::string_view curr_;
+<span class="lineNum">     187 </span>                :            :   const Splitter* splitter_;
+<span class="lineNum">     188 </span>                :            :   typename Splitter::DelimiterType delimiter_;
+<span class="lineNum">     189 </span>                :            :   typename Splitter::PredicateType predicate_;
+<span class="lineNum">     190 </span>                :            : };
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            : // HasMappedType&lt;T&gt;::value is true iff there exists a type T::mapped_type.
+<span class="lineNum">     193 </span>                :            : template &lt;typename T, typename = void&gt;
+<span class="lineNum">     194 </span>                :            : struct HasMappedType : std::false_type {};
+<span class="lineNum">     195 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     196 </span>                :            : struct HasMappedType&lt;T, absl::void_t&lt;typename T::mapped_type&gt;&gt;
+<span class="lineNum">     197 </span>                :            :     : std::true_type {};
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :            : // HasValueType&lt;T&gt;::value is true iff there exists a type T::value_type.
+<span class="lineNum">     200 </span>                :            : template &lt;typename T, typename = void&gt;
+<span class="lineNum">     201 </span>                :            : struct HasValueType : std::false_type {};
+<span class="lineNum">     202 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     203 </span>                :            : struct HasValueType&lt;T, absl::void_t&lt;typename T::value_type&gt;&gt; : std::true_type {
+<span class="lineNum">     204 </span>                :            : };
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :            : // HasConstIterator&lt;T&gt;::value is true iff there exists a type T::const_iterator.
+<span class="lineNum">     207 </span>                :            : template &lt;typename T, typename = void&gt;
+<span class="lineNum">     208 </span>                :            : struct HasConstIterator : std::false_type {};
+<span class="lineNum">     209 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     210 </span>                :            : struct HasConstIterator&lt;T, absl::void_t&lt;typename T::const_iterator&gt;&gt;
+<span class="lineNum">     211 </span>                :            :     : std::true_type {};
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :            : // IsInitializerList&lt;T&gt;::value is true iff T is an std::initializer_list. More
+<span class="lineNum">     214 </span>                :            : // details below in Splitter&lt;&gt; where this is used.
+<span class="lineNum">     215 </span>                :            : std::false_type IsInitializerListDispatch(...);  // default: No
+<span class="lineNum">     216 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     217 </span>                :            : std::true_type IsInitializerListDispatch(std::initializer_list&lt;T&gt;*);
+<span class="lineNum">     218 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     219 </span>                :            : struct IsInitializerList
+<span class="lineNum">     220 </span>                :            :     : decltype(IsInitializerListDispatch(static_cast&lt;T*&gt;(nullptr))) {};
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :            : // A SplitterIsConvertibleTo&lt;C&gt;::type alias exists iff the specified condition
+<span class="lineNum">     223 </span>                :            : // is true for type 'C'.
+<span class="lineNum">     224 </span>                :            : //
+<span class="lineNum">     225 </span>                :            : // Restricts conversion to container-like types (by testing for the presence of
+<span class="lineNum">     226 </span>                :            : // a const_iterator member type) and also to disable conversion to an
+<span class="lineNum">     227 </span>                :            : // std::initializer_list (which also has a const_iterator). Otherwise, code
+<span class="lineNum">     228 </span>                :            : // compiled in C++11 will get an error due to ambiguous conversion paths (in
+<span class="lineNum">     229 </span>                :            : // C++11 std::vector&lt;T&gt;::operator= is overloaded to take either a std::vector&lt;T&gt;
+<span class="lineNum">     230 </span>                :            : // or an std::initializer_list&lt;T&gt;).
+<span class="lineNum">     231 </span>                :            : template &lt;typename C&gt;
+<span class="lineNum">     232 </span>                :            : struct SplitterIsConvertibleTo
+<span class="lineNum">     233 </span>                :            :     : std::enable_if&lt;
+<span class="lineNum">     234 </span>                :            : #ifdef _GLIBCXX_DEBUG
+<span class="lineNum">     235 </span>                :            :           !IsStrictlyBaseOfAndConvertibleToSTLContainer&lt;C&gt;::value &amp;&amp;
+<span class="lineNum">     236 </span>                :            : #endif  // _GLIBCXX_DEBUG
+<span class="lineNum">     237 </span>                :            :           !IsInitializerList&lt;C&gt;::value &amp;&amp; HasValueType&lt;C&gt;::value &amp;&amp;
+<span class="lineNum">     238 </span>                :            :           HasConstIterator&lt;C&gt;::value&gt; {
+<span class="lineNum">     239 </span>                :            : };
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :            : // This class implements the range that is returned by absl::StrSplit(). This
+<span class="lineNum">     242 </span>                :            : // class has templated conversion operators that allow it to be implicitly
+<span class="lineNum">     243 </span>                :            : // converted to a variety of types that the caller may have specified on the
+<span class="lineNum">     244 </span>                :            : // left-hand side of an assignment.
+<span class="lineNum">     245 </span>                :            : //
+<span class="lineNum">     246 </span>                :            : // The main interface for interacting with this class is through its implicit
+<span class="lineNum">     247 </span>                :            : // conversion operators. However, this class may also be used like a container
+<span class="lineNum">     248 </span>                :            : // in that it has .begin() and .end() member functions. It may also be used
+<span class="lineNum">     249 </span>                :            : // within a range-for loop.
+<span class="lineNum">     250 </span>                :            : //
+<span class="lineNum">     251 </span>                :            : // Output containers can be collections of any type that is constructible from
+<span class="lineNum">     252 </span>                :            : // an absl::string_view.
+<span class="lineNum">     253 </span>                :            : //
+<span class="lineNum">     254 </span>                :            : // An Predicate functor may be supplied. This predicate will be used to filter
+<span class="lineNum">     255 </span>                :            : // the split strings: only strings for which the predicate returns true will be
+<span class="lineNum">     256 </span>                :            : // kept. A Predicate object is any unary functor that takes an absl::string_view
+<a name="257"><span class="lineNum">     257 </span>                :            : // and returns bool.</a>
+<span class="lineNum">     258 </span>                :            : template &lt;typename Delimiter, typename Predicate&gt;
+<span class="lineNum">     259 </span>                :<span class="lineCov">       4210 : class Splitter {</span>
+<span class="lineNum">     260 </span>                :            :  public:
+<span class="lineNum">     261 </span>                :            :   using DelimiterType = Delimiter;
+<span class="lineNum">     262 </span>                :            :   using PredicateType = Predicate;
+<span class="lineNum">     263 </span>                :            :   using const_iterator = strings_internal::SplitIterator&lt;Splitter&gt;;
+<a name="264"><span class="lineNum">     264 </span>                :            :   using value_type = typename std::iterator_traits&lt;const_iterator&gt;::value_type;</a>
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :<span class="lineCov">       2105 :   Splitter(ConvertibleToStringView input_text, Delimiter d, Predicate p)</span>
+<span class="lineNum">     267 </span>                :<span class="lineCov">       2105 :       : text_(std::move(input_text)),</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">       2105 :         delimiter_(std::move(d)),</span>
+<a name="269"><span class="lineNum">     269 </span>        [<span class="branchCov" title="Branch 2 was taken 2084 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       4210 :         predicate_(std::move(p)) {}</span></a>
+<a name="270"><span class="lineNum">     270 </span>                :            : </a>
+<a name="271"><span class="lineNum">     271 </span>                :<span class="lineCov">      62658 :   absl::string_view text() const { return text_.value(); }</span></a>
+<span class="lineNum">     272 </span>                :<span class="lineCov">       4210 :   const Delimiter&amp; delimiter() const { return delimiter_; }</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">       4210 :   const Predicate&amp; predicate() const { return predicate_; }</span>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :            :   // Range functions that iterate the split substrings as absl::string_view
+<a name="276"><span class="lineNum">     276 </span>                :            :   // objects. These methods enable a Splitter to be used in a range-based for</a>
+<span class="lineNum">     277 </span>                :            :   // loop.
+<span class="lineNum">     278 </span>                :<span class="lineCov">       4210 :   const_iterator begin() const { return {const_iterator::kInitState, this}; }</span>
+<span class="lineNum">     279 </span>                :            :   const_iterator end() const { return {const_iterator::kEndState, this}; }
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :            :   // An implicit conversion operator that is restricted to only those containers
+<span class="lineNum">     282 </span>                :            :   // that the splitter is convertible to.
+<a name="283"><span class="lineNum">     283 </span>                :            :   template &lt;typename Container,</a>
+<span class="lineNum">     284 </span>                :            :             typename OnlyIf = typename SplitterIsConvertibleTo&lt;Container&gt;::type&gt;
+<span class="lineNum">     285 </span>                :<span class="lineCov">       4210 :   operator Container() const {  // NOLINT(runtime/explicit)</span>
+<span class="lineNum">     286 </span>                :            :     return ConvertToContainer&lt;Container, typename Container::value_type,
+<span class="lineNum">     287 </span>[<span class="branchCov" title="Branch 1 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       4210 :                               HasMappedType&lt;Container&gt;::value&gt;()(*this);</span>
+<span class="lineNum">     288 </span>                :            :   }
+<span class="lineNum">     289 </span>                :            : 
+<span class="lineNum">     290 </span>                :            :   // Returns a pair with its .first and .second members set to the first two
+<span class="lineNum">     291 </span>                :            :   // strings returned by the begin() iterator. Either/both of .first and .second
+<span class="lineNum">     292 </span>                :            :   // will be constructed with empty strings if the iterator doesn't have a
+<span class="lineNum">     293 </span>                :            :   // corresponding value.
+<span class="lineNum">     294 </span>                :            :   template &lt;typename First, typename Second&gt;
+<span class="lineNum">     295 </span>                :            :   operator std::pair&lt;First, Second&gt;() const {  // NOLINT(runtime/explicit)
+<span class="lineNum">     296 </span>                :            :     absl::string_view first, second;
+<span class="lineNum">     297 </span>                :            :     auto it = begin();
+<span class="lineNum">     298 </span>                :            :     if (it != end()) {
+<span class="lineNum">     299 </span>                :            :       first = *it;
+<span class="lineNum">     300 </span>                :            :       if (++it != end()) {
+<span class="lineNum">     301 </span>                :            :         second = *it;
+<span class="lineNum">     302 </span>                :            :       }
+<span class="lineNum">     303 </span>                :            :     }
+<span class="lineNum">     304 </span>                :            :     return {First(first), Second(second)};
+<span class="lineNum">     305 </span>                :            :   }
+<span class="lineNum">     306 </span>                :            : 
+<span class="lineNum">     307 </span>                :            :  private:
+<span class="lineNum">     308 </span>                :            :   // ConvertToContainer is a functor converting a Splitter to the requested
+<span class="lineNum">     309 </span>                :            :   // Container of ValueType. It is specialized below to optimize splitting to
+<span class="lineNum">     310 </span>                :            :   // certain combinations of Container and ValueType.
+<span class="lineNum">     311 </span>                :            :   //
+<span class="lineNum">     312 </span>                :            :   // This base template handles the generic case of storing the split results in
+<span class="lineNum">     313 </span>                :            :   // the requested non-map-like container and converting the split substrings to
+<span class="lineNum">     314 </span>                :            :   // the requested type.
+<span class="lineNum">     315 </span>                :            :   template &lt;typename Container, typename ValueType, bool is_map = false&gt;
+<span class="lineNum">     316 </span>                :            :   struct ConvertToContainer {
+<span class="lineNum">     317 </span>                :            :     Container operator()(const Splitter&amp; splitter) const {
+<span class="lineNum">     318 </span>                :            :       Container c;
+<span class="lineNum">     319 </span>                :            :       auto it = std::inserter(c, c.end());
+<span class="lineNum">     320 </span>                :            :       for (const auto sp : splitter) {
+<span class="lineNum">     321 </span>                :            :         *it++ = ValueType(sp);
+<span class="lineNum">     322 </span>                :            :       }
+<span class="lineNum">     323 </span>                :            :       return c;
+<span class="lineNum">     324 </span>                :            :     }
+<span class="lineNum">     325 </span>                :            :   };
+<span class="lineNum">     326 </span>                :            : 
+<span class="lineNum">     327 </span>                :            :   // Partial specialization for a std::vector&lt;absl::string_view&gt;.
+<span class="lineNum">     328 </span>                :            :   //
+<span class="lineNum">     329 </span>                :            :   // Optimized for the common case of splitting to a
+<span class="lineNum">     330 </span>                :            :   // std::vector&lt;absl::string_view&gt;. In this case we first split the results to
+<span class="lineNum">     331 </span>                :            :   // a small array of absl::string_view on the stack, to reduce reallocations.
+<span class="lineNum">     332 </span>                :            :   template &lt;typename A&gt;
+<a name="333"><span class="lineNum">     333 </span>                :            :   struct ConvertToContainer&lt;std::vector&lt;absl::string_view, A&gt;,</a>
+<span class="lineNum">     334 </span>                :            :                             absl::string_view, false&gt; {
+<span class="lineNum">     335 </span>                :<span class="lineCov">       2105 :     std::vector&lt;absl::string_view, A&gt; operator()(</span>
+<span class="lineNum">     336 </span>                :            :         const Splitter&amp; splitter) const {
+<span class="lineNum">     337 </span>                :            :       struct raw_view {
+<a name="338"><span class="lineNum">     338 </span>                :            :         const char* data;</a>
+<span class="lineNum">     339 </span>                :            :         size_t size;
+<span class="lineNum">     340 </span>                :<span class="lineCov">      29224 :         operator absl::string_view() const {  // NOLINT(runtime/explicit)</span>
+<span class="lineNum">     341 </span>                :<span class="lineCov">      29224 :           return {data, size};</span>
+<span class="lineNum">     342 </span>                :            :         }
+<span class="lineNum">     343 </span>                :            :       };
+<span class="lineNum">     344 </span>        [<span class="branchCov" title="Branch 1 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       2105 :       std::vector&lt;absl::string_view, A&gt; v;</span>
+<span class="lineNum">     345 </span>                :            :       std::array&lt;raw_view, 16&gt; ar;
+<span class="lineNum">     346 </span>[<span class="branchCov" title="Branch 1 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4210 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       4210 :       for (auto it = splitter.begin(); !it.at_end();) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 6 was taken 2105 times"> + </span><span class="branchCov" title="Branch 7 was taken 2105 times"> + </span>]
+<span class="lineNum">     347 </span>                :<span class="lineCov">       2105 :         size_t index = 0;</span>
+<span class="lineNum">     348 </span>[<span class="branchCov" title="Branch 0 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 27119 times"> + </span><span class="branchCov" title="Branch 3 was taken 2105 times"> + </span>]:<span class="lineCov">      58448 :         do {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 27119 times"> + </span><span class="branchCov" title="Branch 5 was taken 2105 times"> + </span>]
+<span class="lineNum">     349 </span>[<span class="branchCov" title="Branch 1 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      29224 :           ar[index].data = it-&gt;data();</span>
+<span class="lineNum">     350 </span>[<span class="branchCov" title="Branch 1 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      29224 :           ar[index].size = it-&gt;size();</span>
+<span class="lineNum">     351 </span>        [<span class="branchCov" title="Branch 1 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">      29224 :           ++it;</span>
+<span class="lineNum">     352 </span>        [<span class="branchCov" title="Branch 2 was taken 29224 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">      58448 :         } while (++index != ar.size() &amp;&amp; !it.at_end());</span>
+<span class="lineNum">     353 </span>        [<span class="branchCov" title="Branch 4 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       2105 :         v.insert(v.end(), ar.begin(), ar.begin() + index);</span>
+<span class="lineNum">     354 </span>                :            :       }
+<span class="lineNum">     355 </span>                :<span class="lineCov">       2105 :       return v;</span>
+<span class="lineNum">     356 </span>                :            :     }
+<span class="lineNum">     357 </span>                :            :   };
+<span class="lineNum">     358 </span>                :            : 
+<span class="lineNum">     359 </span>                :            :   // Partial specialization for a std::vector&lt;std::string&gt;.
+<span class="lineNum">     360 </span>                :            :   //
+<span class="lineNum">     361 </span>                :            :   // Optimized for the common case of splitting to a std::vector&lt;std::string&gt;. In
+<span class="lineNum">     362 </span>                :            :   // this case we first split the results to a std::vector&lt;absl::string_view&gt; so
+<span class="lineNum">     363 </span>                :            :   // the returned std::vector&lt;std::string&gt; can have space reserved to avoid std::string
+<span class="lineNum">     364 </span>                :            :   // moves.
+<a name="365"><span class="lineNum">     365 </span>                :            :   template &lt;typename A&gt;</a>
+<span class="lineNum">     366 </span>                :            :   struct ConvertToContainer&lt;std::vector&lt;std::string, A&gt;, std::string, false&gt; {
+<span class="lineNum">     367 </span>                :<span class="lineCov">       2105 :     std::vector&lt;std::string, A&gt; operator()(const Splitter&amp; splitter) const {</span>
+<span class="lineNum">     368 </span>        [<span class="branchCov" title="Branch 1 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       2105 :       const std::vector&lt;absl::string_view&gt; v = splitter;</span>
+<span class="lineNum">     369 </span>        [<span class="branchCov" title="Branch 4 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">       2105 :       return std::vector&lt;std::string, A&gt;(v.begin(), v.end());</span>
+<span class="lineNum">     370 </span>                :            :     }
+<span class="lineNum">     371 </span>                :            :   };
+<span class="lineNum">     372 </span>                :            : 
+<span class="lineNum">     373 </span>                :            :   // Partial specialization for containers of pairs (e.g., maps).
+<span class="lineNum">     374 </span>                :            :   //
+<span class="lineNum">     375 </span>                :            :   // The algorithm is to insert a new pair into the map for each even-numbered
+<span class="lineNum">     376 </span>                :            :   // item, with the even-numbered item as the key with a default-constructed
+<span class="lineNum">     377 </span>                :            :   // value. Each odd-numbered item will then be assigned to the last pair's
+<span class="lineNum">     378 </span>                :            :   // value.
+<span class="lineNum">     379 </span>                :            :   template &lt;typename Container, typename First, typename Second&gt;
+<span class="lineNum">     380 </span>                :            :   struct ConvertToContainer&lt;Container, std::pair&lt;const First, Second&gt;, true&gt; {
+<span class="lineNum">     381 </span>                :            :     Container operator()(const Splitter&amp; splitter) const {
+<span class="lineNum">     382 </span>                :            :       Container m;
+<span class="lineNum">     383 </span>                :            :       typename Container::iterator it;
+<span class="lineNum">     384 </span>                :            :       bool insert = true;
+<span class="lineNum">     385 </span>                :            :       for (const auto sp : splitter) {
+<span class="lineNum">     386 </span>                :            :         if (insert) {
+<span class="lineNum">     387 </span>                :            :           it = Inserter&lt;Container&gt;::Insert(&amp;m, First(sp), Second());
+<span class="lineNum">     388 </span>                :            :         } else {
+<span class="lineNum">     389 </span>                :            :           it-&gt;second = Second(sp);
+<span class="lineNum">     390 </span>                :            :         }
+<span class="lineNum">     391 </span>                :            :         insert = !insert;
+<span class="lineNum">     392 </span>                :            :       }
+<span class="lineNum">     393 </span>                :            :       return m;
+<span class="lineNum">     394 </span>                :            :     }
+<span class="lineNum">     395 </span>                :            : 
+<span class="lineNum">     396 </span>                :            :     // Inserts the key and value into the given map, returning an iterator to
+<span class="lineNum">     397 </span>                :            :     // the inserted item. Specialized for std::map and std::multimap to use
+<span class="lineNum">     398 </span>                :            :     // emplace() and adapt emplace()'s return value.
+<span class="lineNum">     399 </span>                :            :     template &lt;typename Map&gt;
+<span class="lineNum">     400 </span>                :            :     struct Inserter {
+<span class="lineNum">     401 </span>                :            :       using M = Map;
+<span class="lineNum">     402 </span>                :            :       template &lt;typename... Args&gt;
+<span class="lineNum">     403 </span>                :            :       static typename M::iterator Insert(M* m, Args&amp;&amp;... args) {
+<span class="lineNum">     404 </span>                :            :         return m-&gt;insert(std::make_pair(std::forward&lt;Args&gt;(args)...)).first;
+<span class="lineNum">     405 </span>                :            :       }
+<span class="lineNum">     406 </span>                :            :     };
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>                :            :     template &lt;typename... Ts&gt;
+<span class="lineNum">     409 </span>                :            :     struct Inserter&lt;std::map&lt;Ts...&gt;&gt; {
+<span class="lineNum">     410 </span>                :            :       using M = std::map&lt;Ts...&gt;;
+<span class="lineNum">     411 </span>                :            :       template &lt;typename... Args&gt;
+<span class="lineNum">     412 </span>                :            :       static typename M::iterator Insert(M* m, Args&amp;&amp;... args) {
+<span class="lineNum">     413 </span>                :            :         return m-&gt;emplace(std::make_pair(std::forward&lt;Args&gt;(args)...)).first;
+<span class="lineNum">     414 </span>                :            :       }
+<span class="lineNum">     415 </span>                :            :     };
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :            :     template &lt;typename... Ts&gt;
+<span class="lineNum">     418 </span>                :            :     struct Inserter&lt;std::multimap&lt;Ts...&gt;&gt; {
+<span class="lineNum">     419 </span>                :            :       using M = std::multimap&lt;Ts...&gt;;
+<span class="lineNum">     420 </span>                :            :       template &lt;typename... Args&gt;
+<span class="lineNum">     421 </span>                :            :       static typename M::iterator Insert(M* m, Args&amp;&amp;... args) {
+<span class="lineNum">     422 </span>                :            :         return m-&gt;emplace(std::make_pair(std::forward&lt;Args&gt;(args)...));
+<span class="lineNum">     423 </span>                :            :       }
+<span class="lineNum">     424 </span>                :            :     };
+<span class="lineNum">     425 </span>                :            :   };
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :            :   ConvertibleToStringView text_;
+<span class="lineNum">     428 </span>                :            :   Delimiter delimiter_;
+<span class="lineNum">     429 </span>                :            :   Predicate predicate_;
+<span class="lineNum">     430 </span>                :            : };
+<span class="lineNum">     431 </span>                :            : 
+<span class="lineNum">     432 </span>                :            : }  // namespace strings_internal
+<span class="lineNum">     433 </span>                :            : }  // namespace absl
+<span class="lineNum">     434 </span>                :            : 
+<span class="lineNum">     435 </span>                :            : #endif  // ABSL_STRINGS_INTERNAL_STR_SPLIT_INTERNAL_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

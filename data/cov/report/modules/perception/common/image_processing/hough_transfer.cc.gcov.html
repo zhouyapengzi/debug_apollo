@@ -1,0 +1,514 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/perception/common/image_processing/hough_transfer.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/perception/common/image_processing</a> - hough_transfer.cc<span style="font-size: 80%;"> (source / <a href="hough_transfer.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">159</td>
+            <td class="headerCovTableEntry">177</td>
+            <td class="headerCovTableEntryMed">89.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryHi">92.3 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">256</td>
+            <td class="headerCovTableEntry">568</td>
+            <td class="headerCovTableEntryLo">45.1 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : #include &quot;cyber/common/log.h&quot;</a>
+<span class="lineNum">       2 </span>                :            : /******************************************************************************
+<span class="lineNum">       3 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       4 </span>                :            :  *
+<span class="lineNum">       5 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       6 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       7 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">      10 </span>                :            :  *
+<span class="lineNum">      11 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      12 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      13 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      14 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      15 </span>                :            :  * limitations under the License.
+<span class="lineNum">      16 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      17 </span>                :            : #include &quot;modules/perception/common/image_processing/hough_transfer.h&quot;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : namespace apollo {
+<span class="lineNum">      20 </span>                :            : namespace perception {
+<a name="21"><span class="lineNum">      21 </span>                :            : namespace common {</a>
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :<span class="lineCov">          2 : HoughTransfer::HoughTransfer()</span>
+<span class="lineNum">      24 </span>                :            :     : prepared_(false),
+<span class="lineNum">      25 </span>                :            :       d_r_(0.0),
+<span class="lineNum">      26 </span>                :            :       d_theta_(0.0),
+<span class="lineNum">      27 </span>                :            :       img_w_(0),
+<span class="lineNum">      28 </span>                :            :       img_h_(0),
+<span class="lineNum">      29 </span>                :            :       r_size_(0),
+<span class="lineNum">      30 </span>                :            :       theta_size_(0),
+<span class="lineNum">      31 </span>                :            :       vote_reserve_size_(10),
+<span class="lineNum">      32 </span>                :            :       vote_map_(),
+<span class="lineNum">      33 </span>                :            :       query_map_(),
+<span class="lineNum">      34 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          2 :       distribute_map_() {</span>
+<span class="lineNum">      35 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          2 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::HoughTransfer&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 20 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          2 :    AINFO&lt;&lt;&quot;(DMCZP) LeaveMethod: HoughTransfer::HoughTransfer&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 20 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">      38 </span>                :<span class="lineCov">          2 :  }</span>
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : // step1
+<span class="lineNum">      41 </span>                :            : // @brief: initiate
+<span class="lineNum">      42 </span>                :            : // @params[IN] img_w, img_h: width and height of binary image
+<a name="43"><span class="lineNum">      43 </span>                :            : //             d_r, d_theta: discretization step of r and theta</a>
+<span class="lineNum">      44 </span>                :            : //                           in polar coordinates
+<span class="lineNum">      45 </span>                :<span class="lineCov">          4 : bool HoughTransfer::Init(int img_w, int img_h, float d_r, float d_theta) {</span>
+<span class="lineNum">      46 </span>[<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          4 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::Init&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :<span class="lineCov">          4 :   img_w_ = img_w;</span>
+<span class="lineNum">      49 </span>                :<span class="lineCov">          4 :   img_h_ = img_h;</span>
+<span class="lineNum">      50 </span>                :<span class="lineCov">          4 :   d_r_ = d_r;</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">          4 :   d_theta_ = static_cast&lt;float&gt;(M_PI) * d_theta / 180.0f;</span>
+<span class="lineNum">      52 </span>                :            :   r_size_ = static_cast&lt;int&gt;(
+<span class="lineNum">      53 </span>                :<span class="lineCov">          4 :       2 * sqrtf(static_cast&lt;float&gt;(img_w_ * img_w_ + img_h_ * img_h_)) / d_r_);</span>
+<span class="lineNum">      54 </span>                :<span class="lineCov">          4 :   theta_size_ = static_cast&lt;int&gt;(M_PI / d_theta_);</span>
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :<span class="lineCov">          4 :   ClearWithShrink();</span>
+<span class="lineNum">      57 </span>                :            :   // init vote map
+<span class="lineNum">      58 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   vote_map_.resize(r_size_ * theta_size_, 0);</span>
+<span class="lineNum">      59 </span>                :            :   // init query map
+<span class="lineNum">      60 </span>                :<span class="lineCov">          4 :   query_map_.resize(img_w_ * img_h_);</span>
+<span class="lineNum">      61 </span>[<span class="branchCov" title="Branch 3 was taken 33 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 33 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         37 :   for (auto&amp; query : query_map_) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 37 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 33 times"> + </span><span class="branchCov" title="Branch 12 was taken 4 times"> + </span>]
+<span class="lineNum">      62 </span>        [<span class="branchCov" title="Branch 1 was taken 33 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         33 :     query.resize(theta_size_, 0);</span>
+<span class="lineNum">      63 </span>                :            :   }
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>        [<span class="branchCov" title="Branch 0 was taken 540 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">        544 :   for (int theta_idx = 0; theta_idx &lt; theta_size_; ++theta_idx) {</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">        540 :     float cur_theta = d_theta_ * static_cast&lt;float&gt;(theta_idx);</span>
+<span class="lineNum">      67 </span>        [<span class="branchCov" title="Branch 0 was taken 5760 times"> + </span><span class="branchCov" title="Branch 1 was taken 540 times"> + </span>]:<span class="lineCov">       6300 :     for (int img_pos = 0; img_pos &lt; img_w_ * img_h_; ++img_pos) {</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">       5760 :       int w = img_pos % img_w_;</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">       5760 :       int h = img_pos / img_w_;</span>
+<span class="lineNum">      70 </span>                :            :       int r =
+<span class="lineNum">      71 </span>                :<span class="lineCov">       5760 :           static_cast&lt;int&gt;((cos(cur_theta) * w + sin(cur_theta) * h) / d_r_) +</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">       5760 :           r_size_ / 2;</span>
+<span class="lineNum">      73 </span>[<span class="branchCov" title="Branch 0 was taken 5760 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 5760 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       5760 :       if (0 &lt;= r &amp;&amp; r &lt; r_size_) {</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">       5760 :         query_map_[img_pos][theta_idx] = r * theta_size_ + theta_idx;</span>
+<span class="lineNum">      75 </span>                :            :       }
+<span class="lineNum">      76 </span>                :            :     }
+<span class="lineNum">      77 </span>                :            :   }
+<span class="lineNum">      78 </span>                :            :   // init distribute map
+<span class="lineNum">      79 </span>                :<span class="lineCov">          4 :   distribute_map_.resize(r_size_ * theta_size_);</span>
+<span class="lineNum">      80 </span>[<span class="branchCov" title="Branch 3 was taken 4320 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 4320 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">       4324 :   for (auto&amp; distribute : distribute_map_) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4324 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 4320 times"> + </span><span class="branchCov" title="Branch 12 was taken 4 times"> + </span>]
+<span class="lineNum">      81 </span>        [<span class="branchCov" title="Branch 1 was taken 4320 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       4320 :     distribute.reserve(vote_reserve_size_);</span>
+<span class="lineNum">      82 </span>                :            :   }
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          4 :   if (CheckPrepared()) {</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">          2 :     prepared_ = true;</span>
+<span class="lineNum">      86 </span>                :            :   } else {
+<span class="lineNum">      87 </span>                :<span class="lineCov">          2 :     ClearWithShrink();</span>
+<span class="lineNum">      88 </span>                :<span class="lineCov">          2 :     prepared_ = false;</span>
+<span class="lineNum">      89 </span>                :            :   }
+<span class="lineNum">      90 </span>                :            :   
+<span class="lineNum">      91 </span>[<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          4 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::Init&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">      92 </span>                :<span class="lineCov">          4 :   return prepared_;</span>
+<span class="lineNum">      93 </span>                :            :  }
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            : // step2
+<span class="lineNum">      96 </span>                :            : // @brief: HoughTransform in 2D binary image
+<span class="lineNum">      97 </span>                :            : // @params[IN] image: 2D binary image.
+<a name="98"><span class="lineNum">      98 </span>                :            : //             with_distribute: flag to control whether to calculate element</a>
+<span class="lineNum">      99 </span>                :            : //                              length,vote_num,pts in HoughLine
+<span class="lineNum">     100 </span>                :<span class="lineCov">          8 : bool HoughTransfer::ImageVote(const std::vector&lt;int&gt;&amp; image,</span>
+<span class="lineNum">     101 </span>                :            :                               bool with_distribute) {
+<span class="lineNum">     102 </span>[<span class="branchCov" title="Branch 3 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          8 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::ImageVote&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>        [<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchCov" title="Branch 3 was taken 5 times"> + </span>]:<span class="lineCov">          8 :   if (image.size() != query_map_.size()) {</span>
+<span class="lineNum">     105 </span>                :            :     
+<span class="lineNum">     106 </span>[<span class="branchCov" title="Branch 3 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          3 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::ImageVote&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     107 </span>                :<span class="lineCov">          3 :   return false;</span>
+<span class="lineNum">     108 </span>                :            :   }
+<span class="lineNum">     109 </span>                :<span class="lineCov">          5 :   ResetMaps(with_distribute);</span>
+<span class="lineNum">     110 </span>        [<span class="branchCov" title="Branch 1 was taken 80 times"> + </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">         85 :   for (size_t i = 0; i &lt; image.size(); ++i) {</span>
+<span class="lineNum">     111 </span>        [<span class="branchCov" title="Branch 1 was taken 14 times"> + </span><span class="branchCov" title="Branch 2 was taken 66 times"> + </span>]:<span class="lineCov">         80 :     if (image[i] &gt; 0) {</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">         14 :       int x = static_cast&lt;int&gt;(i) % img_w_;</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">         14 :       int y = static_cast&lt;int&gt;(i) / img_w_;</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">         14 :       PointVote(x, y, with_distribute);</span>
+<span class="lineNum">     115 </span>                :            :     }
+<span class="lineNum">     116 </span>                :            :   }
+<span class="lineNum">     117 </span>                :            :   
+<span class="lineNum">     118 </span>[<span class="branchCov" title="Branch 3 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          5 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::ImageVote&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     119 </span>                :<span class="lineCov">          8 :   return true;</span>
+<span class="lineNum">     120 </span>                :            :  }
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            : // @brief: transform one point to parameter space in polar coodinates and vote
+<span class="lineNum">     123 </span>                :            : // @params[IN] x, y: pos in image.
+<a name="124"><span class="lineNum">     124 </span>                :            : //             with_distribute: flag to control whether to calculate element</a>
+<span class="lineNum">     125 </span>                :            : //                              length,vote_num,pts in HoughLine
+<span class="lineNum">     126 </span>                :<span class="lineCov">         14 : void HoughTransfer::PointVote(int x, int y, bool with_distribute) {</span>
+<span class="lineNum">     127 </span>[<span class="branchCov" title="Branch 3 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         14 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::PointVote&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineCov">         14 :   const int pos = y * img_w_ + x;</span>
+<span class="lineNum">     130 </span>                :<span class="lineCov">         14 :   PointVote(pos, with_distribute);</span>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>[<span class="branchCov" title="Branch 3 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         14 :    AINFO&lt;&lt;&quot;(DMCZP) LeaveMethod: HoughTransfer::PointVote&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     133 </span>                :<span class="lineCov">         14 :  }</span>
+<a name="134"><span class="lineNum">     134 </span>                :            : </a>
+<span class="lineNum">     135 </span>                :            : // @paramas[IN] pos: pos = y*img_w +x
+<span class="lineNum">     136 </span>                :<span class="lineCov">         14 : void HoughTransfer::PointVote(int pos, bool with_distribute) {</span>
+<span class="lineNum">     137 </span>[<span class="branchCov" title="Branch 3 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         14 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::PointVote&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>        [<span class="branchCov" title="Branch 0 was taken 2520 times"> + </span><span class="branchCov" title="Branch 1 was taken 14 times"> + </span>]:<span class="lineCov">       2534 :   for (int theta_idx = 0; theta_idx &lt; theta_size_; ++theta_idx) {</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">       2520 :     ++vote_map_[query_map_[pos][theta_idx]];</span>
+<span class="lineNum">     141 </span>        [<span class="branchCov" title="Branch 0 was taken 1440 times"> + </span><span class="branchCov" title="Branch 1 was taken 1080 times"> + </span>]:<span class="lineCov">       2520 :     if (with_distribute) {</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">       1440 :       distribute_map_[query_map_[pos][theta_idx]].push_back(pos);</span>
+<span class="lineNum">     143 </span>                :            :     }
+<span class="lineNum">     144 </span>                :            :   }
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>[<span class="branchCov" title="Branch 3 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         14 :    AINFO&lt;&lt;&quot;(DMCZP) LeaveMethod: HoughTransfer::PointVote&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     147 </span>                :<span class="lineCov">         14 :  }</span>
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :            : // step3
+<span class="lineNum">     150 </span>                :            : // @brief get lines
+<span class="lineNum">     151 </span>                :            : // @params[IN] min_pt_num: minimum points on the same line.
+<span class="lineNum">     152 </span>                :            : //             r_neibor, theta_neibor: query region
+<span class="lineNum">     153 </span>                :            : //             with_distribute: flag to control whether to calculate element
+<a name="154"><span class="lineNum">     154 </span>                :            : //                              length,vote_num,pts in HoughLine</a>
+<span class="lineNum">     155 </span>                :            : //             lines: save lines detected.
+<span class="lineNum">     156 </span>                :<span class="lineCov">          8 : bool HoughTransfer::GetLines(int min_pt_num, int r_neibor, int theta_neibor,</span>
+<span class="lineNum">     157 </span>                :            :                              bool with_distribute,
+<span class="lineNum">     158 </span>                :            :                              std::vector&lt;HoughLine&gt;* lines) const {
+<span class="lineNum">     159 </span>[<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          8 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::GetLines&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 20 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :   if (!lines) {</span>
+<span class="lineNum">     162 </span>                :            :     
+<span class="lineNum">     163 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          1 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::GetLines&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 20 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">     164 </span>                :<span class="lineCov">          1 :   return false;</span>
+<span class="lineNum">     165 </span>                :            :   }
+<span class="lineNum">     166 </span>                :<span class="lineCov">          7 :   int r_step = 2 * r_neibor + 1;</span>
+<span class="lineNum">     167 </span>                :<span class="lineCov">          7 :   int theta_step = 2 * theta_neibor + 1;</span>
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            :   // search one vote neighbor for max_vote position in the region
+<span class="lineNum">     170 </span>        [<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          7 :   std::set&lt;int&gt; max_vote_lines;</span>
+<span class="lineNum">     171 </span>                :            :   GetMaxVotes(min_pt_num, r_neibor, theta_neibor, r_step, theta_step,
+<span class="lineNum">     172 </span>        [<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          7 :               &amp;max_vote_lines);</span>
+<span class="lineNum">     173 </span>                :            : 
+<span class="lineNum">     174 </span>                :            :   // from max vote pos to get line params
+<span class="lineNum">     175 </span>        [<span class="branchCov" title="Branch 2 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          7 :   lines-&gt;resize(max_vote_lines.size());</span>
+<span class="lineNum">     176 </span>                :<span class="lineCov">          7 :   int idx = 0;</span>
+<span class="lineNum">     177 </span>[<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">         12 :   for (auto i = max_vote_lines.begin(); i != max_vote_lines.end(); ++i) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 5 times"> + </span><span class="branchCov" title="Branch 9 was taken 7 times"> + </span>]
+<span class="lineNum">     178 </span>[<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          5 :     if (!VotePosToHoughLine(*i, with_distribute, &amp;(*lines)[idx++])) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 5 times"> + </span>]
+<span class="lineNum">     179 </span>                :            :       
+<span class="lineNum">     180 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::GetLines&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :   return false;</span>
+<span class="lineNum">     182 </span>                :            :     }
+<span class="lineNum">     183 </span>                :            :   }
+<span class="lineNum">     184 </span>                :            :   
+<span class="lineNum">     185 </span>[<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          7 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::GetLines&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 14 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>][<span class="branchCov" title="Branch 17 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 18 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 20 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 21 was not taken"> - </span>]
+<span class="lineNum">     186 </span>                :<span class="lineCov">          8 :   return true;</span>
+<a name="187"><span class="lineNum">     187 </span>                :            :  }</a>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineCov">          2 : unsigned int HoughTransfer::MemoryConsume() const {</span>
+<span class="lineNum">     190 </span>[<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          2 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::MemoryConsume&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :<span class="lineCov">          2 :   unsigned int size = 0;</span>
+<span class="lineNum">     193 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          2 :   if (is_prepared()) {</span>
+<span class="lineNum">     194 </span>                :            :     size +=
+<span class="lineNum">     195 </span>                :<span class="lineCov">          1 :         static_cast&lt;unsigned int&gt;(vote_map_.capacity() * sizeof(vote_map_[0]));</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">          1 :     size += static_cast&lt;unsigned int&gt;(query_map_.capacity() *</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :                                       sizeof(query_map_[0]));</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          1 :     size += static_cast&lt;unsigned int&gt;(theta_size_ * query_map_.size() *</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">          2 :                                       sizeof(query_map_[0][0]));</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :     size += static_cast&lt;unsigned int&gt;(distribute_map_.capacity() *</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">          1 :                                       sizeof(distribute_map_[0]));</span>
+<span class="lineNum">     202 </span>  [<span class="branchCov" title="Branch 3 was taken 1980 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 1980 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">       1981 :     for (const auto&amp; distribute : distribute_map_) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 1981 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 1980 times"> + </span><span class="branchCov" title="Branch 12 was taken 1 time"> + </span>]
+<span class="lineNum">     203 </span>                :<span class="lineCov">       1980 :       size += static_cast&lt;unsigned int&gt;(distribute.capacity() *</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">       1980 :                                         sizeof(distribute[0]));</span>
+<span class="lineNum">     205 </span>                :            :     }
+<span class="lineNum">     206 </span>                :            :   }
+<span class="lineNum">     207 </span>                :            :   
+<span class="lineNum">     208 </span>[<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          2 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::MemoryConsume&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     209 </span>                :<span class="lineCov">          2 :   return size;</span>
+<span class="lineNum">     210 </span>                :            :  }
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :            : // prepared state not change.
+<a name="213"><span class="lineNum">     213 </span>                :            : // when we use hough with with_distribute mode in large image long time,</a>
+<span class="lineNum">     214 </span>                :            : // memory consume maybe too large, so use this func to free no used cache.
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 : void HoughTransfer::FreeCache() {</span>
+<span class="lineNum">     216 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::FreeCache&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (auto&amp; distribute : distribute_map_) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     219 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     distribute.shrink_to_fit();</span>
+<span class="lineNum">     220 </span>                :            :   }
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :    AINFO&lt;&lt;&quot;(DMCZP) LeaveMethod: HoughTransfer::FreeCache&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<a name="223"><span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :  }</span></a>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineCov">          5 : void HoughTransfer::ResetMaps(bool with_distribute) {</span>
+<span class="lineNum">     226 </span>[<span class="branchCov" title="Branch 3 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          5 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::ResetMaps&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :<span class="lineCov">          5 :   memset(vote_map_.data(), 0, vote_map_.size() * sizeof(vote_map_[0]));</span>
+<span class="lineNum">     229 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          5 :   if (with_distribute) {</span>
+<span class="lineNum">     230 </span>  [<span class="branchCov" title="Branch 3 was taken 5940 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 5940 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">       5943 :     for (auto&amp; distribute : distribute_map_) {</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 5943 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 11 was taken 5940 times"> + </span><span class="branchCov" title="Branch 12 was taken 3 times"> + </span>]
+<span class="lineNum">     231 </span>                :<span class="lineCov">       5940 :       distribute.clear();</span>
+<span class="lineNum">     232 </span>                :            :     }
+<span class="lineNum">     233 </span>                :            :   }
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>[<span class="branchCov" title="Branch 3 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          5 :    AINFO&lt;&lt;&quot;(DMCZP) LeaveMethod: HoughTransfer::ResetMaps&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<a name="236"><span class="lineNum">     236 </span>                :<span class="lineCov">          5 :  }</span></a>
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :<span class="lineCov">          6 : void HoughTransfer::ClearWithShrink() {</span>
+<span class="lineNum">     239 </span>[<span class="branchCov" title="Branch 3 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          6 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::ClearWithShrink&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :<span class="lineCov">          6 :   vote_map_.clear();</span>
+<span class="lineNum">     242 </span>                :<span class="lineCov">          6 :   vote_map_.shrink_to_fit();</span>
+<span class="lineNum">     243 </span>                :<span class="lineCov">          6 :   query_map_.clear();</span>
+<span class="lineNum">     244 </span>                :<span class="lineCov">          6 :   query_map_.shrink_to_fit();</span>
+<span class="lineNum">     245 </span>                :<span class="lineCov">          6 :   distribute_map_.clear();</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">          6 :   distribute_map_.shrink_to_fit();</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">          6 :   prepared_ = false;</span>
+<span class="lineNum">     248 </span>                :            : 
+<span class="lineNum">     249 </span>[<span class="branchCov" title="Branch 3 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          6 :    AINFO&lt;&lt;&quot;(DMCZP) LeaveMethod: HoughTransfer::ClearWithShrink&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<a name="250"><span class="lineNum">     250 </span>                :<span class="lineCov">          6 :  }</span></a>
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :<span class="lineCov">          4 : bool HoughTransfer::CheckPrepared() const {</span>
+<span class="lineNum">     253 </span>[<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          4 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::CheckPrepared&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          4 :   if (static_cast&lt;int&gt;(vote_map_.size()) != r_size_ * theta_size_) {</span>
+<span class="lineNum">     256 </span>                :            :     
+<span class="lineNum">     257 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::CheckPrepared&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 :   return false;</span>
+<span class="lineNum">     259 </span>                :            :   }
+<span class="lineNum">     260 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          4 :   if (static_cast&lt;int&gt;(query_map_.size()) != img_w_ * img_h_) {</span>
+<span class="lineNum">     261 </span>                :            :     
+<span class="lineNum">     262 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::CheckPrepared&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :   return false;</span>
+<span class="lineNum">     264 </span>                :            :   }
+<span class="lineNum">     265 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          4 :   if (static_cast&lt;int&gt;(distribute_map_.size()) != r_size_ * theta_size_) {</span>
+<span class="lineNum">     266 </span>                :            :     
+<span class="lineNum">     267 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::CheckPrepared&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     268 </span>                :<span class="lineNoCov">          0 :   return false;</span>
+<span class="lineNum">     269 </span>                :            :   }
+<span class="lineNum">     270 </span>[<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span>]:<span class="lineCov">          4 :   if (vote_map_.empty() || query_map_.empty() || distribute_map_.empty()) {</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchCov" title="Branch 10 was taken 2 times"> + </span>]
+<span class="lineNum">     271 </span>                :            :     
+<span class="lineNum">     272 </span>[<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          2 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::CheckPrepared&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     273 </span>                :<span class="lineCov">          2 :   return false;</span>
+<span class="lineNum">     274 </span>                :            :   }
+<span class="lineNum">     275 </span>                :            :   
+<span class="lineNum">     276 </span>[<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          2 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::CheckPrepared&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     277 </span>                :<span class="lineCov">          4 :   return true;</span>
+<a name="278"><span class="lineNum">     278 </span>                :            :  }</a>
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>                :<span class="lineCov">          7 : void HoughTransfer::GetMaxVotes(int min_pt_num, int r_neibor, int theta_neibor,</span>
+<span class="lineNum">     281 </span>                :            :                                 int r_step, int theta_step,
+<span class="lineNum">     282 </span>                :            :                                 std::set&lt;int&gt;* max_vote_lines) const {
+<span class="lineNum">     283 </span>[<span class="branchCov" title="Branch 3 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          7 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::GetMaxVotes&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">         21 :   for (int i = r_neibor; i &lt; r_size_ - r_neibor; i += r_step) {</span>
+<span class="lineNum">     286 </span>        [<span class="branchCov" title="Branch 0 was taken 760 times"> + </span><span class="branchCov" title="Branch 1 was taken 14 times"> + </span>]:<span class="lineCov">        774 :     for (int j = theta_neibor; j &lt; theta_size_ - theta_neibor;</span>
+<span class="lineNum">     287 </span>                :            :          j += theta_step) {
+<span class="lineNum">     288 </span>                :<span class="lineCov">        760 :       int max_pos = -1;</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">        760 :       int max_vote = min_pt_num;</span>
+<span class="lineNum">     290 </span>        [<span class="branchCov" title="Branch 0 was taken 2360 times"> + </span><span class="branchCov" title="Branch 1 was taken 760 times"> + </span>]:<span class="lineCov">       3120 :       for (int m = -r_neibor; m &lt;= r_neibor; ++m) {</span>
+<span class="lineNum">     291 </span>        [<span class="branchCov" title="Branch 0 was taken 8280 times"> + </span><span class="branchCov" title="Branch 1 was taken 2360 times"> + </span>]:<span class="lineCov">      10640 :         for (int n = -theta_neibor; n &lt;= theta_neibor; ++n) {</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">       8280 :           int neibor_pos = (i + m) * theta_size_ + j + n;</span>
+<span class="lineNum">     293 </span>[<span class="branchCov" title="Branch 1 was taken 8280 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 14 times"> + </span><span class="branchCov" title="Branch 4 was taken 8266 times"> + </span>]:<span class="lineCov">       8280 :           if (vote_map_[neibor_pos] &gt;= max_vote) {</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">         14 :             max_pos = neibor_pos;</span>
+<span class="lineNum">     295 </span>        [<span class="branchCov" title="Branch 1 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         14 :             max_vote = vote_map_[neibor_pos];</span>
+<span class="lineNum">     296 </span>                :            :           }
+<span class="lineNum">     297 </span>                :            :         }
+<span class="lineNum">     298 </span>                :            :       }
+<span class="lineNum">     299 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 755 times"> + </span>]:<span class="lineCov">        760 :       if (max_pos &gt;= 0) {</span>
+<span class="lineNum">     300 </span>        [<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          5 :         max_vote_lines-&gt;insert(max_pos);</span>
+<span class="lineNum">     301 </span>                :            :       }
+<span class="lineNum">     302 </span>                :            :     }
+<span class="lineNum">     303 </span>                :            :   }
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>[<span class="branchCov" title="Branch 3 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          7 :    AINFO&lt;&lt;&quot;(DMCZP) LeaveMethod: HoughTransfer::GetMaxVotes&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<a name="306"><span class="lineNum">     306 </span>                :<span class="lineCov">          7 :  }</span></a>
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :<span class="lineCov">          5 : bool HoughTransfer::VotePosToHoughLine(int vote_pos, bool with_distribute,</span>
+<span class="lineNum">     309 </span>                :            :                                        HoughLine* out_line) const {
+<span class="lineNum">     310 </span>[<span class="branchCov" title="Branch 3 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          5 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: HoughTransfer::VotePosToHoughLine&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :   if (!out_line) {</span>
+<span class="lineNum">     313 </span>                :            :     
+<span class="lineNum">     314 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::VotePosToHoughLine&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :   return false;</span>
+<span class="lineNum">     316 </span>                :            :   }
+<span class="lineNum">     317 </span>                :<span class="lineCov">          5 :   out_line-&gt;r = static_cast&lt;float&gt;(vote_pos / theta_size_ - r_size_ / 2) * d_r_;</span>
+<span class="lineNum">     318 </span>                :<span class="lineCov">          5 :   out_line-&gt;theta = static_cast&lt;float&gt;(vote_pos % theta_size_) * d_theta_;</span>
+<span class="lineNum">     319 </span>                :<span class="lineCov">          5 :   out_line-&gt;vote_num = vote_map_[vote_pos];</span>
+<span class="lineNum">     320 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          5 :   if (with_distribute) {</span>
+<span class="lineNum">     321 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (out_line-&gt;vote_num !=</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">          2 :         static_cast&lt;int&gt;(distribute_map_[vote_pos].size())) {</span>
+<span class="lineNum">     323 </span>                :            :       
+<span class="lineNum">     324 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::VotePosToHoughLine&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :   return false;</span>
+<span class="lineNum">     326 </span>                :            :     }
+<span class="lineNum">     327 </span>                :<span class="lineCov">          2 :     out_line-&gt;pts = distribute_map_[vote_pos];</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">          2 :     const int start_pos = distribute_map_[vote_pos][0];</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">          2 :     const int end_pos = distribute_map_[vote_pos][out_line-&gt;vote_num - 1];</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">          2 :     const int start_x = start_pos % img_w_;</span>
+<span class="lineNum">     331 </span>                :<span class="lineCov">          2 :     const int start_y = start_pos / img_w_;</span>
+<span class="lineNum">     332 </span>                :<span class="lineCov">          2 :     const int end_x = end_pos % img_w_;</span>
+<span class="lineNum">     333 </span>                :<span class="lineCov">          2 :     const int end_y = end_pos / img_w_;</span>
+<span class="lineNum">     334 </span>                :            :     out_line-&gt;length =
+<span class="lineNum">     335 </span>                :<span class="lineCov">          4 :         sqrtf(static_cast&lt;float&gt;((start_x - end_x) * (start_x - end_x) +</span>
+<span class="lineNum">     336 </span>                :<span class="lineCov">          2 :                                  (start_y - end_y) * (start_y - end_y)));</span>
+<span class="lineNum">     337 </span>                :            :   }
+<span class="lineNum">     338 </span>                :            :   
+<span class="lineNum">     339 </span>[<span class="branchCov" title="Branch 3 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          5 :   AINFO&lt;&lt;&quot;(DMCZP) (return) LeaveMethod: HoughTransfer::VotePosToHoughLine&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     340 </span>                :<span class="lineCov">          5 :   return true;</span>
+<span class="lineNum">     341 </span>                :            :  }
+<span class="lineNum">     342 </span>                :            : 
+<span class="lineNum">     343 </span>                :            : }  // namespace common
+<span class="lineNum">     344 </span>                :            : }  // namespace perception
+<span class="lineNum">     345 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

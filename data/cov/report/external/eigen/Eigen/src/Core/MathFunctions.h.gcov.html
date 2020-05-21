@@ -1,0 +1,877 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Core/MathFunctions.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Core</a> - MathFunctions.h<span style="font-size: 80%;"> (source / <a href="MathFunctions.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntryMed">87.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntryLo">63.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2006-2010 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       5 </span>                :            : //
+<span class="lineNum">       6 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       7 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       8 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            : #ifndef EIGEN_MATHFUNCTIONS_H
+<span class="lineNum">      11 </span>                :            : #define EIGEN_MATHFUNCTIONS_H
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : namespace Eigen {
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : namespace internal {
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /** \internal \struct global_math_functions_filtering_base
+<span class="lineNum">      18 </span>                :            :   *
+<span class="lineNum">      19 </span>                :            :   * What it does:
+<span class="lineNum">      20 </span>                :            :   * Defines a typedef 'type' as follows:
+<span class="lineNum">      21 </span>                :            :   * - if type T has a member typedef Eigen_BaseClassForSpecializationOfGlobalMathFuncImpl, then
+<span class="lineNum">      22 </span>                :            :   *   global_math_functions_filtering_base&lt;T&gt;::type is a typedef for it.
+<span class="lineNum">      23 </span>                :            :   * - otherwise, global_math_functions_filtering_base&lt;T&gt;::type is a typedef for T.
+<span class="lineNum">      24 </span>                :            :   *
+<span class="lineNum">      25 </span>                :            :   * How it's used:
+<span class="lineNum">      26 </span>                :            :   * To allow to defined the global math functions (like sin...) in certain cases, like the Array expressions.
+<span class="lineNum">      27 </span>                :            :   * When you do sin(array1+array2), the object array1+array2 has a complicated expression type, all what you want to know
+<span class="lineNum">      28 </span>                :            :   * is that it inherits ArrayBase. So we implement a partial specialization of sin_impl for ArrayBase&lt;Derived&gt;.
+<span class="lineNum">      29 </span>                :            :   * So we must make sure to use sin_impl&lt;ArrayBase&lt;Derived&gt; &gt; and not sin_impl&lt;Derived&gt;, otherwise our partial specialization
+<span class="lineNum">      30 </span>                :            :   * won't be used. How does sin know that? That's exactly what global_math_functions_filtering_base tells it.
+<span class="lineNum">      31 </span>                :            :   *
+<span class="lineNum">      32 </span>                :            :   * How it's implemented:
+<span class="lineNum">      33 </span>                :            :   * SFINAE in the style of enable_if. Highly susceptible of breaking compilers. With GCC, it sure does work, but if you replace
+<span class="lineNum">      34 </span>                :            :   * the typename dummy by an integer template parameter, it doesn't work anymore!
+<span class="lineNum">      35 </span>                :            :   */
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : template&lt;typename T, typename dummy = void&gt;
+<span class="lineNum">      38 </span>                :            : struct global_math_functions_filtering_base
+<span class="lineNum">      39 </span>                :            : {
+<span class="lineNum">      40 </span>                :            :   typedef T type;
+<span class="lineNum">      41 </span>                :            : };
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : template&lt;typename T&gt; struct always_void { typedef void type; };
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : template&lt;typename T&gt;
+<span class="lineNum">      46 </span>                :            : struct global_math_functions_filtering_base
+<span class="lineNum">      47 </span>                :            :   &lt;T,
+<span class="lineNum">      48 </span>                :            :    typename always_void&lt;typename T::Eigen_BaseClassForSpecializationOfGlobalMathFuncImpl&gt;::type
+<span class="lineNum">      49 </span>                :            :   &gt;
+<span class="lineNum">      50 </span>                :            : {
+<span class="lineNum">      51 </span>                :            :   typedef typename T::Eigen_BaseClassForSpecializationOfGlobalMathFuncImpl type;
+<span class="lineNum">      52 </span>                :            : };
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            : #define EIGEN_MATHFUNC_IMPL(func, scalar) Eigen::internal::func##_impl&lt;typename Eigen::internal::global_math_functions_filtering_base&lt;scalar&gt;::type&gt;
+<span class="lineNum">      55 </span>                :            : #define EIGEN_MATHFUNC_RETVAL(func, scalar) typename Eigen::internal::func##_retval&lt;typename Eigen::internal::global_math_functions_filtering_base&lt;scalar&gt;::type&gt;::type
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : /****************************************************************************
+<span class="lineNum">      58 </span>                :            : * Implementation of real                                                 *
+<span class="lineNum">      59 </span>                :            : ****************************************************************************/
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : template&lt;typename Scalar, bool IsComplex = NumTraits&lt;Scalar&gt;::IsComplex&gt;
+<span class="lineNum">      62 </span>                :            : struct real_default_impl
+<a name="63"><span class="lineNum">      63 </span>                :            : {</a>
+<span class="lineNum">      64 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">      65 </span>                :<span class="lineCov">    1429971 :   static inline RealScalar run(const Scalar&amp; x)</span>
+<span class="lineNum">      66 </span>                :            :   {
+<span class="lineNum">      67 </span>                :<span class="lineCov">    1429971 :     return x;</span>
+<span class="lineNum">      68 </span>                :            :   }
+<span class="lineNum">      69 </span>                :            : };
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">      72 </span>                :            : struct real_default_impl&lt;Scalar,true&gt;
+<a name="73"><span class="lineNum">      73 </span>                :            : {</a>
+<span class="lineNum">      74 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :   static inline RealScalar run(const Scalar&amp; x)</span>
+<span class="lineNum">      76 </span>                :            :   {
+<span class="lineNum">      77 </span>                :            :     using std::real;
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :     return real(x);</span>
+<span class="lineNum">      79 </span>                :            :   }
+<span class="lineNum">      80 </span>                :            : };
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :            : template&lt;typename Scalar&gt; struct real_impl : real_default_impl&lt;Scalar&gt; {};
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">      85 </span>                :            : struct real_retval
+<span class="lineNum">      86 </span>                :            : {
+<span class="lineNum">      87 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real type;
+<span class="lineNum">      88 </span>                :            : };
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :            : /****************************************************************************
+<span class="lineNum">      92 </span>                :            : * Implementation of imag                                                 *
+<span class="lineNum">      93 </span>                :            : ****************************************************************************/
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            : template&lt;typename Scalar, bool IsComplex = NumTraits&lt;Scalar&gt;::IsComplex&gt;
+<span class="lineNum">      96 </span>                :            : struct imag_default_impl
+<a name="97"><span class="lineNum">      97 </span>                :            : {</a>
+<span class="lineNum">      98 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">      99 </span>                :<span class="lineCov">     708954 :   static inline RealScalar run(const Scalar&amp;)</span>
+<span class="lineNum">     100 </span>                :            :   {
+<span class="lineNum">     101 </span>                :<span class="lineCov">     708954 :     return RealScalar(0);</span>
+<span class="lineNum">     102 </span>                :            :   }
+<span class="lineNum">     103 </span>                :            : };
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     106 </span>                :            : struct imag_default_impl&lt;Scalar,true&gt;
+<a name="107"><span class="lineNum">     107 </span>                :            : {</a>
+<span class="lineNum">     108 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :   static inline RealScalar run(const Scalar&amp; x)</span>
+<span class="lineNum">     110 </span>                :            :   {
+<span class="lineNum">     111 </span>                :            :     using std::imag;
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :     return imag(x);</span>
+<span class="lineNum">     113 </span>                :            :   }
+<span class="lineNum">     114 </span>                :            : };
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :            : template&lt;typename Scalar&gt; struct imag_impl : imag_default_impl&lt;Scalar&gt; {};
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     119 </span>                :            : struct imag_retval
+<span class="lineNum">     120 </span>                :            : {
+<span class="lineNum">     121 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real type;
+<span class="lineNum">     122 </span>                :            : };
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :            : /****************************************************************************
+<span class="lineNum">     125 </span>                :            : * Implementation of real_ref                                             *
+<span class="lineNum">     126 </span>                :            : ****************************************************************************/
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     129 </span>                :            : struct real_ref_impl
+<span class="lineNum">     130 </span>                :            : {
+<span class="lineNum">     131 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     132 </span>                :            :   static inline RealScalar&amp; run(Scalar&amp; x)
+<span class="lineNum">     133 </span>                :            :   {
+<span class="lineNum">     134 </span>                :            :     return reinterpret_cast&lt;RealScalar*&gt;(&amp;x)[0];
+<span class="lineNum">     135 </span>                :            :   }
+<span class="lineNum">     136 </span>                :            :   static inline const RealScalar&amp; run(const Scalar&amp; x)
+<span class="lineNum">     137 </span>                :            :   {
+<span class="lineNum">     138 </span>                :            :     return reinterpret_cast&lt;const RealScalar*&gt;(&amp;x)[0];
+<span class="lineNum">     139 </span>                :            :   }
+<span class="lineNum">     140 </span>                :            : };
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     143 </span>                :            : struct real_ref_retval
+<span class="lineNum">     144 </span>                :            : {
+<span class="lineNum">     145 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real &amp; type;
+<span class="lineNum">     146 </span>                :            : };
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :            : /****************************************************************************
+<span class="lineNum">     149 </span>                :            : * Implementation of imag_ref                                             *
+<span class="lineNum">     150 </span>                :            : ****************************************************************************/
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :            : template&lt;typename Scalar, bool IsComplex&gt;
+<span class="lineNum">     153 </span>                :            : struct imag_ref_default_impl
+<span class="lineNum">     154 </span>                :            : {
+<span class="lineNum">     155 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     156 </span>                :            :   static inline RealScalar&amp; run(Scalar&amp; x)
+<span class="lineNum">     157 </span>                :            :   {
+<span class="lineNum">     158 </span>                :            :     return reinterpret_cast&lt;RealScalar*&gt;(&amp;x)[1];
+<span class="lineNum">     159 </span>                :            :   }
+<span class="lineNum">     160 </span>                :            :   static inline const RealScalar&amp; run(const Scalar&amp; x)
+<span class="lineNum">     161 </span>                :            :   {
+<span class="lineNum">     162 </span>                :            :     return reinterpret_cast&lt;RealScalar*&gt;(&amp;x)[1];
+<span class="lineNum">     163 </span>                :            :   }
+<span class="lineNum">     164 </span>                :            : };
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     167 </span>                :            : struct imag_ref_default_impl&lt;Scalar, false&gt;
+<span class="lineNum">     168 </span>                :            : {
+<span class="lineNum">     169 </span>                :            :   static inline Scalar run(Scalar&amp;)
+<span class="lineNum">     170 </span>                :            :   {
+<span class="lineNum">     171 </span>                :            :     return Scalar(0);
+<span class="lineNum">     172 </span>                :            :   }
+<span class="lineNum">     173 </span>                :            :   static inline const Scalar run(const Scalar&amp;)
+<span class="lineNum">     174 </span>                :            :   {
+<span class="lineNum">     175 </span>                :            :     return Scalar(0);
+<span class="lineNum">     176 </span>                :            :   }
+<span class="lineNum">     177 </span>                :            : };
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     180 </span>                :            : struct imag_ref_impl : imag_ref_default_impl&lt;Scalar, NumTraits&lt;Scalar&gt;::IsComplex&gt; {};
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     183 </span>                :            : struct imag_ref_retval
+<span class="lineNum">     184 </span>                :            : {
+<span class="lineNum">     185 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real &amp; type;
+<span class="lineNum">     186 </span>                :            : };
+<span class="lineNum">     187 </span>                :            : 
+<span class="lineNum">     188 </span>                :            : /****************************************************************************
+<span class="lineNum">     189 </span>                :            : * Implementation of conj                                                 *
+<span class="lineNum">     190 </span>                :            : ****************************************************************************/
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            : template&lt;typename Scalar, bool IsComplex = NumTraits&lt;Scalar&gt;::IsComplex&gt;
+<a name="193"><span class="lineNum">     193 </span>                :            : struct conj_impl</a>
+<span class="lineNum">     194 </span>                :            : {
+<span class="lineNum">     195 </span>                :<span class="lineCov">   20845354 :   static inline Scalar run(const Scalar&amp; x)</span>
+<span class="lineNum">     196 </span>                :            :   {
+<span class="lineNum">     197 </span>                :<span class="lineCov">   20845354 :     return x;</span>
+<span class="lineNum">     198 </span>                :            :   }
+<span class="lineNum">     199 </span>                :            : };
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     202 </span>                :            : struct conj_impl&lt;Scalar,true&gt;
+<span class="lineNum">     203 </span>                :            : {
+<span class="lineNum">     204 </span>                :            :   static inline Scalar run(const Scalar&amp; x)
+<span class="lineNum">     205 </span>                :            :   {
+<span class="lineNum">     206 </span>                :            :     using std::conj;
+<span class="lineNum">     207 </span>                :            :     return conj(x);
+<span class="lineNum">     208 </span>                :            :   }
+<span class="lineNum">     209 </span>                :            : };
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     212 </span>                :            : struct conj_retval
+<span class="lineNum">     213 </span>                :            : {
+<span class="lineNum">     214 </span>                :            :   typedef Scalar type;
+<span class="lineNum">     215 </span>                :            : };
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            : /****************************************************************************
+<span class="lineNum">     218 </span>                :            : * Implementation of abs2                                                 *
+<span class="lineNum">     219 </span>                :            : ****************************************************************************/
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :            : template&lt;typename Scalar,bool IsComplex&gt;
+<span class="lineNum">     222 </span>                :            : struct abs2_impl_default
+<a name="223"><span class="lineNum">     223 </span>                :            : {</a>
+<span class="lineNum">     224 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     225 </span>                :<span class="lineCov">    5899613 :   static inline RealScalar run(const Scalar&amp; x)</span>
+<span class="lineNum">     226 </span>                :            :   {
+<span class="lineNum">     227 </span>                :<span class="lineCov">    5899613 :     return x*x;</span>
+<span class="lineNum">     228 </span>                :            :   }
+<span class="lineNum">     229 </span>                :            : };
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     232 </span>                :            : struct abs2_impl_default&lt;Scalar, true&gt; // IsComplex
+<a name="233"><span class="lineNum">     233 </span>                :            : {</a>
+<span class="lineNum">     234 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :   static inline RealScalar run(const Scalar&amp; x)</span>
+<span class="lineNum">     236 </span>                :            :   {
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :     return real(x)*real(x) + imag(x)*imag(x);</span>
+<span class="lineNum">     238 </span>                :            :   }
+<span class="lineNum">     239 </span>                :            : };
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     242 </span>                :            : struct abs2_impl
+<a name="243"><span class="lineNum">     243 </span>                :            : {</a>
+<span class="lineNum">     244 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     245 </span>                :<span class="lineCov">    5899613 :   static inline RealScalar run(const Scalar&amp; x)</span>
+<span class="lineNum">     246 </span>                :            :   {
+<span class="lineNum">     247 </span>                :<span class="lineCov">    5899613 :     return abs2_impl_default&lt;Scalar,NumTraits&lt;Scalar&gt;::IsComplex&gt;::run(x);</span>
+<span class="lineNum">     248 </span>                :            :   }
+<span class="lineNum">     249 </span>                :            : };
+<span class="lineNum">     250 </span>                :            : 
+<span class="lineNum">     251 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     252 </span>                :            : struct abs2_retval
+<span class="lineNum">     253 </span>                :            : {
+<span class="lineNum">     254 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real type;
+<span class="lineNum">     255 </span>                :            : };
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :            : /****************************************************************************
+<span class="lineNum">     258 </span>                :            : * Implementation of norm1                                                *
+<span class="lineNum">     259 </span>                :            : ****************************************************************************/
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>                :            : template&lt;typename Scalar, bool IsComplex&gt;
+<span class="lineNum">     262 </span>                :            : struct norm1_default_impl
+<span class="lineNum">     263 </span>                :            : {
+<span class="lineNum">     264 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     265 </span>                :            :   static inline RealScalar run(const Scalar&amp; x)
+<span class="lineNum">     266 </span>                :            :   {
+<span class="lineNum">     267 </span>                :            :     using std::abs;
+<span class="lineNum">     268 </span>                :            :     return abs(real(x)) + abs(imag(x));
+<span class="lineNum">     269 </span>                :            :   }
+<span class="lineNum">     270 </span>                :            : };
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     273 </span>                :            : struct norm1_default_impl&lt;Scalar, false&gt;
+<span class="lineNum">     274 </span>                :            : {
+<span class="lineNum">     275 </span>                :            :   static inline Scalar run(const Scalar&amp; x)
+<span class="lineNum">     276 </span>                :            :   {
+<span class="lineNum">     277 </span>                :            :     using std::abs;
+<span class="lineNum">     278 </span>                :            :     return abs(x);
+<span class="lineNum">     279 </span>                :            :   }
+<span class="lineNum">     280 </span>                :            : };
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     283 </span>                :            : struct norm1_impl : norm1_default_impl&lt;Scalar, NumTraits&lt;Scalar&gt;::IsComplex&gt; {};
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     286 </span>                :            : struct norm1_retval
+<span class="lineNum">     287 </span>                :            : {
+<span class="lineNum">     288 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real type;
+<span class="lineNum">     289 </span>                :            : };
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :            : /****************************************************************************
+<span class="lineNum">     292 </span>                :            : * Implementation of hypot                                                *
+<span class="lineNum">     293 </span>                :            : ****************************************************************************/
+<span class="lineNum">     294 </span>                :            : 
+<span class="lineNum">     295 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     296 </span>                :            : struct hypot_impl
+<a name="297"><span class="lineNum">     297 </span>                :            : {</a>
+<span class="lineNum">     298 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     299 </span>                :<span class="lineCov">    1834632 :   static inline RealScalar run(const Scalar&amp; x, const Scalar&amp; y)</span>
+<span class="lineNum">     300 </span>                :            :   {
+<span class="lineNum">     301 </span>                :            :     using std::max;
+<span class="lineNum">     302 </span>                :            :     using std::min;
+<span class="lineNum">     303 </span>                :            :     using std::abs;
+<span class="lineNum">     304 </span>                :            :     using std::sqrt;
+<span class="lineNum">     305 </span>        [<span class="branchCov" title="Branch 1 was taken 1834632 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    1834632 :     RealScalar _x = abs(x);</span>
+<span class="lineNum">     306 </span>        [<span class="branchCov" title="Branch 1 was taken 1834632 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    1834632 :     RealScalar _y = abs(y);</span>
+<span class="lineNum">     307 </span>        [<span class="branchCov" title="Branch 1 was taken 1834632 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    1834632 :     RealScalar p = (max)(_x, _y);</span>
+<span class="lineNum">     308 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1834632 times"> + </span>]:<span class="lineCov">    1834632 :     if(p==RealScalar(0)) return RealScalar(0);</span>
+<span class="lineNum">     309 </span>        [<span class="branchCov" title="Branch 1 was taken 1834632 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    1834632 :     RealScalar q = (min)(_x, _y);</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">    1834632 :     RealScalar qp = q/p;</span>
+<span class="lineNum">     311 </span>        [<span class="branchCov" title="Branch 1 was taken 1834632 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    1834632 :     return p * sqrt(RealScalar(1) + qp*qp);</span>
+<span class="lineNum">     312 </span>                :            :   }
+<span class="lineNum">     313 </span>                :            : };
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     316 </span>                :            : struct hypot_retval
+<span class="lineNum">     317 </span>                :            : {
+<span class="lineNum">     318 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real type;
+<span class="lineNum">     319 </span>                :            : };
+<span class="lineNum">     320 </span>                :            : 
+<span class="lineNum">     321 </span>                :            : /****************************************************************************
+<span class="lineNum">     322 </span>                :            : * Implementation of cast                                                 *
+<span class="lineNum">     323 </span>                :            : ****************************************************************************/
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :            : template&lt;typename OldType, typename NewType&gt;
+<a name="326"><span class="lineNum">     326 </span>                :            : struct cast_impl</a>
+<span class="lineNum">     327 </span>                :            : {
+<span class="lineNum">     328 </span>                :<span class="lineCov">     136545 :   static inline NewType run(const OldType&amp; x)</span>
+<span class="lineNum">     329 </span>                :            :   {
+<span class="lineNum">     330 </span>                :<span class="lineCov">     136545 :     return static_cast&lt;NewType&gt;(x);</span>
+<span class="lineNum">     331 </span>                :            :   }
+<span class="lineNum">     332 </span>                :            : };
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :            : // here, for once, we're plainly returning NewType: we don't want cast to do weird things.
+<a name="335"><span class="lineNum">     335 </span>                :            : </a>
+<span class="lineNum">     336 </span>                :            : template&lt;typename OldType, typename NewType&gt;
+<span class="lineNum">     337 </span>                :<span class="lineCov">     136545 : inline NewType cast(const OldType&amp; x)</span>
+<span class="lineNum">     338 </span>                :            : {
+<span class="lineNum">     339 </span>                :<span class="lineCov">     136545 :   return cast_impl&lt;OldType, NewType&gt;::run(x);</span>
+<span class="lineNum">     340 </span>                :            : }
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>                :            : /****************************************************************************
+<span class="lineNum">     343 </span>                :            : * Implementation of atanh2                                                *
+<span class="lineNum">     344 </span>                :            : ****************************************************************************/
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :            : template&lt;typename Scalar, bool IsInteger&gt;
+<span class="lineNum">     347 </span>                :            : struct atanh2_default_impl
+<span class="lineNum">     348 </span>                :            : {
+<span class="lineNum">     349 </span>                :            :   typedef Scalar retval;
+<span class="lineNum">     350 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     351 </span>                :            :   static inline Scalar run(const Scalar&amp; x, const Scalar&amp; y)
+<span class="lineNum">     352 </span>                :            :   {
+<span class="lineNum">     353 </span>                :            :     using std::abs;
+<span class="lineNum">     354 </span>                :            :     using std::log;
+<span class="lineNum">     355 </span>                :            :     using std::sqrt;
+<span class="lineNum">     356 </span>                :            :     Scalar z = x / y;
+<span class="lineNum">     357 </span>                :            :     if (y == Scalar(0) || abs(z) &gt; sqrt(NumTraits&lt;RealScalar&gt;::epsilon()))
+<span class="lineNum">     358 </span>                :            :       return RealScalar(0.5) * log((y + x) / (y - x));
+<span class="lineNum">     359 </span>                :            :     else
+<span class="lineNum">     360 </span>                :            :       return z + z*z*z / RealScalar(3);
+<span class="lineNum">     361 </span>                :            :   }
+<span class="lineNum">     362 </span>                :            : };
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     365 </span>                :            : struct atanh2_default_impl&lt;Scalar, true&gt;
+<span class="lineNum">     366 </span>                :            : {
+<span class="lineNum">     367 </span>                :            :   static inline Scalar run(const Scalar&amp;, const Scalar&amp;)
+<span class="lineNum">     368 </span>                :            :   {
+<span class="lineNum">     369 </span>                :            :     EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
+<span class="lineNum">     370 </span>                :            :     return Scalar(0);
+<span class="lineNum">     371 </span>                :            :   }
+<span class="lineNum">     372 </span>                :            : };
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     375 </span>                :            : struct atanh2_impl : atanh2_default_impl&lt;Scalar, NumTraits&lt;Scalar&gt;::IsInteger&gt; {};
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     378 </span>                :            : struct atanh2_retval
+<span class="lineNum">     379 </span>                :            : {
+<span class="lineNum">     380 </span>                :            :   typedef Scalar type;
+<span class="lineNum">     381 </span>                :            : };
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :            : /****************************************************************************
+<span class="lineNum">     384 </span>                :            : * Implementation of pow                                                  *
+<span class="lineNum">     385 </span>                :            : ****************************************************************************/
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>                :            : template&lt;typename Scalar, bool IsInteger&gt;
+<span class="lineNum">     388 </span>                :            : struct pow_default_impl
+<span class="lineNum">     389 </span>                :            : {
+<span class="lineNum">     390 </span>                :            :   typedef Scalar retval;
+<span class="lineNum">     391 </span>                :            :   static inline Scalar run(const Scalar&amp; x, const Scalar&amp; y)
+<span class="lineNum">     392 </span>                :            :   {
+<span class="lineNum">     393 </span>                :            :     using std::pow;
+<span class="lineNum">     394 </span>                :            :     return pow(x, y);
+<span class="lineNum">     395 </span>                :            :   }
+<span class="lineNum">     396 </span>                :            : };
+<span class="lineNum">     397 </span>                :            : 
+<span class="lineNum">     398 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     399 </span>                :            : struct pow_default_impl&lt;Scalar, true&gt;
+<span class="lineNum">     400 </span>                :            : {
+<span class="lineNum">     401 </span>                :            :   static inline Scalar run(Scalar x, Scalar y)
+<span class="lineNum">     402 </span>                :            :   {
+<span class="lineNum">     403 </span>                :            :     Scalar res(1);
+<span class="lineNum">     404 </span>                :            :     eigen_assert(!NumTraits&lt;Scalar&gt;::IsSigned || y &gt;= 0);
+<span class="lineNum">     405 </span>                :            :     if(y &amp; 1) res *= x;
+<span class="lineNum">     406 </span>                :            :     y &gt;&gt;= 1;
+<span class="lineNum">     407 </span>                :            :     while(y)
+<span class="lineNum">     408 </span>                :            :     {
+<span class="lineNum">     409 </span>                :            :       x *= x;
+<span class="lineNum">     410 </span>                :            :       if(y&amp;1) res *= x;
+<span class="lineNum">     411 </span>                :            :       y &gt;&gt;= 1;
+<span class="lineNum">     412 </span>                :            :     }
+<span class="lineNum">     413 </span>                :            :     return res;
+<span class="lineNum">     414 </span>                :            :   }
+<span class="lineNum">     415 </span>                :            : };
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     418 </span>                :            : struct pow_impl : pow_default_impl&lt;Scalar, NumTraits&lt;Scalar&gt;::IsInteger&gt; {};
+<span class="lineNum">     419 </span>                :            : 
+<span class="lineNum">     420 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     421 </span>                :            : struct pow_retval
+<span class="lineNum">     422 </span>                :            : {
+<span class="lineNum">     423 </span>                :            :   typedef Scalar type;
+<span class="lineNum">     424 </span>                :            : };
+<span class="lineNum">     425 </span>                :            : 
+<span class="lineNum">     426 </span>                :            : /****************************************************************************
+<span class="lineNum">     427 </span>                :            : * Implementation of random                                               *
+<span class="lineNum">     428 </span>                :            : ****************************************************************************/
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :            : template&lt;typename Scalar,
+<span class="lineNum">     431 </span>                :            :          bool IsComplex,
+<span class="lineNum">     432 </span>                :            :          bool IsInteger&gt;
+<span class="lineNum">     433 </span>                :            : struct random_default_impl {};
+<span class="lineNum">     434 </span>                :            : 
+<span class="lineNum">     435 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     436 </span>                :            : struct random_impl : random_default_impl&lt;Scalar, NumTraits&lt;Scalar&gt;::IsComplex, NumTraits&lt;Scalar&gt;::IsInteger&gt; {};
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     439 </span>                :            : struct random_retval
+<span class="lineNum">     440 </span>                :            : {
+<span class="lineNum">     441 </span>                :            :   typedef Scalar type;
+<span class="lineNum">     442 </span>                :            : };
+<span class="lineNum">     443 </span>                :            : 
+<span class="lineNum">     444 </span>                :            : template&lt;typename Scalar&gt; inline EIGEN_MATHFUNC_RETVAL(random, Scalar) random(const Scalar&amp; x, const Scalar&amp; y);
+<span class="lineNum">     445 </span>                :            : template&lt;typename Scalar&gt; inline EIGEN_MATHFUNC_RETVAL(random, Scalar) random();
+<span class="lineNum">     446 </span>                :            : 
+<span class="lineNum">     447 </span>                :            : template&lt;typename Scalar&gt;
+<a name="448"><span class="lineNum">     448 </span>                :            : struct random_default_impl&lt;Scalar, false, false&gt;</a>
+<span class="lineNum">     449 </span>                :            : {
+<span class="lineNum">     450 </span>                :<span class="lineCov">        400 :   static inline Scalar run(const Scalar&amp; x, const Scalar&amp; y)</span>
+<span class="lineNum">     451 </span>                :            :   {
+<a name="452"><span class="lineNum">     452 </span>                :<span class="lineCov">        400 :     return x + (y-x) * Scalar(std::rand()) / Scalar(RAND_MAX);</span></a>
+<span class="lineNum">     453 </span>                :            :   }
+<span class="lineNum">     454 </span>                :<span class="lineCov">        400 :   static inline Scalar run()</span>
+<span class="lineNum">     455 </span>                :            :   {
+<span class="lineNum">     456 </span>        [<span class="branchCov" title="Branch 1 was taken 400 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        400 :     return run(Scalar(NumTraits&lt;Scalar&gt;::IsSigned ? -1 : 0), Scalar(1));</span>
+<span class="lineNum">     457 </span>                :            :   }
+<span class="lineNum">     458 </span>                :            : };
+<span class="lineNum">     459 </span>                :            : 
+<span class="lineNum">     460 </span>                :            : enum {
+<span class="lineNum">     461 </span>                :            :   floor_log2_terminate,
+<span class="lineNum">     462 </span>                :            :   floor_log2_move_up,
+<span class="lineNum">     463 </span>                :            :   floor_log2_move_down,
+<span class="lineNum">     464 </span>                :            :   floor_log2_bogus
+<span class="lineNum">     465 </span>                :            : };
+<span class="lineNum">     466 </span>                :            : 
+<span class="lineNum">     467 </span>                :            : template&lt;unsigned int n, int lower, int upper&gt; struct floor_log2_selector
+<span class="lineNum">     468 </span>                :            : {
+<span class="lineNum">     469 </span>                :            :   enum { middle = (lower + upper) / 2,
+<span class="lineNum">     470 </span>                :            :          value = (upper &lt;= lower + 1) ? int(floor_log2_terminate)
+<span class="lineNum">     471 </span>                :            :                : (n &lt; (1 &lt;&lt; middle)) ? int(floor_log2_move_down)
+<span class="lineNum">     472 </span>                :            :                : (n==0) ? int(floor_log2_bogus)
+<span class="lineNum">     473 </span>                :            :                : int(floor_log2_move_up)
+<span class="lineNum">     474 </span>                :            :   };
+<span class="lineNum">     475 </span>                :            : };
+<span class="lineNum">     476 </span>                :            : 
+<span class="lineNum">     477 </span>                :            : template&lt;unsigned int n,
+<span class="lineNum">     478 </span>                :            :          int lower = 0,
+<span class="lineNum">     479 </span>                :            :          int upper = sizeof(unsigned int) * CHAR_BIT - 1,
+<span class="lineNum">     480 </span>                :            :          int selector = floor_log2_selector&lt;n, lower, upper&gt;::value&gt;
+<span class="lineNum">     481 </span>                :            : struct floor_log2 {};
+<span class="lineNum">     482 </span>                :            : 
+<span class="lineNum">     483 </span>                :            : template&lt;unsigned int n, int lower, int upper&gt;
+<span class="lineNum">     484 </span>                :            : struct floor_log2&lt;n, lower, upper, floor_log2_move_down&gt;
+<span class="lineNum">     485 </span>                :            : {
+<span class="lineNum">     486 </span>                :            :   enum { value = floor_log2&lt;n, lower, floor_log2_selector&lt;n, lower, upper&gt;::middle&gt;::value };
+<span class="lineNum">     487 </span>                :            : };
+<span class="lineNum">     488 </span>                :            : 
+<span class="lineNum">     489 </span>                :            : template&lt;unsigned int n, int lower, int upper&gt;
+<span class="lineNum">     490 </span>                :            : struct floor_log2&lt;n, lower, upper, floor_log2_move_up&gt;
+<span class="lineNum">     491 </span>                :            : {
+<span class="lineNum">     492 </span>                :            :   enum { value = floor_log2&lt;n, floor_log2_selector&lt;n, lower, upper&gt;::middle, upper&gt;::value };
+<span class="lineNum">     493 </span>                :            : };
+<span class="lineNum">     494 </span>                :            : 
+<span class="lineNum">     495 </span>                :            : template&lt;unsigned int n, int lower, int upper&gt;
+<span class="lineNum">     496 </span>                :            : struct floor_log2&lt;n, lower, upper, floor_log2_terminate&gt;
+<span class="lineNum">     497 </span>                :            : {
+<span class="lineNum">     498 </span>                :            :   enum { value = (n &gt;= ((unsigned int)(1) &lt;&lt; (lower+1))) ? lower+1 : lower };
+<span class="lineNum">     499 </span>                :            : };
+<span class="lineNum">     500 </span>                :            : 
+<span class="lineNum">     501 </span>                :            : template&lt;unsigned int n, int lower, int upper&gt;
+<span class="lineNum">     502 </span>                :            : struct floor_log2&lt;n, lower, upper, floor_log2_bogus&gt;
+<span class="lineNum">     503 </span>                :            : {
+<span class="lineNum">     504 </span>                :            :   // no value, error at compile time
+<span class="lineNum">     505 </span>                :            : };
+<span class="lineNum">     506 </span>                :            : 
+<span class="lineNum">     507 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     508 </span>                :            : struct random_default_impl&lt;Scalar, false, true&gt;
+<span class="lineNum">     509 </span>                :            : {
+<span class="lineNum">     510 </span>                :            :   static inline Scalar run(const Scalar&amp; x, const Scalar&amp; y)
+<span class="lineNum">     511 </span>                :            :   {
+<span class="lineNum">     512 </span>                :            :     typedef typename conditional&lt;NumTraits&lt;Scalar&gt;::IsSigned,std::ptrdiff_t,std::size_t&gt;::type ScalarX;
+<span class="lineNum">     513 </span>                :            :     if(y&lt;x)
+<span class="lineNum">     514 </span>                :            :       return x;
+<span class="lineNum">     515 </span>                :            :     // the following difference might overflow on a 32 bits system,
+<span class="lineNum">     516 </span>                :            :     // but since y&gt;=x the result converted to an unsigned long is still correct.
+<span class="lineNum">     517 </span>                :            :     std::size_t range = ScalarX(y)-ScalarX(x);
+<span class="lineNum">     518 </span>                :            :     std::size_t offset = 0;
+<span class="lineNum">     519 </span>                :            :     // rejection sampling
+<span class="lineNum">     520 </span>                :            :     std::size_t divisor = 1;
+<span class="lineNum">     521 </span>                :            :     std::size_t multiplier = 1;
+<span class="lineNum">     522 </span>                :            :     if(range&lt;RAND_MAX) divisor = (std::size_t(RAND_MAX)+1)/(range+1);
+<span class="lineNum">     523 </span>                :            :     else               multiplier = 1 + range/(std::size_t(RAND_MAX)+1);
+<span class="lineNum">     524 </span>                :            :     do {
+<span class="lineNum">     525 </span>                :            :       offset = (std::size_t(std::rand()) * multiplier) / divisor;
+<span class="lineNum">     526 </span>                :            :     } while (offset &gt; range);
+<span class="lineNum">     527 </span>                :            :     return Scalar(ScalarX(x) + offset);
+<span class="lineNum">     528 </span>                :            :   }
+<span class="lineNum">     529 </span>                :            : 
+<span class="lineNum">     530 </span>                :            :   static inline Scalar run()
+<span class="lineNum">     531 </span>                :            :   {
+<span class="lineNum">     532 </span>                :            : #ifdef EIGEN_MAKING_DOCS
+<span class="lineNum">     533 </span>                :            :     return run(Scalar(NumTraits&lt;Scalar&gt;::IsSigned ? -10 : 0), Scalar(10));
+<span class="lineNum">     534 </span>                :            : #else
+<span class="lineNum">     535 </span>                :            :     enum { rand_bits = floor_log2&lt;(unsigned int)(RAND_MAX)+1&gt;::value,
+<span class="lineNum">     536 </span>                :            :            scalar_bits = sizeof(Scalar) * CHAR_BIT,
+<span class="lineNum">     537 </span>                :            :            shift = EIGEN_PLAIN_ENUM_MAX(0, int(rand_bits) - int(scalar_bits)),
+<span class="lineNum">     538 </span>                :            :            offset = NumTraits&lt;Scalar&gt;::IsSigned ? (1 &lt;&lt; (EIGEN_PLAIN_ENUM_MIN(rand_bits,scalar_bits)-1)) : 0
+<span class="lineNum">     539 </span>                :            :     };
+<span class="lineNum">     540 </span>                :            :     return Scalar((std::rand() &gt;&gt; shift) - offset);
+<span class="lineNum">     541 </span>                :            : #endif
+<span class="lineNum">     542 </span>                :            :   }
+<span class="lineNum">     543 </span>                :            : };
+<span class="lineNum">     544 </span>                :            : 
+<span class="lineNum">     545 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     546 </span>                :            : struct random_default_impl&lt;Scalar, true, false&gt;
+<span class="lineNum">     547 </span>                :            : {
+<span class="lineNum">     548 </span>                :            :   static inline Scalar run(const Scalar&amp; x, const Scalar&amp; y)
+<span class="lineNum">     549 </span>                :            :   {
+<span class="lineNum">     550 </span>                :            :     return Scalar(random(real(x), real(y)),
+<span class="lineNum">     551 </span>                :            :                   random(imag(x), imag(y)));
+<span class="lineNum">     552 </span>                :            :   }
+<span class="lineNum">     553 </span>                :            :   static inline Scalar run()
+<span class="lineNum">     554 </span>                :            :   {
+<span class="lineNum">     555 </span>                :            :     typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     556 </span>                :            :     return Scalar(random&lt;RealScalar&gt;(), random&lt;RealScalar&gt;());
+<span class="lineNum">     557 </span>                :            :   }
+<span class="lineNum">     558 </span>                :            : };
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     561 </span>                :            : inline EIGEN_MATHFUNC_RETVAL(random, Scalar) random(const Scalar&amp; x, const Scalar&amp; y)
+<span class="lineNum">     562 </span>                :            : {
+<span class="lineNum">     563 </span>                :            :   return EIGEN_MATHFUNC_IMPL(random, Scalar)::run(x, y);
+<span class="lineNum">     564 </span>                :            : }
+<a name="565"><span class="lineNum">     565 </span>                :            : </a>
+<span class="lineNum">     566 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     567 </span>                :<span class="lineCov">        400 : inline EIGEN_MATHFUNC_RETVAL(random, Scalar) random()</span>
+<span class="lineNum">     568 </span>                :            : {
+<span class="lineNum">     569 </span>                :<span class="lineCov">        400 :   return EIGEN_MATHFUNC_IMPL(random, Scalar)::run();</span>
+<span class="lineNum">     570 </span>                :            : }
+<span class="lineNum">     571 </span>                :            : 
+<span class="lineNum">     572 </span>                :            : } // end namespace internal
+<span class="lineNum">     573 </span>                :            : 
+<span class="lineNum">     574 </span>                :            : /****************************************************************************
+<span class="lineNum">     575 </span>                :            : * Generic math function                                                    *
+<span class="lineNum">     576 </span>                :            : ****************************************************************************/
+<span class="lineNum">     577 </span>                :            : 
+<span class="lineNum">     578 </span>                :            : namespace numext {
+<a name="579"><span class="lineNum">     579 </span>                :            : </a>
+<span class="lineNum">     580 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     581 </span>                :<span class="lineCov">    1429971 : inline EIGEN_MATHFUNC_RETVAL(real, Scalar) real(const Scalar&amp; x)</span>
+<span class="lineNum">     582 </span>                :            : {
+<span class="lineNum">     583 </span>                :<span class="lineCov">    1429971 :   return EIGEN_MATHFUNC_IMPL(real, Scalar)::run(x);</span>
+<span class="lineNum">     584 </span>                :            : }  
+<span class="lineNum">     585 </span>                :            : 
+<span class="lineNum">     586 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     587 </span>                :            : inline typename internal::add_const_on_value_type&lt; EIGEN_MATHFUNC_RETVAL(real_ref, Scalar) &gt;::type real_ref(const Scalar&amp; x)
+<span class="lineNum">     588 </span>                :            : {
+<span class="lineNum">     589 </span>                :            :   return internal::real_ref_impl&lt;Scalar&gt;::run(x);
+<span class="lineNum">     590 </span>                :            : }
+<span class="lineNum">     591 </span>                :            : 
+<span class="lineNum">     592 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     593 </span>                :            : inline EIGEN_MATHFUNC_RETVAL(real_ref, Scalar) real_ref(Scalar&amp; x)
+<span class="lineNum">     594 </span>                :            : {
+<span class="lineNum">     595 </span>                :            :   return EIGEN_MATHFUNC_IMPL(real_ref, Scalar)::run(x);
+<span class="lineNum">     596 </span>                :            : }
+<a name="597"><span class="lineNum">     597 </span>                :            : </a>
+<span class="lineNum">     598 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     599 </span>                :<span class="lineCov">     708954 : inline EIGEN_MATHFUNC_RETVAL(imag, Scalar) imag(const Scalar&amp; x)</span>
+<span class="lineNum">     600 </span>                :            : {
+<span class="lineNum">     601 </span>                :<span class="lineCov">     708954 :   return EIGEN_MATHFUNC_IMPL(imag, Scalar)::run(x);</span>
+<span class="lineNum">     602 </span>                :            : }
+<span class="lineNum">     603 </span>                :            : 
+<span class="lineNum">     604 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     605 </span>                :            : inline typename internal::add_const_on_value_type&lt; EIGEN_MATHFUNC_RETVAL(imag_ref, Scalar) &gt;::type imag_ref(const Scalar&amp; x)
+<span class="lineNum">     606 </span>                :            : {
+<span class="lineNum">     607 </span>                :            :   return internal::imag_ref_impl&lt;Scalar&gt;::run(x);
+<span class="lineNum">     608 </span>                :            : }
+<span class="lineNum">     609 </span>                :            : 
+<span class="lineNum">     610 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     611 </span>                :            : inline EIGEN_MATHFUNC_RETVAL(imag_ref, Scalar) imag_ref(Scalar&amp; x)
+<span class="lineNum">     612 </span>                :            : {
+<span class="lineNum">     613 </span>                :            :   return EIGEN_MATHFUNC_IMPL(imag_ref, Scalar)::run(x);
+<span class="lineNum">     614 </span>                :            : }
+<a name="615"><span class="lineNum">     615 </span>                :            : </a>
+<span class="lineNum">     616 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     617 </span>                :<span class="lineCov">   20845354 : inline EIGEN_MATHFUNC_RETVAL(conj, Scalar) conj(const Scalar&amp; x)</span>
+<span class="lineNum">     618 </span>                :            : {
+<span class="lineNum">     619 </span>                :<span class="lineCov">   20845354 :   return EIGEN_MATHFUNC_IMPL(conj, Scalar)::run(x);</span>
+<span class="lineNum">     620 </span>                :            : }
+<a name="621"><span class="lineNum">     621 </span>                :            : </a>
+<span class="lineNum">     622 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     623 </span>                :<span class="lineCov">    5899613 : inline EIGEN_MATHFUNC_RETVAL(abs2, Scalar) abs2(const Scalar&amp; x)</span>
+<span class="lineNum">     624 </span>                :            : {
+<span class="lineNum">     625 </span>                :<span class="lineCov">    5899613 :   return EIGEN_MATHFUNC_IMPL(abs2, Scalar)::run(x);</span>
+<span class="lineNum">     626 </span>                :            : }
+<span class="lineNum">     627 </span>                :            : 
+<span class="lineNum">     628 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     629 </span>                :            : inline EIGEN_MATHFUNC_RETVAL(norm1, Scalar) norm1(const Scalar&amp; x)
+<span class="lineNum">     630 </span>                :            : {
+<span class="lineNum">     631 </span>                :            :   return EIGEN_MATHFUNC_IMPL(norm1, Scalar)::run(x);
+<span class="lineNum">     632 </span>                :            : }
+<a name="633"><span class="lineNum">     633 </span>                :            : </a>
+<span class="lineNum">     634 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     635 </span>                :<span class="lineCov">    1834632 : inline EIGEN_MATHFUNC_RETVAL(hypot, Scalar) hypot(const Scalar&amp; x, const Scalar&amp; y)</span>
+<span class="lineNum">     636 </span>                :            : {
+<span class="lineNum">     637 </span>                :<span class="lineCov">    1834632 :   return EIGEN_MATHFUNC_IMPL(hypot, Scalar)::run(x, y);</span>
+<span class="lineNum">     638 </span>                :            : }
+<span class="lineNum">     639 </span>                :            : 
+<span class="lineNum">     640 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     641 </span>                :            : inline EIGEN_MATHFUNC_RETVAL(atanh2, Scalar) atanh2(const Scalar&amp; x, const Scalar&amp; y)
+<span class="lineNum">     642 </span>                :            : {
+<span class="lineNum">     643 </span>                :            :   return EIGEN_MATHFUNC_IMPL(atanh2, Scalar)::run(x, y);
+<span class="lineNum">     644 </span>                :            : }
+<span class="lineNum">     645 </span>                :            : 
+<span class="lineNum">     646 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     647 </span>                :            : inline EIGEN_MATHFUNC_RETVAL(pow, Scalar) pow(const Scalar&amp; x, const Scalar&amp; y)
+<span class="lineNum">     648 </span>                :            : {
+<span class="lineNum">     649 </span>                :            :   return EIGEN_MATHFUNC_IMPL(pow, Scalar)::run(x, y);
+<span class="lineNum">     650 </span>                :            : }
+<span class="lineNum">     651 </span>                :            : 
+<span class="lineNum">     652 </span>                :            : // std::isfinite is non standard, so let's define our own version,
+<span class="lineNum">     653 </span>                :            : // even though it is not very efficient.
+<span class="lineNum">     654 </span>                :            : template&lt;typename T&gt; bool (isfinite)(const T&amp; x)
+<span class="lineNum">     655 </span>                :            : {
+<span class="lineNum">     656 </span>                :            :   return x&lt;NumTraits&lt;T&gt;::highest() &amp;&amp; x&gt;NumTraits&lt;T&gt;::lowest();
+<span class="lineNum">     657 </span>                :            : }
+<span class="lineNum">     658 </span>                :            : 
+<span class="lineNum">     659 </span>                :            : } // end namespace numext
+<span class="lineNum">     660 </span>                :            : 
+<span class="lineNum">     661 </span>                :            : namespace internal {
+<span class="lineNum">     662 </span>                :            : 
+<span class="lineNum">     663 </span>                :            : /****************************************************************************
+<span class="lineNum">     664 </span>                :            : * Implementation of fuzzy comparisons                                       *
+<span class="lineNum">     665 </span>                :            : ****************************************************************************/
+<span class="lineNum">     666 </span>                :            : 
+<span class="lineNum">     667 </span>                :            : template&lt;typename Scalar,
+<span class="lineNum">     668 </span>                :            :          bool IsComplex,
+<span class="lineNum">     669 </span>                :            :          bool IsInteger&gt;
+<span class="lineNum">     670 </span>                :            : struct scalar_fuzzy_default_impl {};
+<span class="lineNum">     671 </span>                :            : 
+<span class="lineNum">     672 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     673 </span>                :            : struct scalar_fuzzy_default_impl&lt;Scalar, false, false&gt;
+<span class="lineNum">     674 </span>                :            : {
+<a name="675"><span class="lineNum">     675 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;</a>
+<span class="lineNum">     676 </span>                :            :   template&lt;typename OtherScalar&gt;
+<span class="lineNum">     677 </span>                :<span class="lineCov">    4061588 :   static inline bool isMuchSmallerThan(const Scalar&amp; x, const OtherScalar&amp; y, const RealScalar&amp; prec)</span>
+<span class="lineNum">     678 </span>                :            :   {
+<span class="lineNum">     679 </span>                :            :     using std::abs;
+<span class="lineNum">     680 </span>                :<span class="lineCov">    4061588 :     return abs(x) &lt;= abs(y) * prec;</span>
+<span class="lineNum">     681 </span>                :            :   }
+<span class="lineNum">     682 </span>                :            :   static inline bool isApprox(const Scalar&amp; x, const Scalar&amp; y, const RealScalar&amp; prec)
+<span class="lineNum">     683 </span>                :            :   {
+<span class="lineNum">     684 </span>                :            :     using std::min;
+<span class="lineNum">     685 </span>                :            :     using std::abs;
+<span class="lineNum">     686 </span>                :            :     return abs(x - y) &lt;= (min)(abs(x), abs(y)) * prec;
+<span class="lineNum">     687 </span>                :            :   }
+<span class="lineNum">     688 </span>                :            :   static inline bool isApproxOrLessThan(const Scalar&amp; x, const Scalar&amp; y, const RealScalar&amp; prec)
+<span class="lineNum">     689 </span>                :            :   {
+<span class="lineNum">     690 </span>                :            :     return x &lt;= y || isApprox(x, y, prec);
+<span class="lineNum">     691 </span>                :            :   }
+<span class="lineNum">     692 </span>                :            : };
+<span class="lineNum">     693 </span>                :            : 
+<span class="lineNum">     694 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     695 </span>                :            : struct scalar_fuzzy_default_impl&lt;Scalar, false, true&gt;
+<span class="lineNum">     696 </span>                :            : {
+<span class="lineNum">     697 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     698 </span>                :            :   template&lt;typename OtherScalar&gt;
+<span class="lineNum">     699 </span>                :            :   static inline bool isMuchSmallerThan(const Scalar&amp; x, const Scalar&amp;, const RealScalar&amp;)
+<span class="lineNum">     700 </span>                :            :   {
+<span class="lineNum">     701 </span>                :            :     return x == Scalar(0);
+<span class="lineNum">     702 </span>                :            :   }
+<span class="lineNum">     703 </span>                :            :   static inline bool isApprox(const Scalar&amp; x, const Scalar&amp; y, const RealScalar&amp;)
+<span class="lineNum">     704 </span>                :            :   {
+<span class="lineNum">     705 </span>                :            :     return x == y;
+<span class="lineNum">     706 </span>                :            :   }
+<span class="lineNum">     707 </span>                :            :   static inline bool isApproxOrLessThan(const Scalar&amp; x, const Scalar&amp; y, const RealScalar&amp;)
+<span class="lineNum">     708 </span>                :            :   {
+<span class="lineNum">     709 </span>                :            :     return x &lt;= y;
+<span class="lineNum">     710 </span>                :            :   }
+<span class="lineNum">     711 </span>                :            : };
+<span class="lineNum">     712 </span>                :            : 
+<span class="lineNum">     713 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     714 </span>                :            : struct scalar_fuzzy_default_impl&lt;Scalar, true, false&gt;
+<span class="lineNum">     715 </span>                :            : {
+<span class="lineNum">     716 </span>                :            :   typedef typename NumTraits&lt;Scalar&gt;::Real RealScalar;
+<span class="lineNum">     717 </span>                :            :   template&lt;typename OtherScalar&gt;
+<span class="lineNum">     718 </span>                :            :   static inline bool isMuchSmallerThan(const Scalar&amp; x, const OtherScalar&amp; y, const RealScalar&amp; prec)
+<span class="lineNum">     719 </span>                :            :   {
+<span class="lineNum">     720 </span>                :            :     return numext::abs2(x) &lt;= numext::abs2(y) * prec * prec;
+<span class="lineNum">     721 </span>                :            :   }
+<span class="lineNum">     722 </span>                :            :   static inline bool isApprox(const Scalar&amp; x, const Scalar&amp; y, const RealScalar&amp; prec)
+<span class="lineNum">     723 </span>                :            :   {
+<span class="lineNum">     724 </span>                :            :     using std::min;
+<span class="lineNum">     725 </span>                :            :     return numext::abs2(x - y) &lt;= (min)(numext::abs2(x), numext::abs2(y)) * prec * prec;
+<span class="lineNum">     726 </span>                :            :   }
+<span class="lineNum">     727 </span>                :            : };
+<span class="lineNum">     728 </span>                :            : 
+<span class="lineNum">     729 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     730 </span>                :            : struct scalar_fuzzy_impl : scalar_fuzzy_default_impl&lt;Scalar, NumTraits&lt;Scalar&gt;::IsComplex, NumTraits&lt;Scalar&gt;::IsInteger&gt; {};
+<a name="731"><span class="lineNum">     731 </span>                :            : </a>
+<span class="lineNum">     732 </span>                :            : template&lt;typename Scalar, typename OtherScalar&gt;
+<span class="lineNum">     733 </span>                :<span class="lineCov">    4061588 : inline bool isMuchSmallerThan(const Scalar&amp; x, const OtherScalar&amp; y,</span>
+<span class="lineNum">     734 </span>        [<span class="branchCov" title="Branch 1 was taken 4061588 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    4061588 :                               const typename NumTraits&lt;Scalar&gt;::Real &amp;precision = NumTraits&lt;Scalar&gt;::dummy_precision())</span>
+<span class="lineNum">     735 </span>                :            : {
+<span class="lineNum">     736 </span>                :<span class="lineCov">    4061588 :   return scalar_fuzzy_impl&lt;Scalar&gt;::template isMuchSmallerThan&lt;OtherScalar&gt;(x, y, precision);</span>
+<span class="lineNum">     737 </span>                :            : }
+<span class="lineNum">     738 </span>                :            : 
+<span class="lineNum">     739 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     740 </span>                :            : inline bool isApprox(const Scalar&amp; x, const Scalar&amp; y,
+<span class="lineNum">     741 </span>                :            :                      const typename NumTraits&lt;Scalar&gt;::Real &amp;precision = NumTraits&lt;Scalar&gt;::dummy_precision())
+<span class="lineNum">     742 </span>                :            : {
+<span class="lineNum">     743 </span>                :            :   return scalar_fuzzy_impl&lt;Scalar&gt;::isApprox(x, y, precision);
+<span class="lineNum">     744 </span>                :            : }
+<span class="lineNum">     745 </span>                :            : 
+<span class="lineNum">     746 </span>                :            : template&lt;typename Scalar&gt;
+<span class="lineNum">     747 </span>                :            : inline bool isApproxOrLessThan(const Scalar&amp; x, const Scalar&amp; y,
+<span class="lineNum">     748 </span>                :            :                                const typename NumTraits&lt;Scalar&gt;::Real &amp;precision = NumTraits&lt;Scalar&gt;::dummy_precision())
+<span class="lineNum">     749 </span>                :            : {
+<span class="lineNum">     750 </span>                :            :   return scalar_fuzzy_impl&lt;Scalar&gt;::isApproxOrLessThan(x, y, precision);
+<span class="lineNum">     751 </span>                :            : }
+<span class="lineNum">     752 </span>                :            : 
+<span class="lineNum">     753 </span>                :            : /******************************************
+<span class="lineNum">     754 </span>                :            : ***  The special case of the  bool type ***
+<span class="lineNum">     755 </span>                :            : ******************************************/
+<span class="lineNum">     756 </span>                :            : 
+<span class="lineNum">     757 </span>                :            : template&lt;&gt; struct random_impl&lt;bool&gt;
+<span class="lineNum">     758 </span>                :            : {
+<span class="lineNum">     759 </span>                :            :   static inline bool run()
+<span class="lineNum">     760 </span>                :            :   {
+<span class="lineNum">     761 </span>                :            :     return random&lt;int&gt;(0,1)==0 ? false : true;
+<span class="lineNum">     762 </span>                :            :   }
+<span class="lineNum">     763 </span>                :            : };
+<span class="lineNum">     764 </span>                :            : 
+<span class="lineNum">     765 </span>                :            : template&lt;&gt; struct scalar_fuzzy_impl&lt;bool&gt;
+<span class="lineNum">     766 </span>                :            : {
+<span class="lineNum">     767 </span>                :            :   typedef bool RealScalar;
+<span class="lineNum">     768 </span>                :            :   
+<span class="lineNum">     769 </span>                :            :   template&lt;typename OtherScalar&gt;
+<span class="lineNum">     770 </span>                :            :   static inline bool isMuchSmallerThan(const bool&amp; x, const bool&amp;, const bool&amp;)
+<span class="lineNum">     771 </span>                :            :   {
+<span class="lineNum">     772 </span>                :            :     return !x;
+<span class="lineNum">     773 </span>                :            :   }
+<span class="lineNum">     774 </span>                :            :   
+<span class="lineNum">     775 </span>                :            :   static inline bool isApprox(bool x, bool y, bool)
+<span class="lineNum">     776 </span>                :            :   {
+<span class="lineNum">     777 </span>                :            :     return x == y;
+<span class="lineNum">     778 </span>                :            :   }
+<span class="lineNum">     779 </span>                :            : 
+<span class="lineNum">     780 </span>                :            :   static inline bool isApproxOrLessThan(const bool&amp; x, const bool&amp; y, const bool&amp;)
+<span class="lineNum">     781 </span>                :            :   {
+<span class="lineNum">     782 </span>                :            :     return (!x) || y;
+<span class="lineNum">     783 </span>                :            :   }
+<span class="lineNum">     784 </span>                :            :   
+<span class="lineNum">     785 </span>                :            : };
+<span class="lineNum">     786 </span>                :            : 
+<span class="lineNum">     787 </span>                :            :   
+<span class="lineNum">     788 </span>                :            : } // end namespace internal
+<span class="lineNum">     789 </span>                :            : 
+<span class="lineNum">     790 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     791 </span>                :            : 
+<span class="lineNum">     792 </span>                :            : #endif // EIGEN_MATHFUNCTIONS_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

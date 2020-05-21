@@ -1,0 +1,597 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/com_google_absl/absl/strings/str_split.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">external/com_google_absl/absl/strings</a> - str_split.h<span style="font-size: 80%;"> (source / <a href="str_split.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : //</a>
+<span class="lineNum">       2 </span>                :            : // Copyright 2017 The Abseil Authors.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            : // you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            : // You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            : //
+<span class="lineNum">       8 </span>                :            : //      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            : //
+<span class="lineNum">      10 </span>                :            : // Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            : // distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            : // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            : // See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            : // limitations under the License.
+<span class="lineNum">      15 </span>                :            : //
+<span class="lineNum">      16 </span>                :            : // -----------------------------------------------------------------------------
+<span class="lineNum">      17 </span>                :            : // File: str_split.h
+<span class="lineNum">      18 </span>                :            : // -----------------------------------------------------------------------------
+<span class="lineNum">      19 </span>                :            : //
+<span class="lineNum">      20 </span>                :            : // This file contains functions for splitting strings. It defines the main
+<span class="lineNum">      21 </span>                :            : // `StrSplit()` function, several delimiters for determining the boundaries on
+<span class="lineNum">      22 </span>                :            : // which to split the std::string, and predicates for filtering delimited results.
+<span class="lineNum">      23 </span>                :            : // `StrSplit()` adapts the returned collection to the type specified by the
+<span class="lineNum">      24 </span>                :            : // caller.
+<span class="lineNum">      25 </span>                :            : //
+<span class="lineNum">      26 </span>                :            : // Example:
+<span class="lineNum">      27 </span>                :            : //
+<span class="lineNum">      28 </span>                :            : //   // Splits the given std::string on commas. Returns the results in a
+<span class="lineNum">      29 </span>                :            : //   // vector of strings.
+<span class="lineNum">      30 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;a,b,c&quot;, ',');
+<span class="lineNum">      31 </span>                :            : //   // Can also use &quot;,&quot;
+<span class="lineNum">      32 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;b&quot;, v[2] == &quot;c&quot;
+<span class="lineNum">      33 </span>                :            : //
+<span class="lineNum">      34 </span>                :            : // See StrSplit() below for more information.
+<span class="lineNum">      35 </span>                :            : #ifndef ABSL_STRINGS_STR_SPLIT_H_
+<span class="lineNum">      36 </span>                :            : #define ABSL_STRINGS_STR_SPLIT_H_
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      39 </span>                :            : #include &lt;cstddef&gt;
+<span class="lineNum">      40 </span>                :            : #include &lt;map&gt;
+<span class="lineNum">      41 </span>                :            : #include &lt;set&gt;
+<span class="lineNum">      42 </span>                :            : #include &lt;string&gt;
+<span class="lineNum">      43 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      44 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : #include &quot;absl/base/internal/raw_logging.h&quot;
+<span class="lineNum">      47 </span>                :            : #include &quot;absl/strings/internal/str_split_internal.h&quot;
+<span class="lineNum">      48 </span>                :            : #include &quot;absl/strings/string_view.h&quot;
+<span class="lineNum">      49 </span>                :            : #include &quot;absl/strings/strip.h&quot;
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : namespace absl {
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            : //------------------------------------------------------------------------------
+<span class="lineNum">      54 </span>                :            : // Delimiters
+<span class="lineNum">      55 </span>                :            : //------------------------------------------------------------------------------
+<span class="lineNum">      56 </span>                :            : //
+<span class="lineNum">      57 </span>                :            : // `StrSplit()` uses delimiters to define the boundaries between elements in the
+<span class="lineNum">      58 </span>                :            : // provided input. Several `Delimiter` types are defined below. If a std::string
+<span class="lineNum">      59 </span>                :            : // (`const char*`, `std::string`, or `absl::string_view`) is passed in place of
+<span class="lineNum">      60 </span>                :            : // an explicit `Delimiter` object, `StrSplit()` treats it the same way as if it
+<span class="lineNum">      61 </span>                :            : // were passed a `ByString` delimiter.
+<span class="lineNum">      62 </span>                :            : //
+<span class="lineNum">      63 </span>                :            : // A `Delimiter` is an object with a `Find()` function that knows how to find
+<span class="lineNum">      64 </span>                :            : // the first occurrence of itself in a given `absl::string_view`.
+<span class="lineNum">      65 </span>                :            : //
+<span class="lineNum">      66 </span>                :            : // The following `Delimiter` types are available for use within `StrSplit()`:
+<span class="lineNum">      67 </span>                :            : //
+<span class="lineNum">      68 </span>                :            : //   - `ByString` (default for std::string arguments)
+<span class="lineNum">      69 </span>                :            : //   - `ByChar` (default for a char argument)
+<span class="lineNum">      70 </span>                :            : //   - `ByAnyChar`
+<span class="lineNum">      71 </span>                :            : //   - `ByLength`
+<span class="lineNum">      72 </span>                :            : //   - `MaxSplits`
+<span class="lineNum">      73 </span>                :            : //
+<span class="lineNum">      74 </span>                :            : //
+<span class="lineNum">      75 </span>                :            : // A Delimiter's Find() member function will be passed the input text that is to
+<span class="lineNum">      76 </span>                :            : // be split and the position to begin searching for the next delimiter in the
+<span class="lineNum">      77 </span>                :            : // input text. The returned absl::string_view should refer to the next
+<span class="lineNum">      78 </span>                :            : // occurrence (after pos) of the represented delimiter; this returned
+<span class="lineNum">      79 </span>                :            : // absl::string_view represents the next location where the input std::string should
+<span class="lineNum">      80 </span>                :            : // be broken. The returned absl::string_view may be zero-length if the Delimiter
+<span class="lineNum">      81 </span>                :            : // does not represent a part of the std::string (e.g., a fixed-length delimiter). If
+<span class="lineNum">      82 </span>                :            : // no delimiter is found in the given text, a zero-length absl::string_view
+<span class="lineNum">      83 </span>                :            : // referring to text.end() should be returned (e.g.,
+<span class="lineNum">      84 </span>                :            : // absl::string_view(text.end(), 0)). It is important that the returned
+<span class="lineNum">      85 </span>                :            : // absl::string_view always be within the bounds of input text given as an
+<span class="lineNum">      86 </span>                :            : // argument--it must not refer to a std::string that is physically located outside of
+<span class="lineNum">      87 </span>                :            : // the given std::string.
+<span class="lineNum">      88 </span>                :            : //
+<span class="lineNum">      89 </span>                :            : // The following example is a simple Delimiter object that is created with a
+<span class="lineNum">      90 </span>                :            : // single char and will look for that char in the text passed to the Find()
+<span class="lineNum">      91 </span>                :            : // function:
+<span class="lineNum">      92 </span>                :            : //
+<span class="lineNum">      93 </span>                :            : //   struct SimpleDelimiter {
+<span class="lineNum">      94 </span>                :            : //     const char c_;
+<span class="lineNum">      95 </span>                :            : //     explicit SimpleDelimiter(char c) : c_(c) {}
+<span class="lineNum">      96 </span>                :            : //     absl::string_view Find(absl::string_view text, size_t pos) {
+<span class="lineNum">      97 </span>                :            : //       auto found = text.find(c_, pos);
+<span class="lineNum">      98 </span>                :            : //       if (found == absl::string_view::npos)
+<span class="lineNum">      99 </span>                :            : //         return absl::string_view(text.end(), 0);
+<span class="lineNum">     100 </span>                :            : //
+<span class="lineNum">     101 </span>                :            : //       return absl::string_view(text, found, 1);
+<span class="lineNum">     102 </span>                :            : //     }
+<span class="lineNum">     103 </span>                :            : //   };
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            : // ByString
+<span class="lineNum">     106 </span>                :            : //
+<span class="lineNum">     107 </span>                :            : // A sub-std::string delimiter. If `StrSplit()` is passed a std::string in place of a
+<span class="lineNum">     108 </span>                :            : // `Delimiter` object, the std::string will be implicitly converted into a
+<span class="lineNum">     109 </span>                :            : // `ByString` delimiter.
+<span class="lineNum">     110 </span>                :            : //
+<span class="lineNum">     111 </span>                :            : // Example:
+<span class="lineNum">     112 </span>                :            : //
+<span class="lineNum">     113 </span>                :            : //   // Because a std::string literal is converted to an `absl::ByString`,
+<span class="lineNum">     114 </span>                :            : //   // the following two splits are equivalent.
+<span class="lineNum">     115 </span>                :            : //
+<span class="lineNum">     116 </span>                :            : //   std::vector&lt;std::string&gt; v1 = absl::StrSplit(&quot;a, b, c&quot;, &quot;, &quot;);
+<span class="lineNum">     117 </span>                :            : //
+<span class="lineNum">     118 </span>                :            : //   using absl::ByString;
+<span class="lineNum">     119 </span>                :            : //   std::vector&lt;std::string&gt; v2 = absl::StrSplit(&quot;a, b, c&quot;,
+<span class="lineNum">     120 </span>                :            : //                                                ByString(&quot;, &quot;));
+<span class="lineNum">     121 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;b&quot;, v[2] == &quot;c&quot;
+<span class="lineNum">     122 </span>                :            : class ByString {
+<span class="lineNum">     123 </span>                :            :  public:
+<span class="lineNum">     124 </span>                :            :   explicit ByString(absl::string_view sp);
+<span class="lineNum">     125 </span>                :            :   absl::string_view Find(absl::string_view text, size_t pos) const;
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :            :  private:
+<span class="lineNum">     128 </span>                :            :   const std::string delimiter_;
+<span class="lineNum">     129 </span>                :            : };
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :            : // ByChar
+<span class="lineNum">     132 </span>                :            : //
+<span class="lineNum">     133 </span>                :            : // A single character delimiter. `ByChar` is functionally equivalent to a
+<span class="lineNum">     134 </span>                :            : // 1-char std::string within a `ByString` delimiter, but slightly more
+<span class="lineNum">     135 </span>                :            : // efficient.
+<span class="lineNum">     136 </span>                :            : //
+<span class="lineNum">     137 </span>                :            : // Example:
+<span class="lineNum">     138 </span>                :            : //
+<span class="lineNum">     139 </span>                :            : //   // Because a char literal is converted to a absl::ByChar,
+<span class="lineNum">     140 </span>                :            : //   // the following two splits are equivalent.
+<span class="lineNum">     141 </span>                :            : //   std::vector&lt;std::string&gt; v1 = absl::StrSplit(&quot;a,b,c&quot;, ',');
+<span class="lineNum">     142 </span>                :            : //   using absl::ByChar;
+<span class="lineNum">     143 </span>                :            : //   std::vector&lt;std::string&gt; v2 = absl::StrSplit(&quot;a,b,c&quot;, ByChar(','));
+<span class="lineNum">     144 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;b&quot;, v[2] == &quot;c&quot;
+<span class="lineNum">     145 </span>                :            : //
+<span class="lineNum">     146 </span>                :            : // `ByChar` is also the default delimiter if a single character is given
+<span class="lineNum">     147 </span>                :            : // as the delimiter to `StrSplit()`. For example, the following calls are
+<span class="lineNum">     148 </span>                :            : // equivalent:
+<span class="lineNum">     149 </span>                :            : //
+<span class="lineNum">     150 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;a-b&quot;, '-');
+<span class="lineNum">     151 </span>                :            : //
+<span class="lineNum">     152 </span>                :            : //   using absl::ByChar;
+<span class="lineNum">     153 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;a-b&quot;, ByChar('-'));
+<span class="lineNum">     154 </span>                :            : //
+<a name="155"><span class="lineNum">     155 </span>                :            : class ByChar {</a>
+<span class="lineNum">     156 </span>                :            :  public:
+<span class="lineNum">     157 </span>                :<span class="lineCov">         21 :   explicit ByChar(char c) : c_(c) {}</span>
+<span class="lineNum">     158 </span>                :            :   absl::string_view Find(absl::string_view text, size_t pos) const;
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            :  private:
+<span class="lineNum">     161 </span>                :            :   char c_;
+<span class="lineNum">     162 </span>                :            : };
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            : // ByAnyChar
+<span class="lineNum">     165 </span>                :            : //
+<span class="lineNum">     166 </span>                :            : // A delimiter that will match any of the given byte-sized characters within
+<span class="lineNum">     167 </span>                :            : // its provided std::string.
+<span class="lineNum">     168 </span>                :            : //
+<span class="lineNum">     169 </span>                :            : // Note: this delimiter works with single-byte std::string data, but does not work
+<span class="lineNum">     170 </span>                :            : // with variable-width encodings, such as UTF-8.
+<span class="lineNum">     171 </span>                :            : //
+<span class="lineNum">     172 </span>                :            : // Example:
+<span class="lineNum">     173 </span>                :            : //
+<span class="lineNum">     174 </span>                :            : //   using absl::ByAnyChar;
+<span class="lineNum">     175 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;a,b=c&quot;, ByAnyChar(&quot;,=&quot;));
+<span class="lineNum">     176 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;b&quot;, v[2] == &quot;c&quot;
+<span class="lineNum">     177 </span>                :            : //
+<span class="lineNum">     178 </span>                :            : // If `ByAnyChar` is given the empty std::string, it behaves exactly like
+<a name="179"><span class="lineNum">     179 </span>                :            : // `ByString` and matches each individual character in the input std::string.</a>
+<span class="lineNum">     180 </span>                :            : //
+<span class="lineNum">     181 </span>                :<span class="lineCov">      29176 : class ByAnyChar {</span>
+<span class="lineNum">     182 </span>                :            :  public:
+<span class="lineNum">     183 </span>                :            :   explicit ByAnyChar(absl::string_view sp);
+<span class="lineNum">     184 </span>                :            :   absl::string_view Find(absl::string_view text, size_t pos) const;
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :            :  private:
+<span class="lineNum">     187 </span>                :            :   const std::string delimiters_;
+<span class="lineNum">     188 </span>                :            : };
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :            : // ByLength
+<span class="lineNum">     191 </span>                :            : //
+<span class="lineNum">     192 </span>                :            : // A delimiter for splitting into equal-length strings. The length argument to
+<span class="lineNum">     193 </span>                :            : // the constructor must be greater than 0.
+<span class="lineNum">     194 </span>                :            : //
+<span class="lineNum">     195 </span>                :            : // Note: this delimiter works with single-byte std::string data, but does not work
+<span class="lineNum">     196 </span>                :            : // with variable-width encodings, such as UTF-8.
+<span class="lineNum">     197 </span>                :            : //
+<span class="lineNum">     198 </span>                :            : // Example:
+<span class="lineNum">     199 </span>                :            : //
+<span class="lineNum">     200 </span>                :            : //   using absl::ByLength;
+<span class="lineNum">     201 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;123456789&quot;, ByLength(3));
+<span class="lineNum">     202 </span>                :            : 
+<span class="lineNum">     203 </span>                :            : //   // v[0] == &quot;123&quot;, v[1] == &quot;456&quot;, v[2] == &quot;789&quot;
+<span class="lineNum">     204 </span>                :            : //
+<span class="lineNum">     205 </span>                :            : // Note that the std::string does not have to be a multiple of the fixed split
+<span class="lineNum">     206 </span>                :            : // length. In such a case, the last substring will be shorter.
+<span class="lineNum">     207 </span>                :            : //
+<span class="lineNum">     208 </span>                :            : //   using absl::ByLength;
+<span class="lineNum">     209 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;12345&quot;, ByLength(2));
+<span class="lineNum">     210 </span>                :            : //
+<span class="lineNum">     211 </span>                :            : //   // v[0] == &quot;12&quot;, v[1] == &quot;34&quot;, v[2] == &quot;5&quot;
+<span class="lineNum">     212 </span>                :            : class ByLength {
+<span class="lineNum">     213 </span>                :            :  public:
+<span class="lineNum">     214 </span>                :            :   explicit ByLength(ptrdiff_t length);
+<span class="lineNum">     215 </span>                :            :   absl::string_view Find(absl::string_view text, size_t pos) const;
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            :  private:
+<span class="lineNum">     218 </span>                :            :   const ptrdiff_t length_;
+<span class="lineNum">     219 </span>                :            : };
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :            : namespace strings_internal {
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :            : // A traits-like metafunction for selecting the default Delimiter object type
+<span class="lineNum">     224 </span>                :            : // for a particular Delimiter type. The base case simply exposes type Delimiter
+<span class="lineNum">     225 </span>                :            : // itself as the delimiter's Type. However, there are specializations for
+<span class="lineNum">     226 </span>                :            : // std::string-like objects that map them to the ByString delimiter object.
+<span class="lineNum">     227 </span>                :            : // This allows functions like absl::StrSplit() and absl::MaxSplits() to accept
+<span class="lineNum">     228 </span>                :            : // std::string-like objects (e.g., ',') as delimiter arguments but they will be
+<span class="lineNum">     229 </span>                :            : // treated as if a ByString delimiter was given.
+<span class="lineNum">     230 </span>                :            : template &lt;typename Delimiter&gt;
+<span class="lineNum">     231 </span>                :            : struct SelectDelimiter {
+<span class="lineNum">     232 </span>                :            :   using type = Delimiter;
+<span class="lineNum">     233 </span>                :            : };
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :            : template &lt;&gt;
+<span class="lineNum">     236 </span>                :            : struct SelectDelimiter&lt;char&gt; {
+<span class="lineNum">     237 </span>                :            :   using type = ByChar;
+<span class="lineNum">     238 </span>                :            : };
+<span class="lineNum">     239 </span>                :            : template &lt;&gt;
+<span class="lineNum">     240 </span>                :            : struct SelectDelimiter&lt;char*&gt; {
+<span class="lineNum">     241 </span>                :            :   using type = ByString;
+<span class="lineNum">     242 </span>                :            : };
+<span class="lineNum">     243 </span>                :            : template &lt;&gt;
+<span class="lineNum">     244 </span>                :            : struct SelectDelimiter&lt;const char*&gt; {
+<span class="lineNum">     245 </span>                :            :   using type = ByString;
+<span class="lineNum">     246 </span>                :            : };
+<span class="lineNum">     247 </span>                :            : template &lt;&gt;
+<span class="lineNum">     248 </span>                :            : struct SelectDelimiter&lt;absl::string_view&gt; {
+<span class="lineNum">     249 </span>                :            :   using type = ByString;
+<span class="lineNum">     250 </span>                :            : };
+<span class="lineNum">     251 </span>                :            : template &lt;&gt;
+<span class="lineNum">     252 </span>                :            : struct SelectDelimiter&lt;std::string&gt; {
+<span class="lineNum">     253 </span>                :            :   using type = ByString;
+<span class="lineNum">     254 </span>                :            : };
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :            : // Wraps another delimiter and sets a max number of matches for that delimiter.
+<span class="lineNum">     257 </span>                :            : template &lt;typename Delimiter&gt;
+<span class="lineNum">     258 </span>                :            : class MaxSplitsImpl {
+<span class="lineNum">     259 </span>                :            :  public:
+<span class="lineNum">     260 </span>                :            :   MaxSplitsImpl(Delimiter delimiter, int limit)
+<span class="lineNum">     261 </span>                :            :       : delimiter_(delimiter), limit_(limit), count_(0) {}
+<span class="lineNum">     262 </span>                :            :   absl::string_view Find(absl::string_view text, size_t pos) {
+<span class="lineNum">     263 </span>                :            :     if (count_++ == limit_) {
+<span class="lineNum">     264 </span>                :            :       return absl::string_view(text.end(), 0);  // No more matches.
+<span class="lineNum">     265 </span>                :            :     }
+<span class="lineNum">     266 </span>                :            :     return delimiter_.Find(text, pos);
+<span class="lineNum">     267 </span>                :            :   }
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>                :            :  private:
+<span class="lineNum">     270 </span>                :            :   Delimiter delimiter_;
+<span class="lineNum">     271 </span>                :            :   const int limit_;
+<span class="lineNum">     272 </span>                :            :   int count_;
+<span class="lineNum">     273 </span>                :            : };
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :            : }  // namespace strings_internal
+<span class="lineNum">     276 </span>                :            : 
+<span class="lineNum">     277 </span>                :            : // MaxSplits()
+<span class="lineNum">     278 </span>                :            : //
+<span class="lineNum">     279 </span>                :            : // A delimiter that limits the number of matches which can occur to the passed
+<span class="lineNum">     280 </span>                :            : // `limit`. The last element in the returned collection will contain all
+<span class="lineNum">     281 </span>                :            : // remaining unsplit pieces, which may contain instances of the delimiter.
+<span class="lineNum">     282 </span>                :            : // The collection will contain at most `limit` + 1 elements.
+<span class="lineNum">     283 </span>                :            : // Example:
+<span class="lineNum">     284 </span>                :            : //
+<span class="lineNum">     285 </span>                :            : //   using absl::MaxSplits;
+<span class="lineNum">     286 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;a,b,c&quot;, MaxSplits(',', 1));
+<span class="lineNum">     287 </span>                :            : //
+<span class="lineNum">     288 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;b,c&quot;
+<span class="lineNum">     289 </span>                :            : template &lt;typename Delimiter&gt;
+<span class="lineNum">     290 </span>                :            : inline strings_internal::MaxSplitsImpl&lt;
+<span class="lineNum">     291 </span>                :            :     typename strings_internal::SelectDelimiter&lt;Delimiter&gt;::type&gt;
+<span class="lineNum">     292 </span>                :            : MaxSplits(Delimiter delimiter, int limit) {
+<span class="lineNum">     293 </span>                :            :   typedef
+<span class="lineNum">     294 </span>                :            :       typename strings_internal::SelectDelimiter&lt;Delimiter&gt;::type DelimiterType;
+<span class="lineNum">     295 </span>                :            :   return strings_internal::MaxSplitsImpl&lt;DelimiterType&gt;(
+<span class="lineNum">     296 </span>                :            :       DelimiterType(delimiter), limit);
+<span class="lineNum">     297 </span>                :            : }
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :            : //------------------------------------------------------------------------------
+<span class="lineNum">     300 </span>                :            : // Predicates
+<span class="lineNum">     301 </span>                :            : //------------------------------------------------------------------------------
+<span class="lineNum">     302 </span>                :            : //
+<span class="lineNum">     303 </span>                :            : // Predicates filter the results of a `StrSplit()` by determining whether or not
+<span class="lineNum">     304 </span>                :            : // a resultant element is included in the result set. A predicate may be passed
+<span class="lineNum">     305 </span>                :            : // as an optional third argument to the `StrSplit()` function.
+<span class="lineNum">     306 </span>                :            : //
+<span class="lineNum">     307 </span>                :            : // Predicates are unary functions (or functors) that take a single
+<span class="lineNum">     308 </span>                :            : // `absl::string_view` argument and return a bool indicating whether the
+<span class="lineNum">     309 </span>                :            : // argument should be included (`true`) or excluded (`false`).
+<span class="lineNum">     310 </span>                :            : //
+<span class="lineNum">     311 </span>                :            : // Predicates are useful when filtering out empty substrings. By default, empty
+<span class="lineNum">     312 </span>                :            : // substrings may be returned by `StrSplit()`, which is similar to the way split
+<span class="lineNum">     313 </span>                :            : // functions work in other programming languages.
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :            : // AllowEmpty()
+<span class="lineNum">     316 </span>                :            : //
+<span class="lineNum">     317 </span>                :            : // Always returns `true`, indicating that all strings--including empty
+<span class="lineNum">     318 </span>                :            : // strings--should be included in the split output. This predicate is not
+<span class="lineNum">     319 </span>                :            : // strictly needed because this is the default behavior of `StrSplit()`;
+<span class="lineNum">     320 </span>                :            : // however, it might be useful at some call sites to make the intent explicit.
+<span class="lineNum">     321 </span>                :            : //
+<span class="lineNum">     322 </span>                :            : // Example:
+<span class="lineNum">     323 </span>                :            : //
+<span class="lineNum">     324 </span>                :            : //  std::vector&lt;std::string&gt; v = absl::StrSplit(&quot; a , ,,b,&quot;, ',', AllowEmpty());
+<span class="lineNum">     325 </span>                :            : //
+<a name="326"><span class="lineNum">     326 </span>                :            : //  // v[0] == &quot; a &quot;, v[1] == &quot; &quot;, v[2] == &quot;&quot;, v[3] = &quot;b&quot;, v[4] == &quot;&quot;</a>
+<span class="lineNum">     327 </span>                :            : struct AllowEmpty {
+<span class="lineNum">     328 </span>                :<span class="lineCov">      58448 :   bool operator()(absl::string_view) const { return true; }</span>
+<span class="lineNum">     329 </span>                :            : };
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>                :            : // SkipEmpty()
+<span class="lineNum">     332 </span>                :            : //
+<span class="lineNum">     333 </span>                :            : // Returns `false` if the given `absl::string_view` is empty, indicating that
+<span class="lineNum">     334 </span>                :            : // `StrSplit()` should omit the empty std::string.
+<span class="lineNum">     335 </span>                :            : //
+<span class="lineNum">     336 </span>                :            : // Example:
+<span class="lineNum">     337 </span>                :            : //
+<span class="lineNum">     338 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;,a,,b,&quot;, ',', SkipEmpty());
+<span class="lineNum">     339 </span>                :            : //
+<span class="lineNum">     340 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;b&quot;
+<span class="lineNum">     341 </span>                :            : //
+<span class="lineNum">     342 </span>                :            : // Note: `SkipEmpty()` does not consider a std::string containing only whitespace
+<span class="lineNum">     343 </span>                :            : // to be empty. To skip such whitespace as well, use the `SkipWhitespace()`
+<span class="lineNum">     344 </span>                :            : // predicate.
+<span class="lineNum">     345 </span>                :            : struct SkipEmpty {
+<span class="lineNum">     346 </span>                :            :   bool operator()(absl::string_view sp) const { return !sp.empty(); }
+<span class="lineNum">     347 </span>                :            : };
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :            : // SkipWhitespace()
+<span class="lineNum">     350 </span>                :            : //
+<span class="lineNum">     351 </span>                :            : // Returns `false` if the given `absl::string_view` is empty *or* contains only
+<span class="lineNum">     352 </span>                :            : // whitespace, indicating that `StrSplit()` should omit the std::string.
+<span class="lineNum">     353 </span>                :            : //
+<span class="lineNum">     354 </span>                :            : // Example:
+<span class="lineNum">     355 </span>                :            : //
+<span class="lineNum">     356 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot; a , ,,b,&quot;,
+<span class="lineNum">     357 </span>                :            : //                                               ',', SkipWhitespace());
+<span class="lineNum">     358 </span>                :            : //   // v[0] == &quot; a &quot;, v[1] == &quot;b&quot;
+<span class="lineNum">     359 </span>                :            : //
+<span class="lineNum">     360 </span>                :            : //   // SkipEmpty() would return whitespace elements
+<span class="lineNum">     361 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot; a , ,,b,&quot;, ',', SkipEmpty());
+<span class="lineNum">     362 </span>                :            : //   // v[0] == &quot; a &quot;, v[1] == &quot; &quot;, v[2] == &quot;b&quot;
+<span class="lineNum">     363 </span>                :            : struct SkipWhitespace {
+<span class="lineNum">     364 </span>                :            :   bool operator()(absl::string_view sp) const {
+<span class="lineNum">     365 </span>                :            :     sp = absl::StripAsciiWhitespace(sp);
+<span class="lineNum">     366 </span>                :            :     return !sp.empty();
+<span class="lineNum">     367 </span>                :            :   }
+<span class="lineNum">     368 </span>                :            : };
+<span class="lineNum">     369 </span>                :            : 
+<span class="lineNum">     370 </span>                :            : //------------------------------------------------------------------------------
+<span class="lineNum">     371 </span>                :            : //                                  StrSplit()
+<span class="lineNum">     372 </span>                :            : //------------------------------------------------------------------------------
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :            : // StrSplit()
+<span class="lineNum">     375 </span>                :            : //
+<span class="lineNum">     376 </span>                :            : // Splits a given `std::string` based on the provided `Delimiter` object,
+<span class="lineNum">     377 </span>                :            : // returning the elements within the type specified by the caller. Optionally,
+<span class="lineNum">     378 </span>                :            : // you may also pass a `Predicate` to `StrSplit()` indicating whether to include
+<span class="lineNum">     379 </span>                :            : // or exclude the resulting element within the final result set. (See the
+<span class="lineNum">     380 </span>                :            : // overviews for Delimiters and Predicates above.)
+<span class="lineNum">     381 </span>                :            : //
+<span class="lineNum">     382 </span>                :            : // Example:
+<span class="lineNum">     383 </span>                :            : //
+<span class="lineNum">     384 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;a,b,c,d&quot;, ',');
+<span class="lineNum">     385 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;b&quot;, v[2] == &quot;c&quot;, v[3] == &quot;d&quot;
+<span class="lineNum">     386 </span>                :            : //
+<span class="lineNum">     387 </span>                :            : // You can also provide an explicit `Delimiter` object:
+<span class="lineNum">     388 </span>                :            : //
+<span class="lineNum">     389 </span>                :            : // Example:
+<span class="lineNum">     390 </span>                :            : //
+<span class="lineNum">     391 </span>                :            : //   using absl::ByAnyChar;
+<span class="lineNum">     392 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot;a,b=c&quot;, ByAnyChar(&quot;,=&quot;));
+<span class="lineNum">     393 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;b&quot;, v[2] == &quot;c&quot;
+<span class="lineNum">     394 </span>                :            : //
+<span class="lineNum">     395 </span>                :            : // See above for more information on delimiters.
+<span class="lineNum">     396 </span>                :            : //
+<span class="lineNum">     397 </span>                :            : // By default, empty strings are included in the result set. You can optionally
+<span class="lineNum">     398 </span>                :            : // include a third `Predicate` argument to apply a test for whether the
+<span class="lineNum">     399 </span>                :            : // resultant element should be included in the result set:
+<span class="lineNum">     400 </span>                :            : //
+<span class="lineNum">     401 </span>                :            : // Example:
+<span class="lineNum">     402 </span>                :            : //
+<span class="lineNum">     403 </span>                :            : //   std::vector&lt;std::string&gt; v = absl::StrSplit(&quot; a , ,,b,&quot;,
+<span class="lineNum">     404 </span>                :            : //                                               ',', SkipWhitespace());
+<span class="lineNum">     405 </span>                :            : //   // v[0] == &quot; a &quot;, v[1] == &quot;b&quot;
+<span class="lineNum">     406 </span>                :            : //
+<span class="lineNum">     407 </span>                :            : // See above for more information on predicates.
+<span class="lineNum">     408 </span>                :            : //
+<span class="lineNum">     409 </span>                :            : //------------------------------------------------------------------------------
+<span class="lineNum">     410 </span>                :            : // StrSplit() Return Types
+<span class="lineNum">     411 </span>                :            : //------------------------------------------------------------------------------
+<span class="lineNum">     412 </span>                :            : //
+<span class="lineNum">     413 </span>                :            : // The `StrSplit()` function adapts the returned collection to the collection
+<span class="lineNum">     414 </span>                :            : // specified by the caller (e.g. `std::vector` above). The returned collections
+<span class="lineNum">     415 </span>                :            : // may contain `string`, `absl::string_view` (in which case the original std::string
+<span class="lineNum">     416 </span>                :            : // being split must ensure that it outlives the collection), or any object that
+<span class="lineNum">     417 </span>                :            : // can be explicitly created from an `absl::string_view`. This behavior works
+<span class="lineNum">     418 </span>                :            : // for:
+<span class="lineNum">     419 </span>                :            : //
+<span class="lineNum">     420 </span>                :            : // 1) All standard STL containers including `std::vector`, `std::list`,
+<span class="lineNum">     421 </span>                :            : //    `std::deque`, `std::set`,`std::multiset`, 'std::map`, and `std::multimap`
+<span class="lineNum">     422 </span>                :            : // 2) `std::pair` (which is not actually a container). See below.
+<span class="lineNum">     423 </span>                :            : //
+<span class="lineNum">     424 </span>                :            : // Example:
+<span class="lineNum">     425 </span>                :            : //
+<span class="lineNum">     426 </span>                :            : //   // The results are returned as `absl::string_view` objects. Note that we
+<span class="lineNum">     427 </span>                :            : //   // have to ensure that the input std::string outlives any results.
+<span class="lineNum">     428 </span>                :            : //   std::vector&lt;absl::string_view&gt; v = absl::StrSplit(&quot;a,b,c&quot;, ',');
+<span class="lineNum">     429 </span>                :            : //
+<span class="lineNum">     430 </span>                :            : //   // Stores results in a std::set&lt;std::string&gt;, which also performs
+<span class="lineNum">     431 </span>                :            : //   // de-duplication and orders the elements in ascending order.
+<span class="lineNum">     432 </span>                :            : //   std::set&lt;std::string&gt; a = absl::StrSplit(&quot;b,a,c,a,b&quot;, ',');
+<span class="lineNum">     433 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;b&quot;, v[2] = &quot;c&quot;
+<span class="lineNum">     434 </span>                :            : //
+<span class="lineNum">     435 </span>                :            : //   // `StrSplit()` can be used within a range-based for loop, in which case
+<span class="lineNum">     436 </span>                :            : //   // each element will be of type `absl::string_view`.
+<span class="lineNum">     437 </span>                :            : //   std::vector&lt;std::string&gt; v;
+<span class="lineNum">     438 </span>                :            : //   for (const auto sv : absl::StrSplit(&quot;a,b,c&quot;, ',')) {
+<span class="lineNum">     439 </span>                :            : //     if (sv != &quot;b&quot;) v.emplace_back(sv);
+<span class="lineNum">     440 </span>                :            : //   }
+<span class="lineNum">     441 </span>                :            : //   // v[0] == &quot;a&quot;, v[1] == &quot;c&quot;
+<span class="lineNum">     442 </span>                :            : //
+<span class="lineNum">     443 </span>                :            : //   // Stores results in a map. The map implementation assumes that the input
+<span class="lineNum">     444 </span>                :            : //   // is provided as a series of key/value pairs. For example, the 0th element
+<span class="lineNum">     445 </span>                :            : //   // resulting from the split will be stored as a key to the 1st element. If
+<span class="lineNum">     446 </span>                :            : //   // an odd number of elements are resolved, the last element is paired with
+<span class="lineNum">     447 </span>                :            : //   // a default-constructed value (e.g., empty std::string).
+<span class="lineNum">     448 </span>                :            : //   std::map&lt;std::string, std::string&gt; m = absl::StrSplit(&quot;a,b,c&quot;, ',');
+<span class="lineNum">     449 </span>                :            : //   // m[&quot;a&quot;] == &quot;b&quot;, m[&quot;c&quot;] == &quot;&quot;     // last component value equals &quot;&quot;
+<span class="lineNum">     450 </span>                :            : //
+<span class="lineNum">     451 </span>                :            : // Splitting to `std::pair` is an interesting case because it can hold only two
+<span class="lineNum">     452 </span>                :            : // elements and is not a collection type. When splitting to a `std::pair` the
+<span class="lineNum">     453 </span>                :            : // first two split strings become the `std::pair` `.first` and `.second`
+<span class="lineNum">     454 </span>                :            : // members, respectively. The remaining split substrings are discarded. If there
+<span class="lineNum">     455 </span>                :            : // are less than two split substrings, the empty std::string is used for the
+<span class="lineNum">     456 </span>                :            : // corresponding
+<span class="lineNum">     457 </span>                :            : // `std::pair` member.
+<span class="lineNum">     458 </span>                :            : //
+<span class="lineNum">     459 </span>                :            : // Example:
+<span class="lineNum">     460 </span>                :            : //
+<span class="lineNum">     461 </span>                :            : //   // Stores first two split strings as the members in a std::pair.
+<span class="lineNum">     462 </span>                :            : //   std::pair&lt;std::string, std::string&gt; p = absl::StrSplit(&quot;a,b,c&quot;, ',');
+<span class="lineNum">     463 </span>                :            : //   // p.first == &quot;a&quot;, p.second == &quot;b&quot;       // &quot;c&quot; is omitted.
+<span class="lineNum">     464 </span>                :            : //
+<span class="lineNum">     465 </span>                :            : // The `StrSplit()` function can be used multiple times to perform more
+<span class="lineNum">     466 </span>                :            : // complicated splitting logic, such as intelligently parsing key-value pairs.
+<span class="lineNum">     467 </span>                :            : //
+<span class="lineNum">     468 </span>                :            : // Example:
+<span class="lineNum">     469 </span>                :            : //
+<span class="lineNum">     470 </span>                :            : //   // The input std::string &quot;a=b=c,d=e,f=,g&quot; becomes
+<span class="lineNum">     471 </span>                :            : //   // { &quot;a&quot; =&gt; &quot;b=c&quot;, &quot;d&quot; =&gt; &quot;e&quot;, &quot;f&quot; =&gt; &quot;&quot;, &quot;g&quot; =&gt; &quot;&quot; }
+<span class="lineNum">     472 </span>                :            : //   std::map&lt;std::string, std::string&gt; m;
+<span class="lineNum">     473 </span>                :            : //   for (absl::string_view sp : absl::StrSplit(&quot;a=b=c,d=e,f=,g&quot;, ',')) {
+<span class="lineNum">     474 </span>                :            : //     m.insert(absl::StrSplit(sp, absl::MaxSplits('=', 1)));
+<span class="lineNum">     475 </span>                :            : //   }
+<span class="lineNum">     476 </span>                :            : //   EXPECT_EQ(&quot;b=c&quot;, m.find(&quot;a&quot;)-&gt;second);
+<span class="lineNum">     477 </span>                :            : //   EXPECT_EQ(&quot;e&quot;, m.find(&quot;d&quot;)-&gt;second);
+<span class="lineNum">     478 </span>                :            : //   EXPECT_EQ(&quot;&quot;, m.find(&quot;f&quot;)-&gt;second);
+<span class="lineNum">     479 </span>                :            : //   EXPECT_EQ(&quot;&quot;, m.find(&quot;g&quot;)-&gt;second);
+<span class="lineNum">     480 </span>                :            : //
+<span class="lineNum">     481 </span>                :            : // WARNING: Due to a legacy bug that is maintained for backward compatibility,
+<span class="lineNum">     482 </span>                :            : // splitting the following empty string_views produces different results:
+<span class="lineNum">     483 </span>                :            : //
+<span class="lineNum">     484 </span>                :            : //   absl::StrSplit(absl::string_view(&quot;&quot;), '-');  // {&quot;&quot;}
+<span class="lineNum">     485 </span>                :            : //   absl::StrSplit(absl::string_view(), '-');    // {}, but should be {&quot;&quot;}
+<span class="lineNum">     486 </span>                :            : //
+<span class="lineNum">     487 </span>                :            : // Try not to depend on this distinction because the bug may one day be fixed.
+<span class="lineNum">     488 </span>                :            : template &lt;typename Delimiter&gt;
+<a name="489"><span class="lineNum">     489 </span>                :            : strings_internal::Splitter&lt;</a>
+<span class="lineNum">     490 </span>                :            :     typename strings_internal::SelectDelimiter&lt;Delimiter&gt;::type, AllowEmpty&gt;
+<span class="lineNum">     491 </span>                :<span class="lineCov">       2105 : StrSplit(strings_internal::ConvertibleToStringView text, Delimiter d) {</span>
+<span class="lineNum">     492 </span>                :            :   using DelimiterType =
+<span class="lineNum">     493 </span>                :            :       typename strings_internal::SelectDelimiter&lt;Delimiter&gt;::type;
+<span class="lineNum">     494 </span>                :            :   return strings_internal::Splitter&lt;DelimiterType, AllowEmpty&gt;(
+<span class="lineNum">     495 </span>[<span class="branchCov" title="Branch 1 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">       2105 :       std::move(text), DelimiterType(d), AllowEmpty());</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 2105 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">     496 </span>                :            : }
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>                :            : template &lt;typename Delimiter, typename Predicate&gt;
+<span class="lineNum">     499 </span>                :            : strings_internal::Splitter&lt;
+<span class="lineNum">     500 </span>                :            :     typename strings_internal::SelectDelimiter&lt;Delimiter&gt;::type, Predicate&gt;
+<span class="lineNum">     501 </span>                :            : StrSplit(strings_internal::ConvertibleToStringView text, Delimiter d,
+<span class="lineNum">     502 </span>                :            :          Predicate p) {
+<span class="lineNum">     503 </span>                :            :   using DelimiterType =
+<span class="lineNum">     504 </span>                :            :       typename strings_internal::SelectDelimiter&lt;Delimiter&gt;::type;
+<span class="lineNum">     505 </span>                :            :   return strings_internal::Splitter&lt;DelimiterType, Predicate&gt;(
+<span class="lineNum">     506 </span>                :            :       std::move(text), DelimiterType(d), std::move(p));
+<span class="lineNum">     507 </span>                :            : }
+<span class="lineNum">     508 </span>                :            : 
+<span class="lineNum">     509 </span>                :            : }  // namespace absl
+<span class="lineNum">     510 </span>                :            : 
+<span class="lineNum">     511 </span>                :            : #endif  // ABSL_STRINGS_STR_SPLIT_H_
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

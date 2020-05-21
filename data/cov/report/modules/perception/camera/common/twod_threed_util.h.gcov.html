@@ -1,0 +1,521 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/perception/camera/common/twod_threed_util.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/perception/camera/common</a> - twod_threed_util.h<span style="font-size: 80%;"> (source / <a href="twod_threed_util.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">243</td>
+            <td class="headerCovTableEntry">248</td>
+            <td class="headerCovTableEntryHi">98.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">175</td>
+            <td class="headerCovTableEntry">384</td>
+            <td class="headerCovTableEntryLo">45.6 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the License);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an AS IS BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : #pragma once
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;cfloat&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;utility&gt;
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      23 </span>                :            : #include &quot;modules/perception/common/i_lib/core/i_constant.h&quot;
+<span class="lineNum">      24 </span>                :            : #include &quot;modules/perception/common/i_lib/geometry/i_line.h&quot;
+<span class="lineNum">      25 </span>                :            : #include &quot;modules/perception/common/i_lib/geometry/i_util.h&quot;
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : namespace apollo {
+<span class="lineNum">      28 </span>                :            : namespace perception {
+<span class="lineNum">      29 </span>                :            : namespace camera {
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : /*auxiliary data structure*/
+<span class="lineNum">      32 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      33 </span>                :            : struct LineSegment2D {
+<span class="lineNum">      34 </span>                :            :   T pt_start[2] = {0};  // left
+<a name="35"><span class="lineNum">      35 </span>                :            :   T pt_end[2] = {0};    // right</a>
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :<span class="lineCov">      10573 :   LineSegment2D(const T &amp;x_start, const T &amp;y_start, const T &amp;x_end,</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">      10573 :                 const T &amp;y_end) {</span>
+<span class="lineNum">      39 </span>                :<span class="lineCov">      10573 :     pt_start[0] = x_start;</span>
+<span class="lineNum">      40 </span>                :<span class="lineCov">      10573 :     pt_start[1] = y_start;</span>
+<span class="lineNum">      41 </span>                :<span class="lineCov">      10573 :     pt_end[0] = x_end;</span>
+<a name="42"><span class="lineNum">      42 </span>                :<span class="lineCov">      10573 :     pt_end[1] = y_end;</span></a>
+<span class="lineNum">      43 </span>                :<span class="lineCov">      10573 :   }</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">      26950 :   LineSegment2D(const LineSegment2D &amp;ls) {</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">      26950 :     this-&gt;pt_start[0] = ls.pt_start[0];</span>
+<span class="lineNum">      46 </span>                :<span class="lineCov">      26950 :     this-&gt;pt_start[1] = ls.pt_start[1];</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">      26950 :     this-&gt;pt_end[0] = ls.pt_end[0];</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">      26950 :     this-&gt;pt_end[1] = ls.pt_end[1];</span>
+<span class="lineNum">      49 </span>                :<span class="lineCov">      26950 :   }</span>
+<span class="lineNum">      50 </span>                :            :   void operator=(const LineSegment2D &amp;ls) {
+<span class="lineNum">      51 </span>                :            :     this-&gt;pt_start[0] = ls.pt_start[0];
+<span class="lineNum">      52 </span>                :            :     this-&gt;pt_start[1] = ls.pt_start[1];
+<span class="lineNum">      53 </span>                :            :     this-&gt;pt_end[0] = ls.pt_end[0];
+<span class="lineNum">      54 </span>                :            :     this-&gt;pt_end[1] = ls.pt_end[1];
+<span class="lineNum">      55 </span>                :            :   }
+<span class="lineNum">      56 </span>                :            : };
+<span class="lineNum">      57 </span>                :            : /*end of auxiliary data structure*/
+<span class="lineNum">      58 </span>                :            : 
+<a name="59"><span class="lineNum">      59 </span>                :            : /*angle util*/</a>
+<span class="lineNum">      60 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      61 </span>                :<span class="lineCov">        404 : T CalAngleDiff(const T a1, const T a2) {</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">        404 :   T diff1 = a1 - a2;</span>
+<span class="lineNum">      63 </span>        [<span class="branchCov" title="Branch 0 was taken 199 times"> + </span><span class="branchCov" title="Branch 1 was taken 205 times"> + </span>]:<span class="lineCov">        404 :   diff1 = diff1 &lt; 0 ? -diff1 : diff1;</span>
+<span class="lineNum">      64 </span>        [<span class="branchCov" title="Branch 1 was taken 404 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        404 :   T diff2 = a1 - a2 + common::Constant&lt;T&gt;::PI() * 2;</span>
+<span class="lineNum">      65 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 403 times"> + </span>]:<span class="lineCov">        404 :   diff2 = diff2 &lt; 0 ? -diff2 : diff2;</span>
+<span class="lineNum">      66 </span>        [<span class="branchCov" title="Branch 1 was taken 404 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        404 :   T diff3 = a1 - a2 - common::Constant&lt;T&gt;::PI() * 2;</span>
+<span class="lineNum">      67 </span>        [<span class="branchCov" title="Branch 0 was taken 402 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">        404 :   diff3 = diff3 &lt; 0 ? -diff3 : diff3;</span>
+<span class="lineNum">      68 </span>[<span class="branchCov" title="Branch 1 was taken 404 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 404 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">        404 :   return std::min&lt;T&gt;(std::min&lt;T&gt;(diff1, diff2), diff3);</span>
+<span class="lineNum">      69 </span>                :            : }
+<a name="70"><span class="lineNum">      70 </span>                :            : </a>
+<span class="lineNum">      71 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      72 </span>                :<span class="lineCov">          4 : inline T GetSharpAngle(const T &amp;a, const T &amp;b) {</span>
+<span class="lineNum">      73 </span>                :            :   /*a and b are in [-pi, pi)*/
+<span class="lineNum">      74 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   const T pi = common::Constant&lt;T&gt;::PI();</span>
+<span class="lineNum">      75 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   T angle = std::abs(a - b);</span>
+<span class="lineNum">      76 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :   if (angle &gt; pi) {</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :     angle -= pi;</span>
+<span class="lineNum">      78 </span>                :            :   }
+<span class="lineNum">      79 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :   angle = std::min(angle, pi - angle);</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">          4 :   return angle;</span>
+<span class="lineNum">      81 </span>                :            : }
+<span class="lineNum">      82 </span>                :            : /*end of angle util*/
+<span class="lineNum">      83 </span>                :            : 
+<a name="84"><span class="lineNum">      84 </span>                :            : /*other util*/</a>
+<span class="lineNum">      85 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">      86 </span>                :<span class="lineCov">      18582 : T GetJaccardIndex(const T *bbox_ref, const T &amp;x_min, const T &amp;y_min,</span>
+<span class="lineNum">      87 </span>                :            :                   const T &amp;x_max, const T &amp;y_max) {
+<span class="lineNum">      88 </span>                :<span class="lineCov">      18582 :   T overlap_x = std::min(bbox_ref[2], x_max) - std::max(bbox_ref[0], x_min);</span>
+<span class="lineNum">      89 </span>                :<span class="lineCov">      18582 :   T overlap_y = std::min(bbox_ref[3], y_max) - std::max(bbox_ref[1], y_min);</span>
+<span class="lineNum">      90 </span>[<span class="branchCov" title="Branch 0 was taken 17705 times"> + </span><span class="branchCov" title="Branch 1 was taken 877 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 290 times"> + </span><span class="branchCov" title="Branch 3 was taken 17415 times"> + </span>]:<span class="lineCov">      18582 :   if (overlap_y &lt;= (T)0 || overlap_x &lt;= (T)0) {</span>
+<span class="lineNum">      91 </span>                :<span class="lineCov">       1167 :     return (T)0;</span>
+<span class="lineNum">      92 </span>                :            :   }
+<span class="lineNum">      93 </span>                :<span class="lineCov">      17415 :   T inter_area = overlap_x * overlap_y;</span>
+<span class="lineNum">      94 </span>                :            :   T union_area = (y_max - y_min) * (x_max - x_min) +
+<span class="lineNum">      95 </span>                :<span class="lineCov">      52245 :                  (bbox_ref[3] - bbox_ref[1]) * (bbox_ref[2] - bbox_ref[0]) -</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">      69660 :                  inter_area;</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">      17415 :   return inter_area * common::IRec(union_area);</span>
+<span class="lineNum">      98 </span>                :            : }
+<a name="99"><span class="lineNum">      99 </span>                :            : </a>
+<span class="lineNum">     100 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     101 </span>                :<span class="lineCov">     729875 : void GenRotMatrix(const T &amp;ry, T *rot) {</span>
+<span class="lineNum">     102 </span>                :<span class="lineCov">     729875 :   rot[0] = static_cast&lt;T&gt;(cos(ry));</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">     729875 :   rot[2] = static_cast&lt;T&gt;(sin(ry));</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">     729875 :   rot[4] = static_cast&lt;T&gt;(1.0f);</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">     729875 :   rot[6] = static_cast&lt;T&gt;(-sin(ry));</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">     729875 :   rot[8] = static_cast&lt;T&gt;(cos(ry));</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">     729875 :   rot[1] = rot[3] = rot[5] = rot[7] = static_cast&lt;T&gt;(0);</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">     729875 : }</span>
+<a name="109"><span class="lineNum">     109 </span>                :            : </a>
+<span class="lineNum">     110 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     111 </span>                :<span class="lineCov">      18602 : void GenCorners(T h, T w, T l, T *x_cor, T *y_cor, T *z_cor) {</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">      18602 :   T half_w = static_cast&lt;T&gt;(w * 0.5f);</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">      18602 :   T half_l = static_cast&lt;T&gt;(l * 0.5f);</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">      18602 :   y_cor[0] = y_cor[1] = y_cor[2] = y_cor[3] = (T)0;</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">      18602 :   y_cor[4] = y_cor[5] = y_cor[6] = y_cor[7] = -h;</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">      18602 :   x_cor[0] = x_cor[4] = half_l;</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">      18602 :   z_cor[0] = z_cor[4] = half_w;</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">      18602 :   x_cor[1] = x_cor[5] = half_l;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">      18602 :   z_cor[1] = z_cor[5] = -half_w;</span>
+<span class="lineNum">     120 </span>                :<span class="lineCov">      18602 :   x_cor[2] = x_cor[6] = -half_l;</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">      18602 :   z_cor[2] = z_cor[6] = -half_w;</span>
+<span class="lineNum">     122 </span>                :<span class="lineCov">      18602 :   x_cor[3] = x_cor[7] = -half_l;</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">      18602 :   z_cor[3] = z_cor[7] = half_w;</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">      18602 : }</span>
+<a name="125"><span class="lineNum">     125 </span>                :            : </a>
+<span class="lineNum">     126 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     127 </span>                :<span class="lineCov">          7 : bool Occlude(const T *bbox1, const T &amp;h1, const T *bbox2, const T &amp;h2) {</span>
+<span class="lineNum">     128 </span>                :<span class="lineCov">          7 :   T overlap_x = std::min(bbox1[2], bbox2[2]) - std::max(bbox1[0], bbox2[0]);</span>
+<span class="lineNum">     129 </span>                :<span class="lineCov">          7 :   T overlap_y = std::min(bbox1[3], bbox2[3]) - std::max(bbox1[1], bbox2[1]);</span>
+<span class="lineNum">     130 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">          7 :   if (overlap_y &lt;= (T)0 || overlap_x &lt;= (T)0) {</span>
+<span class="lineNum">     131 </span>                :<span class="lineCov">          3 :     return false;</span>
+<span class="lineNum">     132 </span>                :            :   }
+<span class="lineNum">     133 </span>                :<span class="lineCov">          4 :   const T HEIGHT_BIG_MOT = static_cast&lt;T&gt;(3.0f);</span>
+<span class="lineNum">     134 </span>                :<span class="lineCov">          4 :   const T OCC_RATIO = (T)0.1f;</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">          4 :   T bh1 = bbox1[3] - bbox1[1];</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">          4 :   T bh2 = bbox2[3] - bbox2[1];</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">          4 :   T inter_area = overlap_x * overlap_y;</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">          4 :   T area = bh2 * (bbox2[2] - bbox2[0]);</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          4 :   T occ_ratio = inter_area * common::IRec(area);</span>
+<span class="lineNum">     140 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :   T thres_occ_ratio = h2 &lt; HEIGHT_BIG_MOT ? 2 * OCC_RATIO : OCC_RATIO;</span>
+<span class="lineNum">     141 </span>                :            :   bool occ = occ_ratio &gt; thres_occ_ratio &amp;&amp;
+<span class="lineNum">     142 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 4 was taken 1 time"> + </span><span class="branchCov" title="Branch 5 was taken 1 time"> + </span>]:<span class="lineCov">          4 :              h1 * common::IRec(bh1) &lt; h2 * common::IRec(bh2);</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">          4 :   return occ;</span>
+<span class="lineNum">     144 </span>                :            : }
+<a name="145"><span class="lineNum">     145 </span>                :            : </a>
+<span class="lineNum">     146 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     147 </span>                :<span class="lineCov">          4 : void GetBboxFromPts(const T *pts, const int &amp;n, T *bbox) {</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">          4 :   bbox[0] = bbox[2] = pts[0];</span>
+<span class="lineNum">     149 </span>                :<span class="lineCov">          4 :   bbox[1] = bbox[3] = pts[1];</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">          4 :   int i2 = 2;</span>
+<span class="lineNum">     151 </span>        [<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         11 :   for (int i = 1; i &lt; n; ++i) {</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">          7 :     T x = pts[i2];</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          7 :     T y = pts[i2 + 1];</span>
+<span class="lineNum">     154 </span>        [<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          7 :     bbox[0] = std::min(bbox[0], x);</span>
+<span class="lineNum">     155 </span>        [<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          7 :     bbox[1] = std::min(bbox[1], y);</span>
+<span class="lineNum">     156 </span>        [<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          7 :     bbox[2] = std::max(bbox[2], x);</span>
+<span class="lineNum">     157 </span>        [<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          7 :     bbox[3] = std::max(bbox[3], y);</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">          7 :     i2 += 2;</span>
+<span class="lineNum">     159 </span>                :            :   }
+<span class="lineNum">     160 </span>                :<span class="lineCov">          4 : }</span>
+<a name="161"><span class="lineNum">     161 </span>                :            : </a>
+<span class="lineNum">     162 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     163 </span>                :<span class="lineCov">          2 : int GetMinIndexVec(const T *vec, const int &amp;n) {</span>
+<span class="lineNum">     164 </span>[<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 2 times"> + </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]:<span class="lineCov">          2 :   CHECK_GT(n, 0);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     165 </span>                :<span class="lineCov">          2 :   int index = 0;</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          2 :   T min_val = vec[0];</span>
+<span class="lineNum">     167 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :   for (int i = 1; i &lt; n; ++i) {</span>
+<span class="lineNum">     168 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          5 :     if (vec[i] &lt; min_val) {</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">          2 :       min_val = vec[i];</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">          2 :       index = i;</span>
+<span class="lineNum">     171 </span>                :            :     }
+<span class="lineNum">     172 </span>                :            :   }
+<span class="lineNum">     173 </span>                :<span class="lineCov">          2 :   return index;</span>
+<span class="lineNum">     174 </span>                :            : }
+<a name="175"><span class="lineNum">     175 </span>                :            : </a>
+<span class="lineNum">     176 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     177 </span>                :<span class="lineCov">      18578 : T GetScoreViaRotDimensionCenter(const T *k_mat, int width, int height,</span>
+<span class="lineNum">     178 </span>                :            :                                 const T *bbox, const T *rot, const T *hwl,
+<span class="lineNum">     179 </span>                :            :                                 const T *location, const bool &amp;check_truncation,
+<span class="lineNum">     180 </span>                :            :                                 T *bbox_res = nullptr, T *bbox_near = nullptr) {
+<span class="lineNum">     181 </span>                :<span class="lineCov">      18578 :   T h = hwl[0];</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">      18578 :   T w = hwl[1];</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">      18578 :   T l = hwl[2];</span>
+<span class="lineNum">     184 </span>                :<span class="lineCov">      18578 :   T x_corners[8] = {0};</span>
+<span class="lineNum">     185 </span>                :<span class="lineCov">      18578 :   T y_corners[8] = {0};</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">      18578 :   T z_corners[8] = {0};</span>
+<span class="lineNum">     187 </span>        [<span class="branchCov" title="Branch 1 was taken 18578 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">      18578 :   GenCorners(h, w, l, x_corners, y_corners, z_corners);</span>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineCov">      18578 :   T x_min = FLT_MAX;</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">      18578 :   T x_max = -FLT_MAX;</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">      18578 :   T y_min = FLT_MAX;</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">      18578 :   T y_max = -FLT_MAX;</span>
+<span class="lineNum">     193 </span>                :            :   T x_proj[3];
+<span class="lineNum">     194 </span>                :            :   T x_box[3];
+<span class="lineNum">     195 </span>                :            :   T pts_proj[16];
+<span class="lineNum">     196 </span>        [<span class="branchCov" title="Branch 0 was taken 148624 times"> + </span><span class="branchCov" title="Branch 1 was taken 18578 times"> + </span>]:<span class="lineCov">     167202 :   for (int i = 0; i &lt; 8; ++i) {</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">     148624 :     x_box[0] = x_corners[i];</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">     148624 :     x_box[1] = y_corners[i];</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">     148624 :     x_box[2] = z_corners[i];</span>
+<span class="lineNum">     200 </span>        [<span class="branchCov" title="Branch 1 was taken 148624 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     148624 :     common::IProjectThroughKRt(k_mat, rot, location, x_box, x_proj);</span>
+<span class="lineNum">     201 </span>        [<span class="branchCov" title="Branch 1 was taken 148624 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     148624 :     x_proj[0] *= common::IRec(x_proj[2]);</span>
+<span class="lineNum">     202 </span>        [<span class="branchCov" title="Branch 1 was taken 148624 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     148624 :     x_proj[1] *= common::IRec(x_proj[2]);</span>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 148616 times"> + </span>]:<span class="lineCov">     148624 :     if (bbox_near != nullptr) {</span>
+<span class="lineNum">     205 </span>                :<span class="lineCov">          8 :       int i2 = i * 2;</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">          8 :       pts_proj[i2] = x_proj[0];</span>
+<span class="lineNum">     207 </span>                :<span class="lineCov">          8 :       pts_proj[i2 + 1] = x_proj[1];</span>
+<span class="lineNum">     208 </span>                :            :     }
+<span class="lineNum">     209 </span>        [<span class="branchCov" title="Branch 1 was taken 148624 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     148624 :     x_min = std::min(x_min, x_proj[0]);</span>
+<span class="lineNum">     210 </span>        [<span class="branchCov" title="Branch 1 was taken 148624 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     148624 :     x_max = std::max(x_max, x_proj[0]);</span>
+<span class="lineNum">     211 </span>        [<span class="branchCov" title="Branch 1 was taken 148624 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     148624 :     y_min = std::min(y_min, x_proj[1]);</span>
+<span class="lineNum">     212 </span>        [<span class="branchCov" title="Branch 1 was taken 148624 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     148624 :     y_max = std::max(y_max, x_proj[1]);</span>
+<span class="lineNum">     213 </span>        [<span class="branchCov" title="Branch 0 was taken 145784 times"> + </span><span class="branchCov" title="Branch 1 was taken 2840 times"> + </span>]:<span class="lineCov">     148624 :     if (check_truncation) {</span>
+<span class="lineNum">     214 </span>[<span class="branchCov" title="Branch 1 was taken 145784 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 145784 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     145784 :       x_min = std::min(std::max(x_min, (T)0), (T)(width - 1));</span>
+<span class="lineNum">     215 </span>[<span class="branchCov" title="Branch 1 was taken 145784 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 145784 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     145784 :       x_max = std::min(std::max(x_max, (T)0), (T)(width - 1));</span>
+<span class="lineNum">     216 </span>[<span class="branchCov" title="Branch 1 was taken 145784 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 145784 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     145784 :       y_min = std::min(std::max(y_min, (T)0), (T)(height - 1));</span>
+<span class="lineNum">     217 </span>[<span class="branchCov" title="Branch 1 was taken 145784 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 145784 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     145784 :       y_max = std::min(std::max(y_max, (T)0), (T)(height - 1));</span>
+<span class="lineNum">     218 </span>                :            :     }
+<span class="lineNum">     219 </span>                :            :   }
+<span class="lineNum">     220 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 18566 times"> + </span>]:<span class="lineCov">      18578 :   if (bbox_res != nullptr) {</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">         12 :     bbox_res[0] = x_min;</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">         12 :     bbox_res[1] = y_min;</span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">         12 :     bbox_res[2] = x_max;</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">         12 :     bbox_res[3] = y_max;</span>
+<span class="lineNum">     225 </span>                :            :   }
+<span class="lineNum">     226 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 18577 times"> + </span>]:<span class="lineCov">      18578 :   if (bbox_near != nullptr) {</span>
+<span class="lineNum">     227 </span>                :<span class="lineCov">          1 :     T bbox_front[4] = {0};</span>
+<span class="lineNum">     228 </span>                :<span class="lineCov">          1 :     T bbox_rear[4] = {0};</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 :     std::swap(pts_proj[4], pts_proj[8]);</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">          1 :     std::swap(pts_proj[5], pts_proj[9]);</span>
+<span class="lineNum">     231 </span>                :<span class="lineCov">          1 :     std::swap(pts_proj[6], pts_proj[10]);</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">          1 :     std::swap(pts_proj[7], pts_proj[11]);</span>
+<span class="lineNum">     233 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     GetBboxFromPts(pts_proj, 4, bbox_front);</span>
+<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     GetBboxFromPts(pts_proj + 8, 4, bbox_rear);</span>
+<span class="lineNum">     235 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (bbox_rear[3] - bbox_rear[1] &gt; bbox_front[3] - bbox_front[1]) {</span>
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :       memcpy(bbox_near, bbox_rear, sizeof(T) * 4);</span>
+<span class="lineNum">     237 </span>                :            :     } else {
+<span class="lineNum">     238 </span>                :<span class="lineCov">          1 :       memcpy(bbox_near, bbox_front, sizeof(T) * 4);</span>
+<span class="lineNum">     239 </span>                :            :     }
+<span class="lineNum">     240 </span>                :            :   }
+<span class="lineNum">     241 </span>        [<span class="branchCov" title="Branch 1 was taken 18578 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">      18578 :   return GetJaccardIndex(bbox, x_min, y_min, x_max, y_max);</span>
+<span class="lineNum">     242 </span>                :            : }
+<a name="243"><span class="lineNum">     243 </span>                :            : </a>
+<span class="lineNum">     244 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     245 </span>                :<span class="lineCov">   12985081 : bool CheckXY(const T &amp;x, const T &amp;y, int width, int height) {</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">   12985081 :   T max_x = static_cast&lt;T&gt;(width - 1);</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">   12985081 :   T max_y = static_cast&lt;T&gt;(height - 1);</span>
+<span class="lineNum">     248 </span>[<span class="branchCov" title="Branch 0 was taken 12985074 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 12985074 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">   12985081 :   return x &lt;= max_x &amp;&amp; x &gt;= (T)0 &amp;&amp; y &lt;= max_y &amp;&amp; y &gt;= (T)0;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 12985074 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 12985074 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 8 was taken 5 times"> + </span><span class="branchCov" title="Branch 9 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 10 was taken 3 times"> + </span><span class="branchCov" title="Branch 11 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 12 was taken 2 times"> + </span><span class="branchCov" title="Branch 13 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 14 was taken 1 time"> + </span><span class="branchCov" title="Branch 15 was taken 1 time"> + </span>]
+<span class="lineNum">     249 </span>                :            : }
+<a name="250"><span class="lineNum">     250 </span>                :            : </a>
+<span class="lineNum">     251 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     252 </span>                :<span class="lineCov">    2507884 : void UpdateOffsetZ(T x_start, T z_start, T x_end, T z_end,</span>
+<span class="lineNum">     253 </span>                :            :                    const std::pair&lt;T, T&gt; &amp;range, T *z_offset) {
+<span class="lineNum">     254 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2507884 times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">    2507884 :   CHECK(range.first &lt; range.second);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 17 was not taken"> - </span><span class="branchCov" title="Branch 18 was taken 2507884 times"> + </span>][<span class="branchNoCov" title="Branch 19 was not taken"> - </span><span class="branchCov" title="Branch 20 was taken 2507884 times"> + </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>]
+<span class="lineNum">     255 </span>        [<span class="branchCov" title="Branch 0 was taken 1253940 times"> + </span><span class="branchCov" title="Branch 1 was taken 1253944 times"> + </span>]:<span class="lineCov">    2507884 :   if (x_start &gt; x_end) {</span>
+<span class="lineNum">     256 </span>                :<span class="lineCov">    1253940 :     std::swap(x_start, x_end);</span>
+<span class="lineNum">     257 </span>                :<span class="lineCov">    1253940 :     std::swap(z_start, z_end);</span>
+<span class="lineNum">     258 </span>                :            :   }
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>        [<span class="branchCov" title="Branch 1 was taken 2507884 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    2507884 :   T x_check_l = std::max(x_start, range.first);</span>
+<span class="lineNum">     261 </span>        [<span class="branchCov" title="Branch 1 was taken 2507884 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    2507884 :   T x_check_r = std::min(x_end, range.second);</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">    2507884 :   T overlap_x = x_check_r - x_check_l;</span>
+<span class="lineNum">     263 </span>        [<span class="branchCov" title="Branch 0 was taken 1545006 times"> + </span><span class="branchCov" title="Branch 1 was taken 962878 times"> + </span>]:<span class="lineCov">    2507884 :   if (overlap_x &lt; 1e-6) {</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">    2507884 :     return;</span>
+<span class="lineNum">     265 </span>                :            :   }
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>        [<span class="branchCov" title="Branch 1 was taken 962878 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     962878 :   T dz_divide_dx = (z_end - z_start) * common::IRec(x_end - x_start);</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">     962878 :   T z_check_l = z_start + (x_check_l - x_start) * dz_divide_dx;</span>
+<span class="lineNum">     269 </span>                :<span class="lineCov">     962878 :   T z_check_r = z_start + (x_check_r - x_start) * dz_divide_dx;</span>
+<span class="lineNum">     270 </span>        [<span class="branchCov" title="Branch 1 was taken 962878 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     962878 :   T z_nearest = std::min(z_check_l, z_check_r);</span>
+<span class="lineNum">     271 </span>        [<span class="branchCov" title="Branch 0 was taken 365495 times"> + </span><span class="branchCov" title="Branch 1 was taken 597383 times"> + </span>]:<span class="lineCov">     962878 :   if (z_nearest &lt; *z_offset) {</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">     962878 :     *z_offset = z_nearest;</span>
+<span class="lineNum">     273 </span>                :            :   }
+<span class="lineNum">     274 </span>                :            : }
+<a name="275"><span class="lineNum">     275 </span>                :            : </a>
+<span class="lineNum">     276 </span>                :            : template &lt;typename T&gt;
+<span class="lineNum">     277 </span>                :<span class="lineCov">    6492537 : void GetDxDzForCenterFromGroundLineSeg(const LineSegment2D&lt;T&gt; &amp;ls,</span>
+<span class="lineNum">     278 </span>                :            :                                        const T *plane, const T *pts_c,
+<span class="lineNum">     279 </span>                :            :                                        const T *k_mat, int width, int height,
+<span class="lineNum">     280 </span>                :            :                                        T ratio_x_over_z, T *dx_dz,
+<span class="lineNum">     281 </span>                :            :                                        bool check_lowerbound = true) {
+<span class="lineNum">     282 </span>                :<span class="lineCov">    6492537 :   const T Z_RESOLUTION = static_cast&lt;T&gt;(1e-1);</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">    6492537 :   const T Z_UNSTABLE_RATIO = static_cast&lt;T&gt;(0.3f);</span>
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :<span class="lineCov">    6492537 :   dx_dz[0] = dx_dz[1] = (T)0;</span>
+<span class="lineNum">     286 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6492537 times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">    6492537 :   CHECK(ls.pt_start[0] &lt; ls.pt_end[0]);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 17 was not taken"> - </span><span class="branchCov" title="Branch 18 was taken 6492537 times"> + </span>][<span class="branchNoCov" title="Branch 19 was not taken"> - </span><span class="branchCov" title="Branch 20 was taken 6492537 times"> + </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span><span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>]
+<span class="lineNum">     287 </span>[<span class="branchCov" title="Branch 1 was taken 6492537 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 6492537 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">   12985074 :   if (!CheckXY(ls.pt_start[0], ls.pt_start[1], width, height) ||</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 6492537 times"> + </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 6492537 times"> + </span>]
+<span class="lineNum">     288 </span>        [<span class="branchCov" title="Branch 1 was taken 6492537 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    6492537 :       !CheckXY(ls.pt_end[0], ls.pt_end[1], width, height)) {</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">    6492537 :     return;</span>
+<span class="lineNum">     290 </span>                :            :   }
+<span class="lineNum">     291 </span>                :<span class="lineCov">    6492537 :   T pt_of_line_seg_l[3] = {0};</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">    6492537 :   T pt_of_line_seg_r[3] = {0};</span>
+<span class="lineNum">     293 </span>                :            :   bool is_front_l = common::IBackprojectPlaneIntersectionCanonical(
+<span class="lineNum">     294 </span>        [<span class="branchCov" title="Branch 1 was taken 6492537 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    6492537 :       ls.pt_start, k_mat, plane, pt_of_line_seg_l);</span>
+<span class="lineNum">     295 </span>                :            :   bool is_front_r = common::IBackprojectPlaneIntersectionCanonical(
+<span class="lineNum">     296 </span>        [<span class="branchCov" title="Branch 1 was taken 6492537 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">    6492537 :       ls.pt_end, k_mat, plane, pt_of_line_seg_r);</span>
+<span class="lineNum">     297 </span>[<span class="branchCov" title="Branch 0 was taken 708950 times"> + </span><span class="branchCov" title="Branch 1 was taken 5783587 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 708950 times"> + </span>]:<span class="lineCov">    6492537 :   if (!is_front_l || !is_front_r) {</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">    5783587 :     return;</span>
+<span class="lineNum">     299 </span>                :            :   }
+<span class="lineNum">     300 </span>[<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 708947 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">     708950 :   ADEBUG &lt;&lt; &quot;l&amp;r on-ground points: &quot; &lt;&lt; pt_of_line_seg_l[0] &lt;&lt; &quot;, &quot;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 3 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 708950 times"> + </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>][<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>][<span class="branchNoExec" title="Branch 37 was not executed"> # </span><span class="branchNoExec" title="Branch 38 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span>][<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>][<span class="branchNoCov" title="Branch 48 was not taken"> - </span><span class="branchCov" title="Branch 49 was taken 708950 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 50 was not taken"> - </span><span class="branchCov" title="Branch 51 was taken 708950 times"> + </span>][<span class="branchNoCov" title="Branch 53 was not taken"> - </span><span class="branchCov" title="Branch 54 was taken 708950 times"> + </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 56 was not executed"> # </span><span class="branchNoExec" title="Branch 57 was not executed"> # </span><span class="branchNoExec" title="Branch 58 was not executed"> # </span><span class="branchNoExec" title="Branch 59 was not executed"> # </span> 
+<span class="lineNum">         </span>         <span class="branchNoExec" title="Branch 61 was not executed"> # </span><span class="branchNoExec" title="Branch 62 was not executed"> # </span>]
+<span class="lineNum">     301 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; pt_of_line_seg_l[1] &lt;&lt; &quot;, &quot; &lt;&lt; pt_of_line_seg_l[2] &lt;&lt; &quot; | &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     302 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; pt_of_line_seg_r[0] &lt;&lt; &quot;, &quot; &lt;&lt; pt_of_line_seg_r[1] &lt;&lt; &quot;, &quot;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     303 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :          &lt;&lt; pt_of_line_seg_r[2];</span>
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>                :            :   // get transform
+<span class="lineNum">     306 </span>                :<span class="lineCov">     708950 :   T rot[9] = {0};</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">     708950 :   T t[3] = {0};</span>
+<span class="lineNum">     308 </span>                :<span class="lineCov">     708950 :   T pos[3] = {pt_of_line_seg_l[0], pt_of_line_seg_l[1], pt_of_line_seg_l[2]};</span>
+<span class="lineNum">     309 </span>                :<span class="lineCov">     708950 :   T v[3] = {pt_of_line_seg_r[0] - pt_of_line_seg_l[0],</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">     708950 :             pt_of_line_seg_r[1] - pt_of_line_seg_l[1],</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">    1417900 :             pt_of_line_seg_r[2] - pt_of_line_seg_l[2]};</span>
+<span class="lineNum">     312 </span>                :<span class="lineCov">     708950 :   T ry = static_cast&lt;T&gt;(-atan2(v[2], v[0]));</span>
+<span class="lineNum">     313 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   GenRotMatrix(ry, rot);</span>
+<span class="lineNum">     314 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::ITranspose3x3(rot);</span>
+<span class="lineNum">     315 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::IScale3(pos, (T)-1);</span>
+<span class="lineNum">     316 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::IMultAx3x3(rot, pos, t);</span>
+<span class="lineNum">     317 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 708948 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">     708950 :   ADEBUG &lt;&lt; &quot;ry: &quot; &lt;&lt; ry;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 2 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 10 was taken 708950 times"> + </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>][<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>][<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>][<span class="branchNoExec" title="Branch 37 was not executed"> # </span><span class="branchNoExec" title="Branch 38 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 40 was not executed"> # </span><span class="branchNoExec" title="Branch 41 was not executed"> # </span>][<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 45 was not taken"> - </span><span class="branchCov" title="Branch 46 was taken 708950 times"> + </span>][<span class="branchNoCov" title="Branch 47 was not taken"> - </span><span class="branchCov" title="Branch 48 was taken 708950 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 50 was not taken"> - </span><span class="branchCov" title="Branch 51 was taken 708950 times"> + </span>][<span class="branchNoExec" title="Branch 53 was not executed"> # </span><span class="branchNoExec" title="Branch 54 was not executed"> # </span> 
+<span class="lineNum">         </span>   <span class="branchNoExec" title="Branch 55 was not executed"> # </span><span class="branchNoExec" title="Branch 56 was not executed"> # </span><span class="branchNoExec" title="Branch 58 was not executed"> # </span><span class="branchNoExec" title="Branch 59 was not executed"> # </span>]
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :<span class="lineCov">     708950 :   T l[3] = {0};</span>
+<span class="lineNum">     320 </span>                :<span class="lineCov">     708950 :   T pt1[3] = {0};</span>
+<span class="lineNum">     321 </span>                :<span class="lineCov">     708950 :   T pt2[3] = {ratio_x_over_z, (T)0, (T)1};</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">     708950 :   T pt1_local[3] = {0};</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">     708950 :   T pt2_local[3] = {0};</span>
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :            :   // transform to local birdview coordinates
+<span class="lineNum">     326 </span>                :<span class="lineCov">     708950 :   std::pair&lt;T, T&gt; range;</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">     708950 :   range.first = 0;</span>
+<span class="lineNum">     328 </span>[<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     708950 :   range.second = common::ISqrt(common::ISqr(v[0]) + common::ISqr(v[2]));</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     329 </span>                :<span class="lineCov">     708950 :   T pts_local[12] = {0};</span>
+<span class="lineNum">     330 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::IProjectThroughExtrinsic(rot, t, pts_c, pts_local);</span>
+<span class="lineNum">     331 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::IProjectThroughExtrinsic(rot, t, pts_c + 3, pts_local + 3);</span>
+<span class="lineNum">     332 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::IProjectThroughExtrinsic(rot, t, pts_c + 6, pts_local + 6);</span>
+<span class="lineNum">     333 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::IProjectThroughExtrinsic(rot, t, pts_c + 9, pts_local + 9);</span>
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::IProjectThroughExtrinsic(rot, t, pt1, pt1_local);</span>
+<span class="lineNum">     336 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::IProjectThroughExtrinsic(rot, t, pt2, pt2_local);</span>
+<span class="lineNum">     337 </span>                :<span class="lineCov">     708950 :   T x[2] = {pt1_local[0], pt1_local[2]};</span>
+<span class="lineNum">     338 </span>                :<span class="lineCov">     708950 :   T xp[2] = {pt2_local[0], pt2_local[2]};</span>
+<span class="lineNum">     339 </span>        [<span class="branchCov" title="Branch 1 was taken 708950 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     708950 :   common::ILineFit2d(x, xp, l);</span>
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :<span class="lineCov">     708950 :   T zs[4] = {pts_local[2], pts_local[5], pts_local[8], pts_local[11]};</span>
+<span class="lineNum">     342 </span>                :<span class="lineCov">     708950 :   T z_offset = static_cast&lt;T&gt;(0);</span>
+<span class="lineNum">     343 </span>[<span class="branchCov" title="Branch 0 was taken 95709 times"> + </span><span class="branchCov" title="Branch 1 was taken 613241 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 85445 times"> + </span><span class="branchCov" title="Branch 3 was taken 10264 times"> + </span>]:<span class="lineCov">     708950 :   bool all_positive = zs[0] &gt; 0.0f &amp;&amp; zs[1] &gt; 0.f &amp;&amp; zs[2] &gt; 0.f &amp;&amp; zs[3] &gt; 0.f;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 83166 times"> + </span><span class="branchCov" title="Branch 5 was taken 2279 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 81979 times"> + </span><span class="branchCov" title="Branch 7 was taken 1187 times"> + </span>]
+<span class="lineNum">     344 </span>        [<span class="branchCov" title="Branch 0 was taken 81979 times"> + </span><span class="branchCov" title="Branch 1 was taken 626971 times"> + </span>]:<span class="lineCov">     708950 :   if (all_positive) {</span>
+<span class="lineNum">     345 </span>[<span class="branchCov" title="Branch 1 was taken 81979 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 81979 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      81979 :     z_offset = std::min(zs[0], std::min(zs[1], std::min(zs[2], zs[3])));</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 81979 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     346 </span>                :            :   } else {
+<span class="lineNum">     347 </span>[<span class="branchCov" title="Branch 1 was taken 626971 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 626971 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">     626971 :     z_offset = std::max(zs[0], std::max(zs[1], std::max(zs[2], zs[3])));</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 7 was taken 626971 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]
+<span class="lineNum">     348 </span>                :<span class="lineCov">     626971 :     T xs[4] = {pts_local[0], pts_local[3], pts_local[6], pts_local[9]};</span>
+<span class="lineNum">     349 </span>                :            :     // 1 -&gt; 2
+<span class="lineNum">     350 </span>        [<span class="branchCov" title="Branch 1 was taken 626971 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     626971 :     UpdateOffsetZ(xs[0], zs[0], xs[1], zs[1], range, &amp;z_offset);</span>
+<span class="lineNum">     351 </span>                :            :     // 2 -&gt; 3
+<span class="lineNum">     352 </span>        [<span class="branchCov" title="Branch 1 was taken 626971 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     626971 :     UpdateOffsetZ(xs[1], zs[1], xs[2], zs[2], range, &amp;z_offset);</span>
+<span class="lineNum">     353 </span>                :            :     // 3 -&gt; 4
+<span class="lineNum">     354 </span>        [<span class="branchCov" title="Branch 1 was taken 626971 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     626971 :     UpdateOffsetZ(xs[2], zs[2], xs[3], zs[3], range, &amp;z_offset);</span>
+<span class="lineNum">     355 </span>                :            :     // 4 -&gt; 1
+<span class="lineNum">     356 </span>        [<span class="branchCov" title="Branch 1 was taken 626971 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     626971 :     UpdateOffsetZ(xs[3], zs[3], xs[0], zs[0], range, &amp;z_offset);</span>
+<span class="lineNum">     357 </span>                :            :   }
+<span class="lineNum">     358 </span>[<span class="branchCov" title="Branch 0 was taken 522030 times"> + </span><span class="branchCov" title="Branch 1 was taken 186920 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 14942 times"> + </span><span class="branchCov" title="Branch 3 was taken 507088 times"> + </span>]:<span class="lineCov">     708950 :   if (z_offset &lt; Z_RESOLUTION &amp;&amp; z_offset &gt; -Z_RESOLUTION) {</span>
+<span class="lineNum">     359 </span>                :<span class="lineCov">      14942 :     return;</span>
+<span class="lineNum">     360 </span>                :            :   }
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :            :   // judge &amp; convert back to camera coordinates
+<span class="lineNum">     363 </span>[<span class="branchCov" title="Branch 0 was taken 186920 times"> + </span><span class="branchCov" title="Branch 1 was taken 507088 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 186919 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">     694008 :   if (z_offset &gt; static_cast&lt;T&gt;(0.0f) &amp;&amp; check_lowerbound) {</span>
+<span class="lineNum">     364 </span>                :<span class="lineCov">     186919 :     return;</span>
+<span class="lineNum">     365 </span>                :            :   }
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :<span class="lineCov">     507089 :   T center_c[3] = {0};</span>
+<span class="lineNum">     368 </span>                :<span class="lineCov">     507089 :   center_c[0] = (pts_c[0] + pts_c[3] + pts_c[6] + pts_c[9]) / 4;</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">     507089 :   center_c[2] = (pts_c[2] + pts_c[5] + pts_c[8] + pts_c[11]) / 4;</span>
+<span class="lineNum">     370 </span>                :<span class="lineCov">     507089 :   T z_avg = center_c[2];</span>
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :<span class="lineCov">     507089 :   T dz_local = -z_offset;</span>
+<span class="lineNum">     373 </span>                :            :   T dx_local =
+<span class="lineNum">     374 </span>        [<span class="branchCov" title="Branch 1 was taken 507089 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     507089 :       -l[1] * dz_local * common::IRec(l[0]); /*enforce to be along the ray*/</span>
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :<span class="lineCov">     507089 :   T center_local[3] = {0};</span>
+<span class="lineNum">     377 </span>        [<span class="branchCov" title="Branch 1 was taken 507089 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     507089 :   common::IProjectThroughExtrinsic(rot, t, center_c, center_local);</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">     507089 :   center_local[0] += dx_local;</span>
+<span class="lineNum">     379 </span>                :<span class="lineCov">     507089 :   center_local[1] = 0;</span>
+<span class="lineNum">     380 </span>                :<span class="lineCov">     507089 :   center_local[2] += dz_local;</span>
+<span class="lineNum">     381 </span>                :<span class="lineCov">     507089 :   T center_local_to_c[3] = {0};</span>
+<span class="lineNum">     382 </span>        [<span class="branchCov" title="Branch 1 was taken 507089 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     507089 :   common::ISub3(t, center_local);</span>
+<span class="lineNum">     383 </span>        [<span class="branchCov" title="Branch 1 was taken 507089 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">     507089 :   common::IMultAtx3x3(rot, center_local, center_local_to_c);</span>
+<span class="lineNum">     384 </span>                :<span class="lineCov">     507089 :   dx_dz[0] = center_local_to_c[0] - center_c[0];</span>
+<span class="lineNum">     385 </span>                :<span class="lineCov">     507089 :   dx_dz[1] = center_local_to_c[2] - center_c[2];</span>
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>                :<span class="lineCov">     507089 :   T dz_max = z_avg * Z_UNSTABLE_RATIO;</span>
+<span class="lineNum">     388 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 507088 times"> + </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">     507089 :   if (z_offset &gt; static_cast&lt;T&gt;(0.0f) &amp;&amp; std::abs(dx_dz[1]) &gt; dz_max) {</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 507089 times"> + </span>]
+<span class="lineNum">     389 </span>                :<span class="lineCov">     507089 :     dx_dz[0] = dx_dz[1] = 0;</span>
+<span class="lineNum">     390 </span>                :            :   }
+<span class="lineNum">     391 </span>                :            : }
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>                :            : }  // namespace camera
+<span class="lineNum">     394 </span>                :            : }  // namespace perception
+<span class="lineNum">     395 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

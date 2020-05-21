@@ -1,0 +1,246 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/unsupported/Eigen/src/Splines/SplineFitting.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">external/eigen/unsupported/Eigen/src/Splines</a> - SplineFitting.h<span style="font-size: 80%;"> (source / <a href="SplineFitting.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntry">58</td>
+            <td class="headerCovTableEntryLo">53.4 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 20010-2011 Hauke Heibel &lt;hauke.heibel@gmail.com&gt;
+<span class="lineNum">       5 </span>                :            : //
+<span class="lineNum">       6 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       7 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       8 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            : #ifndef EIGEN_SPLINE_FITTING_H
+<span class="lineNum">      11 </span>                :            : #define EIGEN_SPLINE_FITTING_H
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : #include &lt;numeric&gt;
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : #include &quot;SplineFwd.h&quot;
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;Eigen/QR&gt;
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : namespace Eigen
+<span class="lineNum">      20 </span>                :            : {
+<span class="lineNum">      21 </span>                :            :   /**
+<span class="lineNum">      22 </span>                :            :    * \brief Computes knot averages.
+<span class="lineNum">      23 </span>                :            :    * \ingroup Splines_Module
+<span class="lineNum">      24 </span>                :            :    *
+<span class="lineNum">      25 </span>                :            :    * The knots are computed as
+<span class="lineNum">      26 </span>                :            :    * \f{align*}
+<span class="lineNum">      27 </span>                :            :    *  u_0 &amp; = \hdots = u_p = 0 \\
+<span class="lineNum">      28 </span>                :            :    *  u_{m-p} &amp; = \hdots = u_{m} = 1 \\
+<span class="lineNum">      29 </span>                :            :    *  u_{j+p} &amp; = \frac{1}{p}\sum_{i=j}^{j+p-1}\bar{u}_i \quad\quad j=1,\hdots,n-p
+<span class="lineNum">      30 </span>                :            :    * \f}
+<span class="lineNum">      31 </span>                :            :    * where \f$p\f$ is the degree and \f$m+1\f$ the number knots
+<span class="lineNum">      32 </span>                :            :    * of the desired interpolating spline.
+<span class="lineNum">      33 </span>                :            :    *
+<span class="lineNum">      34 </span>                :            :    * \param[in] parameters The input parameters. During interpolation one for each data point.
+<span class="lineNum">      35 </span>                :            :    * \param[in] degree The spline degree which is used during the interpolation.
+<span class="lineNum">      36 </span>                :            :    * \param[out] knots The output knot vector.
+<span class="lineNum">      37 </span>                :            :    *
+<span class="lineNum">      38 </span>                :            :    * \sa Les Piegl and Wayne Tiller, The NURBS book (2nd ed.), 1997, 9.2.1 Global Curve Interpolation to Point Data
+<a name="39"><span class="lineNum">      39 </span>                :            :    **/</a>
+<span class="lineNum">      40 </span>                :            :   template &lt;typename KnotVectorType&gt;
+<span class="lineNum">      41 </span>                :<span class="lineCov">          2 :   void KnotAveraging(const KnotVectorType&amp; parameters, DenseIndex degree, KnotVectorType&amp; knots)</span>
+<span class="lineNum">      42 </span>                :            :   {
+<span class="lineNum">      43 </span>                :<span class="lineCov">          2 :     knots.resize(parameters.size()+degree+1);      </span>
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          4 :     for (DenseIndex j=1; j&lt;parameters.size()-degree; ++j)</span>
+<span class="lineNum">      46 </span>        [<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          2 :       knots(j+degree) = parameters.segment(j,degree).mean();</span>
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          2 :     knots.segment(0,degree+1) = KnotVectorType::Zero(degree+1);</span>
+<span class="lineNum">      49 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          2 :     knots.segment(knots.size()-degree-1,degree+1) = KnotVectorType::Ones(degree+1);</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">      50 </span>                :<span class="lineCov">          2 :   }</span>
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            :   /**
+<span class="lineNum">      53 </span>                :            :    * \brief Computes chord length parameters which are required for spline interpolation.
+<span class="lineNum">      54 </span>                :            :    * \ingroup Splines_Module
+<span class="lineNum">      55 </span>                :            :    *
+<span class="lineNum">      56 </span>                :            :    * \param[in] pts The data points to which a spline should be fit.
+<span class="lineNum">      57 </span>                :            :    * \param[out] chord_lengths The resulting chord lenggth vector.
+<span class="lineNum">      58 </span>                :            :    *
+<span class="lineNum">      59 </span>                :            :    * \sa Les Piegl and Wayne Tiller, The NURBS book (2nd ed.), 1997, 9.2.1 Global Curve Interpolation to Point Data
+<span class="lineNum">      60 </span>                :            :    **/   
+<span class="lineNum">      61 </span>                :            :   template &lt;typename PointArrayType, typename KnotVectorType&gt;
+<span class="lineNum">      62 </span>                :            :   void ChordLengths(const PointArrayType&amp; pts, KnotVectorType&amp; chord_lengths)
+<span class="lineNum">      63 </span>                :            :   {
+<span class="lineNum">      64 </span>                :            :     typedef typename KnotVectorType::Scalar Scalar;
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            :     const DenseIndex n = pts.cols();
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :            :     // 1. compute the column-wise norms
+<span class="lineNum">      69 </span>                :            :     chord_lengths.resize(pts.cols());
+<span class="lineNum">      70 </span>                :            :     chord_lengths[0] = 0;
+<span class="lineNum">      71 </span>                :            :     chord_lengths.rightCols(n-1) = (pts.array().leftCols(n-1) - pts.array().rightCols(n-1)).matrix().colwise().norm();
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :            :     // 2. compute the partial sums
+<span class="lineNum">      74 </span>                :            :     std::partial_sum(chord_lengths.data(), chord_lengths.data()+n, chord_lengths.data());
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            :     // 3. normalize the data
+<span class="lineNum">      77 </span>                :            :     chord_lengths /= chord_lengths(n-1);
+<span class="lineNum">      78 </span>                :            :     chord_lengths(n-1) = Scalar(1);
+<span class="lineNum">      79 </span>                :            :   }
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :   /**
+<span class="lineNum">      82 </span>                :            :    * \brief Spline fitting methods.
+<span class="lineNum">      83 </span>                :            :    * \ingroup Splines_Module
+<span class="lineNum">      84 </span>                :            :    **/     
+<span class="lineNum">      85 </span>                :            :   template &lt;typename SplineType&gt;
+<span class="lineNum">      86 </span>                :            :   struct SplineFitting
+<span class="lineNum">      87 </span>                :            :   {
+<span class="lineNum">      88 </span>                :            :     typedef typename SplineType::KnotVectorType KnotVectorType;
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :            :     /**
+<span class="lineNum">      91 </span>                :            :      * \brief Fits an interpolating Spline to the given data points.
+<span class="lineNum">      92 </span>                :            :      *
+<span class="lineNum">      93 </span>                :            :      * \param pts The points for which an interpolating spline will be computed.
+<span class="lineNum">      94 </span>                :            :      * \param degree The degree of the interpolating spline.
+<span class="lineNum">      95 </span>                :            :      *
+<span class="lineNum">      96 </span>                :            :      * \returns A spline interpolating the initially provided points.
+<span class="lineNum">      97 </span>                :            :      **/
+<span class="lineNum">      98 </span>                :            :     template &lt;typename PointArrayType&gt;
+<span class="lineNum">      99 </span>                :            :     static SplineType Interpolate(const PointArrayType&amp; pts, DenseIndex degree);
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :            :     /**
+<span class="lineNum">     102 </span>                :            :      * \brief Fits an interpolating Spline to the given data points.
+<span class="lineNum">     103 </span>                :            :      *
+<span class="lineNum">     104 </span>                :            :      * \param pts The points for which an interpolating spline will be computed.
+<span class="lineNum">     105 </span>                :            :      * \param degree The degree of the interpolating spline.
+<span class="lineNum">     106 </span>                :            :      * \param knot_parameters The knot parameters for the interpolation.
+<span class="lineNum">     107 </span>                :            :      *
+<span class="lineNum">     108 </span>                :            :      * \returns A spline interpolating the initially provided points.
+<span class="lineNum">     109 </span>                :            :      **/
+<span class="lineNum">     110 </span>                :            :     template &lt;typename PointArrayType&gt;
+<span class="lineNum">     111 </span>                :            :     static SplineType Interpolate(const PointArrayType&amp; pts, DenseIndex degree, const KnotVectorType&amp; knot_parameters);
+<span class="lineNum">     112 </span>                :            :   };
+<span class="lineNum">     113 </span>                :            : 
+<a name="114"><span class="lineNum">     114 </span>                :            :   template &lt;typename SplineType&gt;</a>
+<span class="lineNum">     115 </span>                :            :   template &lt;typename PointArrayType&gt;
+<span class="lineNum">     116 </span>                :<span class="lineCov">          2 :   SplineType SplineFitting&lt;SplineType&gt;::Interpolate(const PointArrayType&amp; pts, DenseIndex degree, const KnotVectorType&amp; knot_parameters)</span>
+<span class="lineNum">     117 </span>                :            :   {
+<span class="lineNum">     118 </span>                :            :     typedef typename SplineType::KnotVectorType::Scalar Scalar;      
+<span class="lineNum">     119 </span>                :            :     typedef typename SplineType::ControlPointVectorType ControlPointVectorType;      
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :            :     typedef Matrix&lt;Scalar,Dynamic,Dynamic&gt; MatrixType;
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     KnotVectorType knots;</span>
+<span class="lineNum">     124 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     KnotAveraging(knot_parameters, degree, knots);</span>
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     DenseIndex n = pts.cols();</span>
+<span class="lineNum">     127 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :     MatrixType A = MatrixType::Zero(n,n);</span>
+<span class="lineNum">     128 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          8 :     for (DenseIndex i=1; i&lt;n-1; ++i)</span>
+<span class="lineNum">     129 </span>                :            :     {
+<span class="lineNum">     130 </span>[<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          6 :       const DenseIndex span = SplineType::Span(knot_parameters[i], degree, knots);</span>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :       // The segment call should somehow be told the spline order at compile time.
+<span class="lineNum">     133 </span>[<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          6 :       A.row(i).segment(span-degree, degree+1) = SplineType::BasisFunctions(knot_parameters[i], degree, knots);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 13 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     134 </span>                :            :     }
+<span class="lineNum">     135 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     A(0,0) = 1.0;</span>
+<span class="lineNum">     136 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     A(n-1,n-1) = 1.0;</span>
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     HouseholderQR&lt;MatrixType&gt; qr(A);</span>
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            :     // Here, we are creating a temporary due to an Eigen issue.
+<span class="lineNum">     141 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :     ControlPointVectorType ctrls = qr.solve(MatrixType(pts.transpose())).transpose();</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 13 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>]
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :     return SplineType(knots, ctrls);</span>
+<span class="lineNum">     144 </span>                :            :   }
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            :   template &lt;typename SplineType&gt;
+<span class="lineNum">     147 </span>                :            :   template &lt;typename PointArrayType&gt;
+<span class="lineNum">     148 </span>                :            :   SplineType SplineFitting&lt;SplineType&gt;::Interpolate(const PointArrayType&amp; pts, DenseIndex degree)
+<span class="lineNum">     149 </span>                :            :   {
+<span class="lineNum">     150 </span>                :            :     KnotVectorType chord_lengths; // knot parameters
+<span class="lineNum">     151 </span>                :            :     ChordLengths(pts, chord_lengths);
+<span class="lineNum">     152 </span>                :            :     return Interpolate(pts, degree, chord_lengths);
+<span class="lineNum">     153 </span>                :            :   }
+<span class="lineNum">     154 </span>                :            : }
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :            : #endif // EIGEN_SPLINE_FITTING_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

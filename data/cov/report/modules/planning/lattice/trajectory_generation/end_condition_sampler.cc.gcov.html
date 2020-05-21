@@ -1,0 +1,329 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/planning/lattice/trajectory_generation/end_condition_sampler.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">modules/planning/lattice/trajectory_generation</a> - end_condition_sampler.cc<span style="font-size: 80%;"> (source / <a href="end_condition_sampler.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">108</td>
+            <td class="headerCovTableEntryLo">0.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">20.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">250</td>
+            <td class="headerCovTableEntryLo">0.8 %</td>
+          </tr>
+          <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2017 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /**
+<span class="lineNum">      18 </span>                :            :  * @file
+<span class="lineNum">      19 </span>                :            :  **/
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #include &quot;modules/planning/lattice/trajectory_generation/end_condition_sampler.h&quot;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;modules/planning/common/planning_gflags.h&quot;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : namespace apollo {
+<span class="lineNum">      29 </span>                :            : namespace planning {
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : using State = std::array&lt;double, 3&gt;;
+<a name="32"><span class="lineNum">      32 </span>                :            : using Condition = std::pair&lt;State, double&gt;;</a>
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 : EndConditionSampler::EndConditionSampler(</span>
+<span class="lineNum">      35 </span>                :            :     const State&amp; init_s, const State&amp; init_d,
+<span class="lineNum">      36 </span>                :            :     std::shared_ptr&lt;PathTimeGraph&gt; ptr_path_time_graph,
+<span class="lineNum">      37 </span>                :            :     std::shared_ptr&lt;PredictionQuerier&gt; ptr_prediction_querier)
+<span class="lineNum">      38 </span>                :            :     : init_s_(init_s),
+<span class="lineNum">      39 </span>                :            :       init_d_(init_d),
+<span class="lineNum">      40 </span>                :            :       feasible_region_(init_s),
+<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :       ptr_path_time_graph_(std::move(ptr_path_time_graph)),</span>
+<span class="lineNum">      42 </span>                :<span class="lineNoCov">          0 :       ptr_prediction_querier_(std::move(ptr_prediction_querier)) {</span>
+<span class="lineNum">      43 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: EndConditionSampler::EndConditionSampler&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<a name="44"><span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 : std::vector&lt;Condition&gt; EndConditionSampler::SampleLatEndConditions() const {</span>
+<span class="lineNum">      47 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::vector&lt;Condition&gt; end_d_conditions;</span>
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :   std::array&lt;double, 3&gt; end_d_candidates = {0.0, -0.5, 0.5};</span>
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 :   std::array&lt;double, 4&gt; end_s_candidates = {10.0, 20.0, 40.0, 80.0};</span>
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (const auto&amp; s : end_s_candidates) {</span>
+<span class="lineNum">      52 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (const auto&amp; d : end_d_candidates) {</span>
+<span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 :       State end_d_state = {d, 0.0, 0.0};</span>
+<span class="lineNum">      54 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       end_d_conditions.emplace_back(end_d_state, s);</span>
+<span class="lineNum">      55 </span>                :            :     }
+<span class="lineNum">      56 </span>                :            :   }
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :   return end_d_conditions;</span>
+<a name="58"><span class="lineNum">      58 </span>                :            : }</a>
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 : std::vector&lt;Condition&gt; EndConditionSampler::SampleLonEndConditionsForCruising(</span>
+<span class="lineNum">      61 </span>                :            :     const double ref_cruise_speed) const {
+<span class="lineNum">      62 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   CHECK_GT(FLAGS_num_velocity_sample, 1);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            :   // time interval is one second plus the last one 0.01
+<span class="lineNum">      65 </span>                :            :   static constexpr size_t num_of_time_samples = 9;
+<span class="lineNum">      66 </span>                :            :   std::array&lt;double, num_of_time_samples&gt; time_samples;
+<span class="lineNum">      67 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 1; i &lt; num_of_time_samples; ++i) {</span>
+<span class="lineNum">      68 </span>                :            :     auto ratio =
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :         static_cast&lt;double&gt;(i) / static_cast&lt;double&gt;(num_of_time_samples - 1);</span>
+<span class="lineNum">      70 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     time_samples[i] = FLAGS_trajectory_time_length * ratio;</span>
+<span class="lineNum">      71 </span>                :            :   }
+<span class="lineNum">      72 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   time_samples[0] = FLAGS_polynomial_minimal_param;</span>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::vector&lt;Condition&gt; end_s_conditions;</span>
+<span class="lineNum">      75 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (const auto&amp; time : time_samples) {</span>
+<span class="lineNum">      76 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double v_upper = std::min(feasible_region_.VUpper(time), ref_cruise_speed);</span>
+<span class="lineNum">      77 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double v_lower = feasible_region_.VLower(time);</span>
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 :     State lower_end_s = {0.0, v_lower, 0.0};</span>
+<span class="lineNum">      80 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     end_s_conditions.emplace_back(lower_end_s, time);</span>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :     State upper_end_s = {0.0, v_upper, 0.0};</span>
+<span class="lineNum">      83 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     end_s_conditions.emplace_back(upper_end_s, time);</span>
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :     double v_range = v_upper - v_lower;</span>
+<span class="lineNum">      86 </span>                :            :     // Number of sample velocities
+<span class="lineNum">      87 </span>                :            :     size_t num_of_mid_points =
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :         std::min(static_cast&lt;size_t&gt;(FLAGS_num_velocity_sample - 2),</span>
+<span class="lineNum">      89 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                  static_cast&lt;size_t&gt;(v_range / FLAGS_min_velocity_sample_gap));</span>
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (num_of_mid_points &gt; 0) {</span>
+<span class="lineNum">      92 </span>                :            :       double velocity_seg =
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :           v_range / static_cast&lt;double&gt;(num_of_mid_points + 1);</span>
+<span class="lineNum">      94 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       for (size_t i = 1; i &lt;= num_of_mid_points; ++i) {</span>
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :         State end_s = {0.0, v_lower + velocity_seg * static_cast&lt;double&gt;(i),</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :                        0.0};</span>
+<span class="lineNum">      97 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         end_s_conditions.emplace_back(end_s, time);</span>
+<span class="lineNum">      98 </span>                :            :       }
+<span class="lineNum">      99 </span>                :            :     }
+<span class="lineNum">     100 </span>                :            :   }
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :   return end_s_conditions;</span>
+<a name="102"><span class="lineNum">     102 </span>                :            : }</a>
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 : std::vector&lt;Condition&gt; EndConditionSampler::SampleLonEndConditionsForStopping(</span>
+<span class="lineNum">     105 </span>                :            :     const double ref_stop_point) const {
+<span class="lineNum">     106 </span>                :            :   // time interval is one second plus the last one 0.01
+<span class="lineNum">     107 </span>                :            :   static constexpr size_t num_of_time_samples = 9;
+<span class="lineNum">     108 </span>                :            :   std::array&lt;double, num_of_time_samples&gt; time_samples;
+<span class="lineNum">     109 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (size_t i = 1; i &lt; num_of_time_samples; ++i) {</span>
+<span class="lineNum">     110 </span>                :            :     auto ratio =
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :         static_cast&lt;double&gt;(i) / static_cast&lt;double&gt;(num_of_time_samples - 1);</span>
+<span class="lineNum">     112 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     time_samples[i] = FLAGS_trajectory_time_length * ratio;</span>
+<span class="lineNum">     113 </span>                :            :   }
+<span class="lineNum">     114 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   time_samples[0] = FLAGS_polynomial_minimal_param;</span>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::vector&lt;Condition&gt; end_s_conditions;</span>
+<span class="lineNum">     117 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (const auto&amp; time : time_samples) {</span>
+<span class="lineNum">     118 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     State end_s = {std::max(init_s_[0], ref_stop_point), 0.0, 0.0};</span>
+<span class="lineNum">     119 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     end_s_conditions.emplace_back(end_s, time);</span>
+<span class="lineNum">     120 </span>                :            :   }
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :   return end_s_conditions;</span>
+<span class="lineNum">     122 </span>                :            : }
+<a name="123"><span class="lineNum">     123 </span>                :            : </a>
+<span class="lineNum">     124 </span>                :            : std::vector&lt;Condition&gt;
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 : EndConditionSampler::SampleLonEndConditionsForPathTimePoints() const {</span>
+<span class="lineNum">     126 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: EndConditionSampler::SampleLonEndConditionsForPathTimePoints&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::vector&lt;Condition&gt; end_s_conditions;</span>
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   std::vector&lt;SamplePoint&gt; sample_points = QueryPathTimeObstacleSamplePoints();</span>
+<span class="lineNum">     131 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (const SamplePoint&amp; sample_point : sample_points) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     132 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (sample_point.path_time_point.t() &lt; FLAGS_polynomial_minimal_param) {</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     134 </span>                :            :     }
+<span class="lineNum">     135 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double s = sample_point.path_time_point.s();</span>
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :     double v = sample_point.ref_v;</span>
+<span class="lineNum">     137 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double t = sample_point.path_time_point.t();</span>
+<span class="lineNum">     138 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (s &gt; feasible_region_.SUpper(t) || s &lt; feasible_region_.SLower(t)) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :       continue;</span>
+<span class="lineNum">     140 </span>                :            :     }
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :     State end_state = {s, v, 0.0};</span>
+<span class="lineNum">     142 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     end_s_conditions.emplace_back(end_state, t);</span>
+<span class="lineNum">     143 </span>                :            :   }
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :   return end_s_conditions;</span>
+<span class="lineNum">     145 </span>                :            : }
+<a name="146"><span class="lineNum">     146 </span>                :            : </a>
+<span class="lineNum">     147 </span>                :            : std::vector&lt;SamplePoint&gt;
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 : EndConditionSampler::QueryPathTimeObstacleSamplePoints() const {</span>
+<span class="lineNum">     149 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: EndConditionSampler::QueryPathTimeObstacleSamplePoints&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     150 </span>                :            : 
+<span class="lineNum">     151 </span>                :            :   const auto&amp; vehicle_config =
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :       common::VehicleConfigHelper::Instance()-&gt;GetConfig();</span>
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :   std::vector&lt;SamplePoint&gt; sample_points;</span>
+<span class="lineNum">     154 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (const auto&amp; path_time_obstacle :</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     155 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]:<span class="lineNoCov">          0 :        ptr_path_time_graph_-&gt;GetPathTimeObstacles()) {</span>
+<span class="lineNum">     156 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     std::string obstacle_id = path_time_obstacle.id();</span>
+<span class="lineNum">     157 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     QueryFollowPathTimePoints(vehicle_config, obstacle_id, &amp;sample_points);</span>
+<span class="lineNum">     158 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     QueryOvertakePathTimePoints(vehicle_config, obstacle_id, &amp;sample_points);</span>
+<span class="lineNum">     159 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :   return sample_points;</span>
+<a name="161"><span class="lineNum">     161 </span>                :            : }</a>
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 : void EndConditionSampler::QueryFollowPathTimePoints(</span>
+<span class="lineNum">     164 </span>                :            :     const common::VehicleConfig&amp; vehicle_config, const std::string&amp; obstacle_id,
+<span class="lineNum">     165 </span>                :            :     std::vector&lt;SamplePoint&gt;* const sample_points) const {
+<span class="lineNum">     166 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: EndConditionSampler::QueryFollowPathTimePoints&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">     167 </span>                :            : 
+<span class="lineNum">     168 </span>                :            :   std::vector&lt;STPoint&gt; follow_path_time_points =
+<span class="lineNum">     169 </span>                :            :       ptr_path_time_graph_-&gt;GetObstacleSurroundingPoints(
+<span class="lineNum">     170 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           obstacle_id, -FLAGS_numerical_epsilon, FLAGS_time_min_density);</span>
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (const auto&amp; path_time_point : follow_path_time_points) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     173 </span>                :            :     double v = ptr_prediction_querier_-&gt;ProjectVelocityAlongReferenceLine(
+<span class="lineNum">     174 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         obstacle_id, path_time_point.s(), path_time_point.t());</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     175 </span>                :            :     // Generate candidate s
+<span class="lineNum">     176 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     double s_upper = path_time_point.s() -</span>
+<span class="lineNum">     177 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                      vehicle_config.vehicle_param().front_edge_to_center();</span>
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :     double s_lower = s_upper - FLAGS_default_lon_buffer;</span>
+<span class="lineNum">     179 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :     CHECK_GE(FLAGS_num_sample_follow_per_timestamp, 2);</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">     180 </span>                :            :     double s_gap =
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :         FLAGS_default_lon_buffer /</span>
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :         static_cast&lt;double&gt;(FLAGS_num_sample_follow_per_timestamp - 1);</span>
+<span class="lineNum">     183 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (size_t i = 0; i &lt; FLAGS_num_sample_follow_per_timestamp; ++i) {</span>
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :       double s = s_lower + s_gap * static_cast&lt;double&gt;(i);</span>
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :       SamplePoint sample_point;</span>
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :       sample_point.path_time_point = path_time_point;</span>
+<span class="lineNum">     187 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :       sample_point.path_time_point.set_s(s);</span>
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :       sample_point.ref_v = v;</span>
+<span class="lineNum">     189 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :       sample_points-&gt;push_back(std::move(sample_point));</span>
+<span class="lineNum">     190 </span>                :            :     }
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :   }</span>
+<a name="192"><span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     193 </span>                :            : 
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 : void EndConditionSampler::QueryOvertakePathTimePoints(</span>
+<span class="lineNum">     195 </span>                :            :     const common::VehicleConfig&amp; vehicle_config, const std::string&amp; obstacle_id,
+<span class="lineNum">     196 </span>                :            :     std::vector&lt;SamplePoint&gt;* sample_points) const {
+<span class="lineNum">     197 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     AINFO&lt;&lt;&quot;(DMCZP) EnteringMethod: EndConditionSampler::QueryOvertakePathTimePoints&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>][<span class="branchNoExec" title="Branch 17 was not executed"> # </span><span class="branchNoExec" title="Branch 18 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 20 was not executed"> # </span><span class="branchNoExec" title="Branch 21 was not executed"> # </span>]
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :            :   std::vector&lt;STPoint&gt; overtake_path_time_points =
+<span class="lineNum">     200 </span>                :            :       ptr_path_time_graph_-&gt;GetObstacleSurroundingPoints(
+<span class="lineNum">     201 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :           obstacle_id, FLAGS_numerical_epsilon, FLAGS_time_min_density);</span>
+<span class="lineNum">     202 </span>                :            : 
+<span class="lineNum">     203 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (const auto&amp; path_time_point : overtake_path_time_points) {</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">     204 </span>                :            :     double v = ptr_prediction_querier_-&gt;ProjectVelocityAlongReferenceLine(
+<span class="lineNum">     205 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         obstacle_id, path_time_point.s(), path_time_point.t());</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :     SamplePoint sample_point;</span>
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :     sample_point.path_time_point = path_time_point;</span>
+<span class="lineNum">     208 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     sample_point.path_time_point.set_s(path_time_point.s() +</span>
+<span class="lineNum">     209 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                        FLAGS_default_lon_buffer);</span>
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :     sample_point.ref_v = v;</span>
+<span class="lineNum">     211 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     sample_points-&gt;push_back(std::move(sample_point));</span>
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="214"><span class="lineNum">     214 </span>                :            : </a>
+<span class="lineNum">     215 </span>                :            : }  // namespace planning
+<span class="lineNum">     216 </span>[<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 : }  // namespace apollo</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

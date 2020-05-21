@@ -1,0 +1,646 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - external/eigen/Eigen/src/Core/products/CoeffBasedProduct.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">external/eigen/Eigen/src/Core/products</a> - CoeffBasedProduct.h<span style="font-size: 80%;"> (source / <a href="CoeffBasedProduct.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntryHi">92.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">390</td>
+            <td class="headerCovTableEntry">682</td>
+            <td class="headerCovTableEntryLo">57.2 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">127</td>
+            <td class="headerCovTableEntry">369</td>
+            <td class="headerCovTableEntryLo">34.4 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : // This file is part of Eigen, a lightweight C++ template library</a>
+<span class="lineNum">       2 </span>                :            : // for linear algebra.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : // Copyright (C) 2006-2008 Benoit Jacob &lt;jacob.benoit.1@gmail.com&gt;
+<span class="lineNum">       5 </span>                :            : // Copyright (C) 2008-2010 Gael Guennebaud &lt;gael.guennebaud@inria.fr&gt;
+<span class="lineNum">       6 </span>                :            : //
+<span class="lineNum">       7 </span>                :            : // This Source Code Form is subject to the terms of the Mozilla
+<span class="lineNum">       8 </span>                :            : // Public License v. 2.0. If a copy of the MPL was not distributed
+<span class="lineNum">       9 </span>                :            : // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : #ifndef EIGEN_COEFFBASED_PRODUCT_H
+<span class="lineNum">      12 </span>                :            : #define EIGEN_COEFFBASED_PRODUCT_H
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : namespace Eigen { 
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : namespace internal {
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : /*********************************************************************************
+<span class="lineNum">      19 </span>                :            : *  Coefficient based product implementation.
+<span class="lineNum">      20 </span>                :            : *  It is designed for the following use cases:
+<span class="lineNum">      21 </span>                :            : *  - small fixed sizes
+<span class="lineNum">      22 </span>                :            : *  - lazy products
+<span class="lineNum">      23 </span>                :            : *********************************************************************************/
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : /* Since the all the dimensions of the product are small, here we can rely
+<span class="lineNum">      26 </span>                :            :  * on the generic Assign mechanism to evaluate the product per coeff (or packet).
+<span class="lineNum">      27 </span>                :            :  *
+<span class="lineNum">      28 </span>                :            :  * Note that here the inner-loops should always be unrolled.
+<span class="lineNum">      29 </span>                :            :  */
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : template&lt;int Traversal, int UnrollingIndex, typename Lhs, typename Rhs, typename RetScalar&gt;
+<span class="lineNum">      32 </span>                :            : struct product_coeff_impl;
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : template&lt;int StorageOrder, int UnrollingIndex, typename Lhs, typename Rhs, typename Packet, int LoadMode&gt;
+<span class="lineNum">      35 </span>                :            : struct product_packet_impl;
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : template&lt;typename LhsNested, typename RhsNested, int NestingFlags&gt;
+<span class="lineNum">      38 </span>                :            : struct traits&lt;CoeffBasedProduct&lt;LhsNested,RhsNested,NestingFlags&gt; &gt;
+<span class="lineNum">      39 </span>                :            : {
+<span class="lineNum">      40 </span>                :            :   typedef MatrixXpr XprKind;
+<span class="lineNum">      41 </span>                :            :   typedef typename remove_all&lt;LhsNested&gt;::type _LhsNested;
+<span class="lineNum">      42 </span>                :            :   typedef typename remove_all&lt;RhsNested&gt;::type _RhsNested;
+<span class="lineNum">      43 </span>                :            :   typedef typename scalar_product_traits&lt;typename _LhsNested::Scalar, typename _RhsNested::Scalar&gt;::ReturnType Scalar;
+<span class="lineNum">      44 </span>                :            :   typedef typename promote_storage_type&lt;typename traits&lt;_LhsNested&gt;::StorageKind,
+<span class="lineNum">      45 </span>                :            :                                            typename traits&lt;_RhsNested&gt;::StorageKind&gt;::ret StorageKind;
+<span class="lineNum">      46 </span>                :            :   typedef typename promote_index_type&lt;typename traits&lt;_LhsNested&gt;::Index,
+<span class="lineNum">      47 </span>                :            :                                          typename traits&lt;_RhsNested&gt;::Index&gt;::type Index;
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            :   enum {
+<span class="lineNum">      50 </span>                :            :       LhsCoeffReadCost = _LhsNested::CoeffReadCost,
+<span class="lineNum">      51 </span>                :            :       RhsCoeffReadCost = _RhsNested::CoeffReadCost,
+<span class="lineNum">      52 </span>                :            :       LhsFlags = _LhsNested::Flags,
+<span class="lineNum">      53 </span>                :            :       RhsFlags = _RhsNested::Flags,
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            :       RowsAtCompileTime = _LhsNested::RowsAtCompileTime,
+<span class="lineNum">      56 </span>                :            :       ColsAtCompileTime = _RhsNested::ColsAtCompileTime,
+<span class="lineNum">      57 </span>                :            :       InnerSize = EIGEN_SIZE_MIN_PREFER_FIXED(_LhsNested::ColsAtCompileTime, _RhsNested::RowsAtCompileTime),
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            :       MaxRowsAtCompileTime = _LhsNested::MaxRowsAtCompileTime,
+<span class="lineNum">      60 </span>                :            :       MaxColsAtCompileTime = _RhsNested::MaxColsAtCompileTime,
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            :       LhsRowMajor = LhsFlags &amp; RowMajorBit,
+<span class="lineNum">      63 </span>                :            :       RhsRowMajor = RhsFlags &amp; RowMajorBit,
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            :       SameType = is_same&lt;typename _LhsNested::Scalar,typename _RhsNested::Scalar&gt;::value,
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :            :       CanVectorizeRhs = RhsRowMajor &amp;&amp; (RhsFlags &amp; PacketAccessBit)
+<span class="lineNum">      68 </span>                :            :                       &amp;&amp; (ColsAtCompileTime == Dynamic
+<span class="lineNum">      69 </span>                :            :                           || ( (ColsAtCompileTime % packet_traits&lt;Scalar&gt;::size) == 0
+<span class="lineNum">      70 </span>                :            :                               &amp;&amp; (RhsFlags&amp;AlignedBit)
+<span class="lineNum">      71 </span>                :            :                              )
+<span class="lineNum">      72 </span>                :            :                          ),
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            :       CanVectorizeLhs = (!LhsRowMajor) &amp;&amp; (LhsFlags &amp; PacketAccessBit)
+<span class="lineNum">      75 </span>                :            :                       &amp;&amp; (RowsAtCompileTime == Dynamic
+<span class="lineNum">      76 </span>                :            :                           || ( (RowsAtCompileTime % packet_traits&lt;Scalar&gt;::size) == 0
+<span class="lineNum">      77 </span>                :            :                               &amp;&amp; (LhsFlags&amp;AlignedBit)
+<span class="lineNum">      78 </span>                :            :                              )
+<span class="lineNum">      79 </span>                :            :                          ),
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :       EvalToRowMajor = (MaxRowsAtCompileTime==1&amp;&amp;MaxColsAtCompileTime!=1) ? 1
+<span class="lineNum">      82 </span>                :            :                      : (MaxColsAtCompileTime==1&amp;&amp;MaxRowsAtCompileTime!=1) ? 0
+<span class="lineNum">      83 </span>                :            :                      : (RhsRowMajor &amp;&amp; !CanVectorizeLhs),
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            :       Flags = ((unsigned int)(LhsFlags | RhsFlags) &amp; HereditaryBits &amp; ~RowMajorBit)
+<span class="lineNum">      86 </span>                :            :             | (EvalToRowMajor ? RowMajorBit : 0)
+<span class="lineNum">      87 </span>                :            :             | NestingFlags
+<span class="lineNum">      88 </span>                :            :             | (LhsFlags &amp; RhsFlags &amp; AlignedBit)
+<span class="lineNum">      89 </span>                :            :             // TODO enable vectorization for mixed types
+<span class="lineNum">      90 </span>                :            :             | (SameType &amp;&amp; (CanVectorizeLhs || CanVectorizeRhs) ? PacketAccessBit : 0),
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :       CoeffReadCost = InnerSize == Dynamic ? Dynamic
+<span class="lineNum">      93 </span>                :            :                     : InnerSize == 0 ? 0
+<span class="lineNum">      94 </span>                :            :                     : InnerSize * (NumTraits&lt;Scalar&gt;::MulCost + LhsCoeffReadCost + RhsCoeffReadCost)
+<span class="lineNum">      95 </span>                :            :                       + (InnerSize - 1) * NumTraits&lt;Scalar&gt;::AddCost,
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            :       /* CanVectorizeInner deserves special explanation. It does not affect the product flags. It is not used outside
+<span class="lineNum">      98 </span>                :            :       * of Product. If the Product itself is not a packet-access expression, there is still a chance that the inner
+<span class="lineNum">      99 </span>                :            :       * loop of the product might be vectorized. This is the meaning of CanVectorizeInner. Since it doesn't affect
+<span class="lineNum">     100 </span>                :            :       * the Flags, it is safe to make this value depend on ActualPacketAccessBit, that doesn't affect the ABI.
+<span class="lineNum">     101 </span>                :            :       */
+<span class="lineNum">     102 </span>                :            :       CanVectorizeInner =    SameType
+<span class="lineNum">     103 </span>                :            :                           &amp;&amp; LhsRowMajor
+<span class="lineNum">     104 </span>                :            :                           &amp;&amp; (!RhsRowMajor)
+<span class="lineNum">     105 </span>                :            :                           &amp;&amp; (LhsFlags &amp; RhsFlags &amp; ActualPacketAccessBit)
+<span class="lineNum">     106 </span>                :            :                           &amp;&amp; (LhsFlags &amp; RhsFlags &amp; AlignedBit)
+<span class="lineNum">     107 </span>                :            :                           &amp;&amp; (InnerSize % packet_traits&lt;Scalar&gt;::size == 0)
+<span class="lineNum">     108 </span>                :            :     };
+<span class="lineNum">     109 </span>                :            : };
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>                :            : } // end namespace internal
+<a name="112"><span class="lineNum">     112 </span>                :            : </a>
+<span class="lineNum">     113 </span>                :            : template&lt;typename LhsNested, typename RhsNested, int NestingFlags&gt;
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 : class CoeffBasedProduct</span>
+<span class="lineNum">     115 </span>                :            :   : internal::no_assignment_operator,
+<span class="lineNum">     116 </span>                :            :     public MatrixBase&lt;CoeffBasedProduct&lt;LhsNested, RhsNested, NestingFlags&gt; &gt;
+<span class="lineNum">     117 </span>                :            : {
+<span class="lineNum">     118 </span>                :            :   public:
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :            :     typedef MatrixBase&lt;CoeffBasedProduct&gt; Base;
+<span class="lineNum">     121 </span>                :            :     EIGEN_DENSE_PUBLIC_INTERFACE(CoeffBasedProduct)
+<span class="lineNum">     122 </span>                :            :     typedef typename Base::PlainObject PlainObject;
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :            :   private:
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :            :     typedef typename internal::traits&lt;CoeffBasedProduct&gt;::_LhsNested _LhsNested;
+<span class="lineNum">     127 </span>                :            :     typedef typename internal::traits&lt;CoeffBasedProduct&gt;::_RhsNested _RhsNested;
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :            :     enum {
+<span class="lineNum">     130 </span>                :            :       PacketSize = internal::packet_traits&lt;Scalar&gt;::size,
+<span class="lineNum">     131 </span>                :            :       InnerSize  = internal::traits&lt;CoeffBasedProduct&gt;::InnerSize,
+<span class="lineNum">     132 </span>                :            :       Unroll = CoeffReadCost != Dynamic &amp;&amp; CoeffReadCost &lt;= EIGEN_UNROLLING_LIMIT,
+<span class="lineNum">     133 </span>                :            :       CanVectorizeInner = internal::traits&lt;CoeffBasedProduct&gt;::CanVectorizeInner
+<span class="lineNum">     134 </span>                :            :     };
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :            :     typedef internal::product_coeff_impl&lt;CanVectorizeInner ? InnerVectorizedTraversal : DefaultTraversal,
+<span class="lineNum">     137 </span>                :            :                                    Unroll ? InnerSize : Dynamic,
+<span class="lineNum">     138 </span>                :            :                                    _LhsNested, _RhsNested, Scalar&gt; ScalarCoeffImpl;
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            :     typedef CoeffBasedProduct&lt;LhsNested,RhsNested,NestByRefBit&gt; LazyCoeffBasedProductType;
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            :   public:
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :            :     inline CoeffBasedProduct(const CoeffBasedProduct&amp; other)
+<span class="lineNum">     145 </span>                :            :       : Base(), m_lhs(other.m_lhs), m_rhs(other.m_rhs)
+<span class="lineNum">     146 </span>                :            :     {}
+<a name="147"><span class="lineNum">     147 </span>                :            : </a>
+<span class="lineNum">     148 </span>                :            :     template&lt;typename Lhs, typename Rhs&gt;
+<span class="lineNum">     149 </span>                :<span class="lineCov">   17912085 :     inline CoeffBasedProduct(const Lhs&amp; lhs, const Rhs&amp; rhs)</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">   17912085 :       : m_lhs(lhs), m_rhs(rhs)</span>
+<span class="lineNum">     151 </span>                :            :     {
+<span class="lineNum">     152 </span>                :            :       // we don't allow taking products of matrices of different real types, as that wouldn't be vectorizable.
+<span class="lineNum">     153 </span>                :            :       // We still allow to mix T and complex&lt;T&gt;.
+<span class="lineNum">     154 </span>                :            :       EIGEN_STATIC_ASSERT((internal::scalar_product_traits&lt;typename Lhs::RealScalar, typename Rhs::RealScalar&gt;::Defined),
+<span class="lineNum">     155 </span>                :            :         YOU_MIXED_DIFFERENT_NUMERIC_TYPES__YOU_NEED_TO_USE_THE_CAST_METHOD_OF_MATRIXBASE_TO_CAST_NUMERIC_TYPES_EXPLICITLY)
+<span class="lineNum">     156 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 815146 times"> + </span>][<span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 8 was taken 795164 times"> + </span>]:<span class="lineCov">   17912085 :       eigen_assert(lhs.cols() == rhs.rows()</span>
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 12 was not taken"> - </span><span class="branchCov" title="Branch 13 was taken 391675 times"> + </span>][<span class="branchNoCov" title="Branch 17 was not taken"> - </span><span class="branchCov" title="Branch 18 was taken 7457202 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 22 was not taken"> - </span><span class="branchCov" title="Branch 23 was taken 8235510 times"> + </span>][<span class="branchNoCov" title="Branch 27 was not taken"> - </span><span class="branchCov" title="Branch 28 was taken 196104 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 32 was not taken"> - </span><span class="branchCov" title="Branch 33 was taken 33 times"> + </span>][<span class="branchNoCov" title="Branch 37 was not taken"> - </span><span class="branchCov" title="Branch 38 was taken 20 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 42 was not taken"> - </span><span class="branchCov" title="Branch 43 was taken 1811 times"> + </span>][<span class="branchNoCov" title="Branch 47 was not taken"> - </span><span class="branchCov" title="Branch 48 was taken 1793 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 52 was not taken"> - </span><span class="branchCov" title="Branch 53 was taken 1793 times"> + </span>][<span class="branchNoCov" title="Branch 57 was not taken"> - </span><span class="branchCov" title="Branch 58 was taken 1793 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 62 was not taken"> - </span><span class="branchCov" title="Branch 63 was taken 1793 times"> + </span>][<span class="branchNoCov" title="Branch 67 was not taken"> - </span><span class="branchCov" title="Branch 68 was taken 1793 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 72 was not taken"> - </span><span class="branchCov" title="Branch 73 was taken 1793 times"> + </span>][<span class="branchNoCov" title="Branch 77 was not taken"> - </span><span class="branchCov" title="Branch 78 was taken 1793 times"> + </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 82 was not taken"> - </span><span class="branchCov" title="Branch 83 was taken 1793 times"> + </span>][<span class="branchNoCov" title="Branch 87 was not taken"> - </span><span class="branchCov" title="Branch 88 was taken 1692 times"> + </span>]
+<span class="lineNum">         </span>   [<span class="branchNoCov" title="Branch 92 was not taken"> - </span><span class="branchCov" title="Branch 93 was taken 1692 times"> + </span>][<span class="branchNoExec" title="Branch 16 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>][<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 30 was not executed"> # </span><span class="branchNoExec" title="Branch 31 was not executed"> # </span>][<span class="branchNoCov" title="Branch 97 was not taken"> - </span><span class="branchCov" title="Branch 98 was taken 1692 times"> + </span>]
+<span class="lineNum">     157 </span>                :            :         &amp;&amp; &quot;invalid matrix product&quot;
+<span class="lineNum">     158 </span>                :            :         &amp;&amp; &quot;if you wanted a coeff-wise or a dot product use the respective explicit functions&quot;);
+<a name="159"><span class="lineNum">     159 </span>                :<span class="lineCov">   17912085 :     }</span></a>
+<a name="160"><span class="lineNum">     160 </span>                :            : </a>
+<span class="lineNum">     161 </span>                :<span class="lineCov">  259321780 :     EIGEN_STRONG_INLINE Index rows() const { return m_lhs.rows(); }</span>
+<a name="162"><span class="lineNum">     162 </span>                :<span class="lineCov">  260103274 :     EIGEN_STRONG_INLINE Index cols() const { return m_rhs.cols(); }</span></a>
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :<span class="lineCov">   61810694 :     EIGEN_STRONG_INLINE const Scalar coeff(Index row, Index col) const</span>
+<span class="lineNum">     165 </span>                :            :     {
+<span class="lineNum">     166 </span>                :            :       Scalar res;
+<span class="lineNum">     167 </span>[<span class="branchCov" title="Branch 1 was taken 4764033 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 24695349 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">   61810694 :       ScalarCoeffImpl::run(row, col, m_lhs, m_rhs, res);</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 28281948 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 4065170 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 3692 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 122 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 218 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 162 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 25 was not executed"> # </span><span class="branchNoExec" title="Branch 26 was not executed"> # </span>][<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>][<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>]
+<span class="lineNum">     168 </span>                :<span class="lineCov">   61810694 :       return res;</span>
+<span class="lineNum">     169 </span>                :            :     }
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            :     /* Allow index-based non-packet access. It is impossible though to allow index-based packed access,
+<span class="lineNum">     172 </span>                :            :      * which is why we don't set the LinearAccessBit.
+<span class="lineNum">     173 </span>                :            :      */
+<span class="lineNum">     174 </span>                :            :     EIGEN_STRONG_INLINE const Scalar coeff(Index index) const
+<span class="lineNum">     175 </span>                :            :     {
+<span class="lineNum">     176 </span>                :            :       Scalar res;
+<span class="lineNum">     177 </span>                :            :       const Index row = RowsAtCompileTime == 1 ? 0 : index;
+<span class="lineNum">     178 </span>                :            :       const Index col = RowsAtCompileTime == 1 ? index : 0;
+<span class="lineNum">     179 </span>                :            :       ScalarCoeffImpl::run(row, col, m_lhs, m_rhs, res);
+<span class="lineNum">     180 </span>                :            :       return res;
+<span class="lineNum">     181 </span>                :            :     }
+<a name="182"><span class="lineNum">     182 </span>                :            : </a>
+<span class="lineNum">     183 </span>                :            :     template&lt;int LoadMode&gt;
+<span class="lineNum">     184 </span>                :<span class="lineCov">      92450 :     EIGEN_STRONG_INLINE const PacketScalar packet(Index row, Index col) const</span>
+<span class="lineNum">     185 </span>                :            :     {
+<span class="lineNum">     186 </span>                :            :       PacketScalar res;
+<span class="lineNum">     187 </span>[<span class="branchCov" title="Branch 1 was taken 9095 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4281 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">      92450 :       internal::product_packet_impl&lt;Flags&amp;RowMajorBit ? RowMajor : ColMajor,</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 7 was taken 3587 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 1795 times"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 13 was taken 3588 times"> + </span><span class="branchNoCov" title="Branch 14 was not taken"> - </span>][<span class="branchCov" title="Branch 16 was taken 13536 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>][<span class="branchNoExec" title="Branch 22 was not executed"> # </span><span class="branchNoExec" title="Branch 23 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 25 was taken 14344 times"> + </span><span class="branchNoCov" title="Branch 26 was not taken"> - </span>][<span class="branchCov" title="Branch 28 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 29 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 31 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 32 was not taken"> - </span>][<span class="branchCov" title="Branch 34 was taken 27880 times"> + </span><span class="branchNoCov" title="Branch 35 was not taken"> - </span>]
+<span class="lineNum">     188 </span>                :            :                               Unroll ? InnerSize : Dynamic,
+<span class="lineNum">     189 </span>                :            :                               _LhsNested, _RhsNested, PacketScalar, LoadMode&gt;
+<span class="lineNum">     190 </span>                :<span class="lineCov">      92450 :         ::run(row, col, m_lhs, m_rhs, res);</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">      92450 :       return res;</span>
+<span class="lineNum">     192 </span>                :            :     }
+<a name="193"><span class="lineNum">     193 </span>                :            : </a>
+<span class="lineNum">     194 </span>                :            :     // Implicit conversion to the nested type (trigger the evaluation of the product)
+<span class="lineNum">     195 </span>                :<span class="lineCov">     396190 :     EIGEN_STRONG_INLINE operator const PlainObject&amp; () const</span>
+<span class="lineNum">     196 </span>                :            :     {
+<span class="lineNum">     197 </span>                :<span class="lineCov">     396190 :       m_result.lazyAssign(*this);</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">     396190 :       return m_result;</span>
+<a name="199"><span class="lineNum">     199 </span>                :            :     }</a>
+<a name="200"><span class="lineNum">     200 </span>                :            : </a>
+<span class="lineNum">     201 </span>                :<span class="lineCov">     815864 :     const _LhsNested&amp; lhs() const { return m_lhs; }</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">     815864 :     const _RhsNested&amp; rhs() const { return m_rhs; }</span>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :            :     const Diagonal&lt;const LazyCoeffBasedProductType,0&gt; diagonal() const
+<span class="lineNum">     205 </span>                :            :     { return reinterpret_cast&lt;const LazyCoeffBasedProductType&amp;&gt;(*this); }
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :            :     template&lt;int DiagonalIndex&gt;
+<span class="lineNum">     208 </span>                :            :     const Diagonal&lt;const LazyCoeffBasedProductType,DiagonalIndex&gt; diagonal() const
+<span class="lineNum">     209 </span>                :            :     { return reinterpret_cast&lt;const LazyCoeffBasedProductType&amp;&gt;(*this); }
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :            :     const Diagonal&lt;const LazyCoeffBasedProductType,Dynamic&gt; diagonal(Index index) const
+<span class="lineNum">     212 </span>                :            :     { return reinterpret_cast&lt;const LazyCoeffBasedProductType&amp;&gt;(*this).diagonal(index); }
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>                :            :   protected:
+<span class="lineNum">     215 </span>                :            :     typename internal::add_const_on_value_type&lt;LhsNested&gt;::type m_lhs;
+<span class="lineNum">     216 </span>                :            :     typename internal::add_const_on_value_type&lt;RhsNested&gt;::type m_rhs;
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :            :     mutable PlainObject m_result;
+<span class="lineNum">     219 </span>                :            : };
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :            : namespace internal {
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :            : // here we need to overload the nested rule for products
+<span class="lineNum">     224 </span>                :            : // such that the nested type is a const reference to a plain matrix
+<span class="lineNum">     225 </span>                :            : template&lt;typename Lhs, typename Rhs, int N, typename PlainObject&gt;
+<span class="lineNum">     226 </span>                :            : struct nested&lt;CoeffBasedProduct&lt;Lhs,Rhs,EvalBeforeNestingBit|EvalBeforeAssigningBit&gt;, N, PlainObject&gt;
+<span class="lineNum">     227 </span>                :            : {
+<span class="lineNum">     228 </span>                :            :   typedef PlainObject const&amp; type;
+<span class="lineNum">     229 </span>                :            : };
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>                :            : /***************************************************************************
+<span class="lineNum">     232 </span>                :            : * Normal product .coeff() implementation (with meta-unrolling)
+<span class="lineNum">     233 </span>                :            : ***************************************************************************/
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :            : /**************************************
+<span class="lineNum">     236 </span>                :            : *** Scalar path  - no vectorization ***
+<span class="lineNum">     237 </span>                :            : **************************************/
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>                :            : template&lt;int UnrollingIndex, typename Lhs, typename Rhs, typename RetScalar&gt;
+<span class="lineNum">     240 </span>                :            : struct product_coeff_impl&lt;DefaultTraversal, UnrollingIndex, Lhs, Rhs, RetScalar&gt;
+<a name="241"><span class="lineNum">     241 </span>                :            : {</a>
+<span class="lineNum">     242 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     243 </span>                :<span class="lineCov">  109424866 :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, RetScalar &amp;res)</span>
+<span class="lineNum">     244 </span>                :            :   {
+<span class="lineNum">     245 </span>                :<span class="lineCov">  109424866 :     product_coeff_impl&lt;DefaultTraversal, UnrollingIndex-1, Lhs, Rhs, RetScalar&gt;::run(row, col, lhs, rhs, res);</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">  109424866 :     res += lhs.coeff(row, UnrollingIndex-1) * rhs.coeff(UnrollingIndex-1, col);</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">  109424866 :   }</span>
+<span class="lineNum">     248 </span>                :            : };
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            : template&lt;typename Lhs, typename Rhs, typename RetScalar&gt;
+<span class="lineNum">     251 </span>                :            : struct product_coeff_impl&lt;DefaultTraversal, 1, Lhs, Rhs, RetScalar&gt;
+<a name="252"><span class="lineNum">     252 </span>                :            : {</a>
+<span class="lineNum">     253 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     254 </span>                :<span class="lineCov">   61805272 :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, RetScalar &amp;res)</span>
+<span class="lineNum">     255 </span>                :            :   {
+<span class="lineNum">     256 </span>                :<span class="lineCov">   61805272 :     res = lhs.coeff(row, 0) * rhs.coeff(0, col);</span>
+<span class="lineNum">     257 </span>                :<span class="lineCov">   61805272 :   }</span>
+<span class="lineNum">     258 </span>                :            : };
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>                :            : template&lt;typename Lhs, typename Rhs, typename RetScalar&gt;
+<span class="lineNum">     261 </span>                :            : struct product_coeff_impl&lt;DefaultTraversal, 0, Lhs, Rhs, RetScalar&gt;
+<span class="lineNum">     262 </span>                :            : {
+<span class="lineNum">     263 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     264 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index /*row*/, Index /*col*/, const Lhs&amp; /*lhs*/, const Rhs&amp; /*rhs*/, RetScalar &amp;res)
+<span class="lineNum">     265 </span>                :            :   {
+<span class="lineNum">     266 </span>                :            :     res = RetScalar(0);
+<span class="lineNum">     267 </span>                :            :   }
+<span class="lineNum">     268 </span>                :            : };
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :            : template&lt;typename Lhs, typename Rhs, typename RetScalar&gt;
+<span class="lineNum">     271 </span>                :            : struct product_coeff_impl&lt;DefaultTraversal, Dynamic, Lhs, Rhs, RetScalar&gt;
+<a name="272"><span class="lineNum">     272 </span>                :            : {</a>
+<span class="lineNum">     273 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, RetScalar&amp; res)</span>
+<span class="lineNum">     275 </span>                :            :   {
+<span class="lineNum">     276 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]:<span class="lineNoCov">          0 :     res = (lhs.row(row).transpose().cwiseProduct( rhs.col(col) )).sum();</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>][<span class="branchNoExec" title="Branch 24 was not executed"> # </span><span class="branchNoExec" title="Branch 25 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 28 was not executed"> # </span><span class="branchNoExec" title="Branch 29 was not executed"> # </span>][<span class="branchNoExec" title="Branch 31 was not executed"> # </span><span class="branchNoExec" title="Branch 32 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 34 was not executed"> # </span><span class="branchNoExec" title="Branch 35 was not executed"> # </span>][<span class="branchNoExec" title="Branch 37 was not executed"> # </span><span class="branchNoExec" title="Branch 38 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 41 was not executed"> # </span><span class="branchNoExec" title="Branch 42 was not executed"> # </span>][<span class="branchNoExec" title="Branch 44 was not executed"> # </span><span class="branchNoExec" title="Branch 45 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 47 was not executed"> # </span><span class="branchNoExec" title="Branch 48 was not executed"> # </span>][<span class="branchNoExec" title="Branch 50 was not executed"> # </span><span class="branchNoExec" title="Branch 51 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 54 was not executed"> # </span><span class="branchNoExec" title="Branch 55 was not executed"> # </span>][<span class="branchNoExec" title="Branch 57 was not executed"> # </span><span class="branchNoExec" title="Branch 58 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 60 was not executed"> # </span><span class="branchNoExec" title="Branch 61 was not executed"> # </span>][<span class="branchNoExec" title="Branch 63 was not executed"> # </span><span class="branchNoExec" title="Branch 64 was not executed"> # </span>]
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">     278 </span>                :            : };
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>                :            : /*******************************************
+<span class="lineNum">     281 </span>                :            : *** Scalar path with inner vectorization ***
+<span class="lineNum">     282 </span>                :            : *******************************************/
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>                :            : template&lt;int UnrollingIndex, typename Lhs, typename Rhs, typename Packet&gt;
+<span class="lineNum">     285 </span>                :            : struct product_coeff_vectorized_unroller
+<span class="lineNum">     286 </span>                :            : {
+<a name="287"><span class="lineNum">     287 </span>                :            :   typedef typename Lhs::Index Index;</a>
+<span class="lineNum">     288 </span>                :            :   enum { PacketSize = packet_traits&lt;typename Lhs::Scalar&gt;::size };
+<span class="lineNum">     289 </span>                :<span class="lineCov">         84 :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, typename Lhs::PacketScalar &amp;pres)</span>
+<span class="lineNum">     290 </span>                :            :   {
+<span class="lineNum">     291 </span>                :<span class="lineCov">         84 :     product_coeff_vectorized_unroller&lt;UnrollingIndex-PacketSize, Lhs, Rhs, Packet&gt;::run(row, col, lhs, rhs, pres);</span>
+<span class="lineNum">     292 </span>[<span class="branchCov" title="Branch 2 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">         84 :     pres = padd(pres, pmul( lhs.template packet&lt;Aligned&gt;(row, UnrollingIndex) , rhs.template packet&lt;Aligned&gt;(UnrollingIndex, col) ));</span>
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 8 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span><span class="branchCov" title="Branch 12 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     293 </span>                :<span class="lineCov">         84 :   }</span>
+<span class="lineNum">     294 </span>                :            : };
+<span class="lineNum">     295 </span>                :            : 
+<span class="lineNum">     296 </span>                :            : template&lt;typename Lhs, typename Rhs, typename Packet&gt;
+<span class="lineNum">     297 </span>                :            : struct product_coeff_vectorized_unroller&lt;0, Lhs, Rhs, Packet&gt;
+<a name="298"><span class="lineNum">     298 </span>                :            : {</a>
+<span class="lineNum">     299 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     300 </span>                :<span class="lineCov">       5422 :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, typename Lhs::PacketScalar &amp;pres)</span>
+<span class="lineNum">     301 </span>                :            :   {
+<span class="lineNum">     302 </span>[<span class="branchCov" title="Branch 2 was taken 5422 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 5422 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">       5422 :     pres = pmul(lhs.template packet&lt;Aligned&gt;(row, 0) , rhs.template packet&lt;Aligned&gt;(0, col));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>][<span class="branchNoExec" title="Branch 19 was not executed"> # </span><span class="branchNoExec" title="Branch 20 was not executed"> # </span>]
+<span class="lineNum">     303 </span>                :<span class="lineCov">       5422 :   }</span>
+<span class="lineNum">     304 </span>                :            : };
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :            : template&lt;typename Lhs, typename Rhs, typename RetScalar&gt;
+<span class="lineNum">     307 </span>                :            : struct product_coeff_impl&lt;InnerVectorizedTraversal, 0, Lhs, Rhs, RetScalar&gt;
+<span class="lineNum">     308 </span>                :            : {
+<span class="lineNum">     309 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     310 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index /*row*/, Index /*col*/, const Lhs&amp; /*lhs*/, const Rhs&amp; /*rhs*/, RetScalar &amp;res)
+<span class="lineNum">     311 </span>                :            :   {
+<span class="lineNum">     312 </span>                :            :     res = 0;
+<span class="lineNum">     313 </span>                :            :   }
+<span class="lineNum">     314 </span>                :            : };
+<span class="lineNum">     315 </span>                :            : 
+<span class="lineNum">     316 </span>                :            : template&lt;int UnrollingIndex, typename Lhs, typename Rhs, typename RetScalar&gt;
+<span class="lineNum">     317 </span>                :            : struct product_coeff_impl&lt;InnerVectorizedTraversal, UnrollingIndex, Lhs, Rhs, RetScalar&gt;
+<span class="lineNum">     318 </span>                :            : {
+<span class="lineNum">     319 </span>                :            :   typedef typename Lhs::PacketScalar Packet;
+<a name="320"><span class="lineNum">     320 </span>                :            :   typedef typename Lhs::Index Index;</a>
+<span class="lineNum">     321 </span>                :            :   enum { PacketSize = packet_traits&lt;typename Lhs::Scalar&gt;::size };
+<span class="lineNum">     322 </span>                :<span class="lineCov">       5422 :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, RetScalar &amp;res)</span>
+<span class="lineNum">     323 </span>                :            :   {
+<span class="lineNum">     324 </span>                :            :     Packet pres;
+<span class="lineNum">     325 </span>[<span class="branchCov" title="Branch 1 was taken 5422 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">       5422 :     product_coeff_vectorized_unroller&lt;UnrollingIndex-PacketSize, Lhs, Rhs, Packet&gt;::run(row, col, lhs, rhs, pres);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     326 </span>[<span class="branchCov" title="Branch 1 was taken 5422 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">       5422 :     res = predux(pres);</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]
+<span class="lineNum">     327 </span>                :<span class="lineCov">       5422 :   }</span>
+<span class="lineNum">     328 </span>                :            : };
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :            : template&lt;typename Lhs, typename Rhs, int LhsRows = Lhs::RowsAtCompileTime, int RhsCols = Rhs::ColsAtCompileTime&gt;
+<span class="lineNum">     331 </span>                :            : struct product_coeff_vectorized_dyn_selector
+<span class="lineNum">     332 </span>                :            : {
+<span class="lineNum">     333 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     334 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, typename Lhs::Scalar &amp;res)
+<span class="lineNum">     335 </span>                :            :   {
+<span class="lineNum">     336 </span>                :            :     res = lhs.row(row).transpose().cwiseProduct(rhs.col(col)).sum();
+<span class="lineNum">     337 </span>                :            :   }
+<span class="lineNum">     338 </span>                :            : };
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :            : // NOTE the 3 following specializations are because taking .col(0) on a vector is a bit slower
+<span class="lineNum">     341 </span>                :            : // NOTE maybe they are now useless since we have a specialization for Block&lt;Matrix&gt;
+<span class="lineNum">     342 </span>                :            : template&lt;typename Lhs, typename Rhs, int RhsCols&gt;
+<span class="lineNum">     343 </span>                :            : struct product_coeff_vectorized_dyn_selector&lt;Lhs,Rhs,1,RhsCols&gt;
+<span class="lineNum">     344 </span>                :            : {
+<span class="lineNum">     345 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     346 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index /*row*/, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, typename Lhs::Scalar &amp;res)
+<span class="lineNum">     347 </span>                :            :   {
+<span class="lineNum">     348 </span>                :            :     res = lhs.transpose().cwiseProduct(rhs.col(col)).sum();
+<span class="lineNum">     349 </span>                :            :   }
+<span class="lineNum">     350 </span>                :            : };
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :            : template&lt;typename Lhs, typename Rhs, int LhsRows&gt;
+<span class="lineNum">     353 </span>                :            : struct product_coeff_vectorized_dyn_selector&lt;Lhs,Rhs,LhsRows,1&gt;
+<span class="lineNum">     354 </span>                :            : {
+<span class="lineNum">     355 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     356 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index row, Index /*col*/, const Lhs&amp; lhs, const Rhs&amp; rhs, typename Lhs::Scalar &amp;res)
+<span class="lineNum">     357 </span>                :            :   {
+<span class="lineNum">     358 </span>                :            :     res = lhs.row(row).transpose().cwiseProduct(rhs).sum();
+<span class="lineNum">     359 </span>                :            :   }
+<span class="lineNum">     360 </span>                :            : };
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :            : template&lt;typename Lhs, typename Rhs&gt;
+<span class="lineNum">     363 </span>                :            : struct product_coeff_vectorized_dyn_selector&lt;Lhs,Rhs,1,1&gt;
+<span class="lineNum">     364 </span>                :            : {
+<span class="lineNum">     365 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     366 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index /*row*/, Index /*col*/, const Lhs&amp; lhs, const Rhs&amp; rhs, typename Lhs::Scalar &amp;res)
+<span class="lineNum">     367 </span>                :            :   {
+<span class="lineNum">     368 </span>                :            :     res = lhs.transpose().cwiseProduct(rhs).sum();
+<span class="lineNum">     369 </span>                :            :   }
+<span class="lineNum">     370 </span>                :            : };
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :            : template&lt;typename Lhs, typename Rhs, typename RetScalar&gt;
+<span class="lineNum">     373 </span>                :            : struct product_coeff_impl&lt;InnerVectorizedTraversal, Dynamic, Lhs, Rhs, RetScalar&gt;
+<span class="lineNum">     374 </span>                :            : {
+<span class="lineNum">     375 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     376 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, typename Lhs::Scalar &amp;res)
+<span class="lineNum">     377 </span>                :            :   {
+<span class="lineNum">     378 </span>                :            :     product_coeff_vectorized_dyn_selector&lt;Lhs,Rhs&gt;::run(row, col, lhs, rhs, res);
+<span class="lineNum">     379 </span>                :            :   }
+<span class="lineNum">     380 </span>                :            : };
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>                :            : /*******************
+<span class="lineNum">     383 </span>                :            : *** Packet path  ***
+<span class="lineNum">     384 </span>                :            : *******************/
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>                :            : template&lt;int UnrollingIndex, typename Lhs, typename Rhs, typename Packet, int LoadMode&gt;
+<span class="lineNum">     387 </span>                :            : struct product_packet_impl&lt;RowMajor, UnrollingIndex, Lhs, Rhs, Packet, LoadMode&gt;
+<span class="lineNum">     388 </span>                :            : {
+<span class="lineNum">     389 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     390 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, Packet &amp;res)
+<span class="lineNum">     391 </span>                :            :   {
+<span class="lineNum">     392 </span>                :            :     product_packet_impl&lt;RowMajor, UnrollingIndex-1, Lhs, Rhs, Packet, LoadMode&gt;::run(row, col, lhs, rhs, res);
+<span class="lineNum">     393 </span>                :            :     res =  pmadd(pset1&lt;Packet&gt;(lhs.coeff(row, UnrollingIndex-1)), rhs.template packet&lt;LoadMode&gt;(UnrollingIndex-1, col), res);
+<span class="lineNum">     394 </span>                :            :   }
+<span class="lineNum">     395 </span>                :            : };
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :            : template&lt;int UnrollingIndex, typename Lhs, typename Rhs, typename Packet, int LoadMode&gt;
+<span class="lineNum">     398 </span>                :            : struct product_packet_impl&lt;ColMajor, UnrollingIndex, Lhs, Rhs, Packet, LoadMode&gt;
+<a name="399"><span class="lineNum">     399 </span>                :            : {</a>
+<span class="lineNum">     400 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     401 </span>                :<span class="lineCov">     221547 :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, Packet &amp;res)</span>
+<span class="lineNum">     402 </span>                :            :   {
+<span class="lineNum">     403 </span>                :<span class="lineCov">     221547 :     product_packet_impl&lt;ColMajor, UnrollingIndex-1, Lhs, Rhs, Packet, LoadMode&gt;::run(row, col, lhs, rhs, res);</span>
+<span class="lineNum">     404 </span>        [<span class="branchCov" title="Branch 3 was taken 5286 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">     221547 :     res =  pmadd(lhs.template packet&lt;LoadMode&gt;(row, UnrollingIndex-1), pset1&lt;Packet&gt;(rhs.coeff(UnrollingIndex-1, col)), res);</span>
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 6 was taken 5286 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span><span class="branchCov" title="Branch 11 was taken 3421 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 14 was taken 3421 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span><span class="branchCov" title="Branch 19 was taken 1830 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 22 was taken 1830 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span><span class="branchCov" title="Branch 27 was taken 7176 times"> + </span><span class="branchNoCov" title="Branch 28 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 30 was taken 7176 times"> + </span><span class="branchNoCov" title="Branch 31 was not taken"> - </span><span class="branchCov" title="Branch 35 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 36 was not taken"> - </span>]
+<span class="lineNum">         </span>   [<span class="branchCov" title="Branch 38 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 39 was not taken"> - </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span>]
+<span class="lineNum">         </span>   [<span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 43 was taken 13536 times"> + </span><span class="branchNoCov" title="Branch 44 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 46 was taken 13536 times"> + </span><span class="branchNoCov" title="Branch 47 was not taken"> - </span><span class="branchCov" title="Branch 51 was taken 3384 times"> + </span><span class="branchNoCov" title="Branch 52 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 54 was taken 3384 times"> + </span><span class="branchNoCov" title="Branch 55 was not taken"> - </span><span class="branchCov" title="Branch 59 was taken 1793 times"> + </span><span class="branchNoCov" title="Branch 60 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 62 was taken 1793 times"> + </span><span class="branchNoCov" title="Branch 63 was not taken"> - </span><span class="branchCov" title="Branch 67 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 68 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 70 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 71 was not taken"> - </span><span class="branchCov" title="Branch 75 was taken 13536 times"> + </span><span class="branchNoCov" title="Branch 76 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 78 was taken 13536 times"> + </span><span class="branchNoCov" title="Branch 79 was not taken"> - </span><span class="branchNoExec" title="Branch 83 was not executed"> # </span><span class="branchNoExec" title="Branch 84 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 86 was not executed"> # </span><span class="branchNoExec" title="Branch 87 was not executed"> # </span><span class="branchCov" title="Branch 91 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 92 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 94 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 95 was not taken"> - </span><span class="branchCov" title="Branch 99 was taken 1793 times"> + </span><span class="branchNoCov" title="Branch 100 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 102 was taken 1793 times"> + </span><span class="branchNoCov" title="Branch 103 was not taken"> - </span><span class="branchCov" title="Branch 107 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 108 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 110 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 111 was not taken"> - </span><span class="branchCov" title="Branch 115 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 116 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 118 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 119 was not taken"> - </span><span class="branchCov" title="Branch 123 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 124 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 126 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 127 was not taken"> - </span><span class="branchCov" title="Branch 131 was taken 13536 times"> + </span><span class="branchNoCov" title="Branch 132 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 134 was taken 13536 times"> + </span><span class="branchNoCov" title="Branch 135 was not taken"> - </span><span class="branchCov" title="Branch 139 was taken 27880 times"> + </span><span class="branchNoCov" title="Branch 140 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 142 was taken 27880 times"> + </span><span class="branchNoCov" title="Branch 143 was not taken"> - </span><span class="branchNoExec" title="Branch 147 was not executed"> # </span><span class="branchNoExec" title="Branch 148 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 150 was not executed"> # </span><span class="branchNoExec" title="Branch 151 was not executed"> # </span><span class="branchNoExec" title="Branch 155 was not executed"> # </span><span class="branchNoExec" title="Branch 156 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 158 was not executed"> # </span><span class="branchNoExec" title="Branch 159 was not executed"> # </span><span class="branchCov" title="Branch 163 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 164 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 166 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 167 was not taken"> - </span><span class="branchCov" title="Branch 171 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 172 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 174 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 175 was not taken"> - </span><span class="branchCov" title="Branch 179 was taken 27880 times"> + </span><span class="branchNoCov" title="Branch 180 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 182 was taken 27880 times"> + </span><span class="branchNoCov" title="Branch 183 was not taken"> - </span><span class="branchNoExec" title="Branch 187 was not executed"> # </span><span class="branchNoExec" title="Branch 188 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 190 was not executed"> # </span><span class="branchNoExec" title="Branch 191 was not executed"> # </span><span class="branchNoExec" title="Branch 195 was not executed"> # </span><span class="branchNoExec" title="Branch 196 was not executed"> # </span>]
+<span class="lineNum">         </span>  [<span class="branchNoExec" title="Branch 198 was not executed"> # </span><span class="branchNoExec" title="Branch 199 was not executed"> # </span><span class="branchCov" title="Branch 203 was taken 14344 times"> + </span><span class="branchNoCov" title="Branch 204 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 206 was taken 14344 times"> + </span><span class="branchNoCov" title="Branch 207 was not taken"> - </span><span class="branchCov" title="Branch 211 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 212 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 214 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 215 was not taken"> - </span><span class="branchCov" title="Branch 219 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 220 was not taken"> - </span>]
+<span class="lineNum">         </span>  [<span class="branchCov" title="Branch 222 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 223 was not taken"> - </span><span class="branchCov" title="Branch 227 was taken 27880 times"> + </span><span class="branchNoCov" title="Branch 228 was not taken"> - </span>]
+<span class="lineNum">         </span>   [<span class="branchCov" title="Branch 230 was taken 27880 times"> + </span><span class="branchNoCov" title="Branch 231 was not taken"> - </span>][<span class="branchCov" title="Branch 10 was taken 896 times"> + </span>]
+<span class="lineNum">         </span>   [<span class="branchCov" title="Branch 13 was taken 896 times"> + </span>][<span class="branchCov" title="Branch 16 was taken 896 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     405 </span>                :<span class="lineCov">     221547 :   }</span>
+<span class="lineNum">     406 </span>                :            : };
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>                :            : template&lt;typename Lhs, typename Rhs, typename Packet, int LoadMode&gt;
+<span class="lineNum">     409 </span>                :            : struct product_packet_impl&lt;RowMajor, 1, Lhs, Rhs, Packet, LoadMode&gt;
+<span class="lineNum">     410 </span>                :            : {
+<span class="lineNum">     411 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     412 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, Packet &amp;res)
+<span class="lineNum">     413 </span>                :            :   {
+<span class="lineNum">     414 </span>                :            :     res = pmul(pset1&lt;Packet&gt;(lhs.coeff(row, 0)),rhs.template packet&lt;LoadMode&gt;(0, col));
+<span class="lineNum">     415 </span>                :            :   }
+<span class="lineNum">     416 </span>                :            : };
+<span class="lineNum">     417 </span>                :            : 
+<span class="lineNum">     418 </span>                :            : template&lt;typename Lhs, typename Rhs, typename Packet, int LoadMode&gt;
+<span class="lineNum">     419 </span>                :            : struct product_packet_impl&lt;ColMajor, 1, Lhs, Rhs, Packet, LoadMode&gt;
+<a name="420"><span class="lineNum">     420 </span>                :            : {</a>
+<span class="lineNum">     421 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     422 </span>                :<span class="lineCov">      92429 :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, Packet &amp;res)</span>
+<span class="lineNum">     423 </span>                :            :   {
+<span class="lineNum">     424 </span>[<span class="branchCov" title="Branch 3 was taken 5286 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 5286 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">      92429 :     res = pmul(lhs.template packet&lt;LoadMode&gt;(row, 0), pset1&lt;Packet&gt;(rhs.coeff(0, col)));</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 11 was taken 1794 times"> + </span><span class="branchNoCov" title="Branch 12 was not taken"> - </span>][<span class="branchCov" title="Branch 14 was taken 1794 times"> + </span><span class="branchNoCov" title="Branch 15 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 19 was taken 7173 times"> + </span><span class="branchNoCov" title="Branch 20 was not taken"> - </span>][<span class="branchCov" title="Branch 22 was taken 7173 times"> + </span><span class="branchNoCov" title="Branch 23 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 27 was taken 3590 times"> + </span><span class="branchNoCov" title="Branch 28 was not taken"> - </span>][<span class="branchCov" title="Branch 30 was taken 3590 times"> + </span><span class="branchNoCov" title="Branch 31 was not taken"> - </span>]
+<span class="lineNum">         </span>      [<span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 15 was not executed"> # </span><span class="branchNoExec" title="Branch 16 was not executed"> # </span>][<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 35 was taken 13536 times"> + </span><span class="branchNoCov" title="Branch 36 was not taken"> - </span>][<span class="branchCov" title="Branch 38 was taken 13536 times"> + </span><span class="branchNoCov" title="Branch 39 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 43 was not executed"> # </span><span class="branchNoExec" title="Branch 44 was not executed"> # </span>][<span class="branchNoExec" title="Branch 46 was not executed"> # </span><span class="branchNoExec" title="Branch 47 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 51 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 52 was not taken"> - </span>][<span class="branchCov" title="Branch 54 was taken 3586 times"> + </span><span class="branchNoCov" title="Branch 55 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 59 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 60 was not taken"> - </span>][<span class="branchCov" title="Branch 62 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 63 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 67 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 68 was not taken"> - </span>][<span class="branchCov" title="Branch 70 was taken 7172 times"> + </span><span class="branchNoCov" title="Branch 71 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 75 was taken 27880 times"> + </span><span class="branchNoCov" title="Branch 76 was not taken"> - </span>][<span class="branchCov" title="Branch 78 was taken 27880 times"> + </span><span class="branchNoCov" title="Branch 79 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 83 was not executed"> # </span><span class="branchNoExec" title="Branch 84 was not executed"> # </span>][<span class="branchNoExec" title="Branch 86 was not executed"> # </span><span class="branchNoExec" title="Branch 87 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 91 was taken 14344 times"> + </span><span class="branchNoCov" title="Branch 92 was not taken"> - </span>][<span class="branchCov" title="Branch 94 was taken 14344 times"> + </span><span class="branchNoCov" title="Branch 95 was not taken"> - </span>]
+<span class="lineNum">         </span>      [<span class="branchCov" title="Branch 10 was taken 896 times"> + </span>][<span class="branchCov" title="Branch 13 was taken 896 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 16 was taken 896 times"> + </span><span class="branchNoCov" title="Branch 17 was not taken"> - </span>]
+<span class="lineNum">     425 </span>                :<span class="lineCov">      92429 :   }</span>
+<span class="lineNum">     426 </span>                :            : };
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>                :            : template&lt;typename Lhs, typename Rhs, typename Packet, int LoadMode&gt;
+<span class="lineNum">     429 </span>                :            : struct product_packet_impl&lt;RowMajor, 0, Lhs, Rhs, Packet, LoadMode&gt;
+<span class="lineNum">     430 </span>                :            : {
+<span class="lineNum">     431 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     432 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index /*row*/, Index /*col*/, const Lhs&amp; /*lhs*/, const Rhs&amp; /*rhs*/, Packet &amp;res)
+<span class="lineNum">     433 </span>                :            :   {
+<span class="lineNum">     434 </span>                :            :     res = pset1&lt;Packet&gt;(0);
+<span class="lineNum">     435 </span>                :            :   }
+<span class="lineNum">     436 </span>                :            : };
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :            : template&lt;typename Lhs, typename Rhs, typename Packet, int LoadMode&gt;
+<span class="lineNum">     439 </span>                :            : struct product_packet_impl&lt;ColMajor, 0, Lhs, Rhs, Packet, LoadMode&gt;
+<span class="lineNum">     440 </span>                :            : {
+<span class="lineNum">     441 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     442 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index /*row*/, Index /*col*/, const Lhs&amp; /*lhs*/, const Rhs&amp; /*rhs*/, Packet &amp;res)
+<span class="lineNum">     443 </span>                :            :   {
+<span class="lineNum">     444 </span>                :            :     res = pset1&lt;Packet&gt;(0);
+<span class="lineNum">     445 </span>                :            :   }
+<span class="lineNum">     446 </span>                :            : };
+<span class="lineNum">     447 </span>                :            : 
+<span class="lineNum">     448 </span>                :            : template&lt;typename Lhs, typename Rhs, typename Packet, int LoadMode&gt;
+<span class="lineNum">     449 </span>                :            : struct product_packet_impl&lt;RowMajor, Dynamic, Lhs, Rhs, Packet, LoadMode&gt;
+<span class="lineNum">     450 </span>                :            : {
+<span class="lineNum">     451 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     452 </span>                :            :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, Packet&amp; res)
+<span class="lineNum">     453 </span>                :            :   {
+<span class="lineNum">     454 </span>                :            :     res = pset1&lt;Packet&gt;(0);
+<span class="lineNum">     455 </span>                :            :     for(Index i = 0; i &lt; lhs.cols(); ++i)
+<span class="lineNum">     456 </span>                :            :       res =  pmadd(pset1&lt;Packet&gt;(lhs.coeff(row, i)), rhs.template packet&lt;LoadMode&gt;(i, col), res);
+<span class="lineNum">     457 </span>                :            :   }
+<span class="lineNum">     458 </span>                :            : };
+<span class="lineNum">     459 </span>                :            : 
+<span class="lineNum">     460 </span>                :            : template&lt;typename Lhs, typename Rhs, typename Packet, int LoadMode&gt;
+<span class="lineNum">     461 </span>                :            : struct product_packet_impl&lt;ColMajor, Dynamic, Lhs, Rhs, Packet, LoadMode&gt;
+<a name="462"><span class="lineNum">     462 </span>                :            : {</a>
+<span class="lineNum">     463 </span>                :            :   typedef typename Lhs::Index Index;
+<span class="lineNum">     464 </span>                :<span class="lineCov">         21 :   static EIGEN_STRONG_INLINE void run(Index row, Index col, const Lhs&amp; lhs, const Rhs&amp; rhs, Packet&amp; res)</span>
+<span class="lineNum">     465 </span>                :            :   {
+<span class="lineNum">     466 </span>        [<span class="branchCov" title="Branch 1 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         21 :     res = pset1&lt;Packet&gt;(0);</span>
+<span class="lineNum">     467 </span>        [<span class="branchCov" title="Branch 1 was taken 126 times"> + </span><span class="branchCov" title="Branch 2 was taken 21 times"> + </span>]:<span class="lineCov">        147 :     for(Index i = 0; i &lt; lhs.cols(); ++i)</span>
+<span class="lineNum">     468 </span>[<span class="branchCov" title="Branch 3 was taken 126 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 126 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">        126 :       res =  pmadd(lhs.template packet&lt;LoadMode&gt;(row, i), pset1&lt;Packet&gt;(rhs.coeff(i, col)), res);</span>
+<span class="lineNum">     469 </span>                :<span class="lineCov">         21 :   }</span>
+<span class="lineNum">     470 </span>                :            : };
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>                :            : } // end namespace internal
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :            : } // end namespace Eigen
+<span class="lineNum">     475 </span>                :            : 
+<span class="lineNum">     476 </span>                :            : #endif // EIGEN_COEFFBASED_PRODUCT_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

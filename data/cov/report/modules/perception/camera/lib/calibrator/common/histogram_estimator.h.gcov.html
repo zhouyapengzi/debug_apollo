@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - stripped_conv.info - modules/perception/camera/lib/calibrator/common/histogram_estimator.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">modules/perception/camera/lib/calibrator/common</a> - histogram_estimator.h<span style="font-size: 80%;"> (source / <a href="histogram_estimator.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">stripped_conv.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">64</td>
+            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntryHi">98.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-05-21 16:34:32</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntry">96</td>
+            <td class="headerCovTableEntryLo">53.1 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright 2018 The Apollo Authors. All Rights Reserved.
+<span class="lineNum">       3 </span>                :            :  *
+<span class="lineNum">       4 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the License);
+<span class="lineNum">       5 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       6 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an AS IS BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      16 </span>                :            : #pragma once
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : #include &lt;algorithm&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;cassert&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : #include &quot;cyber/common/log.h&quot;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : namespace apollo {
+<span class="lineNum">      25 </span>                :            : namespace perception {
+<span class="lineNum">      26 </span>                :            : namespace camera {
+<a name="27"><span class="lineNum">      27 </span>                :            : </a>
+<a name="28"><span class="lineNum">      28 </span>                :            : // histogram related params</a>
+<span class="lineNum">      29 </span>                :<span class="lineCov">         10 : struct HistogramEstimatorParams {</span>
+<span class="lineNum">      30 </span>        [<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :   HistogramEstimatorParams() { Init(); }</span>
+<span class="lineNum">      31 </span>                :            :   void Init();
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :            :   int nr_bins_in_histogram = 0;
+<span class="lineNum">      34 </span>                :            :   float data_sp = 0.0f;  // start point
+<span class="lineNum">      35 </span>                :            :   float data_ep = 0.0f;  // end point =&gt; [data_sp, data_ep)
+<span class="lineNum">      36 </span>                :            :   float step_bin = 0.0f;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            :   std::vector&lt;uint32_t&gt; smooth_kernel = {};
+<span class="lineNum">      39 </span>                :            :   int smooth_kernel_width = 0;  // only consider odd number
+<span class="lineNum">      40 </span>                :            :   int smooth_kernel_radius = 0;
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            :   float hat_min_allowed = 0.0f;
+<span class="lineNum">      43 </span>                :            :   float hat_std_allowed = 0.0f;
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            :   uint32_t histogram_mass_limit = 0;
+<span class="lineNum">      46 </span>                :            : 
+<a name="47"><span class="lineNum">      47 </span>                :            :   float decay_factor = 0.0f;</a>
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :<span class="lineCov">          4 :   void operator=(const HistogramEstimatorParams &amp;params) {</span>
+<span class="lineNum">      50 </span>                :<span class="lineCov">          4 :     nr_bins_in_histogram = params.nr_bins_in_histogram;</span>
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :<span class="lineCov">          4 :     data_sp = params.data_sp;</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">          4 :     data_ep = params.data_ep;</span>
+<span class="lineNum">      54 </span>[<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">          4 :     assert(nr_bins_in_histogram &gt; 0 &amp;&amp; data_ep &gt; data_sp);</span>
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :<span class="lineCov">          4 :     step_bin = (data_ep - data_sp) / static_cast&lt;float&gt;(nr_bins_in_histogram);</span>
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :<span class="lineCov">          4 :     int w = static_cast&lt;int&gt;(params.smooth_kernel.size());</span>
+<span class="lineNum">      59 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :     assert(w &gt;= 1);</span>
+<span class="lineNum">      60 </span>                :<span class="lineCov">          4 :     smooth_kernel_width = w;</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">          4 :     smooth_kernel.resize(smooth_kernel_width);</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">          4 :     memcpy(smooth_kernel.data(), params.smooth_kernel.data(),</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">          8 :            sizeof(uint32_t) * smooth_kernel_width);</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">          4 :     smooth_kernel_radius = smooth_kernel_width &gt;&gt; 1;</span>
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :<span class="lineCov">          4 :     hat_min_allowed = params.hat_min_allowed;</span>
+<span class="lineNum">      67 </span>                :<span class="lineCov">          4 :     hat_std_allowed = params.hat_std_allowed;</span>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineCov">          4 :     histogram_mass_limit = params.histogram_mass_limit;</span>
+<span class="lineNum">      70 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :     assert(histogram_mass_limit &gt; 0);</span>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :<span class="lineCov">          4 :     decay_factor = params.decay_factor;</span>
+<span class="lineNum">      73 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :     assert(decay_factor &gt; 0.0f);</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">          4 :   }</span>
+<span class="lineNum">      75 </span>                :            : };
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :            : // histogram and its process
+<span class="lineNum">      78 </span>                :            : class HistogramEstimator {
+<span class="lineNum">      79 </span>                :            :  public:
+<a name="80"><span class="lineNum">      80 </span>                :            :   static const int kMaxNrBins = 1000;</a>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]:<span class="lineCov">          4 :   HistogramEstimator() {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">      83 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     hist_.resize(kMaxNrBins);</span>
+<span class="lineNum">      84 </span>        [<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          2 :     std::fill(hist_.begin(), hist_.end(), 0);</span>
+<span class="lineNum">      85 </span>                :            : 
+<span class="lineNum">      86 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     hist_buffer_.resize(kMaxNrBins);</span>
+<span class="lineNum">      87 </span>        [<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          2 :     std::fill(hist_buffer_.begin(), hist_buffer_.end(), 0);</span>
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     hist_hat_.resize(kMaxNrBins);</span>
+<span class="lineNum">      90 </span>        [<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          2 :     std::fill(hist_hat_.begin(), hist_hat_.end(), 0.0f);</span>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     Init();</span>
+<a name="93"><span class="lineNum">      93 </span>                :<span class="lineCov">          2 :   }</span></a>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :<span class="lineCov">          4 :   ~HistogramEstimator() {}</span>
+<span class="lineNum">      96 </span>                :            : 
+<a name="97"><span class="lineNum">      97 </span>                :            :   void Init(const HistogramEstimatorParams *params = nullptr);</a>
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :<span class="lineCov">        176 :   bool Push(float val) {</span>
+<span class="lineNum">     100 </span>[<span class="branchCov" title="Branch 0 was taken 175 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchCov" title="Branch 3 was taken 172 times"> + </span>]:<span class="lineCov">        176 :     if (val &lt; params_.data_sp || val &gt;= params_.data_ep) {</span>
+<span class="lineNum">     101 </span>[<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          4 :       AERROR &lt;&lt; &quot;Input data to histogram: out-of-range&quot;;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     102 </span>[<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          4 :       AERROR &lt;&lt; params_.data_sp;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     103 </span>[<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          4 :       AERROR &lt;&lt; params_.data_ep;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     104 </span>[<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>][<span class="branchCov" title="Branch 6 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]:<span class="lineCov">          4 :       AERROR &lt;&lt; val;</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 9 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 10 was not taken"> - </span>][<span class="branchCov" title="Branch 12 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 13 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 15 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 16 was not taken"> - </span>][<span class="branchCov" title="Branch 18 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 19 was not taken"> - </span>]
+<span class="lineNum">     105 </span>                :<span class="lineCov">          4 :       return false;</span>
+<span class="lineNum">     106 </span>                :            :     }
+<span class="lineNum">     107 </span>                :<span class="lineCov">        172 :     int index = GetIndex(val);</span>
+<span class="lineNum">     108 </span>[<span class="branchCov" title="Branch 0 was taken 172 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 172 times"> + </span>]:<span class="lineCov">        172 :     if (index &lt; 0 || index &gt;= params_.nr_bins_in_histogram) {</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :       return false;</span>
+<span class="lineNum">     110 </span>                :            :     }
+<span class="lineNum">     111 </span>                :<span class="lineCov">        172 :     ++hist_[index];</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">        172 :     val_cur_ = val;</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">        176 :     return true;</span>
+<a name="114"><span class="lineNum">     114 </span>                :            :   }</a>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :<span class="lineCov">         10 :   void Clear() {</span>
+<span class="lineNum">     117 </span>        [<span class="branchCov" title="Branch 3 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         10 :     std::fill(hist_.begin(), hist_.end(), 0);</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">         10 :     val_cur_ = val_estimation_ = 0.0f;</span>
+<a name="119"><span class="lineNum">     119 </span>                :<span class="lineCov">         10 :   }</span></a>
+<span class="lineNum">     120 </span>                :            : 
+<a name="121"><span class="lineNum">     121 </span>                :<span class="lineCov">          2 :   const std::vector&lt;uint32_t&gt; &amp;get_hist() const { return hist_; }</span></a>
+<span class="lineNum">     122 </span>                :            : 
+<a name="123"><span class="lineNum">     123 </span>                :<span class="lineCov">          2 :   float get_val_cur() const { return val_cur_; }</span></a>
+<span class="lineNum">     124 </span>                :            : 
+<a name="125"><span class="lineNum">     125 </span>                :<span class="lineCov">          4 :   float get_val_estimation() const { return val_estimation_; }</span></a>
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :<span class="lineCov">          1 :   uint32_t get_bin_value(int i) const {</span>
+<span class="lineNum">     128 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     assert(i &gt;= 0 &amp;&amp; i &lt; params_.nr_bins_in_histogram);</span>
+<span class="lineNum">     129 </span>                :<span class="lineCov">          1 :     return hist_[i];</span>
+<span class="lineNum">     130 </span>                :            :   }
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :   // main function:
+<span class="lineNum">     133 </span>                :            :   // smooth -&gt; shape analysis -&gt; update value -&gt; decay
+<span class="lineNum">     134 </span>                :            :   bool Process();
+<a name="135"><span class="lineNum">     135 </span>                :            : </a>
+<span class="lineNum">     136 </span>                :            :  private:
+<span class="lineNum">     137 </span>                :<span class="lineCov">        172 :   int GetIndex(float val) const {</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">        172 :     return static_cast&lt;int&gt;((val - params_.data_sp) * step_bin_reversed_);</span>
+<a name="139"><span class="lineNum">     139 </span>                :            :   }</a>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineCov">          1 :   float GetValFromIndex(int index) const {</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">          1 :     return (params_.data_sp +</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">          1 :             (static_cast&lt;float&gt;(index) + 0.5f) * params_.step_bin);</span>
+<span class="lineNum">     144 </span>                :            :   }
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            :   void Smooth(const uint32_t *hist_input, int nr_bins, uint32_t *hist_output);
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :            :   bool IsGoodShape(const uint32_t *hist, int nr_bins, int max_index);
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            :   void GetPeakIndexAndMass(const uint32_t *hist, int nr_bins, int *index,
+<a name="151"><span class="lineNum">     151 </span>                :            :                            uint32_t *mass);</a>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :<span class="lineCov">          1 :   void Decay(uint32_t *hist, int nr_bins) {</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">          1 :     float df = params_.decay_factor;</span>
+<span class="lineNum">     155 </span>        [<span class="branchCov" title="Branch 0 was taken 64 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         65 :     for (int i = 0; i &lt; nr_bins; ++i) {</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">         64 :       hist[i] = static_cast&lt;uint32_t&gt;(static_cast&lt;float&gt;(hist[i]) * df);</span>
+<span class="lineNum">     157 </span>                :            :     }
+<span class="lineNum">     158 </span>                :<span class="lineCov">          1 :   }</span>
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            :   void GenerateHat(float *hist_hat, int nr_bins);
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            :   // bool SaveHist(const std::string &amp;filename,
+<span class="lineNum">     163 </span>                :            :   //               const uint32_t *hist, int nr_bins);
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            :  private:
+<span class="lineNum">     166 </span>                :            :   std::vector&lt;uint32_t&gt; hist_ = {};
+<span class="lineNum">     167 </span>                :            :   std::vector&lt;uint32_t&gt; hist_buffer_ = {};
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            :   std::vector&lt;float&gt; hist_hat_ = {};
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            :   HistogramEstimatorParams params_;
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :            :   float step_bin_reversed_ = 0.0f;
+<span class="lineNum">     174 </span>                :            :   float val_cur_ = 0.0f;
+<span class="lineNum">     175 </span>                :            :   float val_estimation_ = 0.0f;
+<span class="lineNum">     176 </span>                :            : };
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :            : }  // namespace camera
+<span class="lineNum">     179 </span>                :            : }  // namespace perception
+<span class="lineNum">     180 </span>                :            : }  // namespace apollo
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
